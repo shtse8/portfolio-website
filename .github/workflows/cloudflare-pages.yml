@@ -2,9 +2,9 @@ name: Deploy to Cloudflare Pages
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   build-and-deploy:
@@ -33,5 +33,4 @@ jobs:
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: kyle-tse-portfolio
           directory: .next
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          zoneId: ${{ secrets.CF_ZONE_ID }} 
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }} 
