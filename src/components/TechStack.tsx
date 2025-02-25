@@ -149,7 +149,7 @@ export default function TechStack() {
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Technical Expertise</h2>
         <p className="text-gray-600 dark:text-gray-400 text-center max-w-3xl mx-auto mb-12">
-          As a Full Stack Developer and Founder with over 20 years of experience, I've mastered a diverse tech stack and management skills that enable me to build complex, scalable solutions and lead successful teams across multiple domains.
+          As a Full Stack Developer and Founder with over 20 years of experience, I&apos;ve mastered a diverse tech stack and management skills that enable me to build complex, scalable solutions and lead successful teams across multiple domains.
         </p>
         
         <div className="flex flex-wrap justify-center gap-2 mb-12">

@@ -25,7 +25,7 @@ export default function Projects() {
         },
         {
           name: 'Blockchain App Center',
-          description: 'Built a platform enabling streamlined deployment of applications across multiple blockchains. Pioneered the industry\'s first real-time profit-sharing system for developers, eliminating the typical one-week delay in earnings distribution.'
+          description: 'Built a platform enabling streamlined deployment of applications across multiple blockchains. Pioneered the industry&apos;s first real-time profit-sharing system for developers, eliminating the typical one-week delay in earnings distribution.'
         }
       ]
     },
@@ -98,7 +98,7 @@ export default function Projects() {
       <div className="container mx-auto px-4">
         <div className="flex items-center mb-3">
           <FaTerminal className="text-blue-600 mr-2" />
-          <h2 className="text-lg font-mono text-blue-600">$ find /projects -name "*.json" | xargs cat</h2>
+          <h2 className="text-lg font-mono text-blue-600">$ find /projects -name &quot;*.json&quot; | xargs cat</h2>
         </div>
         
         <div className="space-y-8">

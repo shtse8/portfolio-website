@@ -88,7 +88,7 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <p className="flex items-center text-gray-400 mb-2">
-              <FaEnvelope className="mr-2" /> shtse8@gmail.com
+              <FaEnvelope className="mr-2" /> contact@kylet.se
             </p>
             <p className="text-gray-400 mb-4">
               Available for remote work worldwide<br />

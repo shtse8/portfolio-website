@@ -28,7 +28,7 @@ export default function Contact() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       setSubmitStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
+    } catch {
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
@@ -45,7 +45,7 @@ export default function Contact() {
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Get In Touch</h2>
         <p className="text-gray-600 dark:text-gray-400 text-center max-w-3xl mx-auto mb-16">
-          Have a project in mind or want to discuss potential opportunities? I'd love to hear from you!
+          Have a project in mind or want to discuss potential opportunities? I&apos;d love to hear from you!
         </p>
         
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
@@ -60,10 +60,10 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold mb-1">Email</h4>
                   <a 
-                    href="mailto:contact@example.com" 
+                    href="mailto:contact@kylet.se" 
                     className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
-                    contact@example.com
+                    contact@kylet.se
                   </a>
                 </div>
               </div>
@@ -134,9 +134,9 @@ export default function Contact() {
             </div>
             
             <div className="mt-12">
-              <h3 className="text-2xl font-bold mb-4">Let's Connect</h3>
+              <h3 className="text-2xl font-bold mb-4">Let&apos;s Connect</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
+                I&apos;m always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
               </p>
             </div>
           </div>
@@ -239,7 +239,7 @@ export default function Contact() {
               
               {submitStatus === 'success' && (
                 <div className="mt-4 p-3 bg-green-100 text-green-800 rounded-lg">
-                  Your message has been sent successfully! I'll get back to you soon.
+                  Your message has been sent successfully! I&apos;ll get back to you soon.
                 </div>
               )}
               
