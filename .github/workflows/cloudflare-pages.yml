@@ -31,6 +31,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_KEY }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          projectName: kyle-tse-portfolio
+          projectName: portfolio-website
           directory: .next
           gitHubToken: ${{ secrets.GITHUB_TOKEN }} 
