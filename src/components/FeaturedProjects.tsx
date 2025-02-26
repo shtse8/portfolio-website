@@ -585,13 +585,23 @@ export default function FeaturedProjects() {
   
   // 打開公司詳情模態窗口
   const openCompanyModal = (companyId: string) => {
+    // 先檢查是否有對應的工作經驗
     const companyExperienceIndex = EXPERIENCES.findIndex(exp => exp.id === companyId);
+    
     if (companyExperienceIndex !== -1) {
+      // 如果找到對應的工作經驗，打開工作經驗模態窗口
       setSelectedExperienceIndex(companyExperienceIndex);
       setIsModalOpen(true);
       setIsExperienceModal(true);
       setSelectedCompanyId(companyId);
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    } else {
+      // 如果沒有找到對應的工作經驗，但有公司信息，顯示一個簡單的提示
+      console.log(`No experience found for company ID: ${companyId}`);
+      
+      // 可以在這裡添加一個提示或者其他處理方式
+      // 例如，可以切換到"Professional Experience"類別
+      setActiveCategory("Professional Experience");
     }
   };
 
@@ -662,14 +672,15 @@ export default function FeaturedProjects() {
                       {project.category}
                     </div>
                     
-                    {/* 公司關聯標識 */}
+                    {/* 公司關聯標識 - 在項目卡片上 */}
                     {relatedCompany && (
                       <div 
-                        className="absolute top-3 left-3 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                        className="absolute top-3 left-3 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-gray-200 dark:border-gray-700"
                         onClick={(e) => {
                           e.stopPropagation();
                           openCompanyModal(relatedCompany.id);
                         }}
+                        title={`View ${relatedCompany.name} work experience`}
                       >
                         <div className="relative w-5 h-5 rounded-full overflow-hidden">
                           <Image
@@ -872,18 +883,27 @@ export default function FeaturedProjects() {
                         {selectedProject.category}
                       </span>
                       
-                      {/* 相關公司標籤 */}
+                      {/* 相關公司標籤 - 在項目詳情頁面頂部 */}
                       {selectedProject.company && (
                         <button 
-                          className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors"
+                          className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors border border-indigo-200 dark:border-indigo-800"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (selectedProject.company) {
                               openCompanyModal(selectedProject.company);
                             }
                           }}
+                          title={`View ${selectedProject.company ? COMPANIES[selectedProject.company]?.name : ''} work experience`}
                         >
-                          <FaBuilding className="text-xs" /> 
+                          <div className="relative w-4 h-4 rounded-full overflow-hidden mr-1">
+                            <Image
+                              src={selectedProject.company ? COMPANIES[selectedProject.company]?.logo || '' : ''}
+                              alt={selectedProject.company ? COMPANIES[selectedProject.company]?.name || '' : ''}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <FaBuilding className="text-xs mr-1" /> 
                           {selectedProject.company && COMPANIES[selectedProject.company]?.name}
                         </button>
                       )}
@@ -1002,16 +1022,17 @@ export default function FeaturedProjects() {
                         </>
                       )}
                       
-                      {/* 公司標記 - 在圖片右下角 */}
+                      {/* 公司標記 - 在圖片右下角 (項目詳情頁) */}
                       {selectedProject.company && (
                         <div 
-                          className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                          className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-gray-200 dark:border-gray-700"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (selectedProject.company) {
                               openCompanyModal(selectedProject.company);
                             }
                           }}
+                          title={`View ${selectedProject.company ? COMPANIES[selectedProject.company]?.name : ''} work experience`}
                         >
                           <div className="relative w-5 h-5 rounded-full overflow-hidden">
                             <Image
@@ -1102,16 +1123,17 @@ export default function FeaturedProjects() {
                             />
                           )}
                           
-                          {/* 公司標記 - 在圖片右下角 */}
+                          {/* 公司標記 - 在項目導航縮略圖上 */}
                           {project.company && (
                             <div 
-                              className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                              className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-gray-200 dark:border-gray-700"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (project.company) {
                                   openCompanyModal(project.company);
                                 }
                               }}
+                              title={`View ${project.company ? COMPANIES[project.company]?.name : ''} work experience`}
                             >
                               <div className="relative w-5 h-5 rounded-full overflow-hidden">
                                 <Image

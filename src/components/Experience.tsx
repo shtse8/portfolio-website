@@ -259,12 +259,19 @@ export default function Experience() {
                                 href={`#projects`}
                                 onClick={(e) => {
                                   e.preventDefault();
+                                  // 滾動到項目部分
                                   const projectSection = document.getElementById('projects');
                                   projectSection?.scrollIntoView({ behavior: 'smooth' });
-                                  // Could add logic here to filter projects by company or highlight specific projects
+                                  
+                                  // 可以在這裡添加邏輯來過濾項目或高亮特定項目
+                                  // 例如，可以添加一個全局狀態來跟踪選定的公司，然後在項目部分使用它來過濾項目
+                                  
+                                  // 通知用戶如何查看相關項目
+                                  alert(`請在項目部分查看 ${projectId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')} 項目`);
                                 }}
-                                className="bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full text-xs font-medium transition-colors"
+                                className="flex items-center bg-gray-100 dark:bg-gray-700 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full text-xs font-medium transition-colors"
                               >
+                                <span className="w-3 h-3 bg-blue-500 rounded-full mr-1"></span>
                                 {projectId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                               </Link>
                             ))}
