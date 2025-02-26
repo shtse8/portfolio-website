@@ -93,10 +93,10 @@ const PROJECTS: Project[] = [
     id: 'fun-showhand',
     title: 'Fun Showhand: Stud Poker',
     description: 'Engaging poker game with multiple game modes and social features',
-    image: '/images/fsh/1.jpg',
+    image: '/images/projects/fsh/1.jpg',
     images: [
-      '/images/fsh/1.jpg',
-      '/images/fsh/2.jpg',
+      '/images/projects/fsh/1.jpg',
+      '/images/projects/fsh/2.jpg',
     ],
     tags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
