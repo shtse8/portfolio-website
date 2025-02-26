@@ -71,7 +71,7 @@ export default function Experience() {
       id: 'minimax',
       company: 'MiniMax Technology',
       position: 'Founder and Lead Developer',
-      period: '2012 — 2014',
+      period: '2010 — 2014',
       location: 'Hong Kong',
       logo: '/companys/minimax.jpeg',
       technologies: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Game Distribution', 'Payment Integration', 'Physical Game Cards'],
