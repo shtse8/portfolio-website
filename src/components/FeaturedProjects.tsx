@@ -581,18 +581,27 @@ export default function FeaturedProjects() {
                 {/* 項目導航概覽 */}
                 <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <h4 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 text-center">Browse Projects</h4>
-                  <div className="flex overflow-x-auto pb-4 gap-2 justify-center">
+                  <div className="flex overflow-x-auto pb-4 gap-4 justify-center">
                     {filteredProjects.map((project, idx) => (
                       <div 
                         key={project.id}
                         onClick={() => setSelectedProjectIndex(idx)}
-                        className={`flex-shrink-0 transition-all duration-300 cursor-pointer ${
+                        className={`flex-shrink-0 transition-all duration-300 cursor-pointer flex flex-col items-center ${
                           idx === selectedProjectIndex 
-                            ? 'transform scale-110 z-10 ring-2 ring-blue-500' 
+                            ? 'transform scale-110 z-10' 
                             : 'opacity-60 hover:opacity-100 scale-100'
                         }`}
                       >
-                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden relative">
+                        <div className={`relative ${
+                          idx === selectedProjectIndex 
+                            ? 'w-20 h-20 md:w-24 md:h-24 shadow-lg' 
+                            : 'w-16 h-16 md:w-20 md:h-20'
+                        } rounded-lg overflow-hidden`}>
+                          {/* 選中項目的裝飾效果 */}
+                          {idx === selectedProjectIndex && (
+                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-80 blur-sm -z-10"></div>
+                          )}
+                          
                           {imageError[project.id] ? (
                             <div 
                               className="absolute inset-0 flex items-center justify-center" 
@@ -605,14 +614,20 @@ export default function FeaturedProjects() {
                               src={project.image}
                               alt={project.title}
                               fill
-                              className="object-cover"
+                              className={`object-cover ${idx === selectedProjectIndex ? 'scale-105' : ''}`}
                               onError={() => handleImageError(project.id)}
                             />
                           )}
                         </div>
-                        <div className="mt-1 text-xs text-center truncate w-16 md:w-20">
-                          {idx === selectedProjectIndex && (
-                            <span className="block text-blue-500 font-medium">
+                        <div className={`mt-2 text-center max-w-24 ${
+                          idx === selectedProjectIndex ? 'block' : 'hidden md:block'
+                        }`}>
+                          {idx === selectedProjectIndex ? (
+                            <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs md:text-sm font-medium rounded-full whitespace-nowrap">
+                              {project.title}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500 dark:text-gray-400 text-xs truncate block">
                               {project.title}
                             </span>
                           )}
