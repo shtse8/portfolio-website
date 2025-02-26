@@ -1145,6 +1145,72 @@ export default function FeaturedProjects() {
                         ))}
                       </ul>
                     </div>
+                    
+                    {/* 添加相關項目部分 */}
+                    {selectedExperience.relatedProjects && selectedExperience.relatedProjects.length > 0 && (
+                      <div className="mb-8 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-lg border border-gray-100 dark:border-gray-700">
+                        <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                          <span className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-purple-600 dark:text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+                            </svg>
+                          </span>
+                          Related Projects
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {selectedExperience.relatedProjects.map((projectId) => {
+                            const project = PROJECTS.find(p => p.id === projectId);
+                            if (!project) return null;
+                            
+                            return (
+                              <div 
+                                key={project.id}
+                                onClick={() => {
+                                  const projectIndex = filteredProjects.findIndex(p => p.id === project.id);
+                                  if (projectIndex !== -1) {
+                                    setSelectedProjectIndex(projectIndex);
+                                    setIsExperienceModal(false);
+                                    // Keep modal open, just switch content
+                                  } else {
+                                    // If project not in current filtered list, add it temporarily
+                                    setFilteredProjects([...filteredProjects, project]);
+                                    setSelectedProjectIndex(filteredProjects.length);
+                                    setIsExperienceModal(false);
+                                  }
+                                }}
+                                className="flex items-start p-3 bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 dark:border-gray-600"
+                              >
+                                <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+                                  <Image 
+                                    src={project.image}
+                                    alt={project.title}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="ml-3 flex-1">
+                                  <h5 className="font-medium text-gray-900 dark:text-white">{project.title}</h5>
+                                  <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">{project.description}</p>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {project.tags.slice(0, 2).map((tag, idx) => (
+                                      <span 
+                                        key={idx}
+                                        className="bg-blue-100/80 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded-full text-xs"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                    {project.tags.length > 2 && (
+                                      <span className="text-gray-500 dark:text-gray-400 text-xs">+{project.tags.length - 2} more</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="order-1 md:order-2 animate-slideInLeft">
