@@ -110,9 +110,9 @@ const PROJECTS: Project[] = [
     id: 'anymud',
     title: 'Anymud',
     description: 'Modern Medium-like publishing platform with advanced editor capabilities',
-    image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Anymud+Platform',
+    image: '/projects/anymud.jpeg',
     images: [
-      'https://placehold.co/800x450/4A90E2/FFFFFF?text=Anymud+Platform',
+      '/projects/anymud.jpeg',
     ],
     tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO'],
     github: 'https://github.com/shtse8/anymud',
