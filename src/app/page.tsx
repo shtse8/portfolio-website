@@ -7,11 +7,13 @@ import Experience from '@/components/Experience';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import FloatingNavBar from '@/components/FloatingNavBar';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
       <Header />
+      <FloatingNavBar />
       
       <Suspense fallback={<LoadingSpinner />}>
         <Hero />

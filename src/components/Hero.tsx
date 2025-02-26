@@ -28,7 +28,7 @@ export default function Hero() {
   }, []);
   
   return (
-    <section className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-4 py-20">
+    <section id="hero" className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-4 py-20">
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 inline-block bg-blue-600 text-white px-4 py-2 rounded-full">
           <span className="font-mono">Hello, World!</span>
