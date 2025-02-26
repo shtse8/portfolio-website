@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes, FaGooglePlay, FaApple } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -536,9 +536,9 @@ export default function FeaturedProjects() {
                           href={selectedProject.androidUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                          className="flex items-center gap-2 bg-[#01875f] hover:bg-[#017352] text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
                         >
-                          <FaExternalLinkAlt /> Google Play
+                          <FaGooglePlay /> Google Play
                         </Link>
                       )}
                       
@@ -547,9 +547,9 @@ export default function FeaturedProjects() {
                           href={selectedProject.iosUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                          className="flex items-center gap-2 bg-black hover:bg-[#1a1a1a] text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
                         >
-                          <FaExternalLinkAlt /> App Store
+                          <FaApple /> App Store
                         </Link>
                       )}
                     </div>
