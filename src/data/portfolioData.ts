@@ -460,4 +460,45 @@ export const CATEGORIES = [
   "Tools & Utilities",
   "AI & ML",
   "Professional Experience"
-]; 
+];
+
+export type PersonalInfo = {
+  firstName: string;
+  lastName: string;
+  title: string;
+  shortBio: string;
+  email: string;
+  location: {
+    base: string;
+    remote: string;
+  };
+  social: {
+    github: string;
+    linkedin: string;
+    stackoverflow: string;
+  };
+  contactFormSubjects: string[];
+};
+
+export const PERSONAL_INFO: PersonalInfo = {
+  firstName: "Kyle",
+  lastName: "Tse",
+  title: "Backend Engineer & Game Developer",
+  shortBio: "Backend Engineer & Game Developer with 20+ years of experience in distributed systems, blockchain solutions, and AI-driven automation.",
+  email: "hi@kylet.se",
+  location: {
+    base: "Hong Kong & UK",
+    remote: "Available for remote work worldwide"
+  },
+  social: {
+    github: "https://github.com/shtse8",
+    linkedin: "https://linkedin.com/in/shtse8",
+    stackoverflow: "https://stackoverflow.com/users/4380384/shtse8"
+  },
+  contactFormSubjects: [
+    "Project Inquiry",
+    "Job Opportunity",
+    "Collaboration",
+    "Other"
+  ]
+}; 

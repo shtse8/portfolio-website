@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaStackOverflow, FaEnvelope, FaArrowUp } from 'react-icons/fa';
+import { PERSONAL_INFO } from '@/data/portfolioData';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -18,14 +19,13 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4">Kyle<span className="text-blue-500">Tse</span></h3>
+            <h3 className="text-2xl font-bold mb-4">{PERSONAL_INFO.firstName}<span className="text-blue-500">{PERSONAL_INFO.lastName}</span></h3>
             <p className="text-gray-400 mb-4">
-              Backend Engineer & Game Developer with 20+ years of experience in distributed systems, 
-              blockchain solutions, and AI-driven automation.
+              {PERSONAL_INFO.shortBio}
             </p>
             <div className="flex space-x-4">
               <Link 
-                href="https://github.com/shtse8" 
+                href={PERSONAL_INFO.social.github} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -34,7 +34,7 @@ export default function Footer() {
                 <FaGithub className="text-xl" />
               </Link>
               <Link 
-                href="https://linkedin.com/in/shtse8" 
+                href={PERSONAL_INFO.social.linkedin} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -43,7 +43,7 @@ export default function Footer() {
                 <FaLinkedin className="text-xl" />
               </Link>
               <Link 
-                href="https://stackoverflow.com/users/shtse8" 
+                href={PERSONAL_INFO.social.stackoverflow} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -88,11 +88,11 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact</h3>
             <p className="flex items-center text-gray-400 mb-2">
-              <FaEnvelope className="mr-2" /> contact@kylet.se
+              <FaEnvelope className="mr-2" /> {PERSONAL_INFO.email}
             </p>
             <p className="text-gray-400 mb-4">
-              Available for remote work worldwide<br />
-              Based in Hong Kong & UK
+              {PERSONAL_INFO.location.remote}<br />
+              Based in {PERSONAL_INFO.location.base}
             </p>
             <Link 
               href="#contact" 
@@ -105,7 +105,7 @@ export default function Footer() {
         
         <div className="mt-12 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 mb-4 md:mb-0">
-            &copy; {currentYear} Kyle Tse. All rights reserved.
+            &copy; {currentYear} {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}. All rights reserved.
           </p>
           
           <div className="text-gray-500 text-sm">

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { FaEnvelope, FaMapMarkerAlt, FaPaperPlane, FaGithub, FaLinkedin, FaStackOverflow } from 'react-icons/fa';
+import { PERSONAL_INFO } from '@/data/portfolioData';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -60,10 +61,10 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold mb-1">Email</h4>
                   <a 
-                    href="mailto:contact@kylet.se" 
+                    href={`mailto:${PERSONAL_INFO.email}`} 
                     className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
-                    contact@kylet.se
+                    {PERSONAL_INFO.email}
                   </a>
                 </div>
               </div>
@@ -75,7 +76,7 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold mb-1">GitHub</h4>
                   <a 
-                    href="https://github.com/shtse8" 
+                    href={PERSONAL_INFO.social.github} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -92,7 +93,7 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold mb-1">LinkedIn</h4>
                   <a 
-                    href="https://linkedin.com/in/shtse8" 
+                    href={PERSONAL_INFO.social.linkedin} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -109,7 +110,7 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold mb-1">Stack Overflow</h4>
                   <a 
-                    href="https://stackoverflow.com/users/4380384/shtse8" 
+                    href={PERSONAL_INFO.social.stackoverflow} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -126,8 +127,8 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold mb-1">Location</h4>
                   <p className="text-gray-600 dark:text-gray-400">
-                    Available for remote work worldwide<br />
-                    Based in Hong Kong & UK
+                    {PERSONAL_INFO.location.remote}<br />
+                    Based in {PERSONAL_INFO.location.base}
                   </p>
                 </div>
               </div>
@@ -190,10 +191,9 @@ export default function Contact() {
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a subject</option>
-                  <option value="Project Inquiry">Project Inquiry</option>
-                  <option value="Job Opportunity">Job Opportunity</option>
-                  <option value="Collaboration">Collaboration</option>
-                  <option value="Other">Other</option>
+                  {PERSONAL_INFO.contactFormSubjects.map((subject) => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
                 </select>
               </div>
               
