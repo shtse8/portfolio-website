@@ -37,4 +37,4 @@ jobs:
           apiToken: ${{ secrets.CF_API_KEY }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: portfolio-website
-          directory: .next 
+          directory: out 
