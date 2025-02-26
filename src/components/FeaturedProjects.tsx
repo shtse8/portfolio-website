@@ -486,34 +486,45 @@ export default function FeaturedProjects() {
       // Check if this is an internal anchor link (starts with #)
       if (linkUrl.startsWith('#')) {
         const projectId = linkUrl.substring(1); // Remove the # character
-        // Add a button that looks like a link but opens the project modal
-        parts.push(
-          <button 
-            key={match.index} 
-            onClick={(e) => {
-              e.stopPropagation();
-              // Find the project index
-              const projectIndex = filteredProjects.findIndex(p => p.id === projectId);
-              if (projectIndex !== -1) {
-                setSelectedProjectIndex(projectIndex);
-                if (!isModalOpen) {
-                  setIsModalOpen(true);
-                  setIsExperienceModal(false);
-                  document.body.style.overflow = 'hidden';
+        // Check if this is a company ID
+        if (Object.keys(COMPANIES).includes(projectId)) {
+          // Add a button that looks like a link but opens the company modal
+          parts.push(
+            <button 
+              key={match.index} 
+              onClick={(e) => {
+                e.stopPropagation();
+                openCompanyModal(projectId);
+              }}
+              className="text-blue-600 hover:underline font-medium cursor-pointer"
+            >
+              {linkText}
+            </button>
+          );
+        } else {
+          // Otherwise, treat as a project ID
+          parts.push(
+            <button 
+              key={match.index} 
+              onClick={(e) => {
+                e.stopPropagation();
+                // Find the project index
+                const projectIndex = filteredProjects.findIndex(p => p.id === projectId);
+                if (projectIndex !== -1) {
+                  setSelectedProjectIndex(projectIndex);
+                  if (!isModalOpen) {
+                    setIsModalOpen(true);
+                    setIsExperienceModal(false);
+                    document.body.style.overflow = 'hidden';
+                  }
                 }
-              } else {
-                // If not a project, check if it's a company
-                const company = Object.values(COMPANIES).find(c => c.id === projectId);
-                if (company) {
-                  openCompanyModal(company.id);
-                }
-              }
-            }}
-            className="text-blue-600 hover:underline font-medium cursor-pointer"
-          >
-            {linkText}
-          </button>
-        );
+              }}
+              className="text-blue-600 hover:underline font-medium cursor-pointer"
+            >
+              {linkText}
+            </button>
+          );
+        }
       } else {
         // Regular external link
         parts.push(
