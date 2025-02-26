@@ -145,14 +145,14 @@ export default function TechStack() {
   ];
   
   return (
-    <section id="tech" className="py-20 px-4">
+    <section id="tech" className="py-10 px-4">
       <div className="container mx-auto">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Technical Expertise</h2>
-        <p className="text-gray-600 dark:text-gray-400 text-center max-w-3xl mx-auto mb-12">
-          As a Full Stack Developer and Founder with over 20 years of experience, I&apos;ve mastered a diverse tech stack and management skills that enable me to build complex, scalable solutions and lead successful teams across multiple domains.
+        <p className="text-gray-600 dark:text-gray-400 text-center max-w-3xl mx-auto mb-8">
+          Full Stack Developer with 20+ years of experience
         </p>
         
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
           <button 
             onClick={() => setActiveFilter(null)} 
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
@@ -179,21 +179,21 @@ export default function TechStack() {
           ))}
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredTech.map((tech, index) => (
             <div 
               key={index}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
             >
               <div className={`${tech.color} h-2`}></div>
-              <div className="p-6">
-                <div className="flex items-center mb-4">
-                  <div className={`${tech.color} p-3 rounded-lg text-white mr-4`}>
+              <div className="p-4">
+                <div className="flex flex-col items-center md:flex-row md:items-start md:mb-2">
+                  <div className={`${tech.color} p-3 rounded-lg text-white mb-2 md:mb-0 md:mr-3`}>
                     {tech.icon}
                   </div>
-                  <h3 className="text-xl font-bold">{tech.name}</h3>
+                  <h3 className="text-center md:text-left text-lg font-bold md:pt-2">{tech.name}</h3>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400">{tech.description}</p>
+                <p className="hidden md:block text-gray-600 dark:text-gray-400 text-sm">{tech.description}</p>
               </div>
             </div>
           ))}
