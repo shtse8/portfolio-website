@@ -14,6 +14,7 @@ type Project = {
   tags: string[];
   github?: string;
   liveUrl?: string;
+  androidUrl?: string;
   iosUrl?: string;
   details: string[];
   category: string;
@@ -78,7 +79,7 @@ const PROJECTS: Project[] = [
       '/projects/hkmj.jpeg',
     ],
     tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer'],
-    liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+    androidUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
     category: "Mobile Games",
     details: [
       'Developed a popular 3D Mahjong game with over 100K downloads',
@@ -98,7 +99,7 @@ const PROJECTS: Project[] = [
       '/images/fsh/2.webp',
     ],
     tags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation'],
-    liveUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
+    androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
     iosUrl: 'https://apps.apple.com/us/app/fun-showhand-stud-poker/id1238318956',
     category: "Mobile Games",
     details: [
@@ -118,7 +119,7 @@ const PROJECTS: Project[] = [
       '/projects/fmj.jpeg',
     ],
     tags: ['Unity', 'C#', 'Mobile Game', 'Multiplayer', 'Taiwanese Mahjong'],
-    liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+    androidUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
     category: "Mobile Games",
     details: [
       'Developed a popular Taiwanese Mahjong game focusing on the unique 16-tile variant',
@@ -507,7 +508,7 @@ export default function FeaturedProjects() {
                       ))}
                     </div>
                     
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-wrap">
                       {selectedProject.github && (
                         <Link 
                           href={selectedProject.github}
@@ -526,7 +527,18 @@ export default function FeaturedProjects() {
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
                         >
-                          <FaExternalLinkAlt /> {selectedProject.iosUrl ? 'Google Play' : 'Live Demo'}
+                          <FaExternalLinkAlt /> Live Demo
+                        </Link>
+                      )}
+                      
+                      {selectedProject.androidUrl && (
+                        <Link 
+                          href={selectedProject.androidUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                        >
+                          <FaExternalLinkAlt /> Google Play
                         </Link>
                       )}
                       
