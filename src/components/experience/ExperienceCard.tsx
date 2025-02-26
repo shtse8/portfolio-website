@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { FaCalendarAlt, FaChevronDown, FaChevronUp, FaMapMarkerAlt, FaLink, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link';
-import { PROJECTS, Project, Experience } from '@/data/portfolioData';
+import { PROJECTS, COMPANIES, Project, Experience } from '@/data/portfolioData';
 import { parseMarkdownLinks } from '../projects/utils';
 
 type ExperienceCardProps = {
@@ -23,6 +23,8 @@ export default function ExperienceCard({
   openCompanyModal,
   experienceIndex
 }: ExperienceCardProps) {
+  const companyName = COMPANIES[experience.company]?.name || experience.company;
+  
   return (
     <div 
       className="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all transform hover:scale-105 hover:-translate-y-1 duration-300 cursor-pointer"
@@ -36,12 +38,12 @@ export default function ExperienceCard({
             e.stopPropagation();
             openCompanyModal(experience.company);
           }}
-          title={`View ${experience.company} details`}
+          title={`View ${companyName} details`}
         >
           <div className="relative w-full h-full rounded-full overflow-hidden">
             <Image
               src={experience.logo}
-              alt={experience.company}
+              alt={companyName}
               fill
               className="object-cover"
             />
@@ -76,7 +78,7 @@ export default function ExperienceCard({
                 openCompanyModal(experience.company);
               }}
             >
-              {experience.company}
+              {companyName}
             </button>
             <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm mt-1">
               <FaMapMarkerAlt className="mr-1" />

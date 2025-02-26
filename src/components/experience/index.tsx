@@ -31,6 +31,13 @@ export default function Experience() {
   // Use the actual experiences from data
   const experiences = EXPERIENCES;
   
+  // Sort experiences by start year (descending)
+  const sortedExperiences = [...experiences].sort((a, b) => {
+    const yearA = parseInt(a.period.split(' - ')[0]);
+    const yearB = parseInt(b.period.split(' - ')[0]);
+    return yearB - yearA;
+  });
+  
   // Open experience modal
   const openExperienceModal = (index: number) => {
     setSelectedExperienceIndex(index);
@@ -112,9 +119,65 @@ export default function Experience() {
           </p>
         </div>
         
+        {/* Timeline View */}
+        <div className="max-w-4xl mx-auto mb-16 relative hidden md:block">
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-blue-200 dark:bg-blue-900/50"></div>
+          
+          {sortedExperiences.map((exp, index) => {
+            const startYear = exp.period.split(' - ')[0];
+            const isEven = index % 2 === 0;
+            const companyName = COMPANIES[exp.company]?.name || exp.company;
+            
+            return (
+              <div 
+                key={exp.id} 
+                className={`relative flex items-center mb-10 ${isEven ? 'flex-row' : 'flex-row-reverse'}`}
+              >
+                {/* Timeline dot */}
+                <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
+                  <div className="bg-blue-500 text-white text-xs font-bold rounded-full px-2 py-1 mb-2 whitespace-nowrap">
+                    {startYear}
+                  </div>
+                  <div className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 border-4 border-blue-500 dark:border-blue-400"></div>
+                </div>
+                
+                {/* Content */}
+                <div 
+                  className={`w-5/12 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100 dark:border-gray-700 cursor-pointer ${isEven ? 'mr-auto pr-6' : 'ml-auto pl-6'}`}
+                  onClick={() => openExperienceModal(sortedExperiences.findIndex(e => e.id === exp.id))}
+                >
+                  <div className="flex items-center mb-2">
+                    <div className="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0 border border-gray-200 dark:border-gray-600">
+                      <Image 
+                        src={exp.logo} 
+                        alt={companyName} 
+                        width={40} 
+                        height={40} 
+                        className="object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">{exp.title}</h3>
+                      <p className="text-sm text-blue-600 dark:text-blue-400">{companyName}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{exp.period}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{exp.description}</p>
+                  <div className="flex justify-end mt-2">
+                    <span className="text-blue-500 dark:text-blue-400 text-xs font-medium flex items-center">
+                      Details <FaChevronRight className="ml-1 h-2 w-2" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* Card View (especially for mobile) */}
         <div className="max-w-5xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-            {experiences.map((exp, idx) => (
+            {sortedExperiences.map((exp) => (
               <ExperienceCard
                 key={exp.id}
                 experience={exp}
@@ -122,7 +185,7 @@ export default function Experience() {
                 toggleExpand={toggleExpand}
                 openExperienceModal={openExperienceModal}
                 openCompanyModal={openCompanyModal}
-                experienceIndex={idx}
+                experienceIndex={sortedExperiences.findIndex(e => e.id === exp.id)}
               />
             ))}
           </div>
