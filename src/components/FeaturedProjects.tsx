@@ -46,10 +46,11 @@ const PROJECTS: Project[] = [
     details: [
       'Founded and led Cubeage Limited, developing popular card and casino games',
       'Published 10+ games on Google Play and App Store with 100K+ installations',
-      'Created Hong Kong Mahjong Tycoon, Fun Texas Holdem, and other popular titles',
-      'Implemented innovative game mechanics resulting in 4.2+ average ratings',
+      'Developed flagship titles including Hong Kong Mahjong Tycoon (4.2★, 3,280+ reviews), Fun Mahjong 16 Tiles (1M+ downloads), Fun Showhand, and Big2 Tycoon',
+      'Implemented innovative game mechanics and monetization strategies resulting in 4.2+ average ratings',
       'Built and managed cross-functional teams for game development and operations',
-      'Utilized MySQL and Percona for high-performance game data storage and analytics'
+      'Utilized MySQL and Percona for high-performance game data storage and analytics',
+      'Related Projects: See [Hong Kong Mahjong Tycoon](#mahjong), [Fun Mahjong 16 Tiles](#fmj), [Fun Showhand](#fun-showhand), and [Big2 Tycoon](#big2-tycoon) in this portfolio'
     ]
   },
   {
@@ -69,7 +70,8 @@ const PROJECTS: Project[] = [
       'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
       'Built a distributed backend architecture using TypeScript, Socket.IO, and Protobuf on Ubuntu servers',
       'Created a PubSub system for efficient real-time communication and game state synchronization',
-      'Designed engaging progression systems including character upgrades, treasure collection, and monthly arena tournaments'
+      'Designed engaging progression systems including character upgrades, treasure collection, and monthly arena tournaments',
+      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
     ]
   },
   {
@@ -100,14 +102,16 @@ const PROJECTS: Project[] = [
       '/projects/hkmj.jpeg',
     ],
     tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer', 'Cubeage'],
-    androidUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+    androidUrl: 'https://play.google.com/store/apps/details?id=com.crazycube.hkmahjongtycoon.app',
+    iosUrl: 'https://apps.apple.com/us/app/%E9%A6%99%E6%B8%AF%E9%BA%BB%E5%B0%87%E5%A4%A7%E4%BA%A8-%E9%BA%BB%E9%9B%80%E4%BF%BE%E4%BD%A0%E7%8E%A9/id1478835027',
     category: "Mobile Games",
     details: [
       'Led development at Cubeage for this popular 3D Mahjong game with over 100K downloads',
-      'Created authentic Hong Kong Mahjong gameplay with multiple game modes',
-      'Implemented real-time multiplayer functionality with low latency',
-      'Designed engaging UI/UX to maximize player retention',
-      'Achieved 4.2-star rating with 3,280+ reviews on Google Play'
+      'Created authentic Hong Kong Mahjong gameplay with multiple game modes including blood flow mode, classic four-player mode, and two-player mode',
+      'Implemented real-time multiplayer functionality with low latency and leaderboard system',
+      'Designed engaging UI/UX with unique 3D Mahjong world, pet system, and character customization',
+      'Achieved 4.2-star rating with 3,280+ reviews on Google Play and strong user retention',
+      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
     ]
   },
   {
@@ -128,7 +132,8 @@ const PROJECTS: Project[] = [
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
       'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
       'Designed offline gameplay with online social features including friend system and cloud save',
-      'Featured in [Appszoom review videos](https://www.youtube.com/watch?v=Hl-YcZ9Hh8U) with positive feedback'
+      'Featured in [Appszoom review videos](https://www.youtube.com/watch?v=Hl-YcZ9Hh8U) with positive feedback',
+      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
     ]
   },
   {
@@ -148,7 +153,8 @@ const PROJECTS: Project[] = [
       'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
       'Implemented highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
       'Designed a simple, intuitive interface focused on gameplay rather than excessive visual effects',
-      'Integrated Appodeal for monetization while maintaining a non-intrusive gaming experience'
+      'Integrated Appodeal for monetization while maintaining a non-intrusive gaming experience',
+      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
     ]
   },
   {
