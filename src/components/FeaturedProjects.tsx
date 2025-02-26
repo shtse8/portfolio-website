@@ -460,6 +460,7 @@ export default function FeaturedProjects() {
   const [isExperienceModal, setIsExperienceModal] = useState(false);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [selectedExperienceIndex, setSelectedExperienceIndex] = useState(0);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   
   // Touch swipe related states
   const touchStartX = useRef(0);
@@ -596,6 +597,18 @@ export default function FeaturedProjects() {
     }
     return null;
   };
+  
+  // 打開公司詳情模態窗口
+  const openCompanyModal = (companyId: string) => {
+    const companyExperienceIndex = EXPERIENCES.findIndex(exp => exp.id === companyId);
+    if (companyExperienceIndex !== -1) {
+      setSelectedExperienceIndex(companyExperienceIndex);
+      setIsModalOpen(true);
+      setIsExperienceModal(true);
+      setSelectedCompanyId(companyId);
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+  };
 
   return (
     <section id="projects" className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -666,7 +679,13 @@ export default function FeaturedProjects() {
                     
                     {/* 公司關聯標識 */}
                     {relatedCompany && (
-                      <div className="absolute top-3 left-3 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md">
+                      <div 
+                        className="absolute top-3 left-3 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openCompanyModal(relatedCompany.id);
+                        }}
+                      >
                         <div className="relative w-5 h-5 rounded-full overflow-hidden">
                           <Image
                             src={relatedCompany.logo}
@@ -756,38 +775,49 @@ export default function FeaturedProjects() {
                     )}
                   </div>
                   
-                  {/* Related projects preview */}
+                  {/* Related Projects */}
                   {experience.relatedProjects && experience.relatedProjects.length > 0 && (
-                    <div className="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
-                      <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Related Projects:</p>
-                      <div className="flex overflow-x-auto space-x-2 pb-2">
+                    <div className="mt-8">
+                      <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                        <FaLink className="mr-2 text-blue-600 dark:text-blue-400" />
+                        Related Projects
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3">
                         {experience.relatedProjects.map(projectId => {
                           const project = PROJECTS.find(p => p.id === projectId);
                           if (!project) return null;
                           return (
                             <div 
                               key={projectId}
-                              className="flex-shrink-0 w-12 h-12 rounded-md overflow-hidden relative"
+                              className={`flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all ${
+                                selectedCompanyId === experience.id && projectId === selectedProject.id ? 'ring-2 ring-blue-500' : ''
+                              }`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                const projectIndex = PROJECTS.findIndex(p => p.id === projectId);
-                                if (projectIndex !== -1) {
-                                  setActiveCategory(project.category);
-                                  setTimeout(() => {
-                                    const filteredIndex = filteredProjects.findIndex(p => p.id === projectId);
-                                    if (filteredIndex !== -1) {
+                                setActiveCategory(project.category);
+                                setTimeout(() => {
+                                  const filteredIndex = filteredProjects.findIndex(p => p.id === projectId);
+                                  if (filteredIndex !== -1) {
+                                    closeProjectModal();
+                                    setTimeout(() => {
                                       openProjectModal(filteredIndex);
-                                    }
-                                  }, 100);
-                                }
+                                    }, 100);
+                                  }
+                                }, 100);
                               }}
                             >
-                              <Image 
-                                src={project.image}
-                                alt={project.title}
-                                fill
-                                className="object-cover"
-                              />
+                              <div className="relative w-10 h-10 rounded-md overflow-hidden mr-3">
+                                <Image
+                                  src={project.image}
+                                  alt={project.title}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <h5 className="font-medium text-sm text-gray-900 dark:text-white">{project.title}</h5>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{project.category}</p>
+                              </div>
                             </div>
                           );
                         })}
@@ -882,15 +912,15 @@ export default function FeaturedProjects() {
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">{selectedProject.title}</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">{selectedProject.description}</p>
                     
-                    {/* 如果是公司項目，顯示相關項目區塊 */}
-                    {selectedProject.id === 'cubeage' && (
+                    {/* 如果有關聯公司，顯示相關項目區塊 */}
+                    {getRelatedCompany(selectedProject.id) && selectedProject.company && (
                       <div className="mb-8">
                         <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
                           <FaLink className="mr-2 text-blue-600 dark:text-blue-400" />
-                          Related Projects
+                          Related Projects from {getRelatedCompany(selectedProject.id)?.name}
                         </h4>
                         <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
-                          {PROJECTS.filter(p => p.tags.includes('Cubeage') && p.id !== 'cubeage').map((relatedProject) => (
+                          {PROJECTS.filter(p => p.company === selectedProject.company && p.id !== selectedProject.id).map((relatedProject) => (
                             <div 
                               key={relatedProject.id}
                               className="flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all"
@@ -1034,7 +1064,16 @@ export default function FeaturedProjects() {
                       
                       {/* 公司標記 - 在圖片右下角 */}
                       {getRelatedCompany(selectedProject.id) && (
-                        <div className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md">
+                        <div 
+                          className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const company = getRelatedCompany(selectedProject.id);
+                            if (company) {
+                              openCompanyModal(company.id);
+                            }
+                          }}
+                        >
                           <div className="relative w-5 h-5 rounded-full overflow-hidden">
                             <Image
                               src={getRelatedCompany(selectedProject.id)?.logo || ''}
@@ -1124,17 +1163,29 @@ export default function FeaturedProjects() {
                             />
                           )}
                           
-                          {/* 公司標記徽章 */}
+                          {/* 公司標記 - 在圖片右下角 */}
                           {getRelatedCompany(project.id) && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-white dark:bg-gray-700 rounded-full border-2 border-white dark:border-gray-700 z-10">
-                              <div className="relative w-full h-full rounded-full overflow-hidden">
+                            <div 
+                              className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const company = getRelatedCompany(project.id);
+                                if (company) {
+                                  openCompanyModal(company.id);
+                                }
+                              }}
+                            >
+                              <div className="relative w-5 h-5 rounded-full overflow-hidden">
                                 <Image
                                   src={getRelatedCompany(project.id)?.logo || ''}
-                                  alt="Company"
+                                  alt={getRelatedCompany(project.id)?.name || ''}
                                   fill
                                   className="object-cover"
                                 />
                               </div>
+                              <span className="ml-1 text-xs font-medium text-gray-800 dark:text-gray-200">
+                                {getRelatedCompany(project.id)?.name}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -1303,7 +1354,9 @@ export default function FeaturedProjects() {
                             return (
                               <div 
                                 key={projectId}
-                                className="flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all"
+                                className={`flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all ${
+                                  selectedCompanyId === selectedExperience.id && projectId === selectedProject.id ? 'ring-2 ring-blue-500' : ''
+                                }`}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setActiveCategory(project.category);
