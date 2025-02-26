@@ -72,27 +72,6 @@ const PROJECTS: Project[] = [
     ]
   },
   {
-    id: 'minimax',
-    title: 'MiniMax Technology',
-    description: 'Gaming platform company focusing on game operations and agency distribution in Hong Kong',
-    image: '/companys/minimax.jpeg',
-    images: [
-      '/companys/minimax.jpeg',
-    ],
-    tags: ['Gaming Platform', 'Game Distribution', 'Physical Game Cards', 'Game Operations'],
-    category: "Web Apps",
-    company: "minimax",
-    details: [
-      'Led development at MiniMax Technology, a gaming platform company in Hong Kong',
-      'Managed Funimax platform, a well-known game distribution service with physical game cards',
-      'Oversaw game operations, distribution, and agency relationships',
-      'Implemented payment systems integration for physical and digital purchases',
-      'Designed systems to manage game inventory, distribution, and analytics',
-      'Built user management and loyalty systems to improve customer retention',
-      'Related Projects: See [Funimax Gaming Platform](#funimax) in this portfolio'
-    ]
-  },
-  {
     id: 'big2-tycoon',
     title: 'Big2 Tycoon',
     description: 'Multiplayer competitive card game with character progression and arena tournaments',
@@ -618,11 +597,6 @@ export default function FeaturedProjects() {
     return null;
   };
 
-  // 獲取公司相關項目列表
-  const getCompanyProjects = (companyId: string) => {
-    return PROJECTS.filter(project => project.company === companyId);
-  };
-  
   return (
     <section id="projects" className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto">
