@@ -93,10 +93,10 @@ const PROJECTS: Project[] = [
     id: 'fun-showhand',
     title: 'Fun Showhand: Stud Poker',
     description: 'Engaging poker game with multiple game modes and social features',
-    image: '/images/fsh/1.webp',
+    image: '/images/fsh/1.jpg',
     images: [
-      '/images/fsh/1.webp',
-      '/images/fsh/2.webp',
+      '/images/fsh/1.jpg',
+      '/images/fsh/2.jpg',
     ],
     tags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
@@ -105,9 +105,9 @@ const PROJECTS: Project[] = [
     details: [
       'Developed a popular poker game available on both Android and iOS platforms',
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
-      'Integrated analytics and user engagement tools including AppsFlyer and OneSignal',
-      'Created an engaging offline gameplay experience with multiple game modes',
-      'Featured in review videos including AppszooN with positive feedback'
+      'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
+      'Designed offline gameplay with online social features including friend system and cloud save',
+      'Featured in Appszoom review videos with positive feedback: https://www.youtube.com/watch?v=Hl-YcZ9Hh8U'
     ]
   },
   {
