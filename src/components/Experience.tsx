@@ -24,10 +24,10 @@ export default function Experience() {
     {
       id: 'cubeage',
       company: 'Cubeage Limited',
-      position: 'Founder & Lead Developer',
-      period: '2014 — Present',
+      position: 'Founder & CTO',
+      period: '2014 — 2019',
       location: 'Hong Kong',
-      technologies: ['Unity3D', 'Python', 'Java', 'Node.js', 'GCP', 'Docker', 'Kubernetes', 'Redis', 'TypeScript'],
+      technologies: ['Unity3D', 'Python', 'Java', 'Node.js', 'GCP', 'Docker', 'Kubernetes', 'MySQL', 'Percona', 'Redis', 'TypeScript'],
       details: [
         'Architected distributed multiplayer game backends with Unity3D, Python, Java, and Node.js, deployed on GCP with Docker and Kubernetes, achieving 99.99% uptime for millions of players.',
         'Implemented advanced neural network AI for card games using reinforcement and supervised learning, creating ELO-based matchmaking with adaptive AI opponents.',
@@ -35,7 +35,9 @@ export default function Experience() {
         'Developed real-time 3D games with advanced character customization, optimizing sync with TypeScript, Redis, and REST APIs, cutting latency by 50%.',
         'Created Corona Mahjong 16 Tiles (2014) using Corona SDK and built Cube Quest: 2248 Saga & Blackjack Showdown (2022) with Cocos2d, integrating ad mediation for 25% revenue growth.',
         'Integrated AdMob, Facebook, Unity Ads, and Appodeal mediation, boosting ad revenue by 35% across IAA/IAP titles.',
-        'Company rebranded and restructured as Cubeage Limited in 2016, expanding focus on multiplayer games and AI-driven experiences.'
+        'Founded and led Cubeage Limited, developing popular card and casino games with millions of downloads across multiple platforms.',
+        'Published 10+ games on Google Play and App Store with 100K+ installations and 4.2+ average ratings.',
+        'Developed flagship titles including Hong Kong Mahjong Tycoon (4.2★, 3,280+ reviews), Fun Mahjong 16 Tiles (1M+ downloads), Fun Showhand, and Big2 Tycoon.'
       ]
     },
     {
@@ -44,24 +46,31 @@ export default function Experience() {
       position: 'Founder & Lead Developer',
       period: '2006 — Present',
       location: 'Hong Kong',
-      technologies: ['PHP', 'PostgreSQL', 'Redis', 'SEO', 'REST APIs', 'Semantic HTML'],
+      technologies: ['PHP', 'PostgreSQL', 'Redis', 'SEO', 'React', 'Next.js', 'Responsive Design', 'REST APIs', 'Semantic HTML'],
       details: [
         'Transformed Sky-C Forum (Hong Kong\'s largest gaming community since 2001) into Nakuz with PHP and Discuz!, growing users by 50% through scalable backend design.',
         'Engineered REST APIs with PostgreSQL and Redis, integrating semantic HTML and SEO for top search engine rankings, improving response times by 40%.',
-        'Pioneered IP exchange and gaming media platforms, collaborating with publishers to deliver robust content systems.'
+        'Pioneered IP exchange and gaming media platforms, collaborating with publishers to deliver robust content systems.',
+        'Designed and developed professional corporate website and business solutions for Nakuz using React and Next.js.',
+        'Implemented responsive design and SEO best practices to improve visibility and organic traffic.',
+        'Created a publisher-focused article sharing platform with enhanced social integration, including Facebook and mobile optimized versions.'
       ]
     },
     {
       id: 'minimax',
-      company: 'Minimax Game Entertainment Limited',
-      position: 'Founder & Lead Developer',
-      period: '2010 — 2016',
+      company: 'MiniMax Technology',
+      position: 'Lead Developer',
+      period: '2012 — 2014',
       location: 'Hong Kong',
-      technologies: ['PHP', 'Java', 'MySQL', 'Ubuntu', 'Percona', 'Git', 'CI/CD'],
+      technologies: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Game Distribution', 'Payment Integration', 'Physical Game Cards'],
       details: [
-        'Directed and developed 30+ social web and online games with PHP, Java, and MySQL on Ubuntu, boosting throughput by 40% with high-availability designs.',
-        'Designed scalable REST APIs and Percona databases, integrating mediation for revenue growth across IAA/IAP titles.',
-        'Mentored teams on CI/CD with Git and RFC documentation, ensuring seamless frontend-backend integration.'
+        'Led development at MiniMax Technology, a gaming platform company in Hong Kong focusing on game operations and agency distribution.',
+        'Built the Funimax platform with pure PHP and JavaScript, developing a custom template system for rapid game website deployment.',
+        'Created a platform that simultaneously operated 30+ games at its peak with robust payment and member management systems.',
+        'Implemented physical game card system with secure validation and redemption for the Hong Kong market.',
+        'Designed and developed agency and distribution systems to manage inventory and optimize operations.',
+        'Deployed solutions on Ubuntu servers with MySQL databases for high reliability and performance.',
+        'Oversaw game operations, distribution, and agency relationships across the region.'
       ]
     }
   ];
