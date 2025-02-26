@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,6 +35,11 @@ export default function FeaturedProjects() {
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
+  
+  // 觸控滑動相關狀態
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const modalContentRef = useRef<HTMLDivElement>(null);
   
   const projects: Project[] = [
     {
@@ -212,6 +217,7 @@ export default function FeaturedProjects() {
       image: '/projects/quant_trading.jpg',
       images: [
         '/projects/quant_trading.jpg',
+        '/projects/quant_trading_ror.jpg',
       ],
       tags: ['Go', 'Python', 'TradingView', 'TigerTrade', 'Firebase', 'PyTorch', 'Telegram'],
       github: 'https://github.com/shtse8/TradingBot',
@@ -305,6 +311,32 @@ export default function FeaturedProjects() {
     document.body.style.overflow = 'auto'; // 恢復背景滾動
   };
   
+  // 處理觸控滑動
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+  
+  const handleTouchEnd = () => {
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50; // 滑動必須超過這個閾值才會觸發翻頁
+    
+    if (diff > threshold) {
+      // 向左滑動，下一個項目
+      nextProject();
+    } else if (diff < -threshold) {
+      // 向右滑動，上一個項目
+      prevProject();
+    }
+    
+    // 重置觸控狀態
+    touchStartX.current = 0;
+    touchEndX.current = 0;
+  };
+  
   return (
     <section id="projects" className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto">
@@ -336,7 +368,7 @@ export default function FeaturedProjects() {
             <div 
               key={project.id}
               onClick={() => openProjectModal(idx)}
-              className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow transform hover:scale-105 duration-300"
+              className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 hover:-translate-y-1 duration-300"
             >
               <div className="relative h-48">
                 {imageError[project.id] ? (
@@ -355,6 +387,9 @@ export default function FeaturedProjects() {
                     onError={() => handleImageError(project.id)}
                   />
                 )}
+                
+                {/* 項目卡片的懸停效果覆蓋層 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
               </div>
               <div className="p-4">
                 <h3 className="font-bold text-lg mb-2 truncate">{project.title}</h3>
@@ -381,14 +416,21 @@ export default function FeaturedProjects() {
         
         {/* 項目詳情彈出窗口 */}
         {isModalOpen && selectedProject && (
-          <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-75 flex items-center justify-center p-4" onClick={closeProjectModal}>
+          <div 
+            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-75 flex items-center justify-center p-4 animate-fadeIn" 
+            onClick={closeProjectModal}
+          >
             <div 
-              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+              ref={modalContentRef}
+              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
               onClick={(e) => e.stopPropagation()}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               <button 
                 onClick={closeProjectModal}
-                className="absolute right-4 top-4 z-10 bg-white dark:bg-gray-700 rounded-full p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="absolute right-4 top-4 z-20 bg-white dark:bg-gray-700 rounded-full p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 aria-label="Close modal"
               >
                 <FaTimes />
@@ -398,7 +440,7 @@ export default function FeaturedProjects() {
                 <>
                   <button 
                     onClick={prevProject}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
                     aria-label="Previous project"
                   >
                     <FaChevronLeft />
@@ -406,7 +448,7 @@ export default function FeaturedProjects() {
                   
                   <button 
                     onClick={nextProject}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
                     aria-label="Next project"
                   >
                     <FaChevronRight />
@@ -416,7 +458,7 @@ export default function FeaturedProjects() {
               
               <div className="p-6">
                 <div className="grid md:grid-cols-2 gap-8 items-start">
-                  <div className="order-2 md:order-1">
+                  <div className="order-2 md:order-1 animate-slideInRight">
                     <h3 className="text-2xl font-bold mb-4">{selectedProject.title}</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6">{selectedProject.description}</p>
                     
@@ -449,7 +491,7 @@ export default function FeaturedProjects() {
                           href={selectedProject.github}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg transition-colors"
+                          className="flex items-center gap-2 bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
                         >
                           <FaGithub /> View Code
                         </Link>
@@ -460,7 +502,7 @@ export default function FeaturedProjects() {
                           href={selectedProject.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
                         >
                           <FaExternalLinkAlt /> Live Demo
                         </Link>
@@ -468,7 +510,7 @@ export default function FeaturedProjects() {
                     </div>
                   </div>
                   
-                  <div className="order-1 md:order-2 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg">
+                  <div className="order-1 md:order-2 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg animate-slideInLeft">
                     <div className="relative aspect-video rounded-lg overflow-hidden">
                       {imageError[selectedProject.id] ? (
                         <div 
@@ -517,8 +559,8 @@ export default function FeaturedProjects() {
                                 newFilteredProjects[selectedProjectIndex] = updatedProject;
                                 setFilteredProjects(newFilteredProjects);
                               }}
-                              className={`cursor-pointer flex-shrink-0 w-16 h-16 rounded-md overflow-hidden 
-                                ${isActive ? 'ring-2 ring-blue-500' : 'opacity-80 hover:opacity-100'}`}
+                              className={`cursor-pointer flex-shrink-0 w-16 h-16 rounded-md overflow-hidden transition-all duration-300 
+                                ${isActive ? 'ring-2 ring-blue-500 scale-110' : 'opacity-70 hover:opacity-100'}`}
                             >
                               <div className="relative w-full h-full">
                                 <Image 
@@ -535,6 +577,50 @@ export default function FeaturedProjects() {
                     )}
                   </div>
                 </div>
+                
+                {/* 項目導航概覽 */}
+                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 text-center">Browse Projects</h4>
+                  <div className="flex overflow-x-auto pb-4 gap-2 justify-center">
+                    {filteredProjects.map((project, idx) => (
+                      <div 
+                        key={project.id}
+                        onClick={() => setSelectedProjectIndex(idx)}
+                        className={`flex-shrink-0 transition-all duration-300 cursor-pointer ${
+                          idx === selectedProjectIndex 
+                            ? 'transform scale-110 z-10 ring-2 ring-blue-500' 
+                            : 'opacity-60 hover:opacity-100 scale-100'
+                        }`}
+                      >
+                        <div className="w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden relative">
+                          {imageError[project.id] ? (
+                            <div 
+                              className="absolute inset-0 flex items-center justify-center" 
+                              style={{ backgroundColor: getProjectColor(idx) }}
+                            >
+                              <span className="text-white text-lg font-bold">{project.title.charAt(0)}</span>
+                            </div>
+                          ) : (
+                            <Image 
+                              src={project.image}
+                              alt={project.title}
+                              fill
+                              className="object-cover"
+                              onError={() => handleImageError(project.id)}
+                            />
+                          )}
+                        </div>
+                        <div className="mt-1 text-xs text-center truncate w-16 md:w-20">
+                          {idx === selectedProjectIndex && (
+                            <span className="block text-blue-500 font-medium">
+                              {project.title}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -542,4 +628,53 @@ export default function FeaturedProjects() {
       </div>
     </section>
   );
-} 
+}
+
+// 添加 CSS 動畫類
+// 在 globals.css 中加入下列內容
+
+// @keyframes fadeIn {
+//   from { opacity: 0; }
+//   to { opacity: 1; }
+// }
+
+// @keyframes scaleIn {
+//   from { transform: scale(0.95); opacity: 0; }
+//   to { transform: scale(1); opacity: 1; }
+// }
+
+// @keyframes slideInLeft {
+//   from { transform: translateX(-30px); opacity: 0; }
+//   to { transform: translateX(0); opacity: 1; }
+// }
+
+// @keyframes slideInRight {
+//   from { transform: translateX(30px); opacity: 0; }
+//   to { transform: translateX(0); opacity: 1; }
+// }
+
+// @keyframes pulseLight {
+//   0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+//   70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+//   100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+// }
+
+// .animate-fadeIn {
+//   animation: fadeIn 0.3s ease-out forwards;
+// }
+
+// .animate-scaleIn {
+//   animation: scaleIn 0.3s ease-out forwards;
+// }
+
+// .animate-slideInLeft {
+//   animation: slideInLeft 0.5s ease-out forwards;
+// }
+
+// .animate-slideInRight {
+//   animation: slideInRight 0.5s ease-out forwards;
+// }
+
+// .animate-pulseLight {
+//   animation: pulseLight 2s infinite;
+// } 
