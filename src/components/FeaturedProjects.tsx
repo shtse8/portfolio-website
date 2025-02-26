@@ -107,7 +107,7 @@ const PROJECTS: Project[] = [
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
       'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
       'Designed offline gameplay with online social features including friend system and cloud save',
-      'Featured in Appszoom review videos with positive feedback: https://www.youtube.com/watch?v=Hl-YcZ9Hh8U'
+      'Featured in [Appszoom review videos](https://www.youtube.com/watch?v=Hl-YcZ9Hh8U) with positive feedback'
     ]
   },
   {
@@ -293,6 +293,43 @@ export default function FeaturedProjects() {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const modalContentRef = useRef<HTMLDivElement>(null);
+  
+  // Function to parse markdown links in text
+  const parseMarkdownLinks = (text: string) => {
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    
+    while ((match = linkRegex.exec(text)) !== null) {
+      // Add text before the link
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      
+      // Add the link component
+      parts.push(
+        <Link 
+          key={match.index} 
+          href={match[2]} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline"
+        >
+          {match[1]}
+        </Link>
+      );
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 0 ? parts : text;
+  };
   
   // Filter projects
   useEffect(() => {
@@ -491,7 +528,7 @@ export default function FeaturedProjects() {
                         {selectedProject.details.map((detail, idx) => (
                           <li key={idx} className="flex items-start">
                             <span className="text-blue-600 mr-2">•</span>
-                            <span>{detail}</span>
+                            <span>{parseMarkdownLinks(detail)}</span>
                           </li>
                         ))}
                       </ul>
