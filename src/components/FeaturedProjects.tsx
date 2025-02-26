@@ -18,7 +18,7 @@ type Project = {
   iosUrl?: string;
   details: string[];
   category: string;
-  company?: string;
+  company?: string | null;
 };
 
 // 新增Experience類型來表示專業經驗
@@ -192,7 +192,7 @@ const PROJECTS: Project[] = [
     github: 'https://github.com/shtse8/anymud',
     liveUrl: 'https://anymud.com',
     category: "Web Apps",
-    company: "cubeage",
+    company: null,
     details: [
       'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
       'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
@@ -211,7 +211,7 @@ const PROJECTS: Project[] = [
     ],
     tags: ['PHP', 'MySQL', 'Percona', 'Facebook Integration', 'Responsive Design', 'SEO'],
     category: "Web Apps",
-    company: "nakuz",
+    company: null,
     details: [
       'Developed a publisher-focused article sharing platform with PHP and MySQL/Percona',
       'Created Facebook and mobile optimized versions to maximize user reach',
@@ -251,7 +251,7 @@ const PROJECTS: Project[] = [
     ],
     tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
     category: "Blockchain",
-    company: "cubeage",
+    company: null,
     details: [
       'Designed and developed a hybrid Bancor-Orderbook model for cross-chain asset trading',
       'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
@@ -270,7 +270,7 @@ const PROJECTS: Project[] = [
     ],
     tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
     category: "Blockchain",
-    company: "cubeage",
+    company: null,
     details: [
       'Built a platform enabling streamlined deployment of applications across multiple blockchains',
       'Pioneered real-time profit-sharing system for developers through smart contract automation',
@@ -289,7 +289,7 @@ const PROJECTS: Project[] = [
     ],
     tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
     category: "Blockchain",
-    company: "cubeage",
+    company: null,
     details: [
       'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
       'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
@@ -310,7 +310,7 @@ const PROJECTS: Project[] = [
     tags: ['Go', 'Python', 'TradingView', 'TigerTrade', 'Firebase', 'PyTorch', 'Telegram'],
     github: 'https://github.com/shtse8/TradingBot',
     category: "AI & ML",
-    company: "cubeage",
+    company: null,
     details: [
       'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
       'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
@@ -330,7 +330,7 @@ const PROJECTS: Project[] = [
     tags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
     github: 'https://github.com/shtse8/SotiMediaOrganizer',
     category: "Tools & Utilities",
-    company: "cubeage",
+    company: null,
     details: [
       'Created a media deduplication tool with TypeScript, Python, and Bun',
       'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
@@ -351,7 +351,7 @@ const PROJECTS: Project[] = [
     github: 'https://github.com/shtse8/google-photos-delete-tool',
     liveUrl: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb',
     category: "Tools & Utilities",
-    company: "cubeage",
+    company: null,
     details: [
       'Developed a Chrome extension with 2,000+ users to efficiently manage and clean up Google Photos libraries',
       'Implemented intelligent batch processing with custom selectors for automated photo deletion',
