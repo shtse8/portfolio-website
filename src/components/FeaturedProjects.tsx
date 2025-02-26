@@ -88,8 +88,7 @@ const PROJECTS: Project[] = [
       'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
       'Built a distributed backend architecture using TypeScript, Socket.IO, and Protobuf on Ubuntu servers',
       'Created a PubSub system for efficient real-time communication and game state synchronization',
-      'Designed engaging progression systems including character upgrades, treasure collection, and monthly arena tournaments',
-      'Developed by [Cubeage Limited](#cubeage)'
+      'Designed engaging progression systems including character upgrades, treasure collection, and monthly arena tournaments'
     ]
   },
   {
@@ -130,8 +129,7 @@ const PROJECTS: Project[] = [
       'Created authentic Hong Kong Mahjong gameplay with multiple game modes including blood flow mode, classic four-player mode, and two-player mode',
       'Implemented real-time multiplayer functionality with low latency and leaderboard system',
       'Designed engaging UI/UX with unique 3D Mahjong world, pet system, and character customization',
-      'Achieved 4.2-star rating with 3,280+ reviews on Google Play and strong user retention',
-      'Developed by [Cubeage Limited](#cubeage)'
+      'Achieved 4.2-star rating with 3,280+ reviews on Google Play and strong user retention'
     ]
   },
   {
@@ -153,8 +151,7 @@ const PROJECTS: Project[] = [
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
       'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
       'Designed offline gameplay with online social features including friend system and cloud save',
-      'Featured in [Appszoom review videos](https://www.youtube.com/watch?v=Hl-YcZ9Hh8U) with positive feedback',
-      'Developed by [Cubeage Limited](#cubeage)'
+      'Featured in [Appszoom review videos](https://www.youtube.com/watch?v=Hl-YcZ9Hh8U) with positive feedback'
     ]
   },
   {
@@ -175,8 +172,7 @@ const PROJECTS: Project[] = [
       'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
       'Implemented highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
       'Designed a simple, intuitive interface focused on gameplay rather than excessive visual effects',
-      'Integrated Appodeal for monetization while maintaining a non-intrusive gaming experience',
-      'Developed by [Cubeage Limited](#cubeage)'
+      'Integrated Appodeal for monetization while maintaining a non-intrusive gaming experience'
     ]
   },
   {
@@ -237,8 +233,7 @@ const PROJECTS: Project[] = [
       'Implemented physical game card system with secure validation and redemption',
       'Designed and developed the platform\'s agency and distribution system',
       'Built robust payment and member management systems',
-      'Deployed on Ubuntu servers with MySQL databases for high reliability and performance',
-      'Developed under [MiniMax Technology](#minimax)'
+      'Deployed on Ubuntu servers with MySQL databases for high reliability and performance'
     ]
   },
   {
@@ -910,6 +905,38 @@ export default function FeaturedProjects() {
                         ))}
                       </ul>
                     </div>
+                    
+                    {/* 添加个人開發者标识 */}
+                    {selectedProject.company && (
+                      <div className="mb-6 flex items-center">
+                        <span className="text-gray-700 dark:text-gray-300 font-medium">Developed by:</span>
+                        <button 
+                          className="ml-2 flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (selectedProject.company && typeof selectedProject.company === 'string') {
+                              openCompanyModal(selectedProject.company);
+                            }
+                          }}
+                        >
+                          <span className="font-medium">Tsang Hao</span>
+                          <span className="text-gray-500 dark:text-gray-400 mx-1">at</span>
+                          <div className="flex items-center">
+                            {selectedProject.company && (
+                              <div className="relative w-4 h-4 rounded-full overflow-hidden mr-1">
+                                <Image
+                                  src={selectedProject.company && COMPANIES[selectedProject.company]?.logo || ''}
+                                  alt={selectedProject.company && COMPANIES[selectedProject.company]?.name || ''}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            <span className="font-medium">{selectedProject.company && COMPANIES[selectedProject.company]?.name}</span>
+                          </div>
+                        </button>
+                      </div>
+                    )}
                     
                     <div className="flex flex-wrap gap-2 mb-8">
                       {selectedProject.tags.map((tag, idx) => (
