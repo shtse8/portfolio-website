@@ -480,18 +480,54 @@ export default function FeaturedProjects() {
         parts.push(text.substring(lastIndex, match.index));
       }
       
-      // Add the link component
-      parts.push(
-        <Link 
-          key={match.index} 
-          href={match[2]} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          {match[1]}
-        </Link>
-      );
+      const linkText = match[1];
+      const linkUrl = match[2];
+      
+      // Check if this is an internal anchor link (starts with #)
+      if (linkUrl.startsWith('#')) {
+        const projectId = linkUrl.substring(1); // Remove the # character
+        // Add a button that looks like a link but opens the project modal
+        parts.push(
+          <button 
+            key={match.index} 
+            onClick={(e) => {
+              e.stopPropagation();
+              // Find the project index
+              const projectIndex = filteredProjects.findIndex(p => p.id === projectId);
+              if (projectIndex !== -1) {
+                setSelectedProjectIndex(projectIndex);
+                if (!isModalOpen) {
+                  setIsModalOpen(true);
+                  setIsExperienceModal(false);
+                  document.body.style.overflow = 'hidden';
+                }
+              } else {
+                // If not a project, check if it's a company
+                const company = Object.values(COMPANIES).find(c => c.id === projectId);
+                if (company) {
+                  openCompanyModal(company.id);
+                }
+              }
+            }}
+            className="text-blue-600 hover:underline font-medium cursor-pointer"
+          >
+            {linkText}
+          </button>
+        );
+      } else {
+        // Regular external link
+        parts.push(
+          <Link 
+            key={match.index} 
+            href={linkUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline"
+          >
+            {linkText}
+          </Link>
+        );
+      }
       
       lastIndex = match.index + match[0].length;
     }
