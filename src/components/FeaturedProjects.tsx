@@ -22,6 +22,51 @@ export default function FeaturedProjects() {
   
   const projects: Project[] = [
     {
+      id: 'cubeage',
+      title: 'Cubeage Limited',
+      description: 'Mobile gaming company specializing in card and casino games with millions of downloads',
+      image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Cubeage+Limited',
+      tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#'],
+      liveUrl: 'https://cubeage.com',
+      details: [
+        'Founded and led Cubeage Limited, developing popular card and casino games',
+        'Published 10+ games on Google Play and App Store with 100K+ installations',
+        'Created Hong Kong Mahjong Tycoon, Fun Texas Holdem, and other popular titles',
+        'Implemented innovative game mechanics resulting in 4.2+ average ratings',
+        'Built and managed cross-functional teams for game development and operations'
+      ]
+    },
+    {
+      id: 'nakuz',
+      title: 'Nakuz Website',
+      description: 'Professional corporate website for business solutions',
+      image: 'https://placehold.co/800x450/50E3C2/FFFFFF?text=Nakuz+Website',
+      tags: ['React', 'Next.js', 'Responsive Design', 'SEO'],
+      liveUrl: 'https://nakuz.com',
+      details: [
+        'Designed and developed the corporate website for Nakuz',
+        'Built with modern technologies including React and Next.js',
+        'Implemented responsive design for optimal viewing on all devices',
+        'Integrated SEO best practices to improve visibility and organic traffic',
+        'Created an intuitive user interface with streamlined navigation'
+      ]
+    },
+    {
+      id: 'mahjong',
+      title: 'Hong Kong Mahjong Tycoon',
+      description: '3D Mahjong game with multiple game modes and engaging gameplay',
+      image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=HK+Mahjong+Tycoon',
+      tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer'],
+      liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+      details: [
+        'Developed a popular 3D Mahjong game with over 100K downloads',
+        'Created authentic Hong Kong Mahjong gameplay with multiple game modes',
+        'Implemented real-time multiplayer functionality with low latency',
+        'Designed engaging UI/UX to maximize player retention',
+        'Achieved 4.2-star rating with 3,280+ reviews on Google Play'
+      ]
+    },
+    {
       id: 'anymud',
       title: 'Anymud',
       description: 'A modern Medium-like platform with advanced editor capabilities',
