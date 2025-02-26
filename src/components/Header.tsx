@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaStackOverflow, FaMoon, FaSun, FaBars, FaTimes } from 'react-icons/fa';
+import { PERSONAL_INFO } from '@/data/portfolioData';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -83,7 +84,7 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold text-gray-800 dark:text-white">
-            Kyle<span className="text-blue-600">Tse</span>
+            {PERSONAL_INFO.firstName}<span className="text-blue-600">{PERSONAL_INFO.lastName}</span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -103,7 +104,7 @@ export default function Header() {
             {/* Social Links - Desktop Only */}
             <div className="hidden md:flex items-center space-x-4">
               <Link 
-                href="https://github.com/shtse8" 
+                href={PERSONAL_INFO.social.github}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -112,7 +113,7 @@ export default function Header() {
                 <FaGithub className="text-xl" />
               </Link>
               <Link 
-                href="https://linkedin.com/in/shtse8" 
+                href={PERSONAL_INFO.social.linkedin}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -121,7 +122,7 @@ export default function Header() {
                 <FaLinkedin className="text-xl" />
               </Link>
               <Link 
-                href="https://stackoverflow.com/users/shtse8" 
+                href={PERSONAL_INFO.social.stackoverflow}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -175,7 +176,7 @@ export default function Header() {
               <p className="text-gray-600 dark:text-gray-400 mb-4">Connect with me:</p>
               <div className="flex space-x-6">
                 <Link 
-                  href="https://github.com/shtse8" 
+                  href={PERSONAL_INFO.social.github}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -184,7 +185,7 @@ export default function Header() {
                   <FaGithub className="text-2xl" />
                 </Link>
                 <Link 
-                  href="https://linkedin.com/in/shtse8" 
+                  href={PERSONAL_INFO.social.linkedin}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -193,7 +194,7 @@ export default function Header() {
                   <FaLinkedin className="text-2xl" />
                 </Link>
                 <Link 
-                  href="https://stackoverflow.com/users/shtse8" 
+                  href={PERSONAL_INFO.social.stackoverflow}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
