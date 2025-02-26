@@ -906,38 +906,6 @@ export default function FeaturedProjects() {
                       </ul>
                     </div>
                     
-                    {/* 添加个人開發者标识 */}
-                    {selectedProject.company && (
-                      <div className="mb-6 flex items-center">
-                        <span className="text-gray-700 dark:text-gray-300 font-medium">Developed by:</span>
-                        <button 
-                          className="ml-2 flex items-center gap-1 text-indigo-600 dark:text-indigo-400 hover:underline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (selectedProject.company && typeof selectedProject.company === 'string') {
-                              openCompanyModal(selectedProject.company);
-                            }
-                          }}
-                        >
-                          <span className="font-medium">Tsang Hao</span>
-                          <span className="text-gray-500 dark:text-gray-400 mx-1">at</span>
-                          <div className="flex items-center">
-                            {selectedProject.company && (
-                              <div className="relative w-4 h-4 rounded-full overflow-hidden mr-1">
-                                <Image
-                                  src={selectedProject.company && COMPANIES[selectedProject.company]?.logo || ''}
-                                  alt={selectedProject.company && COMPANIES[selectedProject.company]?.name || ''}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            )}
-                            <span className="font-medium">{selectedProject.company && COMPANIES[selectedProject.company]?.name}</span>
-                          </div>
-                        </button>
-                      </div>
-                    )}
-                    
                     <div className="flex flex-wrap gap-2 mb-8">
                       {selectedProject.tags.map((tag, idx) => (
                         <span 
