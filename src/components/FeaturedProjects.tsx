@@ -25,7 +25,7 @@ export default function FeaturedProjects() {
       id: 'cubeage',
       title: 'Cubeage Limited',
       description: 'Mobile gaming company specializing in card and casino games with millions of downloads',
-      image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Cubeage+Limited',
+      image: '/projects/cubeage.jpg',
       tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#'],
       liveUrl: 'https://cubeage.com',
       details: [
@@ -40,7 +40,7 @@ export default function FeaturedProjects() {
       id: 'nakuz',
       title: 'Nakuz Website',
       description: 'Professional corporate website for business solutions',
-      image: 'https://placehold.co/800x450/50E3C2/FFFFFF?text=Nakuz+Website',
+      image: '/projects/nakuz.jpg',
       tags: ['React', 'Next.js', 'Responsive Design', 'SEO'],
       liveUrl: 'https://nakuz.com',
       details: [
@@ -55,7 +55,7 @@ export default function FeaturedProjects() {
       id: 'mahjong',
       title: 'Hong Kong Mahjong Tycoon',
       description: '3D Mahjong game with multiple game modes and engaging gameplay',
-      image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=HK+Mahjong+Tycoon',
+      image: '/projects/hkmj.jpeg',
       tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer'],
       liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
       details: [
@@ -64,6 +64,21 @@ export default function FeaturedProjects() {
         'Implemented real-time multiplayer functionality with low latency',
         'Designed engaging UI/UX to maximize player retention',
         'Achieved 4.2-star rating with 3,280+ reviews on Google Play'
+      ]
+    },
+    {
+      id: 'fmj',
+      title: 'Crazy Mahjong 16 Tiles',
+      description: 'Popular Taiwanese Mahjong game with custom rules and exciting gameplay',
+      image: '/projects/fmj.jpeg',
+      tags: ['Unity', 'C#', 'Mobile Game', 'Multiplayer', 'Taiwanese Mahjong'],
+      liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+      details: [
+        'Developed a popular Taiwanese Mahjong game focusing on the unique 16-tile variant',
+        'Implemented authentic Taiwanese Mahjong rules with customizable gameplay options',
+        'Created engaging visuals and sound effects for an immersive gaming experience',
+        'Built a robust multiplayer system supporting thousands of concurrent players',
+        'Achieved high user retention through regular content updates and events'
       ]
     },
     {
