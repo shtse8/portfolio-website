@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link';
+import Image from 'next/image';
 
 type Project = {
   id: string;
@@ -17,13 +18,14 @@ type Project = {
 
 export default function FeaturedProjects() {
   const [activeProject, setActiveProject] = useState(0);
+  const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
   
   const projects: Project[] = [
     {
       id: 'anymud',
       title: 'Anymud',
       description: 'A modern Medium-like platform with advanced editor capabilities',
-      image: '/projects/anymud.jpg',
+      image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Anymud+Platform',
       tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker'],
       github: 'https://github.com/shtse8/anymud',
       liveUrl: 'https://anymud.com',
@@ -39,7 +41,7 @@ export default function FeaturedProjects() {
       id: 'dex',
       title: 'Decentralized Exchange',
       description: 'A hybrid DEX with cross-chain trading capabilities',
-      image: '/projects/dex.jpg',
+      image: 'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
       tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices'],
       details: [
         'Designed a hybrid Bancor-Orderbook model for cross-chain asset trading',
@@ -53,7 +55,7 @@ export default function FeaturedProjects() {
       id: 'ai-trading',
       title: 'AI Trading Platform',
       description: 'Reinforcement learning-powered stock trading system',
-      image: '/projects/trading.jpg',
+      image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=AI+Trading',
       tags: ['Go', 'Python', 'TradingView', 'Reinforcement Learning'],
       github: 'https://github.com/shtse8/trading-ai',
       details: [
@@ -68,7 +70,7 @@ export default function FeaturedProjects() {
       id: 'media-organizer',
       title: 'SotiMediaOrganizer',
       description: 'Advanced media deduplication and organization tool',
-      image: '/projects/media.jpg',
+      image: 'https://placehold.co/800x450/D0021B/FFFFFF?text=Media+Organizer',
       tags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
       github: 'https://github.com/shtse8/SotiMediaOrganizer',
       details: [
@@ -90,6 +92,15 @@ export default function FeaturedProjects() {
   };
   
   const currentProject = projects[activeProject];
+
+  const handleImageError = (projectId: string) => {
+    setImageError(prev => ({ ...prev, [projectId]: true }));
+  };
+
+  const getProjectColor = (index: number) => {
+    const colors = ['#4A90E2', '#50E3C2', '#F5A623', '#D0021B'];
+    return colors[index % colors.length];
+  };
   
   return (
     <section id="projects" className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
@@ -172,19 +183,38 @@ export default function FeaturedProjects() {
               
               <div className="order-1 md:order-2 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg">
                 <div className="relative aspect-video rounded-lg overflow-hidden">
-                  <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-                  {/* Replace with actual images when available */}
-                  {/* <Image 
-                    src={currentProject.image}
-                    alt={currentProject.title}
-                    fill
-                    className="object-cover"
-                  /> */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <p className="text-gray-500 dark:text-gray-400 font-mono text-sm">
-                      [Project Screenshot]
-                    </p>
-                  </div>
+                  {imageError[currentProject.id] ? (
+                    // 美觀的備用方案 - 帶有項目首字母和技術標籤的彩色背景
+                    <div 
+                      className="absolute inset-0 flex flex-col items-center justify-center" 
+                      style={{ backgroundColor: getProjectColor(activeProject) }}
+                    >
+                      <div className="text-white text-6xl font-bold mb-4">
+                        {currentProject.title.charAt(0)}
+                      </div>
+                      <div className="text-white text-xl font-medium">
+                        {currentProject.title}
+                      </div>
+                      <div className="flex flex-wrap justify-center mt-4 gap-2 max-w-xs">
+                        {currentProject.tags.slice(0, 3).map((tag, idx) => (
+                          <span key={idx} className="bg-white/20 text-white px-2 py-1 rounded-md text-xs">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                      <Image 
+                        src={currentProject.image}
+                        alt={currentProject.title}
+                        fill
+                        className="object-cover relative z-10"
+                        onError={() => handleImageError(currentProject.id)}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </div>

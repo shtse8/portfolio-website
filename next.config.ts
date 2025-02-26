@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   distDir: 'out',
   images: {
     unoptimized: true, // 必須為靜態導出設置此選項
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+      },
+    ],
   },
 };
 
