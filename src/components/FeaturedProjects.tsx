@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes, FaGooglePlay, FaApple } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes, FaGooglePlay, FaApple, FaBuilding, FaLink } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -310,6 +310,18 @@ const PROJECTS: Project[] = [
   }
 ];
 
+// 定義公司數據
+const COMPANIES = {
+  'cubeage': {
+    id: 'cubeage',
+    name: 'Cubeage Limited',
+    logo: '/projects/cubeage.jpg',
+    color: '#4A90E2',
+    url: 'https://cubeage.com'
+  }
+  // 可以添加更多公司
+};
+
 export default function FeaturedProjects() {
   const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
   const [activeCategory, setActiveCategory] = useState("All");
@@ -425,6 +437,13 @@ export default function FeaturedProjects() {
     touchEndX.current = 0;
   };
   
+  // 根據項目ID獲取關聯公司
+  const getRelatedCompany = (projectId: string, tags: string[]) => {
+    if (projectId === 'cubeage') return COMPANIES['cubeage'];
+    if (tags.includes('Cubeage')) return COMPANIES['cubeage'];
+    return null;
+  };
+  
   return (
     <section id="projects" className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto">
@@ -457,67 +476,85 @@ export default function FeaturedProjects() {
         
         {/* Grid view */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 mb-16">
-          {filteredProjects.map((project, idx) => (
-            <div 
-              key={project.id}
-              onClick={() => openProjectModal(idx)}
-              className="group cursor-pointer bg-white dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 hover:-translate-y-1 duration-300 border border-gray-100 dark:border-gray-700"
-            >
-              <div className="relative h-52 overflow-hidden">
-                {imageError[project.id] ? (
-                  <div 
-                    className="absolute inset-0 flex items-center justify-center" 
-                    style={{ backgroundColor: getProjectColor(idx) }}
-                  >
-                    <span className="text-white text-5xl font-bold">{project.title.charAt(0)}</span>
-                  </div>
-                ) : (
-                  <>
-                    <Image 
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      onError={() => handleImageError(project.id)}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </>
-                )}
-                
-                {/* Category badge */}
-                <div className="absolute top-3 right-3 bg-blue-600/90 text-white text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm">
-                  {project.category}
-                </div>
-              </div>
-              
-              <div className="p-5">
-                <h3 className="font-bold text-xl mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{project.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4">
-                  {project.description}
-                </p>
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  {project.tags.slice(0, 3).map((tag, idx) => (
-                    <span 
-                      key={idx}
-                      className="bg-blue-100/80 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2.5 py-0.5 rounded-full text-xs font-medium"
+          {filteredProjects.map((project, idx) => {
+            const relatedCompany = getRelatedCompany(project.id, project.tags);
+            return (
+              <div 
+                key={project.id}
+                onClick={() => openProjectModal(idx)}
+                className="group cursor-pointer bg-white dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 hover:-translate-y-1 duration-300 border border-gray-100 dark:border-gray-700"
+              >
+                <div className="relative h-52 overflow-hidden">
+                  {imageError[project.id] ? (
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center" 
+                      style={{ backgroundColor: getProjectColor(idx) }}
                     >
-                      {tag}
-                    </span>
-                  ))}
-                  {project.tags.length > 3 && (
-                    <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">+{project.tags.length - 3} more</span>
+                      <span className="text-white text-5xl font-bold">{project.title.charAt(0)}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Image 
+                        src={project.image}
+                        alt={project.title}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        onError={() => handleImageError(project.id)}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </>
+                  )}
+                  
+                  {/* Category badge */}
+                  <div className="absolute top-3 right-3 bg-blue-600/90 text-white text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm">
+                    {project.category}
+                  </div>
+                  
+                  {/* 公司關聯標識 */}
+                  {relatedCompany && (
+                    <div className="absolute top-3 left-3 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md">
+                      <div className="relative w-5 h-5 rounded-full overflow-hidden">
+                        <Image
+                          src={relatedCompany.logo}
+                          alt={relatedCompany.name}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <span className="ml-1 text-xs font-medium text-gray-800 dark:text-gray-200">{relatedCompany.name}</span>
+                    </div>
                   )}
                 </div>
                 
-                {/* View details button */}
-                <div className="flex justify-end mt-2">
-                  <span className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform duration-300">
-                    View Details <FaChevronRight className="ml-1 text-xs" />
-                  </span>
+                <div className="p-5">
+                  <h3 className="font-bold text-xl mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{project.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {project.tags.slice(0, 3).map((tag, idx) => (
+                      <span 
+                        key={idx}
+                        className="bg-blue-100/80 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2.5 py-0.5 rounded-full text-xs font-medium"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                    {project.tags.length > 3 && (
+                      <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">+{project.tags.length - 3} more</span>
+                    )}
+                  </div>
+                  
+                  {/* View details button */}
+                  <div className="flex justify-end mt-2">
+                    <span className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform duration-300">
+                      View Details <FaChevronRight className="ml-1 text-xs" />
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         
         {/* Project details modal */}
@@ -565,13 +602,74 @@ export default function FeaturedProjects() {
               <div className="p-6 md:p-8">
                 <div className="grid md:grid-cols-2 gap-8 items-start">
                   <div className="order-2 md:order-1 animate-slideInRight">
-                    <div className="flex items-center mb-2">
+                    <div className="flex items-center gap-2 mb-2">
                       <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 text-xs font-medium rounded-full">
                         {selectedProject.category}
                       </span>
+                      
+                      {/* 相關公司標籤 */}
+                      {getRelatedCompany(selectedProject.id, selectedProject.tags) && (
+                        <Link 
+                          href={`#${getRelatedCompany(selectedProject.id, selectedProject.tags)?.id}`}
+                          className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            closeProjectModal();
+                            // 找到公司在列表中的索引
+                            const companyIndex = filteredProjects.findIndex(p => p.id === 'cubeage');
+                            if (companyIndex !== -1) {
+                              setTimeout(() => {
+                                openProjectModal(companyIndex);
+                              }, 300);
+                            }
+                          }}
+                        >
+                          <FaBuilding className="text-xs" /> 
+                          {getRelatedCompany(selectedProject.id, selectedProject.tags)?.name}
+                        </Link>
+                      )}
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">{selectedProject.title}</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">{selectedProject.description}</p>
+                    
+                    {/* 如果是公司項目，顯示相關項目區塊 */}
+                    {selectedProject.id === 'cubeage' && (
+                      <div className="mb-8">
+                        <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                          <FaLink className="mr-2 text-blue-600 dark:text-blue-400" />
+                          Related Projects
+                        </h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
+                          {PROJECTS.filter(p => p.tags.includes('Cubeage') && p.id !== 'cubeage').map((relatedProject) => (
+                            <div 
+                              key={relatedProject.id}
+                              className="flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // 找到相關項目在列表中的索引
+                                const projectIndex = filteredProjects.findIndex(p => p.id === relatedProject.id);
+                                if (projectIndex !== -1) {
+                                  setSelectedProjectIndex(projectIndex);
+                                }
+                              }}
+                            >
+                              <div className="relative w-10 h-10 rounded-md overflow-hidden mr-3">
+                                <Image
+                                  src={relatedProject.image}
+                                  alt={relatedProject.title}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <h5 className="font-medium text-sm text-gray-900 dark:text-white">{relatedProject.title}</h5>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{relatedProject.category}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     
                     <div className="mb-8 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-lg border border-gray-100 dark:border-gray-700">
                       <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
@@ -683,6 +781,23 @@ export default function FeaturedProjects() {
                           />
                         </>
                       )}
+                      
+                      {/* 公司標記 - 在圖片右下角 */}
+                      {getRelatedCompany(selectedProject.id, selectedProject.tags) && (
+                        <div className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md">
+                          <div className="relative w-5 h-5 rounded-full overflow-hidden">
+                            <Image
+                              src={getRelatedCompany(selectedProject.id, selectedProject.tags)?.logo || ''}
+                              alt={getRelatedCompany(selectedProject.id, selectedProject.tags)?.name || ''}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <span className="ml-1 text-xs font-medium text-gray-800 dark:text-gray-200">
+                            {getRelatedCompany(selectedProject.id, selectedProject.tags)?.name}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     
                     {/* Project multiple image preview - display if there are multiple images */}
@@ -757,6 +872,20 @@ export default function FeaturedProjects() {
                               className={`object-cover ${idx === selectedProjectIndex ? 'scale-105' : ''}`}
                               onError={() => handleImageError(project.id)}
                             />
+                          )}
+                          
+                          {/* 公司標記徽章 */}
+                          {getRelatedCompany(project.id, project.tags) && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-white dark:bg-gray-700 rounded-full border-2 border-white dark:border-gray-700 z-10">
+                              <div className="relative w-full h-full rounded-full overflow-hidden">
+                                <Image
+                                  src={getRelatedCompany(project.id, project.tags)?.logo || ''}
+                                  alt="Company"
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            </div>
                           )}
                         </div>
                         <div className={`mt-2 text-center max-w-24 ${
