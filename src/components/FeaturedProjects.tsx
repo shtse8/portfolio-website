@@ -18,7 +18,7 @@ type Project = {
   category: string;
 };
 
-// 定義項目類別
+// Define project categories
 const CATEGORIES = [
   "All",
   "Mobile Games",
@@ -36,7 +36,7 @@ export default function FeaturedProjects() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   
-  // 觸控滑動相關狀態
+  // Touch swipe related states
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const modalContentRef = useRef<HTMLDivElement>(null);
@@ -271,7 +271,7 @@ export default function FeaturedProjects() {
     }
   ];
   
-  // 篩選項目
+  // Filter projects
   useEffect(() => {
     if (activeCategory === "All") {
       setFilteredProjects(projects);
@@ -303,15 +303,15 @@ export default function FeaturedProjects() {
   const openProjectModal = (index: number) => {
     setSelectedProjectIndex(index);
     setIsModalOpen(true);
-    document.body.style.overflow = 'hidden'; // 防止背景滾動
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
   };
 
   const closeProjectModal = () => {
     setIsModalOpen(false);
-    document.body.style.overflow = 'auto'; // 恢復背景滾動
+    document.body.style.overflow = 'auto'; // Restore background scrolling
   };
   
-  // 處理觸控滑動
+  // Handle touch swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
   };
@@ -322,17 +322,17 @@ export default function FeaturedProjects() {
   
   const handleTouchEnd = () => {
     const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50; // 滑動必須超過這個閾值才會觸發翻頁
+    const threshold = 50; // Swipe must exceed this threshold to trigger page turn
     
     if (diff > threshold) {
-      // 向左滑動，下一個項目
+      // Swipe left, next item
       nextProject();
     } else if (diff < -threshold) {
-      // 向右滑動，上一個項目
+      // Swipe right, previous item
       prevProject();
     }
     
-    // 重置觸控狀態
+    // Reset touch state
     touchStartX.current = 0;
     touchEndX.current = 0;
   };
@@ -345,7 +345,7 @@ export default function FeaturedProjects() {
           Showcasing some of my most innovative work across different domains and technologies.
         </p>
         
-        {/* 類別篩選器 */}
+        {/* Category filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
           {CATEGORIES.map((category) => (
             <button
@@ -362,7 +362,7 @@ export default function FeaturedProjects() {
           ))}
         </div>
         
-        {/* 網格視圖 */}
+        {/* Grid view */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10">
           {filteredProjects.map((project, idx) => (
             <div 
@@ -388,7 +388,7 @@ export default function FeaturedProjects() {
                   />
                 )}
                 
-                {/* 項目卡片的懸停效果覆蓋層 */}
+                {/* Hover effect overlay for project cards */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
               </div>
               <div className="p-4">
@@ -414,7 +414,7 @@ export default function FeaturedProjects() {
           ))}
         </div>
         
-        {/* 項目詳情彈出窗口 */}
+        {/* Project details modal */}
         {isModalOpen && selectedProject && (
           <div 
             className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-75 flex items-center justify-center p-4 animate-fadeIn" 
@@ -545,7 +545,7 @@ export default function FeaturedProjects() {
                       )}
                     </div>
                     
-                    {/* 項目多圖片預覽 - 如果有多張圖片則顯示 */}
+                    {/* Project multiple image preview - display if there are multiple images */}
                     {selectedProject.images && selectedProject.images.length > 1 && (
                       <div className="mt-4 flex space-x-2 overflow-x-auto pb-2">
                         {selectedProject.images.map((img, idx) => {
@@ -578,7 +578,7 @@ export default function FeaturedProjects() {
                   </div>
                 </div>
                 
-                {/* 項目導航概覽 */}
+                {/* Project navigation overview */}
                 <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <h4 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 text-center">Browse Projects</h4>
                   <div className="flex overflow-x-auto pb-4 gap-4 justify-center">
@@ -597,7 +597,7 @@ export default function FeaturedProjects() {
                             ? 'w-20 h-20 md:w-24 md:h-24 shadow-lg' 
                             : 'w-16 h-16 md:w-20 md:h-20'
                         } rounded-lg overflow-hidden`}>
-                          {/* 選中項目的裝飾效果 */}
+                          {/* Selected project decoration effect */}
                           {idx === selectedProjectIndex && (
                             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-80 blur-sm -z-10"></div>
                           )}
@@ -645,8 +645,8 @@ export default function FeaturedProjects() {
   );
 }
 
-// 添加 CSS 動畫類
-// 在 globals.css 中加入下列內容
+// Add CSS animation classes
+// Add the following to globals.css
 
 // @keyframes fadeIn {
 //   from { opacity: 0; }

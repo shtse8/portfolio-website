@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [main]
 
-# 添加權限配置
+# Add permission configuration
 permissions:
   contents: read
   deployments: write

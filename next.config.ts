@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   output: 'export',
   distDir: 'out',
   images: {
-    unoptimized: true, // 必須為靜態導出設置此選項
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',
