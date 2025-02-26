@@ -889,24 +889,19 @@ export default function FeaturedProjects() {
                       
                       {/* 相關公司標籤 */}
                       {getRelatedCompany(selectedProject.id) && (
-                        <Link 
-                          href={`#${getRelatedCompany(selectedProject.id)?.id}`}
-                          className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full"
+                        <button 
+                          className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors"
                           onClick={(e) => {
                             e.stopPropagation();
-                            closeProjectModal();
-                            // 找到公司在列表中的索引
-                            const companyIndex = filteredProjects.findIndex(p => p.id === 'cubeage');
-                            if (companyIndex !== -1) {
-                              setTimeout(() => {
-                                openProjectModal(companyIndex);
-                              }, 300);
+                            const company = getRelatedCompany(selectedProject.id);
+                            if (company) {
+                              openCompanyModal(company.id);
                             }
                           }}
                         >
                           <FaBuilding className="text-xs" /> 
                           {getRelatedCompany(selectedProject.id)?.name}
-                        </Link>
+                        </button>
                       )}
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">{selectedProject.title}</h3>
