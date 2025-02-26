@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes, FaGooglePlay, FaApple, FaBuilding, FaLink } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes, FaGooglePlay, FaApple, FaBuilding } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -67,8 +67,7 @@ const PROJECTS: Project[] = [
       'Developed flagship titles including Hong Kong Mahjong Tycoon (4.2★, 3,280+ reviews), Fun Mahjong 16 Tiles (1M+ downloads), Fun Showhand, and Big2 Tycoon',
       'Implemented innovative game mechanics and monetization strategies resulting in 4.2+ average ratings',
       'Built and managed cross-functional teams for game development and operations',
-      'Utilized MySQL and Percona for high-performance game data storage and analytics',
-      'Related Projects: See [Hong Kong Mahjong Tycoon](#mahjong), [Fun Mahjong 16 Tiles](#fmj), [Fun Showhand](#fun-showhand), and [Big2 Tycoon](#big2-tycoon) in this portfolio'
+      'Utilized MySQL and Percona for high-performance game data storage and analytics'
     ]
   },
   {
@@ -90,7 +89,7 @@ const PROJECTS: Project[] = [
       'Built a distributed backend architecture using TypeScript, Socket.IO, and Protobuf on Ubuntu servers',
       'Created a PubSub system for efficient real-time communication and game state synchronization',
       'Designed engaging progression systems including character upgrades, treasure collection, and monthly arena tournaments',
-      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
+      'Developed by [Cubeage Limited](#cubeage)'
     ]
   },
   {
@@ -132,7 +131,7 @@ const PROJECTS: Project[] = [
       'Implemented real-time multiplayer functionality with low latency and leaderboard system',
       'Designed engaging UI/UX with unique 3D Mahjong world, pet system, and character customization',
       'Achieved 4.2-star rating with 3,280+ reviews on Google Play and strong user retention',
-      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
+      'Developed by [Cubeage Limited](#cubeage)'
     ]
   },
   {
@@ -155,7 +154,7 @@ const PROJECTS: Project[] = [
       'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
       'Designed offline gameplay with online social features including friend system and cloud save',
       'Featured in [Appszoom review videos](https://www.youtube.com/watch?v=Hl-YcZ9Hh8U) with positive feedback',
-      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
+      'Developed by [Cubeage Limited](#cubeage)'
     ]
   },
   {
@@ -177,7 +176,7 @@ const PROJECTS: Project[] = [
       'Implemented highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
       'Designed a simple, intuitive interface focused on gameplay rather than excessive visual effects',
       'Integrated Appodeal for monetization while maintaining a non-intrusive gaming experience',
-      'Part of the Cubeage game portfolio - see [Cubeage Limited](#cubeage) for company overview'
+      'Developed by [Cubeage Limited](#cubeage)'
     ]
   },
   {
@@ -238,7 +237,8 @@ const PROJECTS: Project[] = [
       'Implemented physical game card system with secure validation and redemption',
       'Designed and developed the platform\'s agency and distribution system',
       'Built robust payment and member management systems',
-      'Deployed on Ubuntu servers with MySQL databases for high reliability and performance'
+      'Deployed on Ubuntu servers with MySQL databases for high reliability and performance',
+      'Developed under [MiniMax Technology](#minimax)'
     ]
   },
   {
@@ -392,7 +392,7 @@ const COMPANIES: {[key: string]: {id: string; name: string; logo: string; color:
 const EXPERIENCES: Experience[] = [
   {
     id: 'cubeage',
-    title: 'Founder & CTO',
+    title: 'Founder & Lead Developer',
     company: 'Cubeage Limited',
     period: '2014 - 2019',
     description: 'Founded and led a mobile gaming company specializing in card and casino games with millions of downloads',
@@ -413,9 +413,9 @@ const EXPERIENCES: Experience[] = [
   },
   {
     id: 'minimax',
-    title: 'Lead Developer',
+    title: 'Founder & Lead Developer',
     company: 'MiniMax Technology',
-    period: '2012 - 2014',
+    period: '2010 - 2014',
     description: 'Led development at a gaming platform company focusing on game operations and agency distribution in Hong Kong',
     image: '/companys/minimax.jpeg',
     logo: '/companys/minimax.jpeg',
@@ -426,7 +426,8 @@ const EXPERIENCES: Experience[] = [
       'Oversaw game operations, distribution, and agency relationships',
       'Implemented payment systems integration for physical and digital purchases',
       'Designed systems to manage game inventory, distribution, and analytics',
-      'Built user management and loyalty systems to improve customer retention'
+      'Built user management and loyalty systems to improve customer retention',
+      'Related Projects: See [Funimax Gaming Platform](#funimax) in this portfolio'
     ],
     relatedProjects: ['funimax']
   },
@@ -460,7 +461,6 @@ export default function FeaturedProjects() {
   const [isExperienceModal, setIsExperienceModal] = useState(false);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [selectedExperienceIndex, setSelectedExperienceIndex] = useState(0);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   
   // Touch swipe related states
   const touchStartX = useRef(0);
@@ -624,16 +624,6 @@ export default function FeaturedProjects() {
     touchEndX.current = 0;
   };
   
-  // 根據項目ID獲取關聯公司
-  const getRelatedCompany = (projectId: string) => {
-    for (const project of PROJECTS) {
-      if (project.id === projectId && project.company) {
-        return COMPANIES[project.company];
-      }
-    }
-    return null;
-  };
-  
   // 打開公司詳情模態窗口
   const openCompanyModal = (companyId: string) => {
     const companyExperienceIndex = EXPERIENCES.findIndex(exp => exp.id === companyId);
@@ -641,7 +631,6 @@ export default function FeaturedProjects() {
       setSelectedExperienceIndex(companyExperienceIndex);
       setIsModalOpen(true);
       setIsExperienceModal(true);
-      setSelectedCompanyId(companyId);
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
     }
   };
@@ -811,56 +800,6 @@ export default function FeaturedProjects() {
                     )}
                   </div>
                   
-                  {/* Related Projects */}
-                  {experience.relatedProjects && experience.relatedProjects.length > 0 && (
-                    <div className="mt-8">
-                      <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                        <FaLink className="mr-2 text-blue-600 dark:text-blue-400" />
-                        Related Projects
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        {experience.relatedProjects.map(projectId => {
-                          const project = PROJECTS.find(p => p.id === projectId);
-                          if (!project) return null;
-                          return (
-                            <div 
-                              key={projectId}
-                              className={`flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all ${
-                                selectedCompanyId === experience.id && projectId === selectedProject.id ? 'ring-2 ring-blue-500' : ''
-                              }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveCategory(project.category);
-                                setTimeout(() => {
-                                  const filteredIndex = filteredProjects.findIndex(p => p.id === projectId);
-                                  if (filteredIndex !== -1) {
-                                    closeProjectModal();
-                                    setTimeout(() => {
-                                      openProjectModal(filteredIndex);
-                                    }, 100);
-                                  }
-                                }, 100);
-                              }}
-                            >
-                              <div className="relative w-10 h-10 rounded-md overflow-hidden mr-3">
-                                <Image
-                                  src={project.image}
-                                  alt={project.title}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-sm text-gray-900 dark:text-white">{project.title}</h5>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{project.category}</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                  
                   {/* View details button */}
                   <div className="flex justify-end mt-2">
                     <span className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform duration-300">
@@ -924,63 +863,23 @@ export default function FeaturedProjects() {
                       </span>
                       
                       {/* 相關公司標籤 */}
-                      {getRelatedCompany(selectedProject.id) && (
+                      {selectedProject.company && (
                         <button 
                           className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors"
                           onClick={(e) => {
                             e.stopPropagation();
-                            const company = getRelatedCompany(selectedProject.id);
-                            if (company) {
-                              openCompanyModal(company.id);
+                            if (selectedProject.company && typeof selectedProject.company === 'string') {
+                              openCompanyModal(selectedProject.company);
                             }
                           }}
                         >
                           <FaBuilding className="text-xs" /> 
-                          {getRelatedCompany(selectedProject.id)?.name}
+                          {selectedProject.company && COMPANIES[selectedProject.company]?.name}
                         </button>
                       )}
                     </div>
                     <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">{selectedProject.title}</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">{selectedProject.description}</p>
-                    
-                    {/* 如果有關聯公司，顯示相關項目區塊 */}
-                    {getRelatedCompany(selectedProject.id) && selectedProject.company && (
-                      <div className="mb-8">
-                        <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                          <FaLink className="mr-2 text-blue-600 dark:text-blue-400" />
-                          Related Projects from {getRelatedCompany(selectedProject.id)?.name}
-                        </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
-                          {PROJECTS.filter(p => p.company === selectedProject.company && p.id !== selectedProject.id).map((relatedProject) => (
-                            <div 
-                              key={relatedProject.id}
-                              className="flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // 找到相關項目在列表中的索引
-                                const projectIndex = filteredProjects.findIndex(p => p.id === relatedProject.id);
-                                if (projectIndex !== -1) {
-                                  setSelectedProjectIndex(projectIndex);
-                                }
-                              }}
-                            >
-                              <div className="relative w-10 h-10 rounded-md overflow-hidden mr-3">
-                                <Image
-                                  src={relatedProject.image}
-                                  alt={relatedProject.title}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-sm text-gray-900 dark:text-white">{relatedProject.title}</h5>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{relatedProject.category}</p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                     
                     <div className="mb-8 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-lg border border-gray-100 dark:border-gray-700">
                       <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
@@ -1094,149 +993,63 @@ export default function FeaturedProjects() {
                       )}
                       
                       {/* 公司標記 - 在圖片右下角 */}
-                      {getRelatedCompany(selectedProject.id) && (
+                      {selectedProject.company && (
                         <div 
                           className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                           onClick={(e) => {
                             e.stopPropagation();
-                            const company = getRelatedCompany(selectedProject.id);
-                            if (company) {
-                              openCompanyModal(company.id);
+                            if (selectedProject.company && typeof selectedProject.company === 'string') {
+                              openCompanyModal(selectedProject.company);
                             }
                           }}
                         >
                           <div className="relative w-5 h-5 rounded-full overflow-hidden">
                             <Image
-                              src={getRelatedCompany(selectedProject.id)?.logo || ''}
-                              alt={getRelatedCompany(selectedProject.id)?.name || ''}
+                              src={selectedProject.company && COMPANIES[selectedProject.company]?.logo || ''}
+                              alt={selectedProject.company && COMPANIES[selectedProject.company]?.name || ''}
                               fill
                               className="object-cover"
                             />
                           </div>
                           <span className="ml-1 text-xs font-medium text-gray-800 dark:text-gray-200">
-                            {getRelatedCompany(selectedProject.id)?.name}
+                            {selectedProject.company && COMPANIES[selectedProject.company]?.name}
                           </span>
                         </div>
                       )}
                     </div>
-                    
-                    {/* Project multiple image preview - display if there are multiple images */}
-                    {selectedProject.images && selectedProject.images.length > 1 && (
-                      <div className="mt-4 flex space-x-2 overflow-x-auto pb-2">
-                        {selectedProject.images.map((img, idx) => {
-                          const isActive = selectedProject.image === img;
-                          return (
-                            <div 
-                              key={idx}
-                              onClick={() => {
-                                const updatedProject = {...selectedProject, image: img};
-                                const newFilteredProjects = [...filteredProjects];
-                                newFilteredProjects[selectedProjectIndex] = updatedProject;
-                                setFilteredProjects(newFilteredProjects);
-                              }}
-                              className={`cursor-pointer flex-shrink-0 w-16 h-16 rounded-md overflow-hidden transition-all duration-300 
-                                ${isActive ? 'ring-2 ring-blue-500 scale-110 shadow-md' : 'opacity-70 hover:opacity-100'}`}
-                            >
-                              <div className="relative w-full h-full">
-                                <Image 
-                                  src={img}
-                                  alt={`${selectedProject.title} - image ${idx+1}`}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
                   </div>
                 </div>
                 
-                {/* Project navigation overview */}
-                <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h4 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 text-center">Browse Projects</h4>
-                  <div className="flex overflow-x-auto pb-4 gap-4 justify-center">
-                    {filteredProjects.map((project, idx) => (
-                      <div 
-                        key={project.id}
-                        onClick={() => setSelectedProjectIndex(idx)}
-                        className={`flex-shrink-0 transition-all duration-300 cursor-pointer flex flex-col items-center ${
-                          idx === selectedProjectIndex 
-                            ? 'transform scale-110 z-10' 
-                            : 'opacity-60 hover:opacity-100 scale-100'
-                        }`}
-                      >
-                        <div className={`relative ${
-                          idx === selectedProjectIndex 
-                            ? 'w-20 h-20 md:w-24 md:h-24 shadow-lg' 
-                            : 'w-16 h-16 md:w-20 md:h-20'
-                        } rounded-lg overflow-hidden`}>
-                          {/* Selected project decoration effect */}
-                          {idx === selectedProjectIndex && (
-                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-80 blur-sm -z-10"></div>
-                          )}
-                          
-                          {imageError[project.id] ? (
-                            <div 
-                              className="absolute inset-0 flex items-center justify-center" 
-                              style={{ backgroundColor: getProjectColor(idx) }}
-                            >
-                              <span className="text-white text-lg font-bold">{project.title.charAt(0)}</span>
-                            </div>
-                          ) : (
+                {/* Project multiple image preview - display if there are multiple images */}
+                {selectedProject.images && selectedProject.images.length > 1 && (
+                  <div className="mt-4 flex space-x-2 overflow-x-auto pb-2">
+                    {selectedProject.images.map((img, idx) => {
+                      const isActive = selectedProject.image === img;
+                      return (
+                        <div 
+                          key={idx}
+                          onClick={() => {
+                            const updatedProject = {...selectedProject, image: img};
+                            const newFilteredProjects = [...filteredProjects];
+                            newFilteredProjects[selectedProjectIndex] = updatedProject;
+                            setFilteredProjects(newFilteredProjects);
+                          }}
+                          className={`cursor-pointer flex-shrink-0 w-16 h-16 rounded-md overflow-hidden transition-all duration-300 
+                            ${isActive ? 'ring-2 ring-blue-500 scale-110 shadow-md' : 'opacity-70 hover:opacity-100'}`}
+                        >
+                          <div className="relative w-full h-full">
                             <Image 
-                              src={project.image}
-                              alt={project.title}
+                              src={img}
+                              alt={`${selectedProject.title} - image ${idx+1}`}
                               fill
-                              className={`object-cover ${idx === selectedProjectIndex ? 'scale-105' : ''}`}
-                              onError={() => handleImageError(project.id)}
+                              className="object-cover"
                             />
-                          )}
-                          
-                          {/* 公司標記 - 在圖片右下角 */}
-                          {getRelatedCompany(project.id) && (
-                            <div 
-                              className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const company = getRelatedCompany(project.id);
-                                if (company) {
-                                  openCompanyModal(company.id);
-                                }
-                              }}
-                            >
-                              <div className="relative w-5 h-5 rounded-full overflow-hidden">
-                                <Image
-                                  src={getRelatedCompany(project.id)?.logo || ''}
-                                  alt={getRelatedCompany(project.id)?.name || ''}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <span className="ml-1 text-xs font-medium text-gray-800 dark:text-gray-200">
-                                {getRelatedCompany(project.id)?.name}
-                              </span>
-                            </div>
-                          )}
+                          </div>
                         </div>
-                        <div className={`mt-2 text-center max-w-24 ${
-                          idx === selectedProjectIndex ? 'block' : 'hidden md:block'
-                        }`}>
-                          {idx === selectedProjectIndex ? (
-                            <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs md:text-sm font-medium rounded-full whitespace-nowrap">
-                              {project.title}
-                            </span>
-                          ) : (
-                            <span className="text-gray-500 dark:text-gray-400 text-xs truncate block">
-                              {project.title}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -1332,30 +1145,6 @@ export default function FeaturedProjects() {
                         ))}
                       </ul>
                     </div>
-                    
-                    <div className="flex flex-wrap gap-2 mb-8">
-                      {selectedExperience.tags.map((tag, idx) => (
-                        <span 
-                          key={idx}
-                          className="bg-blue-100/80 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    {selectedExperience.liveUrl && (
-                      <div className="flex gap-4">
-                        <Link 
-                          href={selectedExperience.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg transition-all transform hover:scale-105 duration-300 shadow-md"
-                        >
-                          <FaExternalLinkAlt /> Visit Website
-                        </Link>
-                      </div>
-                    )}
                   </div>
                   
                   <div className="order-1 md:order-2 animate-slideInLeft">
@@ -1370,56 +1159,6 @@ export default function FeaturedProjects() {
                         />
                       </div>
                     </div>
-                    
-                    {/* Related Projects */}
-                    {selectedExperience.relatedProjects && selectedExperience.relatedProjects.length > 0 && (
-                      <div className="mt-8">
-                        <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                          <FaLink className="mr-2 text-blue-600 dark:text-blue-400" />
-                          Related Projects
-                        </h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          {selectedExperience.relatedProjects.map(projectId => {
-                            const project = PROJECTS.find(p => p.id === projectId);
-                            if (!project) return null;
-                            return (
-                              <div 
-                                key={projectId}
-                                className={`flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all ${
-                                  selectedCompanyId === selectedExperience.id && projectId === selectedProject.id ? 'ring-2 ring-blue-500' : ''
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setActiveCategory(project.category);
-                                  setTimeout(() => {
-                                    const filteredIndex = filteredProjects.findIndex(p => p.id === projectId);
-                                    if (filteredIndex !== -1) {
-                                      closeProjectModal();
-                                      setTimeout(() => {
-                                        openProjectModal(filteredIndex);
-                                      }, 100);
-                                    }
-                                  }, 100);
-                                }}
-                              >
-                                <div className="relative w-10 h-10 rounded-md overflow-hidden mr-3">
-                                  <Image
-                                    src={project.image}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <h5 className="font-medium text-sm text-gray-900 dark:text-white">{project.title}</h5>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{project.category}</p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
