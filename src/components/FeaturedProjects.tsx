@@ -28,8 +28,238 @@ const CATEGORIES = [
   "AI & ML"
 ];
 
+// Define projects data
+const PROJECTS: Project[] = [
+  {
+    id: 'cubeage',
+    title: 'Cubeage Limited',
+    description: 'Mobile gaming company specializing in card and casino games with millions of downloads',
+    image: '/projects/cubeage.jpg',
+    images: [
+      '/projects/cubeage.jpg',
+    ],
+    tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#'],
+    liveUrl: 'https://cubeage.com',
+    category: "Mobile Games",
+    details: [
+      'Founded and led Cubeage Limited, developing popular card and casino games',
+      'Published 10+ games on Google Play and App Store with 100K+ installations',
+      'Created Hong Kong Mahjong Tycoon, Fun Texas Holdem, and other popular titles',
+      'Implemented innovative game mechanics resulting in 4.2+ average ratings',
+      'Built and managed cross-functional teams for game development and operations'
+    ]
+  },
+  {
+    id: 'nakuz',
+    title: 'Nakuz Website',
+    description: 'Professional corporate website for business solutions',
+    image: '/projects/nakuz.jpg',
+    images: [
+      '/projects/nakuz.jpg',
+    ],
+    tags: ['React', 'Next.js', 'Responsive Design', 'SEO'],
+    liveUrl: 'https://nakuz.com',
+    category: "Web Apps",
+    details: [
+      'Designed and developed the corporate website for Nakuz',
+      'Built with modern technologies including React and Next.js',
+      'Implemented responsive design for optimal viewing on all devices',
+      'Integrated SEO best practices to improve visibility and organic traffic',
+      'Created an intuitive user interface with streamlined navigation'
+    ]
+  },
+  {
+    id: 'mahjong',
+    title: 'Hong Kong Mahjong Tycoon',
+    description: '3D Mahjong game with multiple game modes and engaging gameplay',
+    image: '/projects/hkmj.jpeg',
+    images: [
+      '/projects/hkmj.jpeg',
+    ],
+    tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer'],
+    liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+    category: "Mobile Games",
+    details: [
+      'Developed a popular 3D Mahjong game with over 100K downloads',
+      'Created authentic Hong Kong Mahjong gameplay with multiple game modes',
+      'Implemented real-time multiplayer functionality with low latency',
+      'Designed engaging UI/UX to maximize player retention',
+      'Achieved 4.2-star rating with 3,280+ reviews on Google Play'
+    ]
+  },
+  {
+    id: 'fmj',
+    title: 'Crazy Mahjong 16 Tiles',
+    description: 'Popular Taiwanese Mahjong game with custom rules and exciting gameplay',
+    image: '/projects/fmj.jpeg',
+    images: [
+      '/projects/fmj.jpeg',
+    ],
+    tags: ['Unity', 'C#', 'Mobile Game', 'Multiplayer', 'Taiwanese Mahjong'],
+    liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+    category: "Mobile Games",
+    details: [
+      'Developed a popular Taiwanese Mahjong game focusing on the unique 16-tile variant',
+      'Implemented authentic Taiwanese Mahjong rules with customizable gameplay options',
+      'Created engaging visuals and sound effects for an immersive gaming experience',
+      'Built a robust multiplayer system supporting thousands of concurrent players',
+      'Achieved high user retention through regular content updates and events'
+    ]
+  },
+  {
+    id: 'anymud',
+    title: 'Anymud',
+    description: 'Modern Medium-like publishing platform with advanced editor capabilities',
+    image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Anymud+Platform',
+    images: [
+      'https://placehold.co/800x450/4A90E2/FFFFFF?text=Anymud+Platform',
+    ],
+    tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO'],
+    github: 'https://github.com/shtse8/anymud',
+    liveUrl: 'https://anymud.com',
+    category: "Web Apps",
+    details: [
+      'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
+      'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
+      'Implemented smart backspace behavior and keyboard shortcuts to slash content creation time by 50%',
+      'Deployed on GCP with Docker for horizontal scaling and high availability',
+      'Optimized SEO with structured data and semantic markup, driving 60% organic traffic growth'
+    ]
+  },
+  {
+    id: 'novelfeed',
+    title: 'NovelFeed',
+    description: 'Publisher-focused article sharing platform with enhanced social integration',
+    image: 'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
+    images: [
+      'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
+    ],
+    tags: ['PHP', 'MySQL', 'Facebook Integration', 'Responsive Design', 'SEO'],
+    category: "Web Apps",
+    details: [
+      'Developed a publisher-focused article sharing platform with PHP and MySQL',
+      'Created Facebook and mobile optimized versions to maximize user reach',
+      'Increased publisher engagement by 45% through intuitive content management tools',
+      'Optimized web application with semantic HTML, structured data, and SEO best practices',
+      'Achieved top search engine rankings for publisher content through technical optimization'
+    ]
+  },
+  {
+    id: 'dex',
+    title: 'Decentralized Exchange',
+    description: 'A hybrid DEX platform combining Bancor-Orderbook models for cross-chain trading',
+    image: 'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
+    images: [
+      'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
+    ],
+    tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
+    category: "Blockchain",
+    details: [
+      'Designed a hybrid Bancor-Orderbook model for cross-chain asset trading between EOS, ETH, and BTC',
+      'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
+      'Implemented atomic swaps, cross-chain liquidity pools, and automated market making algorithms',
+      'Created smart contracts for transparent profit sharing and automated settlements',
+      'Developed a responsive trading interface with real-time order book updates and transaction tracking'
+    ]
+  },
+  {
+    id: 'blockchain-app-center',
+    title: 'Blockchain App Center',
+    description: 'Multi-chain application deployment platform with real-time profit sharing',
+    image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
+    images: [
+      'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
+    ],
+    tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
+    category: "Blockchain",
+    details: [
+      'Built a platform enabling streamlined deployment of applications across multiple blockchains',
+      'Pioneered the industry\'s first real-time profit-sharing system for developers',
+      'Eliminated the typical one-week delay in earnings distribution through smart contract automation',
+      'Created a unified interface for managing applications on different blockchain networks',
+      'Implemented secure wallet integration and transaction handling across chains'
+    ]
+  },
+  {
+    id: 'mining-pool',
+    title: 'Multi-Chain Mining Pool Platform',
+    description: 'Cross-chain mining pool system supporting EOS, ETH, and BTC with transparent profit sharing',
+    image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
+    images: [
+      'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
+    ],
+    tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
+    category: "Blockchain",
+    details: [
+      'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
+      'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
+      'Implemented blockchain-specific smart contracts for transparent profit sharing',
+      'Created automated payout systems with full transaction verification',
+      'Built real-time dashboards for miners to track earnings and performance metrics'
+    ]
+  },
+  {
+    id: 'ai-trading',
+    title: 'Quantitative Trading System',
+    description: 'Advanced algorithmic trading platform leveraging multiple indicators and real-time execution',
+    image: '/projects/quant_trading.jpg',
+    images: [
+      '/projects/quant_trading.jpg',
+      '/projects/quant_trading_ror.jpg',
+    ],
+    tags: ['Go', 'Python', 'TradingView', 'TigerTrade', 'Firebase', 'PyTorch', 'Telegram'],
+    github: 'https://github.com/shtse8/TradingBot',
+    category: "AI & ML",
+    details: [
+      'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
+      'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
+      'Built Python-based backtesting framework with pandas, PyTorch, and backtrader',
+      'Implemented machine learning models with PyTorch, AdaBelief optimizer, and Huber Loss function',
+      'Created a Telegram bot for real-time trade notifications, signals, and performance reporting'
+    ]
+  },
+  {
+    id: 'media-organizer',
+    title: 'SotiMediaOrganizer',
+    description: 'Advanced media deduplication and organization tool',
+    image: '/projects/SotiMediaOrganizer.jpg',
+    images: [
+      '/projects/SotiMediaOrganizer.jpg',
+    ],
+    tags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
+    github: 'https://github.com/shtse8/SotiMediaOrganizer',
+    category: "Tools & Utilities",
+    details: [
+      'Created a media deduplication tool with TypeScript, Python, and Bun',
+      'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
+      'Improved audio/video processing speed by 60%',
+      'Implemented perceptual hashing for similar image detection',
+      'Built a user-friendly interface for managing large media collections'
+    ]
+  },
+  {
+    id: 'google-photos-delete',
+    title: 'Google Photos Delete Tool',
+    description: 'Chrome extension for efficient bulk deletion of Google Photos',
+    image: '/projects/google_photo_delete_tool.jpg',
+    images: [
+      '/projects/google_photo_delete_tool.jpg',
+    ],
+    tags: ['JavaScript', 'Chrome Extension', 'Automation', 'Google Photos API'],
+    github: 'https://github.com/shtse8/google-photos-delete-tool',
+    liveUrl: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb',
+    category: "Tools & Utilities",
+    details: [
+      'Developed a Chrome extension with 2,000+ users to efficiently manage and clean up Google Photos libraries',
+      'Implemented intelligent batch processing with custom selectors for automated photo deletion',
+      'Created smart scrolling logic to handle large photo libraries with 10,000+ images',
+      'Built in robust error handling and progress tracking for operation reliability',
+      'Earned 4.7/5 star rating on Chrome Web Store and 73+ stars on GitHub'
+    ]
+  }
+];
+
 export default function FeaturedProjects() {
-  const [activeProject, setActiveProject] = useState(0);
   const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
   const [activeCategory, setActiveCategory] = useState("All");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
@@ -41,244 +271,14 @@ export default function FeaturedProjects() {
   const touchEndX = useRef(0);
   const modalContentRef = useRef<HTMLDivElement>(null);
   
-  const projects: Project[] = [
-    {
-      id: 'cubeage',
-      title: 'Cubeage Limited',
-      description: 'Mobile gaming company specializing in card and casino games with millions of downloads',
-      image: '/projects/cubeage.jpg',
-      images: [
-        '/projects/cubeage.jpg',
-      ],
-      tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#'],
-      liveUrl: 'https://cubeage.com',
-      category: "Mobile Games",
-      details: [
-        'Founded and led Cubeage Limited, developing popular card and casino games',
-        'Published 10+ games on Google Play and App Store with 100K+ installations',
-        'Created Hong Kong Mahjong Tycoon, Fun Texas Holdem, and other popular titles',
-        'Implemented innovative game mechanics resulting in 4.2+ average ratings',
-        'Built and managed cross-functional teams for game development and operations'
-      ]
-    },
-    {
-      id: 'nakuz',
-      title: 'Nakuz Website',
-      description: 'Professional corporate website for business solutions',
-      image: '/projects/nakuz.jpg',
-      images: [
-        '/projects/nakuz.jpg',
-      ],
-      tags: ['React', 'Next.js', 'Responsive Design', 'SEO'],
-      liveUrl: 'https://nakuz.com',
-      category: "Web Apps",
-      details: [
-        'Designed and developed the corporate website for Nakuz',
-        'Built with modern technologies including React and Next.js',
-        'Implemented responsive design for optimal viewing on all devices',
-        'Integrated SEO best practices to improve visibility and organic traffic',
-        'Created an intuitive user interface with streamlined navigation'
-      ]
-    },
-    {
-      id: 'mahjong',
-      title: 'Hong Kong Mahjong Tycoon',
-      description: '3D Mahjong game with multiple game modes and engaging gameplay',
-      image: '/projects/hkmj.jpeg',
-      images: [
-        '/projects/hkmj.jpeg',
-      ],
-      tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer'],
-      liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
-      category: "Mobile Games",
-      details: [
-        'Developed a popular 3D Mahjong game with over 100K downloads',
-        'Created authentic Hong Kong Mahjong gameplay with multiple game modes',
-        'Implemented real-time multiplayer functionality with low latency',
-        'Designed engaging UI/UX to maximize player retention',
-        'Achieved 4.2-star rating with 3,280+ reviews on Google Play'
-      ]
-    },
-    {
-      id: 'fmj',
-      title: 'Crazy Mahjong 16 Tiles',
-      description: 'Popular Taiwanese Mahjong game with custom rules and exciting gameplay',
-      image: '/projects/fmj.jpeg',
-      images: [
-        '/projects/fmj.jpeg',
-      ],
-      tags: ['Unity', 'C#', 'Mobile Game', 'Multiplayer', 'Taiwanese Mahjong'],
-      liveUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
-      category: "Mobile Games",
-      details: [
-        'Developed a popular Taiwanese Mahjong game focusing on the unique 16-tile variant',
-        'Implemented authentic Taiwanese Mahjong rules with customizable gameplay options',
-        'Created engaging visuals and sound effects for an immersive gaming experience',
-        'Built a robust multiplayer system supporting thousands of concurrent players',
-        'Achieved high user retention through regular content updates and events'
-      ]
-    },
-    {
-      id: 'anymud',
-      title: 'Anymud',
-      description: 'Modern Medium-like publishing platform with advanced editor capabilities',
-      image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Anymud+Platform',
-      images: [
-        'https://placehold.co/800x450/4A90E2/FFFFFF?text=Anymud+Platform',
-      ],
-      tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO'],
-      github: 'https://github.com/shtse8/anymud',
-      liveUrl: 'https://anymud.com',
-      category: "Web Apps",
-      details: [
-        'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
-        'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
-        'Implemented smart backspace behavior and keyboard shortcuts to slash content creation time by 50%',
-        'Deployed on GCP with Docker for horizontal scaling and high availability',
-        'Optimized SEO with structured data and semantic markup, driving 60% organic traffic growth'
-      ]
-    },
-    {
-      id: 'novelfeed',
-      title: 'NovelFeed',
-      description: 'Publisher-focused article sharing platform with enhanced social integration',
-      image: 'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
-      images: [
-        'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
-      ],
-      tags: ['PHP', 'MySQL', 'Facebook Integration', 'Responsive Design', 'SEO'],
-      category: "Web Apps",
-      details: [
-        'Developed a publisher-focused article sharing platform with PHP and MySQL',
-        'Created Facebook and mobile optimized versions to maximize user reach',
-        'Increased publisher engagement by 45% through intuitive content management tools',
-        'Optimized web application with semantic HTML, structured data, and SEO best practices',
-        'Achieved top search engine rankings for publisher content through technical optimization'
-      ]
-    },
-    {
-      id: 'dex',
-      title: 'Decentralized Exchange',
-      description: 'A hybrid DEX platform combining Bancor-Orderbook models for cross-chain trading',
-      image: 'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
-      images: [
-        'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
-      ],
-      tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
-      category: "Blockchain",
-      details: [
-        'Designed a hybrid Bancor-Orderbook model for cross-chain asset trading between EOS, ETH, and BTC',
-        'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
-        'Implemented atomic swaps, cross-chain liquidity pools, and automated market making algorithms',
-        'Created smart contracts for transparent profit sharing and automated settlements',
-        'Developed a responsive trading interface with real-time order book updates and transaction tracking'
-      ]
-    },
-    {
-      id: 'blockchain-app-center',
-      title: 'Blockchain App Center',
-      description: 'Multi-chain application deployment platform with real-time profit sharing',
-      image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
-      images: [
-        'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
-      ],
-      tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
-      category: "Blockchain",
-      details: [
-        'Built a platform enabling streamlined deployment of applications across multiple blockchains',
-        'Pioneered the industry\'s first real-time profit-sharing system for developers',
-        'Eliminated the typical one-week delay in earnings distribution through smart contract automation',
-        'Created a unified interface for managing applications on different blockchain networks',
-        'Implemented secure wallet integration and transaction handling across chains'
-      ]
-    },
-    {
-      id: 'mining-pool',
-      title: 'Multi-Chain Mining Pool Platform',
-      description: 'Cross-chain mining pool system supporting EOS, ETH, and BTC with transparent profit sharing',
-      image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
-      images: [
-        'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
-      ],
-      tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
-      category: "Blockchain",
-      details: [
-        'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
-        'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
-        'Implemented blockchain-specific smart contracts for transparent profit sharing',
-        'Created automated payout systems with full transaction verification',
-        'Built real-time dashboards for miners to track earnings and performance metrics'
-      ]
-    },
-    {
-      id: 'ai-trading',
-      title: 'Quantitative Trading System',
-      description: 'Advanced algorithmic trading platform leveraging multiple indicators and real-time execution',
-      image: '/projects/quant_trading.jpg',
-      images: [
-        '/projects/quant_trading.jpg',
-        '/projects/quant_trading_ror.jpg',
-      ],
-      tags: ['Go', 'Python', 'TradingView', 'TigerTrade', 'Firebase', 'PyTorch', 'Telegram'],
-      github: 'https://github.com/shtse8/TradingBot',
-      category: "AI & ML",
-      details: [
-        'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
-        'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
-        'Built Python-based backtesting framework with pandas, PyTorch, and backtrader',
-        'Implemented machine learning models with PyTorch, AdaBelief optimizer, and Huber Loss function',
-        'Created a Telegram bot for real-time trade notifications, signals, and performance reporting'
-      ]
-    },
-    {
-      id: 'media-organizer',
-      title: 'SotiMediaOrganizer',
-      description: 'Advanced media deduplication and organization tool',
-      image: '/projects/SotiMediaOrganizer.jpg',
-      images: [
-        '/projects/SotiMediaOrganizer.jpg',
-      ],
-      tags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
-      github: 'https://github.com/shtse8/SotiMediaOrganizer',
-      category: "Tools & Utilities",
-      details: [
-        'Created a media deduplication tool with TypeScript, Python, and Bun',
-        'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
-        'Improved audio/video processing speed by 60%',
-        'Implemented perceptual hashing for similar image detection',
-        'Built a user-friendly interface for managing large media collections'
-      ]
-    },
-    {
-      id: 'google-photos-delete',
-      title: 'Google Photos Delete Tool',
-      description: 'Chrome extension for efficient bulk deletion of Google Photos',
-      image: '/projects/google_photo_delete_tool.jpg',
-      images: [
-        '/projects/google_photo_delete_tool.jpg',
-      ],
-      tags: ['JavaScript', 'Chrome Extension', 'Automation', 'Google Photos API'],
-      github: 'https://github.com/shtse8/google-photos-delete-tool',
-      liveUrl: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb',
-      category: "Tools & Utilities",
-      details: [
-        'Developed a Chrome extension with 2,000+ users to efficiently manage and clean up Google Photos libraries',
-        'Implemented intelligent batch processing with custom selectors for automated photo deletion',
-        'Created smart scrolling logic to handle large photo libraries with 10,000+ images',
-        'Built in robust error handling and progress tracking for operation reliability',
-        'Earned 4.7/5 star rating on Chrome Web Store and 73+ stars on GitHub'
-      ]
-    }
-  ];
-  
   // Filter projects
   useEffect(() => {
     if (activeCategory === "All") {
-      setFilteredProjects(projects);
+      setFilteredProjects(PROJECTS);
     } else {
-      setFilteredProjects(projects.filter(project => project.category === activeCategory));
+      setFilteredProjects(PROJECTS.filter(project => project.category === activeCategory));
     }
-    setActiveProject(0);
+    setSelectedProjectIndex(0);
   }, [activeCategory]);
   
   const nextProject = () => {
