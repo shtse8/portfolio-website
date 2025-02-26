@@ -426,23 +426,28 @@ export default function FeaturedProjects() {
   };
   
   return (
-    <section id="projects" className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+    <section id="projects" className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Featured Projects</h2>
-        <p className="text-gray-600 dark:text-gray-400 text-center max-w-3xl mx-auto mb-8">
-          Showcasing some of my most innovative work across different domains and technologies.
-        </p>
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 relative inline-block">
+            <span className="relative z-10">Featured Projects</span>
+            <span className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-500"></span>
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            Showcasing some of my most innovative work across different domains and technologies.
+          </p>
+        </div>
         
         {/* Category filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
           {CATEGORIES.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-full transition-colors ${
+              className={`px-4 py-2 rounded-full transition-all duration-300 ${
                 category === activeCategory
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md transform scale-105'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 hover:shadow'
               }`}
             >
               {category}
@@ -451,51 +456,64 @@ export default function FeaturedProjects() {
         </div>
         
         {/* Grid view */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-8 mb-16">
           {filteredProjects.map((project, idx) => (
             <div 
               key={project.id}
               onClick={() => openProjectModal(idx)}
-              className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 hover:-translate-y-1 duration-300"
+              className="group cursor-pointer bg-white dark:bg-gray-800 rounded-xl overflow-hidden hover:shadow-xl transition-all transform hover:scale-105 hover:-translate-y-1 duration-300 border border-gray-100 dark:border-gray-700"
             >
-              <div className="relative h-48">
+              <div className="relative h-52 overflow-hidden">
                 {imageError[project.id] ? (
                   <div 
                     className="absolute inset-0 flex items-center justify-center" 
                     style={{ backgroundColor: getProjectColor(idx) }}
                   >
-                    <span className="text-white text-4xl font-bold">{project.title.charAt(0)}</span>
+                    <span className="text-white text-5xl font-bold">{project.title.charAt(0)}</span>
                   </div>
                 ) : (
-                  <Image 
-                    src={project.image}
-                    alt={project.title}
-                    fill
-                    className="object-cover"
-                    onError={() => handleImageError(project.id)}
-                  />
+                  <>
+                    <Image 
+                      src={project.image}
+                      alt={project.title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      onError={() => handleImageError(project.id)}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </>
                 )}
                 
-                {/* Hover effect overlay for project cards */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                {/* Category badge */}
+                <div className="absolute top-3 right-3 bg-blue-600/90 text-white text-xs font-medium px-2 py-1 rounded-full backdrop-blur-sm">
+                  {project.category}
+                </div>
               </div>
-              <div className="p-4">
-                <h3 className="font-bold text-lg mb-2 truncate">{project.title}</h3>
-                <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
+              
+              <div className="p-5">
+                <h3 className="font-bold text-xl mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{project.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4">
                   {project.description}
                 </p>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5 mb-3">
                   {project.tags.slice(0, 3).map((tag, idx) => (
                     <span 
                       key={idx}
-                      className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs"
+                      className="bg-blue-100/80 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2.5 py-0.5 rounded-full text-xs font-medium"
                     >
                       {tag}
                     </span>
                   ))}
                   {project.tags.length > 3 && (
-                    <span className="text-gray-500 dark:text-gray-400 text-xs">+{project.tags.length - 3} more</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">+{project.tags.length - 3} more</span>
                   )}
+                </div>
+                
+                {/* View details button */}
+                <div className="flex justify-end mt-2">
+                  <span className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform duration-300">
+                    View Details <FaChevronRight className="ml-1 text-xs" />
+                  </span>
                 </div>
               </div>
             </div>
@@ -505,7 +523,7 @@ export default function FeaturedProjects() {
         {/* Project details modal */}
         {isModalOpen && selectedProject && (
           <div 
-            className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-75 flex items-center justify-center p-4 animate-fadeIn" 
+            className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" 
             onClick={closeProjectModal}
           >
             <div 
@@ -518,7 +536,7 @@ export default function FeaturedProjects() {
             >
               <button 
                 onClick={closeProjectModal}
-                className="absolute right-4 top-4 z-20 bg-white dark:bg-gray-700 rounded-full p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="absolute right-4 top-4 z-20 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-full p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-md"
                 aria-label="Close modal"
               >
                 <FaTimes />
@@ -528,7 +546,7 @@ export default function FeaturedProjects() {
                 <>
                   <button 
                     onClick={prevProject}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
                     aria-label="Previous project"
                   >
                     <FaChevronLeft />
@@ -536,7 +554,7 @@ export default function FeaturedProjects() {
                   
                   <button 
                     onClick={nextProject}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
                     aria-label="Next project"
                   >
                     <FaChevronRight />
@@ -544,29 +562,41 @@ export default function FeaturedProjects() {
                 </>
               )}
               
-              <div className="p-6">
+              <div className="p-6 md:p-8">
                 <div className="grid md:grid-cols-2 gap-8 items-start">
                   <div className="order-2 md:order-1 animate-slideInRight">
-                    <h3 className="text-2xl font-bold mb-4">{selectedProject.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">{selectedProject.description}</p>
+                    <div className="flex items-center mb-2">
+                      <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 text-xs font-medium rounded-full">
+                        {selectedProject.category}
+                      </span>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900 dark:text-white">{selectedProject.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">{selectedProject.description}</p>
                     
-                    <div className="mb-6">
-                      <h4 className="font-semibold mb-2">Key Features:</h4>
-                      <ul className="space-y-2">
+                    <div className="mb-8 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-lg border border-gray-100 dark:border-gray-700">
+                      <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                        <span className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mr-2">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        </span>
+                        Key Features
+                      </h4>
+                      <ul className="space-y-3">
                         {selectedProject.details.map((detail, idx) => (
                           <li key={idx} className="flex items-start">
-                            <span className="text-blue-600 mr-2">•</span>
-                            <span>{parseMarkdownLinks(detail)}</span>
+                            <span className="text-blue-600 dark:text-blue-400 mr-2 mt-1">•</span>
+                            <span className="text-gray-700 dark:text-gray-300">{parseMarkdownLinks(detail)}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="flex flex-wrap gap-2 mb-8">
                       {selectedProject.tags.map((tag, idx) => (
                         <span 
                           key={idx}
-                          className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm"
+                          className="bg-blue-100/80 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium"
                         >
                           {tag}
                         </span>
@@ -579,7 +609,7 @@ export default function FeaturedProjects() {
                           href={selectedProject.github}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                          className="flex items-center gap-2 bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg transition-all transform hover:scale-105 duration-300 shadow-md"
                         >
                           <FaGithub /> View Code
                         </Link>
@@ -590,7 +620,7 @@ export default function FeaturedProjects() {
                           href={selectedProject.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg transition-all transform hover:scale-105 duration-300 shadow-md"
                         >
                           <FaExternalLinkAlt /> Live Demo
                         </Link>
@@ -601,7 +631,7 @@ export default function FeaturedProjects() {
                           href={selectedProject.androidUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-[#01875f] hover:bg-[#017352] text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                          className="flex items-center gap-2 bg-[#01875f] hover:bg-[#017352] text-white px-4 py-2 rounded-lg transition-all transform hover:scale-105 duration-300 shadow-md"
                         >
                           <FaGooglePlay /> Google Play
                         </Link>
@@ -612,7 +642,7 @@ export default function FeaturedProjects() {
                           href={selectedProject.iosUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 bg-black hover:bg-[#1a1a1a] text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                          className="flex items-center gap-2 bg-black hover:bg-[#1a1a1a] text-white px-4 py-2 rounded-lg transition-all transform hover:scale-105 duration-300 shadow-md"
                         >
                           <FaApple /> App Store
                         </Link>
@@ -620,8 +650,8 @@ export default function FeaturedProjects() {
                     </div>
                   </div>
                   
-                  <div className="order-1 md:order-2 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg animate-slideInLeft">
-                    <div className="relative aspect-video rounded-lg overflow-hidden">
+                  <div className="order-1 md:order-2 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-4 rounded-xl shadow-lg animate-slideInLeft">
+                    <div className="relative aspect-video rounded-lg overflow-hidden shadow-md">
                       {imageError[selectedProject.id] ? (
                         <div 
                           className="absolute inset-0 flex flex-col items-center justify-center" 
@@ -670,7 +700,7 @@ export default function FeaturedProjects() {
                                 setFilteredProjects(newFilteredProjects);
                               }}
                               className={`cursor-pointer flex-shrink-0 w-16 h-16 rounded-md overflow-hidden transition-all duration-300 
-                                ${isActive ? 'ring-2 ring-blue-500 scale-110' : 'opacity-70 hover:opacity-100'}`}
+                                ${isActive ? 'ring-2 ring-blue-500 scale-110 shadow-md' : 'opacity-70 hover:opacity-100'}`}
                             >
                               <div className="relative w-full h-full">
                                 <Image 
@@ -689,7 +719,7 @@ export default function FeaturedProjects() {
                 </div>
                 
                 {/* Project navigation overview */}
-                <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <div className="mt-10 pt-6 border-t border-gray-200 dark:border-gray-700">
                   <h4 className="font-semibold mb-4 text-gray-700 dark:text-gray-300 text-center">Browse Projects</h4>
                   <div className="flex overflow-x-auto pb-4 gap-4 justify-center">
                     {filteredProjects.map((project, idx) => (
