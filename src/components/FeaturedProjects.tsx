@@ -40,7 +40,7 @@ const PROJECTS: Project[] = [
     images: [
       '/projects/cubeage.jpg',
     ],
-    tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#'],
+    tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#', 'MySQL', 'Percona'],
     liveUrl: 'https://cubeage.com',
     category: "Mobile Games",
     details: [
@@ -48,7 +48,8 @@ const PROJECTS: Project[] = [
       'Published 10+ games on Google Play and App Store with 100K+ installations',
       'Created Hong Kong Mahjong Tycoon, Fun Texas Holdem, and other popular titles',
       'Implemented innovative game mechanics resulting in 4.2+ average ratings',
-      'Built and managed cross-functional teams for game development and operations'
+      'Built and managed cross-functional teams for game development and operations',
+      'Utilized MySQL and Percona for high-performance game data storage and analytics'
     ]
   },
   {
@@ -59,12 +60,12 @@ const PROJECTS: Project[] = [
     images: [
       '/projects/big2_tycoon.jpg',
     ],
-    tags: ['Unity3D', 'TypeScript', 'Socket.IO', 'Protobuf', 'Multiplayer', 'ELO Rating'],
+    tags: ['Unity3D', 'TypeScript', 'Socket.IO', 'Protobuf', 'Multiplayer', 'ELO Rating', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.gameflask.btthk',
     iosUrl: 'https://apps.apple.com/us/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A8-%E6%9C%80%E5%88%BA%E6%BF%80%E7%9A%84%E7%AD%96%E7%95%A5%E6%A3%8B%E7%89%8C%E9%81%8A%E6%88%B2/id1295634408',
     category: "Mobile Games",
     details: [
-      'Developed a real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
+      'Led development at Cubeage for this real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
       'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
       'Built a distributed backend architecture using TypeScript, Socket.IO, and Protobuf on Ubuntu servers',
       'Created a PubSub system for efficient real-time communication and game state synchronization',
@@ -98,11 +99,11 @@ const PROJECTS: Project[] = [
     images: [
       '/projects/hkmj.jpeg',
     ],
-    tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer'],
+    tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
     category: "Mobile Games",
     details: [
-      'Developed a popular 3D Mahjong game with over 100K downloads',
+      'Led development at Cubeage for this popular 3D Mahjong game with over 100K downloads',
       'Created authentic Hong Kong Mahjong gameplay with multiple game modes',
       'Implemented real-time multiplayer functionality with low latency',
       'Designed engaging UI/UX to maximize player retention',
@@ -118,12 +119,12 @@ const PROJECTS: Project[] = [
       '/projects/fsh/1.jpg',
       '/projects/fsh/2.jpg',
     ],
-    tags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation'],
+    tags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
     iosUrl: 'https://apps.apple.com/us/app/fun-showhand-stud-poker/id1238318956',
     category: "Mobile Games",
     details: [
-      'Developed a popular poker game available on both Android and iOS platforms',
+      'Led development at Cubeage for this popular poker game available on both Android and iOS platforms',
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
       'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
       'Designed offline gameplay with online social features including friend system and cloud save',
@@ -138,12 +139,12 @@ const PROJECTS: Project[] = [
     images: [
       '/projects/fmj.jpeg',
     ],
-    tags: ['Unity', 'C#', 'Mobile Game', 'Corona SDK', 'Taiwanese Mahjong', 'AI'],
+    tags: ['Unity', 'C#', 'Mobile Game', 'Corona SDK', 'Taiwanese Mahjong', 'AI', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app',
     iosUrl: 'https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150',
     category: "Mobile Games",
     details: [
-      'Developed a popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
+      'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
       'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
       'Implemented highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
       'Designed a simple, intuitive interface focused on gameplay rather than excessive visual effects',
@@ -178,10 +179,10 @@ const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
     ],
-    tags: ['PHP', 'MySQL', 'Facebook Integration', 'Responsive Design', 'SEO'],
+    tags: ['PHP', 'MySQL', 'Percona', 'Facebook Integration', 'Responsive Design', 'SEO'],
     category: "Web Apps",
     details: [
-      'Developed a publisher-focused article sharing platform with PHP and MySQL',
+      'Developed a publisher-focused article sharing platform with PHP and MySQL/Percona',
       'Created Facebook and mobile optimized versions to maximize user reach',
       'Increased publisher engagement by 45% through intuitive content management tools',
       'Optimized web application with semantic HTML, structured data, and SEO best practices',
