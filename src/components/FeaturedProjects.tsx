@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaChevronLeft, FaChevronRight, FaTimes } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -33,7 +33,8 @@ export default function FeaturedProjects() {
   const [imageError, setImageError] = useState<{[key: string]: boolean}>({});
   const [activeCategory, setActiveCategory] = useState("All");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   
   const projects: Project[] = [
     {
@@ -275,14 +276,14 @@ export default function FeaturedProjects() {
   }, [activeCategory]);
   
   const nextProject = () => {
-    setActiveProject((prev) => (prev + 1) % filteredProjects.length);
+    setSelectedProjectIndex((prev) => (prev + 1) % filteredProjects.length);
   };
   
   const prevProject = () => {
-    setActiveProject((prev) => (prev - 1 + filteredProjects.length) % filteredProjects.length);
+    setSelectedProjectIndex((prev) => (prev - 1 + filteredProjects.length) % filteredProjects.length);
   };
   
-  const currentProject = filteredProjects[activeProject] || projects[0];
+  const selectedProject = filteredProjects[selectedProjectIndex];
 
   const handleImageError = (projectId: string) => {
     setImageError(prev => ({ ...prev, [projectId]: true }));
@@ -291,6 +292,17 @@ export default function FeaturedProjects() {
   const getProjectColor = (index: number) => {
     const colors = ['#4A90E2', '#50E3C2', '#F5A623', '#D0021B'];
     return colors[index % colors.length];
+  };
+
+  const openProjectModal = (index: number) => {
+    setSelectedProjectIndex(index);
+    setIsModalOpen(true);
+    document.body.style.overflow = 'hidden'; // 防止背景滾動
+  };
+
+  const closeProjectModal = () => {
+    setIsModalOpen(false);
+    document.body.style.overflow = 'auto'; // 恢復背景滾動
   };
   
   return (
@@ -302,7 +314,7 @@ export default function FeaturedProjects() {
         </p>
         
         {/* 類別篩選器 */}
-        <div className="flex flex-wrap justify-center gap-2 mb-6">
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
           {CATEGORIES.map((category) => (
             <button
               key={category}
@@ -318,143 +330,75 @@ export default function FeaturedProjects() {
           ))}
         </div>
         
-        {/* 視圖切換按鈕 */}
-        <div className="flex justify-center mb-8">
-          <div className="flex bg-gray-200 dark:bg-gray-700 p-1 rounded-lg">
-            <button
-              onClick={() => setViewMode('carousel')}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                viewMode === 'carousel'
-                  ? 'bg-white dark:bg-gray-800 shadow'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
+        {/* 網格視圖 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10">
+          {filteredProjects.map((project, idx) => (
+            <div 
+              key={project.id}
+              onClick={() => openProjectModal(idx)}
+              className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow transform hover:scale-105 duration-300"
             >
-              Carousel View
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                viewMode === 'grid'
-                  ? 'bg-white dark:bg-gray-800 shadow'
-                  : 'text-gray-700 dark:text-gray-300'
-              }`}
-            >
-              Grid View
-            </button>
-          </div>
-        </div>
-        
-        {viewMode === 'grid' ? (
-          // 網格視圖
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-10">
-            {filteredProjects.map((project, idx) => (
-              <div 
-                key={project.id}
-                onClick={() => {
-                  setActiveProject(idx);
-                  setViewMode('carousel');
-                }}
-                className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow"
-              >
-                <div className="relative h-48">
-                  {imageError[project.id] ? (
-                    <div 
-                      className="absolute inset-0 flex items-center justify-center" 
-                      style={{ backgroundColor: getProjectColor(idx) }}
+              <div className="relative h-48">
+                {imageError[project.id] ? (
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center" 
+                    style={{ backgroundColor: getProjectColor(idx) }}
+                  >
+                    <span className="text-white text-4xl font-bold">{project.title.charAt(0)}</span>
+                  </div>
+                ) : (
+                  <Image 
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="object-cover"
+                    onError={() => handleImageError(project.id)}
+                  />
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-lg mb-2 truncate">{project.title}</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
+                  {project.description}
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {project.tags.slice(0, 3).map((tag, idx) => (
+                    <span 
+                      key={idx}
+                      className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs"
                     >
-                      <span className="text-white text-4xl font-bold">{project.title.charAt(0)}</span>
-                    </div>
-                  ) : (
-                    <Image 
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      className="object-cover"
-                      onError={() => handleImageError(project.id)}
-                    />
+                      {tag}
+                    </span>
+                  ))}
+                  {project.tags.length > 3 && (
+                    <span className="text-gray-500 dark:text-gray-400 text-xs">+{project.tags.length - 3} more</span>
                   )}
                 </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 truncate">{project.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
-                    {project.description}
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    {project.tags.slice(0, 3).map((tag, idx) => (
-                      <span 
-                        key={idx}
-                        className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-0.5 rounded-full text-xs"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {project.tags.length > 3 && (
-                      <span className="text-gray-500 dark:text-gray-400 text-xs">+{project.tags.length - 3} more</span>
-                    )}
-                  </div>
-                </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          // 輪播視圖
-          <>
-            {/* 項目預覽列 - 使用分頁式布局代替橫向滾動 */}
-            <div className="mb-12">
-              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 px-2">
-                {filteredProjects.slice(0, 16).map((project, idx) => (
-                  <div 
-                    key={project.id}
-                    onClick={() => setActiveProject(idx)}
-                    className={`cursor-pointer transition-all duration-200 ${
-                      idx === activeProject 
-                        ? 'ring-4 ring-blue-500 transform scale-105' 
-                        : 'opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <div className="w-full aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden relative">
-                      {imageError[project.id] ? (
-                        <div 
-                          className="absolute inset-0 flex items-center justify-center" 
-                          style={{ backgroundColor: getProjectColor(idx) }}
-                        >
-                          <span className="text-white text-xl font-bold">{project.title.charAt(0)}</span>
-                        </div>
-                      ) : (
-                        <Image 
-                          src={project.image}
-                          alt={project.title}
-                          fill
-                          className="object-cover"
-                          onError={() => handleImageError(project.id)}
-                        />
-                      )}
-                    </div>
-                    <div className="mt-2 text-xs font-medium text-center truncate">
-                      {project.title}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {filteredProjects.length > 16 && (
-                <div className="text-center mt-4">
-                  <button 
-                    onClick={() => setViewMode('grid')}
-                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                  >
-                    Show All Projects
-                  </button>
-                </div>
-              )}
             </div>
-          
-            <div className="relative">
+          ))}
+        </div>
+        
+        {/* 項目詳情彈出窗口 */}
+        {isModalOpen && selectedProject && (
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-75 flex items-center justify-center p-4" onClick={closeProjectModal}>
+            <div 
+              className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button 
+                onClick={closeProjectModal}
+                className="absolute right-4 top-4 z-10 bg-white dark:bg-gray-700 rounded-full p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                aria-label="Close modal"
+              >
+                <FaTimes />
+              </button>
+              
               {filteredProjects.length > 1 && (
                 <>
                   <button 
                     onClick={prevProject}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
                     aria-label="Previous project"
                   >
                     <FaChevronLeft />
@@ -462,7 +406,7 @@ export default function FeaturedProjects() {
                   
                   <button 
                     onClick={nextProject}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
                     aria-label="Next project"
                   >
                     <FaChevronRight />
@@ -470,16 +414,16 @@ export default function FeaturedProjects() {
                 </>
               )}
               
-              <div className="max-w-6xl mx-auto">
-                <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="p-6">
+                <div className="grid md:grid-cols-2 gap-8 items-start">
                   <div className="order-2 md:order-1">
-                    <h3 className="text-2xl font-bold mb-4">{currentProject.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-6">{currentProject.description}</p>
+                    <h3 className="text-2xl font-bold mb-4">{selectedProject.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">{selectedProject.description}</p>
                     
                     <div className="mb-6">
                       <h4 className="font-semibold mb-2">Key Features:</h4>
                       <ul className="space-y-2">
-                        {currentProject.details.map((detail, idx) => (
+                        {selectedProject.details.map((detail, idx) => (
                           <li key={idx} className="flex items-start">
                             <span className="text-blue-600 mr-2">•</span>
                             <span>{detail}</span>
@@ -489,7 +433,7 @@ export default function FeaturedProjects() {
                     </div>
                     
                     <div className="flex flex-wrap gap-2 mb-6">
-                      {currentProject.tags.map((tag, idx) => (
+                      {selectedProject.tags.map((tag, idx) => (
                         <span 
                           key={idx}
                           className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm"
@@ -500,9 +444,9 @@ export default function FeaturedProjects() {
                     </div>
                     
                     <div className="flex gap-4">
-                      {currentProject.github && (
+                      {selectedProject.github && (
                         <Link 
-                          href={currentProject.github}
+                          href={selectedProject.github}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg transition-colors"
@@ -511,9 +455,9 @@ export default function FeaturedProjects() {
                         </Link>
                       )}
                       
-                      {currentProject.liveUrl && (
+                      {selectedProject.liveUrl && (
                         <Link 
-                          href={currentProject.liveUrl}
+                          href={selectedProject.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
@@ -526,19 +470,19 @@ export default function FeaturedProjects() {
                   
                   <div className="order-1 md:order-2 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg">
                     <div className="relative aspect-video rounded-lg overflow-hidden">
-                      {imageError[currentProject.id] ? (
+                      {imageError[selectedProject.id] ? (
                         <div 
                           className="absolute inset-0 flex flex-col items-center justify-center" 
-                          style={{ backgroundColor: getProjectColor(activeProject) }}
+                          style={{ backgroundColor: getProjectColor(selectedProjectIndex) }}
                         >
                           <div className="text-white text-6xl font-bold mb-4">
-                            {currentProject.title.charAt(0)}
+                            {selectedProject.title.charAt(0)}
                           </div>
                           <div className="text-white text-xl font-medium">
-                            {currentProject.title}
+                            {selectedProject.title}
                           </div>
                           <div className="flex flex-wrap justify-center mt-4 gap-2 max-w-xs">
-                            {currentProject.tags.slice(0, 3).map((tag, idx) => (
+                            {selectedProject.tags.slice(0, 3).map((tag, idx) => (
                               <span key={idx} className="bg-white/20 text-white px-2 py-1 rounded-md text-xs">
                                 {tag}
                               </span>
@@ -549,68 +493,51 @@ export default function FeaturedProjects() {
                         <>
                           <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
                           <Image 
-                            src={currentProject.image}
-                            alt={currentProject.title}
+                            src={selectedProject.image}
+                            alt={selectedProject.title}
                             fill
                             className="object-cover relative z-10"
-                            onError={() => handleImageError(currentProject.id)}
+                            onError={() => handleImageError(selectedProject.id)}
                           />
                         </>
                       )}
                     </div>
                     
                     {/* 項目多圖片預覽 - 如果有多張圖片則顯示 */}
-                    {currentProject.images && currentProject.images.length > 1 && (
+                    {selectedProject.images && selectedProject.images.length > 1 && (
                       <div className="mt-4 flex space-x-2 overflow-x-auto pb-2">
-                        {currentProject.images.map((img, idx) => (
-                          <div 
-                            key={idx}
-                            onClick={() => {
-                              const updatedProject = {...currentProject, image: img};
-                              setFilteredProjects(prevState => {
-                                const newState = [...prevState];
-                                newState[activeProject] = updatedProject;
-                                return newState;
-                              });
-                            }}
-                            className={`cursor-pointer flex-shrink-0 w-16 h-16 rounded-md overflow-hidden ${
-                              currentProject.image === img ? 'ring-2 ring-blue-500' : ''
-                            }`}
-                          >
-                            <div className="relative w-full h-full">
-                              <Image 
-                                src={img}
-                                alt={`${currentProject.title} - image ${idx+1}`}
-                                fill
-                                className="object-cover"
-                              />
+                        {selectedProject.images.map((img, idx) => {
+                          const isActive = selectedProject.image === img;
+                          return (
+                            <div 
+                              key={idx}
+                              onClick={() => {
+                                const updatedProject = {...selectedProject, image: img};
+                                const newFilteredProjects = [...filteredProjects];
+                                newFilteredProjects[selectedProjectIndex] = updatedProject;
+                                setFilteredProjects(newFilteredProjects);
+                              }}
+                              className={`cursor-pointer flex-shrink-0 w-16 h-16 rounded-md overflow-hidden 
+                                ${isActive ? 'ring-2 ring-blue-500' : 'opacity-80 hover:opacity-100'}`}
+                            >
+                              <div className="relative w-full h-full">
+                                <Image 
+                                  src={img}
+                                  alt={`${selectedProject.title} - image ${idx+1}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
                 </div>
-                
-                {filteredProjects.length > 1 && (
-                  <div className="flex justify-center mt-8">
-                    {filteredProjects.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setActiveProject(idx)}
-                        className={`w-3 h-3 mx-1 rounded-full transition-colors ${
-                          idx === activeProject 
-                            ? 'bg-blue-600' 
-                            : 'bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600'
-                        }`}
-                        aria-label={`Go to project ${idx + 1}`}
-                      />
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </section>
