@@ -54,6 +54,26 @@ const PROJECTS: Project[] = [
     ]
   },
   {
+    id: 'minimax',
+    title: 'MiniMax Technology',
+    description: 'Blockchain technology company specializing in cross-chain solutions and decentralized applications',
+    image: '/companys/minimax.jpeg',
+    images: [
+      '/companys/minimax.jpeg',
+    ],
+    tags: ['Blockchain', 'EOS', 'Ethereum', 'Bitcoin', 'Smart Contracts', 'TypeScript', 'Kubernetes'],
+    category: "Blockchain",
+    details: [
+      'Led blockchain development at MiniMax Technology, focusing on cross-chain solutions and DApps',
+      'Delivered three major blockchain projects: Decentralized Exchange (DEX), Blockchain App Center, and Multi-Chain Mining Pool',
+      'Architected and implemented cross-chain infrastructure allowing seamless asset transfer between EOS, ETH, and BTC chains',
+      'Pioneered industry\'s first real-time profit-sharing system, eliminating the typical one-week delay in earnings distribution',
+      'Designed and implemented smart contracts for transparent governance and automated financial operations',
+      'Built scalable infrastructure using TypeScript microservices orchestrated with Kubernetes',
+      'Related Projects: See [Decentralized Exchange](#dex), [Blockchain App Center](#blockchain-app-center), and [Multi-Chain Mining Pool](#mining-pool) in this portfolio'
+    ]
+  },
+  {
     id: 'big2-tycoon',
     title: 'Big2 Tycoon',
     description: 'Multiplayer competitive card game with character progression and arena tournaments',
@@ -82,7 +102,7 @@ const PROJECTS: Project[] = [
     images: [
       '/projects/nakuz.jpg',
     ],
-    tags: ['React', 'Next.js', 'Responsive Design', 'SEO'],
+    tags: ['React', 'Next.js', 'Responsive Design', 'SEO', 'Nakuz'],
     liveUrl: 'https://nakuz.com',
     category: "Web Apps",
     details: [
@@ -165,7 +185,7 @@ const PROJECTS: Project[] = [
     images: [
       '/projects/anymud.jpeg',
     ],
-    tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO'],
+    tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO', 'MiniMax'],
     github: 'https://github.com/shtse8/anymud',
     liveUrl: 'https://anymud.com',
     category: "Web Apps",
@@ -203,14 +223,15 @@ const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
     ],
-    tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
+    tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum', 'MiniMax'],
     category: "Blockchain",
     details: [
-      'Designed a hybrid Bancor-Orderbook model for cross-chain asset trading between EOS, ETH, and BTC',
+      'Led development at MiniMax for this hybrid Bancor-Orderbook model for cross-chain asset trading',
       'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
       'Implemented atomic swaps, cross-chain liquidity pools, and automated market making algorithms',
       'Created smart contracts for transparent profit sharing and automated settlements',
-      'Developed a responsive trading interface with real-time order book updates and transaction tracking'
+      'Developed a responsive trading interface with real-time order book updates and transaction tracking',
+      'Part of the MiniMax blockchain project portfolio - see other related blockchain projects'
     ]
   },
   {
@@ -221,14 +242,15 @@ const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
     ],
-    tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
+    tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin', 'MiniMax'],
     category: "Blockchain",
     details: [
-      'Built a platform enabling streamlined deployment of applications across multiple blockchains',
+      'Led development at MiniMax to build a platform enabling streamlined deployment of applications across multiple blockchains',
       'Pioneered the industry\'s first real-time profit-sharing system for developers',
       'Eliminated the typical one-week delay in earnings distribution through smart contract automation',
       'Created a unified interface for managing applications on different blockchain networks',
-      'Implemented secure wallet integration and transaction handling across chains'
+      'Implemented secure wallet integration and transaction handling across chains',
+      'Part of the MiniMax blockchain project portfolio'
     ]
   },
   {
@@ -239,14 +261,15 @@ const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
     ],
-    tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
+    tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS', 'MiniMax'],
     category: "Blockchain",
     details: [
-      'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
+      'Led development at MiniMax to engineer a cross-chain mining pool system supporting EOS, ETH, and BTC',
       'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
       'Implemented blockchain-specific smart contracts for transparent profit sharing',
       'Created automated payout systems with full transaction verification',
-      'Built real-time dashboards for miners to track earnings and performance metrics'
+      'Built real-time dashboards for miners to track earnings and performance metrics',
+      'Part of the MiniMax blockchain project portfolio'
     ]
   },
   {
@@ -315,9 +338,23 @@ const COMPANIES = {
   'cubeage': {
     id: 'cubeage',
     name: 'Cubeage Limited',
-    logo: '/projects/cubeage.jpg',
+    logo: '/companys/cubeage.jpeg',
     color: '#4A90E2',
     url: 'https://cubeage.com'
+  },
+  'nakuz': {
+    id: 'nakuz',
+    name: 'Nakuz',
+    logo: '/companys/nakuz.jpeg',
+    color: '#F5A623',
+    url: 'https://nakuz.com'
+  },
+  'minimax': {
+    id: 'minimax',
+    name: 'MiniMax',
+    logo: '/companys/minimax.jpeg',
+    color: '#D0021B',
+    url: '#'
   }
   // 可以添加更多公司
 };
@@ -440,7 +477,10 @@ export default function FeaturedProjects() {
   // 根據項目ID獲取關聯公司
   const getRelatedCompany = (projectId: string, tags: string[]) => {
     if (projectId === 'cubeage') return COMPANIES['cubeage'];
+    if (projectId === 'nakuz') return COMPANIES['nakuz'];
     if (tags.includes('Cubeage')) return COMPANIES['cubeage'];
+    if (tags.includes('Nakuz')) return COMPANIES['nakuz'];
+    if (tags.includes('MiniMax')) return COMPANIES['minimax'];
     return null;
   };
   
