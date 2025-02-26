@@ -112,21 +112,22 @@ const PROJECTS: Project[] = [
   },
   {
     id: 'fmj',
-    title: 'Crazy Mahjong 16 Tiles',
-    description: 'Popular Taiwanese Mahjong game with custom rules and exciting gameplay',
+    title: 'Fun Mahjong 16 Tiles',
+    description: 'Popular Taiwanese Mahjong game with over 1 million downloads featuring offline gameplay with online features',
     image: '/projects/fmj.jpeg',
     images: [
       '/projects/fmj.jpeg',
     ],
-    tags: ['Unity', 'C#', 'Mobile Game', 'Multiplayer', 'Taiwanese Mahjong'],
-    androidUrl: 'https://play.google.com/store/apps/dev?id=6521627455133408719',
+    tags: ['Unity', 'C#', 'Mobile Game', 'Corona SDK', 'Taiwanese Mahjong', 'AI'],
+    androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app',
+    iosUrl: 'https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150',
     category: "Mobile Games",
     details: [
-      'Developed a popular Taiwanese Mahjong game focusing on the unique 16-tile variant',
-      'Implemented authentic Taiwanese Mahjong rules with customizable gameplay options',
-      'Created engaging visuals and sound effects for an immersive gaming experience',
-      'Built a robust multiplayer system supporting thousands of concurrent players',
-      'Achieved high user retention through regular content updates and events'
+      'Developed a popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
+      'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
+      'Implemented highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
+      'Designed a simple, intuitive interface focused on gameplay rather than excessive visual effects',
+      'Integrated Appodeal for monetization while maintaining a non-intrusive gaming experience'
     ]
   },
   {
