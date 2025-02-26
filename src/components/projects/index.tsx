@@ -7,6 +7,7 @@ import ProjectModal from './ProjectModal';
 import ExperienceModal from './ExperienceModal';
 import CompanyModal from './CompanyModal';
 import { parseMarkdownLinks } from './utils';
+import Image from 'next/image';
 
 export default function FeaturedProjects() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -60,7 +61,6 @@ export default function FeaturedProjects() {
     setSelectedProjectIndex((prev) => (prev - 1 + filteredProjects.length) % filteredProjects.length);
   };
   
-  const selectedProject = filteredProjects[selectedProjectIndex];
   const selectedExperience = filteredExperiences[selectedExperienceIndex];
 
   const handleImageError = (projectId: string) => {
@@ -186,9 +186,11 @@ export default function FeaturedProjects() {
                           className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
                         >
                           <span className="w-5 h-5 mr-2 relative">
-                            <img 
+                            <Image 
                               src={COMPANIES[experience.company].logo} 
                               alt={COMPANIES[experience.company].name}
+                              fill
+                              style={{ objectFit: 'cover' }}
                               className="rounded-sm"
                             />
                           </span>
@@ -225,9 +227,9 @@ export default function FeaturedProjects() {
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black bg-opacity-75" onClick={closeModal}>
             <div className="w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-              {modalType === 'project' && selectedProject && (
+              {modalType === 'project' && selectedProjectIndex !== null && (
                 <ProjectModal 
-                  project={selectedProject}
+                  project={filteredProjects[selectedProjectIndex]}
                   closeModal={closeModal}
                   nextProject={nextProject}
                   prevProject={prevProject}
@@ -237,7 +239,7 @@ export default function FeaturedProjects() {
                   handleTouchStart={handleTouchStart}
                   handleTouchMove={handleTouchMove}
                   handleTouchEnd={handleTouchEnd}
-                  modalContentRef={modalContentRef}
+                  modalContentRef={modalContentRef as React.RefObject<HTMLDivElement>}
                 />
               )}
               
@@ -247,7 +249,7 @@ export default function FeaturedProjects() {
                   closeModal={closeModal}
                   openCompanyModal={openCompanyModal}
                   parseMarkdownLinks={parseMarkdownLinks}
-                  modalContentRef={modalContentRef}
+                  modalContentRef={modalContentRef as React.RefObject<HTMLDivElement>}
                 />
               )}
               
@@ -257,7 +259,7 @@ export default function FeaturedProjects() {
                   closeModal={closeModal}
                   openProjectModal={openProjectModal}
                   openExperienceModal={openExperienceModal}
-                  modalContentRef={modalContentRef}
+                  modalContentRef={modalContentRef as React.RefObject<HTMLDivElement>}
                 />
               )}
             </div>

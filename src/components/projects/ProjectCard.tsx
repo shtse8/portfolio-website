@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { FaBuilding } from 'react-icons/fa';
 import { Project, COMPANIES } from '../../data/portfolioData';
 
 type ProjectCardProps = {
