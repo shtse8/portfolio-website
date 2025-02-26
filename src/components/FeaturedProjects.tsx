@@ -585,8 +585,11 @@ export default function FeaturedProjects() {
   
   // 打開公司詳情模態窗口
   const openCompanyModal = (companyId: string) => {
+    console.log("openCompanyModal called with companyId:", companyId);
+    
     // 先檢查是否有對應的工作經驗
     const companyExperienceIndex = EXPERIENCES.findIndex(exp => exp.id === companyId);
+    console.log("Found experience index:", companyExperienceIndex);
     
     if (companyExperienceIndex !== -1) {
       // 如果找到對應的工作經驗，打開工作經驗模態窗口
@@ -595,6 +598,7 @@ export default function FeaturedProjects() {
       setIsExperienceModal(true);
       setSelectedCompanyId(companyId);
       document.body.style.overflow = 'hidden'; // Prevent background scrolling
+      console.log("Opening experience modal for company:", companyId);
     } else {
       // 如果沒有找到對應的工作經驗，但有公司信息，顯示一個簡單的提示
       console.log(`No experience found for company ID: ${companyId}`);
@@ -674,11 +678,14 @@ export default function FeaturedProjects() {
                     
                     {/* 公司關聯標識 - 在項目卡片上 */}
                     {relatedCompany && (
-                      <div 
-                        className="absolute top-3 left-3 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-gray-200 dark:border-gray-700"
+                      <button 
+                        type="button"
+                        className="absolute top-3 left-3 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-2 border-gray-200 dark:border-gray-700"
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           openCompanyModal(relatedCompany.id);
+                          console.log("Opening company modal for:", relatedCompany.id);
                         }}
                         title={`View ${relatedCompany.name} work experience`}
                       >
@@ -691,7 +698,7 @@ export default function FeaturedProjects() {
                           />
                         </div>
                         <span className="ml-1 text-xs font-medium text-gray-800 dark:text-gray-200">{relatedCompany.name}</span>
-                      </div>
+                      </button>
                     )}
                   </div>
                   
@@ -783,12 +790,14 @@ export default function FeaturedProjects() {
                           const project = PROJECTS.find(p => p.id === projectId);
                           if (!project) return null;
                           return (
-                            <div 
+                            <button 
                               key={projectId}
+                              type="button"
                               className={`flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all ${
                                 selectedCompanyId === experience.id && projectId === selectedProject.id ? 'ring-2 ring-blue-500' : ''
                               }`}
                               onClick={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
                                 setActiveCategory(project.category);
                                 setTimeout(() => {
@@ -802,19 +811,20 @@ export default function FeaturedProjects() {
                                 }, 100);
                               }}
                             >
-                              <div className="relative w-10 h-10 rounded-md overflow-hidden mr-3">
-                                <Image
+                              <div className="relative w-12 h-12 rounded-lg overflow-hidden mr-3">
+                                <Image 
                                   src={project.image}
                                   alt={project.title}
                                   fill
                                   className="object-cover"
+                                  onError={() => handleImageError(project.id)}
                                 />
                               </div>
-                              <div className="flex-1">
-                                <h5 className="font-medium text-sm text-gray-900 dark:text-white">{project.title}</h5>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{project.category}</p>
+                              <div>
+                                <h5 className="font-medium text-gray-900 dark:text-white text-sm">{project.title}</h5>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{project.category}</p>
                               </div>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
@@ -886,11 +896,14 @@ export default function FeaturedProjects() {
                       {/* 相關公司標籤 - 在項目詳情頁面頂部 */}
                       {selectedProject.company && (
                         <button 
-                          className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors border border-indigo-200 dark:border-indigo-800"
+                          type="button"
+                          className="flex items-center gap-1 px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full hover:bg-indigo-200 dark:hover:bg-indigo-900/70 transition-colors border-2 border-indigo-200 dark:border-indigo-800"
                           onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             if (selectedProject.company) {
                               openCompanyModal(selectedProject.company);
+                              console.log("Opening company modal for:", selectedProject.company);
                             }
                           }}
                           title={`View ${selectedProject.company ? COMPANIES[selectedProject.company]?.name : ''} work experience`}
@@ -1024,12 +1037,15 @@ export default function FeaturedProjects() {
                       
                       {/* 公司標記 - 在圖片右下角 (項目詳情頁) */}
                       {selectedProject.company && (
-                        <div 
-                          className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-gray-200 dark:border-gray-700"
+                        <button 
+                          type="button"
+                          className="absolute bottom-2 right-2 z-20 flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full py-1 px-2 shadow-md cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-2 border-gray-200 dark:border-gray-700"
                           onClick={(e) => {
+                            e.preventDefault();
                             e.stopPropagation();
                             if (selectedProject.company) {
                               openCompanyModal(selectedProject.company);
+                              console.log("Opening company modal for:", selectedProject.company);
                             }
                           }}
                           title={`View ${selectedProject.company ? COMPANIES[selectedProject.company]?.name : ''} work experience`}
@@ -1045,7 +1061,7 @@ export default function FeaturedProjects() {
                           <span className="ml-1 text-xs font-medium text-gray-800 dark:text-gray-200">
                             {selectedProject.company ? COMPANIES[selectedProject.company]?.name : ''}
                           </span>
-                        </div>
+                        </button>
                       )}
                     </div>
                     
@@ -1312,12 +1328,14 @@ export default function FeaturedProjects() {
                             const project = PROJECTS.find(p => p.id === projectId);
                             if (!project) return null;
                             return (
-                              <div 
+                              <button 
                                 key={projectId}
+                                type="button"
                                 className={`flex items-center bg-gray-50 dark:bg-gray-900/50 p-3 rounded-lg border border-gray-100 dark:border-gray-700 cursor-pointer hover:shadow-md transition-all ${
                                   selectedCompanyId === selectedExperience.id && projectId === selectedProject.id ? 'ring-2 ring-blue-500' : ''
                                 }`}
                                 onClick={(e) => {
+                                  e.preventDefault();
                                   e.stopPropagation();
                                   setActiveCategory(project.category);
                                   setTimeout(() => {
@@ -1331,19 +1349,20 @@ export default function FeaturedProjects() {
                                   }, 100);
                                 }}
                               >
-                                <div className="relative w-10 h-10 rounded-md overflow-hidden mr-3">
-                                  <Image
+                                <div className="relative w-12 h-12 rounded-lg overflow-hidden mr-3">
+                                  <Image 
                                     src={project.image}
                                     alt={project.title}
                                     fill
                                     className="object-cover"
+                                    onError={() => handleImageError(project.id)}
                                   />
                                 </div>
-                                <div className="flex-1">
-                                  <h5 className="font-medium text-sm text-gray-900 dark:text-white">{project.title}</h5>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{project.category}</p>
+                                <div>
+                                  <h5 className="font-medium text-gray-900 dark:text-white text-sm">{project.title}</h5>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">{project.category}</p>
                                 </div>
-                              </div>
+                              </button>
                             );
                           })}
                         </div>
