@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# 添加權限配置
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -32,5 +37,4 @@ jobs:
           apiToken: ${{ secrets.CF_API_KEY }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           projectName: portfolio-website
-          directory: .next
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }} 
+          directory: .next 
