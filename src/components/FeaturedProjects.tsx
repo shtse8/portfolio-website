@@ -52,6 +52,26 @@ const PROJECTS: Project[] = [
     ]
   },
   {
+    id: 'big2-tycoon',
+    title: 'Big2 Tycoon',
+    description: 'Multiplayer competitive card game with character progression and arena tournaments',
+    image: '/projects/big2_tycoon.jpg',
+    images: [
+      '/projects/big2_tycoon.jpg',
+    ],
+    tags: ['Unity3D', 'TypeScript', 'Socket.IO', 'Protobuf', 'Multiplayer', 'ELO Rating'],
+    androidUrl: 'https://play.google.com/store/apps/details?id=com.gameflask.btthk',
+    iosUrl: 'https://apps.apple.com/us/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A8-%E6%9C%80%E5%88%BA%E6%BF%80%E7%9A%84%E7%AD%96%E7%95%A5%E6%A3%8B%E7%89%8C%E9%81%8A%E6%88%B2/id1295634408',
+    category: "Mobile Games",
+    details: [
+      'Developed a real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
+      'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
+      'Built a distributed backend architecture using TypeScript, Socket.IO, and Protobuf on Ubuntu servers',
+      'Created a PubSub system for efficient real-time communication and game state synchronization',
+      'Designed engaging progression systems including character upgrades, treasure collection, and monthly arena tournaments'
+    ]
+  },
+  {
     id: 'nakuz',
     title: 'Nakuz Website',
     description: 'Professional corporate website for business solutions',
