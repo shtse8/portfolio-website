@@ -70,7 +70,7 @@ export default function FeaturedProjects() {
       id: 'media-organizer',
       title: 'SotiMediaOrganizer',
       description: 'Advanced media deduplication and organization tool',
-      image: 'https://placehold.co/800x450/D0021B/FFFFFF?text=Media+Organizer',
+      image: '/projects/SotiMediaOrganizer.jpg',
       tags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
       github: 'https://github.com/shtse8/SotiMediaOrganizer',
       details: [
