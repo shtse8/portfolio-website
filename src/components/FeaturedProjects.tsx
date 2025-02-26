@@ -14,6 +14,7 @@ type Project = {
   tags: string[];
   github?: string;
   liveUrl?: string;
+  iosUrl?: string;
   details: string[];
   category: string;
 };
@@ -85,6 +86,27 @@ const PROJECTS: Project[] = [
       'Implemented real-time multiplayer functionality with low latency',
       'Designed engaging UI/UX to maximize player retention',
       'Achieved 4.2-star rating with 3,280+ reviews on Google Play'
+    ]
+  },
+  {
+    id: 'fun-showhand',
+    title: 'Fun Showhand: Stud Poker',
+    description: 'Engaging poker game with multiple game modes and social features',
+    image: '/images/fsh/1.webp',
+    images: [
+      '/images/fsh/1.webp',
+      '/images/fsh/2.webp',
+    ],
+    tags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation'],
+    liveUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
+    iosUrl: 'https://apps.apple.com/us/app/fun-showhand-stud-poker/id1238318956',
+    category: "Mobile Games",
+    details: [
+      'Developed a popular poker game available on both Android and iOS platforms',
+      'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
+      'Integrated analytics and user engagement tools including AppsFlyer and OneSignal',
+      'Created an engaging offline gameplay experience with multiple game modes',
+      'Featured in review videos including AppszooN with positive feedback'
     ]
   },
   {
@@ -504,7 +526,18 @@ export default function FeaturedProjects() {
                           rel="noopener noreferrer"
                           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
                         >
-                          <FaExternalLinkAlt /> Live Demo
+                          <FaExternalLinkAlt /> {selectedProject.iosUrl ? 'Google Play' : 'Live Demo'}
+                        </Link>
+                      )}
+                      
+                      {selectedProject.iosUrl && (
+                        <Link 
+                          href={selectedProject.iosUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-lg transition-colors transform hover:scale-105 duration-300"
+                        >
+                          <FaExternalLinkAlt /> App Store
                         </Link>
                       )}
                     </div>
