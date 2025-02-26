@@ -6,13 +6,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { PROJECTS, COMPANIES, EXPERIENCES, Project } from '@/data/portfolioData';
 import type { Experience } from '@/data/portfolioData';
-import ExperienceCard from './ExperienceCard';
 import ExperienceModal from './ExperienceModal';
 import { parseMarkdownLinks } from '../projects/utils';
 
 export default function Experience() {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedExperienceIndex, setSelectedExperienceIndex] = useState<number>(0);
@@ -23,10 +20,6 @@ export default function Experience() {
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
   const modalContentRef = useRef<HTMLDivElement>(null);
-  
-  const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
   
   // Use the actual experiences from data
   const experiences = EXPERIENCES;
@@ -119,9 +112,10 @@ export default function Experience() {
           </p>
         </div>
         
-        {/* Timeline View */}
-        <div className="max-w-4xl mx-auto mb-16 relative hidden md:block">
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-blue-200 dark:bg-blue-900/50"></div>
+        {/* Timeline View - With responsive layout changes */}
+        <div className="max-w-4xl mx-auto mb-16 relative">
+          {/* Timeline Line - Longer to extend below the last card */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-blue-200 dark:bg-blue-900/50 h-[calc(100%+50px)]"></div>
           
           {sortedExperiences.map((exp, index) => {
             const startYear = exp.period.split(' - ')[0];
@@ -131,19 +125,26 @@ export default function Experience() {
             return (
               <div 
                 key={exp.id} 
-                className={`relative flex items-center mb-10 ${isEven ? 'flex-row' : 'flex-row-reverse'}`}
+                className={`relative ${index === 0 ? 'mt-8' : ''} mb-16
+                           flex flex-col items-center
+                           md:flex-row md:items-center md:mb-10
+                           ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
               >
-                {/* Timeline dot */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center z-10">
+                {/* Timeline dot - positioned at top on mobile, centered on desktop */}
+                <div className="mb-8 flex flex-col items-center z-10 md:mb-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2">
                   <div className="bg-blue-500 text-white text-xs font-bold rounded-full px-2 py-1 mb-2 whitespace-nowrap">
                     {startYear}
                   </div>
                   <div className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 border-4 border-blue-500 dark:border-blue-400"></div>
                 </div>
                 
-                {/* Content */}
+                {/* Content - Mobile: below dot, Desktop: alternating sides */}
                 <div 
-                  className={`w-5/12 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100 dark:border-gray-700 cursor-pointer ${isEven ? 'mr-auto pr-6' : 'ml-auto pl-6'}`}
+                  className={`bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg 
+                            transition-shadow border border-gray-100 dark:border-gray-700 cursor-pointer
+                            w-11/12 max-w-sm
+                            md:w-5/12 md:mx-0
+                            ${isEven ? 'md:mr-auto md:pr-6' : 'md:ml-auto md:pl-6'}`}
                   onClick={() => openExperienceModal(sortedExperiences.findIndex(e => e.id === exp.id))}
                 >
                   <div className="flex items-center mb-2">
@@ -172,23 +173,6 @@ export default function Experience() {
               </div>
             );
           })}
-        </div>
-        
-        {/* Card View (especially for mobile) */}
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-            {sortedExperiences.map((exp) => (
-              <ExperienceCard
-                key={exp.id}
-                experience={exp}
-                expandedId={expandedId}
-                toggleExpand={toggleExpand}
-                openExperienceModal={openExperienceModal}
-                openCompanyModal={openCompanyModal}
-                experienceIndex={sortedExperiences.findIndex(e => e.id === exp.id)}
-              />
-            ))}
-          </div>
         </div>
         
         {/* Experience details modal */}
