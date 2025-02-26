@@ -56,21 +56,21 @@ const PROJECTS: Project[] = [
   {
     id: 'minimax',
     title: 'MiniMax Technology',
-    description: 'Blockchain technology company specializing in cross-chain solutions and decentralized applications',
+    description: 'Gaming platform company focusing on game operations and agency distribution in Hong Kong',
     image: '/companys/minimax.jpeg',
     images: [
       '/companys/minimax.jpeg',
     ],
-    tags: ['Blockchain', 'EOS', 'Ethereum', 'Bitcoin', 'Smart Contracts', 'TypeScript', 'Kubernetes'],
-    category: "Blockchain",
+    tags: ['Gaming Platform', 'Game Distribution', 'Physical Game Cards', 'Game Operations'],
+    category: "Web Apps",
     details: [
-      'Led blockchain development at MiniMax Technology, focusing on cross-chain solutions and DApps',
-      'Delivered three major blockchain projects: Decentralized Exchange (DEX), Blockchain App Center, and Multi-Chain Mining Pool',
-      'Architected and implemented cross-chain infrastructure allowing seamless asset transfer between EOS, ETH, and BTC chains',
-      'Pioneered industry\'s first real-time profit-sharing system, eliminating the typical one-week delay in earnings distribution',
-      'Designed and implemented smart contracts for transparent governance and automated financial operations',
-      'Built scalable infrastructure using TypeScript microservices orchestrated with Kubernetes',
-      'Related Projects: See [Decentralized Exchange](#dex), [Blockchain App Center](#blockchain-app-center), and [Multi-Chain Mining Pool](#mining-pool) in this portfolio'
+      'Led development at MiniMax Technology, a gaming platform company in Hong Kong',
+      'Managed Funimax platform, a well-known game distribution service with physical game cards',
+      'Oversaw game operations, distribution, and agency relationships',
+      'Implemented payment systems integration for physical and digital purchases',
+      'Designed systems to manage game inventory, distribution, and analytics',
+      'Built user management and loyalty systems to improve customer retention',
+      'Related Projects: See [Funimax Gaming Platform](#funimax) in this portfolio'
     ]
   },
   {
@@ -185,7 +185,7 @@ const PROJECTS: Project[] = [
     images: [
       '/projects/anymud.jpeg',
     ],
-    tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO', 'MiniMax'],
+    tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO'],
     github: 'https://github.com/shtse8/anymud',
     liveUrl: 'https://anymud.com',
     category: "Web Apps",
@@ -216,6 +216,26 @@ const PROJECTS: Project[] = [
     ]
   },
   {
+    id: 'funimax',
+    title: 'Funimax Gaming Platform',
+    description: 'Popular gaming platform with physical game cards and digital distribution in Hong Kong',
+    image: '/projects/funimax.jpg',
+    images: [
+      '/projects/funimax.jpg',
+    ],
+    tags: ['Gaming Platform', 'Physical Game Cards', 'Game Distribution', 'MiniMax'],
+    category: "Web Apps",
+    details: [
+      'Led development of Funimax, a well-known gaming platform with significant presence in Hong Kong',
+      'Implemented physical game card system with secure validation and redemption',
+      'Designed and developed the platform\'s agency and distribution system',
+      'Created user management system with account verification and security features',
+      'Built inventory management for physical and digital game assets',
+      'Integrated multiple payment gateways to support various purchase options',
+      'Part of the MiniMax company portfolio - see [MiniMax Technology](#minimax) for company overview'
+    ]
+  },
+  {
     id: 'dex',
     title: 'Decentralized Exchange',
     description: 'A hybrid DEX platform combining Bancor-Orderbook models for cross-chain trading',
@@ -223,15 +243,14 @@ const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
     ],
-    tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum', 'MiniMax'],
+    tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
     category: "Blockchain",
     details: [
-      'Led development at MiniMax for this hybrid Bancor-Orderbook model for cross-chain asset trading',
+      'Designed and developed a hybrid Bancor-Orderbook model for cross-chain asset trading',
       'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
       'Implemented atomic swaps, cross-chain liquidity pools, and automated market making algorithms',
       'Created smart contracts for transparent profit sharing and automated settlements',
-      'Developed a responsive trading interface with real-time order book updates and transaction tracking',
-      'Part of the MiniMax blockchain project portfolio - see other related blockchain projects'
+      'Developed a responsive trading interface with real-time order book updates and transaction tracking'
     ]
   },
   {
@@ -242,15 +261,14 @@ const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
     ],
-    tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin', 'MiniMax'],
+    tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
     category: "Blockchain",
     details: [
-      'Led development at MiniMax to build a platform enabling streamlined deployment of applications across multiple blockchains',
-      'Pioneered the industry\'s first real-time profit-sharing system for developers',
-      'Eliminated the typical one-week delay in earnings distribution through smart contract automation',
+      'Built a platform enabling streamlined deployment of applications across multiple blockchains',
+      'Pioneered real-time profit-sharing system for developers through smart contract automation',
+      'Eliminated the typical one-week delay in earnings distribution through automated processes',
       'Created a unified interface for managing applications on different blockchain networks',
-      'Implemented secure wallet integration and transaction handling across chains',
-      'Part of the MiniMax blockchain project portfolio'
+      'Implemented secure wallet integration and transaction handling across chains'
     ]
   },
   {
@@ -261,15 +279,14 @@ const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
     ],
-    tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS', 'MiniMax'],
+    tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
     category: "Blockchain",
     details: [
-      'Led development at MiniMax to engineer a cross-chain mining pool system supporting EOS, ETH, and BTC',
+      'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
       'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
       'Implemented blockchain-specific smart contracts for transparent profit sharing',
       'Created automated payout systems with full transaction verification',
-      'Built real-time dashboards for miners to track earnings and performance metrics',
-      'Part of the MiniMax blockchain project portfolio'
+      'Built real-time dashboards for miners to track earnings and performance metrics'
     ]
   },
   {
