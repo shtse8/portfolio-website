@@ -7,9 +7,13 @@ import Link from 'next/link';
 export default function Hero() {
   const [text, setText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const fullText = 'Full Stack Developer & Founder';
   
   useEffect(() => {
+    setMounted(true);
+    
+    // Start typing animation only after component is mounted
     if (text.length < fullText.length) {
       const timeout = setTimeout(() => {
         setText(fullText.slice(0, text.length + 1));
@@ -20,12 +24,28 @@ export default function Hero() {
   }, [text]);
   
   useEffect(() => {
+    if (!mounted) return;
+    
     const interval = setInterval(() => {
       setShowCursor(prev => !prev);
     }, 500);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [mounted]);
+  
+  // During SSR or before mounting, render a static version
+  const staticTitle = mounted ? null : (
+    <h2 className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-mono">
+      {fullText}
+    </h2>
+  );
+  
+  // Only render the interactive text after mounting
+  const dynamicTitle = mounted ? (
+    <h2 className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-mono">
+      {text}<span className={`${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity`}>|</span>
+    </h2>
+  ) : null;
   
   return (
     <section id="hero" className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-4 py-20">
@@ -39,9 +59,8 @@ export default function Hero() {
         </h1>
         
         <div className="h-12 mb-8">
-          <h2 className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 font-mono">
-            {text}<span className={`${showCursor ? 'opacity-100' : 'opacity-0'} transition-opacity`}>|</span>
-          </h2>
+          {staticTitle}
+          {dynamicTitle}
         </div>
         
         <div className="flex flex-col md:flex-row justify-center gap-4 mb-12">

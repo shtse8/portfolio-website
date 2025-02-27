@@ -478,6 +478,8 @@ export type PersonalInfo = {
     stackoverflow: string;
   };
   contactFormSubjects: string[];
+  portfolioUrl: string;
+  company: string;
 };
 
 export const PERSONAL_INFO: PersonalInfo = {
@@ -493,12 +495,15 @@ export const PERSONAL_INFO: PersonalInfo = {
   social: {
     github: "https://github.com/shtse8",
     linkedin: "https://linkedin.com/in/shtse8",
-    stackoverflow: "https://stackoverflow.com/users/4380384/shtse8"
+    stackoverflow: "https://stackoverflow.com/users/1161053/kyle-tse"
   },
   contactFormSubjects: [
     "Project Inquiry",
     "Job Opportunity",
-    "Collaboration",
+    "Consultation Request",
+    "Speaking Engagement",
     "Other"
-  ]
+  ],
+  portfolioUrl: "https://kylet.se",
+  company: "Soti Labs"
 }; 

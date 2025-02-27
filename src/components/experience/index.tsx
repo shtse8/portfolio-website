@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FaLink, FaBuilding, FaExternalLinkAlt, FaChevronRight, FaTimes } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,6 +15,7 @@ export default function Experience() {
   const [selectedExperienceIndex, setSelectedExperienceIndex] = useState<number>(0);
   const [modalType, setModalType] = useState<'experience' | 'company'>('experience');
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState<boolean>(false);
   
   // Touch swipe handling
   const touchStartX = useRef<number>(0);
@@ -30,6 +31,11 @@ export default function Experience() {
     const yearB = parseInt(b.period.split(' - ')[0]);
     return yearB - yearA;
   });
+  
+  // Set mounted state after hydration is complete
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   // Open experience modal
   const openExperienceModal = (index: number) => {
@@ -175,8 +181,8 @@ export default function Experience() {
           })}
         </div>
         
-        {/* Experience details modal */}
-        {isModalOpen && modalType === 'experience' && experiences[selectedExperienceIndex] && (
+        {/* Experience details modal - only render on client side */}
+        {mounted && isModalOpen && modalType === 'experience' && experiences[selectedExperienceIndex] && (
           <div 
             className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" 
             onClick={closeModal}
@@ -197,8 +203,8 @@ export default function Experience() {
           </div>
         )}
         
-        {/* Company details modal */}
-        {isModalOpen && modalType === 'company' && selectedCompanyId && COMPANIES[selectedCompanyId] && (
+        {/* Company details modal - only render on client side */}
+        {mounted && isModalOpen && modalType === 'company' && selectedCompanyId && COMPANIES[selectedCompanyId] && (
           <div 
             className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" 
             onClick={closeModal}

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaGithub, FaLinkedin, FaStackOverflow, FaMoon, FaSun, FaBars, FaTimes } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaStackOverflow, FaBars, FaTimes } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data/portfolioData';
+import ThemeSwitch from './ThemeSwitch';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   // Handle scroll effect
@@ -19,35 +19,6 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
-  // Handle dark mode
-  useEffect(() => {
-    // Check user preference
-    if (typeof window !== 'undefined') {
-      const isDark = localStorage.getItem('darkMode') === 'true' || 
-        (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      
-      setIsDarkMode(isDark);
-      
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    }
-  }, []);
-  
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-    
-    if (!isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('darkMode', 'true');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('darkMode', 'false');
-    }
-  };
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -132,14 +103,8 @@ export default function Header() {
               </Link>
             </div>
             
-            {/* Dark Mode Toggle */}
-            <button 
-              onClick={toggleDarkMode}
-              className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? <FaSun className="text-lg" /> : <FaMoon className="text-lg" />}
-            </button>
+            {/* Theme Switch */}
+            <ThemeSwitch />
             
             {/* Mobile Menu Button */}
             <button 
@@ -172,7 +137,7 @@ export default function Header() {
               </Link>
             ))}
             
-            <div className="pt-6 border-t border-gray-200 dark:border-gray-800">
+            <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
               <p className="text-gray-600 dark:text-gray-400 mb-4">Connect with me:</p>
               <div className="flex space-x-6">
                 <Link 

@@ -12,6 +12,7 @@ interface Section {
 export default function FloatingNavBar() {
   const [activeSection, setActiveSection] = useState<string>('');
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
 
   const sections: Section[] = [
     { id: 'hero', label: 'Home', icon: <FaHome className="md:mr-2" /> },
@@ -22,6 +23,8 @@ export default function FloatingNavBar() {
   ];
 
   useEffect(() => {
+    setMounted(true);
+    
     const handleScroll = () => {
       // Show navbar after scrolling past hero section
       if (window.scrollY > window.innerHeight * 0.5) {
@@ -81,6 +84,10 @@ export default function FloatingNavBar() {
     }
   };
 
+  // Don't render anything on the server to prevent hydration issues
+  if (!mounted) return null;
+  
+  // Don't render when navbar shouldn't be visible
   if (!isVisible) return null;
 
   return (
