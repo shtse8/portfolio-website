@@ -5,7 +5,15 @@ import { FaSun, FaMoon, FaDesktop } from 'react-icons/fa';
 
 type ThemeType = 'light' | 'dark' | 'system';
 
-export default function ThemeSwitch() {
+// Export ThemeType and the toggleTheme function to use in the mobile menu
+export type { ThemeType };
+
+interface ThemeSwitchProps {
+  isMobile?: boolean;
+  onThemeChange?: (theme: ThemeType) => void;
+}
+
+export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSwitchProps) {
   const [theme, setTheme] = useState<ThemeType>('system');
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -33,7 +41,15 @@ export default function ThemeSwitch() {
       document.documentElement.classList.remove('dark');
     }
     
-    setIsOpen(false);
+    // Close dropdown if not mobile
+    if (!isMobile) {
+      setIsOpen(false);
+    }
+    
+    // Call onThemeChange callback if provided
+    if (onThemeChange) {
+      onThemeChange(newTheme);
+    }
   };
   
   useEffect(() => {
@@ -64,7 +80,7 @@ export default function ThemeSwitch() {
   }, [theme, mounted]);
   
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || isMobile) return;
     
     // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
@@ -77,7 +93,7 @@ export default function ThemeSwitch() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen, mounted]);
+  }, [isOpen, mounted, isMobile]);
   
   // Get the appropriate icon
   const getActiveIcon = () => {
@@ -95,6 +111,53 @@ export default function ThemeSwitch() {
     );
   }
   
+  // For mobile view, just render the theme options inline
+  if (isMobile) {
+    return (
+      <div className="space-y-4">
+        <p className="text-gray-600 dark:text-gray-400 font-medium">Theme</p>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={() => toggleTheme('light')}
+            className={`flex flex-col items-center justify-center p-3 rounded-lg ${
+              theme === 'light' 
+                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
+                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            <FaSun className="text-xl mb-1 text-yellow-500" />
+            <span className="text-sm">Light</span>
+          </button>
+          
+          <button
+            onClick={() => toggleTheme('dark')}
+            className={`flex flex-col items-center justify-center p-3 rounded-lg ${
+              theme === 'dark' 
+                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
+                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            <FaMoon className="text-xl mb-1 text-gray-600 dark:text-gray-400" />
+            <span className="text-sm">Dark</span>
+          </button>
+          
+          <button
+            onClick={() => toggleTheme('system')}
+            className={`flex flex-col items-center justify-center p-3 rounded-lg ${
+              theme === 'system' 
+                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
+                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            <FaDesktop className="text-xl mb-1 text-blue-500" />
+            <span className="text-sm">System</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Desktop view with dropdown
   return (
     <div className="theme-switch-container relative">
       <button
@@ -140,4 +203,16 @@ export default function ThemeSwitch() {
       )}
     </div>
   );
+}
+
+// Export a function to get the current theme from localStorage
+export function getCurrentTheme(): ThemeType {
+  if (typeof window === 'undefined') return 'system';
+  
+  const savedTheme = localStorage.getItem('themePreference') as ThemeType | null;
+  if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
+    return savedTheme;
+  }
+  
+  return 'system';
 } 
