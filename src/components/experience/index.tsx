@@ -106,7 +106,7 @@ export default function Experience() {
   };
 
   return (
-    <section id="experience" className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <section id="experience" className="py-20 px-4 bg-white dark:bg-gray-900">
       <div className="container mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 relative inline-block">
