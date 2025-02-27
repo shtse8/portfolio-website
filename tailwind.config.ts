@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
   content: [
@@ -30,6 +31,11 @@ const config: Config = {
         'slide-down': 'slideDown 0.5s ease-out',
         'slide-left': 'slideLeft 0.5s ease-out',
         'slide-right': 'slideRight 0.5s ease-out',
+        'scroll-progress': 'scrollProgress 1s linear',
+        'float': 'float 6s ease-in-out infinite',
+        'parallax-slow': 'parallax 60s linear infinite',
+        'parallax-medium': 'parallax 40s linear infinite',
+        'parallax-fast': 'parallax 25s linear infinite',
       },
       keyframes: {
         blob: {
@@ -66,9 +72,23 @@ const config: Config = {
           '0%': { transform: 'translateX(-20px)', opacity: '0' },
           '100%': { transform: 'translateX(0)', opacity: '1' },
         },
+        scrollProgress: {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
+        parallax: {
+          '0%': { backgroundPosition: '0% 50%' },
+          '100%': { backgroundPosition: '100% 50%' },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [
+    tailwindcssAnimate,
+  ],
 };
 export default config;

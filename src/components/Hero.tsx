@@ -1,14 +1,16 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { FaTerminal, FaArrowDown, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data/portfolioData';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
+import { useScrollAnimation } from './ScrollAnimationProvider';
 
 export default function Hero() {
   // State for component mounting and initialization
   const [mounted, setMounted] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
   
   // Multiple texts to display in sequence - memoized to prevent recreating on each render
   const texts = useMemo(() => [
@@ -27,6 +29,21 @@ export default function Hero() {
     typeSpeed: 100,
   });
   
+  // Get scroll animation values
+  const { scrollYProgress } = useScrollAnimation();
+  
+  // Create scroll-driven animations
+  const { scrollYProgress: sectionProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  
+  // Transform values based on scroll
+  const headerOpacity = useTransform(sectionProgress, [0, 0.5], [1, 0]);
+  const headerY = useTransform(sectionProgress, [0, 0.5], [0, -100]);
+  const backgroundY = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
+  const backgroundScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1]);
+  
   // Set mounted state on component load
   useEffect(() => {
     setMounted(true);
@@ -43,9 +60,12 @@ export default function Hero() {
   if (!mounted) return null;
   
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 px-4">
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 overflow-hidden -z-10">
+    <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 px-4">
+      {/* Animated background blobs with scroll-driven animations */}
+      <motion.div 
+        className="absolute inset-0 overflow-hidden -z-10"
+        style={{ y: backgroundY, scale: backgroundScale }}
+      >
         <motion.div 
           className="absolute top-1/4 left-1/5 w-72 h-72 rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-3xl"
           animate={{
@@ -85,139 +105,68 @@ export default function Hero() {
             repeatType: "reverse"
           }}
         />
-      </div>
+      </motion.div>
       
       <div className="container mx-auto max-w-7xl">
         <motion.div 
           className="flex flex-col items-center text-center gap-8"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ 
-            duration: 0.8, 
-            delay: 0.2,
-            type: "spring",
-            stiffness: 70
-          }}
+          style={{ opacity: headerOpacity, y: headerY }}
         >
-          {/* Terminal icon with animation */}
-          <motion.div 
-            className="bg-gradient-to-br from-primary-400 to-purple-600 p-5 rounded-full shadow-lg dark:shadow-primary-500/20"
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaTerminal className="text-white text-3xl" />
-          </motion.div>
+          <div className="flex items-center justify-center w-24 h-24 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
+            <FaTerminal className="w-10 h-10 text-primary-600 dark:text-primary-400" />
+          </div>
           
-          {/* Name with gradient and animation */}
-          <motion.h1 
-            className="text-5xl md:text-7xl font-extrabold tracking-tight"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <span className="gradient-text">{PERSONAL_INFO.firstName}</span>
-            <span className="ml-2">{PERSONAL_INFO.lastName}</span>
-          </motion.h1>
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white">
+            {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
+          </h1>
           
-          {/* Typewriter effect for titles */}
-          <motion.div
-            className="h-8 text-xl md:text-2xl font-medium text-gray-600 dark:text-gray-300"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
-            <span>{typewriterText}</span>
-            <Cursor cursorStyle="_" cursorColor="rgb(var(--primary-color))" />
-          </motion.div>
+          <div className="h-8 md:h-12">
+            <h2 className="text-xl md:text-2xl text-gray-600 dark:text-gray-300">
+              <span>{typewriterText}</span>
+              <Cursor cursorStyle="|" />
+            </h2>
+          </div>
           
-          {/* Brief bio with animation */}
-          <motion.p 
-            className="max-w-2xl text-lg text-gray-600 dark:text-gray-300 leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.8 }}
-          >
-            {PERSONAL_INFO.shortBio || 'Full-stack developer with expertise in modern web technologies, focused on creating exceptional user experiences with clean, efficient code.'}
-          </motion.p>
+          <p className="max-w-2xl text-gray-600 dark:text-gray-300 text-lg">
+            {PERSONAL_INFO.shortBio}
+          </p>
           
-          {/* Social links */}
-          <motion.div 
-            className="flex gap-4 mt-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1 }}
-          >
-            <motion.a 
+          <div className="flex gap-4 mt-4">
+            <a 
               href={PERSONAL_INFO.social.github} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="bg-gray-100 dark:bg-gray-800 p-3 rounded-full hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.95 }}
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
             >
-              <FaGithub className="text-xl" />
-            </motion.a>
-            <motion.a 
+              <FaGithub className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            </a>
+            <a 
               href={PERSONAL_INFO.social.linkedin} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="bg-gray-100 dark:bg-gray-800 p-3 rounded-full hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.95 }}
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
             >
-              <FaLinkedin className="text-xl" />
-            </motion.a>
-          </motion.div>
+              <FaLinkedin className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+            </a>
+          </div>
           
-          {/* CTA buttons with hover effects */}
-          <motion.div 
-            className="flex flex-col sm:flex-row gap-4 mt-4"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.2 }}
+          <motion.button
+            onClick={scrollToNextSection}
+            className="mt-12 flex items-center justify-center w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-800/40 transition-colors"
+            whileHover={{ y: 5 }}
+            animate={{
+              y: [0, 10, 0],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
           >
-            <motion.a
-              href="#contact"
-              className="px-8 py-3 text-white bg-gradient-to-r from-primary-500 to-primary-700 rounded-full font-medium shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get in Touch
-            </motion.a>
-            <motion.a
-              href="#projects"
-              className="px-8 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full font-medium shadow-lg hover:shadow-xl transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              View Projects
-            </motion.a>
-          </motion.div>
+            <FaArrowDown className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          </motion.button>
         </motion.div>
       </div>
-      
-      {/* Scroll down button */}
-      <motion.button
-        onClick={scrollToNextSection}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-full shadow-lg opacity-80 hover:opacity-100 transition-opacity"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 0.8, y: 0 }}
-        transition={{ 
-          duration: 0.5, 
-          delay: 1.5,
-          type: "spring",
-          stiffness: 50
-        }}
-        whileHover={{ 
-          y: [0, -5, 0], 
-          transition: { 
-            duration: 1.5, 
-            repeat: Infinity 
-          } 
-        }}
-      >
-        <FaArrowDown className="text-gray-600 dark:text-gray-300" />
-      </motion.button>
     </section>
   );
 } 

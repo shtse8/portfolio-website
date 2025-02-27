@@ -8,16 +8,14 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import FloatingNavBar from '@/components/FloatingNavBar';
-import ScrollObserver from '@/components/ScrollObserver';
-import ProgressBar from '@/components/ProgressBar';
+import ScrollProgressIndicator from '@/components/ScrollProgressIndicator';
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       <Header />
-      <ProgressBar />
+      <ScrollProgressIndicator />
       <FloatingNavBar />
-      <ScrollObserver />
       
       <Suspense fallback={<LoadingSpinner />}>
         <Hero />

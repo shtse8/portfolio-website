@@ -9,9 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/aos": "^3.0.7",
-    "aos": "^2.3.4",
-    "daisyui": "^4.12.24",
     "framer-motion": "^12.4.7",
     "next": "15.1.7",
     "react": "^19.0.0",

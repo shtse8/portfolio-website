@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { PERSONAL_INFO } from '@/data/portfolioData';
+import ScrollAnimationProvider from '@/components/ScrollAnimationProvider';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -100,7 +101,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: clientThemeScript }} />
       </head>
       <body className={inter.className}>
-        {children}
+        <ScrollAnimationProvider>
+          {children}
+        </ScrollAnimationProvider>
       </body>
     </html>
   );
