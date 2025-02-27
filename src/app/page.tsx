@@ -14,8 +14,8 @@ import ProgressBar from '@/components/ProgressBar';
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <ProgressBar />
       <Header />
+      <ProgressBar />
       <FloatingNavBar />
       <ScrollObserver />
       
