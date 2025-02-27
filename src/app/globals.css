@@ -37,7 +37,9 @@ body {
 
 /* Gradient text */
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600;
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600 dark:from-primary-400 dark:to-indigo-400;
+  background-size: 200% auto;
+  animation: gradient 8s ease infinite;
 }
 
 /* Custom scrollbar */
@@ -59,7 +61,7 @@ body {
 
 /* Focus styles */
 *:focus-visible {
-  @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
 }
 
 /* Smooth transitions for dark mode */
@@ -118,9 +120,9 @@ body {
 }
 
 @keyframes pulseLight {
-  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(var(--primary-color), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0); }
 }
 
 .animate-fadeIn {
@@ -179,7 +181,7 @@ section {
 
 /* Improved focus styles for accessibility */
 :focus {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid rgb(var(--primary-color));
   outline-offset: 2px;
 }
 
@@ -193,12 +195,12 @@ section {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.5);
+  background: rgba(var(--primary-color), 0.5);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.7);
+  background: rgba(var(--primary-color), 0.7);
 }
 
 /* Animated gradient text */
@@ -224,6 +226,10 @@ section {
   left: 20%;
 }
 
+.right-1\/5 {
+  right: 20%;
+}
+
 /* Improved hover transition for cards and buttons */
 .hover-translate {
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
@@ -234,28 +240,50 @@ section {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* Scroll-based animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+/* Glass effect */
+.glass-effect {
+  @apply bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-white/20 dark:border-gray-700/30;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-indigo-600 text-white rounded-full font-medium shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 transition-all transform hover:scale-105 active:scale-95;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full font-medium shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95;
+}
+
+/* Card styles */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+}
+
+/* Floating animation */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
   }
 }
 
-/* Fade-in animation for dropdowns and modals */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.2s ease-out forwards;
-}
+/* Staggered animation for lists */
+.stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.stagger-item:nth-child(2) { animation-delay: 0.2s; }
+.stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.stagger-item:nth-child(4) { animation-delay: 0.4s; }
+.stagger-item:nth-child(5) { animation-delay: 0.5s; }
+.stagger-item:nth-child(6) { animation-delay: 0.6s; }
+.stagger-item:nth-child(7) { animation-delay: 0.7s; }
+.stagger-item:nth-child(8) { animation-delay: 0.8s; }
+.stagger-item:nth-child(9) { animation-delay: 0.9s; }
+.stagger-item:nth-child(10) { animation-delay: 1s; }

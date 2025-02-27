@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
-import { FaCalendarAlt, FaExternalLinkAlt, FaTimes, FaChevronLeft, FaChevronRight, FaBuilding } from 'react-icons/fa';
-import Link from 'next/link';
+import { FaCalendarAlt, FaExternalLinkAlt, FaTimes, FaChevronLeft, FaChevronRight, FaBuilding, FaMapMarkerAlt, FaCode, FaCheckCircle } from 'react-icons/fa';
 import { COMPANIES, Experience } from '@/data/portfolioData';
+import { motion } from 'framer-motion';
 
 type ExperienceModalProps = {
   experience: Experience;
@@ -48,49 +48,104 @@ export default function ExperienceModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [closeModal, setSelectedExperienceIndex, experiences.length]);
 
+  // Animation variants
+  const listItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: (index: number) => ({
+      opacity: 1,
+      x: 0,
+      transition: {
+        delay: 0.2 + index * 0.1,
+        type: "spring",
+        stiffness: 70,
+        damping: 10
+      }
+    })
+  };
+  
+  const tagVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: (index: number) => ({
+      opacity: 1,
+      scale: 1,
+      transition: {
+        delay: 0.5 + index * 0.05,
+        type: "spring",
+        stiffness: 100
+      }
+    })
+  };
+
   return (
-    <div 
+    <motion.div 
       ref={modalContentRef}
-      className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto animate-scaleIn"
+      className="relative glass-effect rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
       onClick={(e) => e.stopPropagation()}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ 
+        type: "spring",
+        damping: 20,
+        stiffness: 150
+      }}
     >
-      <button 
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden rounded-xl -z-10">
+        <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary-400/5 dark:bg-primary-600/5 blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-indigo-500/5 dark:bg-indigo-600/5 blur-3xl"></div>
+      </div>
+      
+      <motion.button 
         onClick={closeModal}
         className="absolute right-4 top-4 z-20 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-full p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-md"
         aria-label="Close modal"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         <FaTimes />
-      </button>
+      </motion.button>
       
       {experiences.length > 1 && (
         <>
-          <button 
+          <motion.button 
             onClick={() => setSelectedExperienceIndex(prev => (prev - 1 + experiences.length) % experiences.length)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors"
             aria-label="Previous experience"
+            whileHover={{ scale: 1.1, x: -3 }}
+            whileTap={{ scale: 0.9 }}
           >
             <FaChevronLeft />
-          </button>
+          </motion.button>
           
-          <button 
+          <motion.button 
             onClick={() => setSelectedExperienceIndex(prev => (prev + 1) % experiences.length)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors animate-pulseLight"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors"
             aria-label="Next experience"
+            whileHover={{ scale: 1.1, x: 3 }}
+            whileTap={{ scale: 0.9 }}
           >
             <FaChevronRight />
-          </button>
+          </motion.button>
         </>
       )}
       
       <div className="p-6 md:p-8">
-        <div className="flex items-center mb-8">
-          <div 
-            className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 dark:border-gray-700 cursor-pointer"
+        <motion.div 
+          className="flex flex-col md:flex-row md:items-center gap-6 mb-8 border-b border-gray-100 dark:border-gray-700/30 pb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
+          <motion.div 
+            className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-gray-100 dark:border-gray-700 cursor-pointer shadow-xl"
             onClick={() => openCompanyModal(experience.company)}
             title={`View company details`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
           >
             <Image 
               src={experience.logo}
@@ -98,90 +153,207 @@ export default function ExperienceModal({
               fill
               className="object-cover"
             />
-          </div>
-          <div className="ml-6">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300 text-xs font-medium rounded-full">
+          </motion.div>
+          <div className="flex-1">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <motion.span 
+                className="px-3 py-1 bg-gradient-to-r from-primary-100 to-indigo-100 dark:from-primary-900/40 dark:to-indigo-900/40 text-primary-800 dark:text-primary-300 text-xs font-medium rounded-full"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+              >
                 Professional Experience
-              </span>
+              </motion.span>
               
               {/* Link to related company */}
-              <button 
+              <motion.button 
                 type="button"
                 className="flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 text-xs font-medium rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/70 transition-colors"
                 onClick={() => openCompanyModal(experience.company)}
                 title={`View company details`}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
               >
                 <FaBuilding className="text-xs mr-1" /> 
                 {COMPANIES[experience.company]?.name || experience.company}
-              </button>
+              </motion.button>
             </div>
-            <h3 className="text-2xl md:text-3xl font-bold mb-1 text-gray-900 dark:text-white">{experience.title}</h3>
-            <div className="flex items-center">
-              <button 
-                className="text-gray-600 dark:text-gray-400 text-lg hover:underline"
-                onClick={() => openCompanyModal(experience.company)}
-              >
-                {experience.company}
-              </button>
-              <span className="mx-2 text-gray-400">•</span>
-              <p className="text-gray-500 dark:text-gray-500">{experience.period}</p>
-            </div>
+            <motion.h3 
+              className="text-2xl md:text-3xl font-bold mb-2 text-gray-900 dark:text-white"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              {experience.title}
+            </motion.h3>
+            <motion.div 
+              className="flex flex-wrap items-center gap-4 text-gray-600 dark:text-gray-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="flex items-center">
+                <FaBuilding className="text-primary-500 dark:text-primary-400 mr-2" />
+                <button 
+                  className="hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
+                  onClick={() => openCompanyModal(experience.company)}
+                >
+                  {COMPANIES[experience.company]?.name || experience.company}
+                </button>
+              </div>
+              <div className="flex items-center">
+                <FaCalendarAlt className="text-primary-500 dark:text-primary-400 mr-2" />
+                <span>{experience.period}</span>
+              </div>
+              {experience.location && (
+                <div className="flex items-center">
+                  <FaMapMarkerAlt className="text-primary-500 dark:text-primary-400 mr-2" />
+                  <span>{experience.location}</span>
+                </div>
+              )}
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
         
         <div className="grid md:grid-cols-2 gap-8 items-start">
-          <div className="order-2 md:order-1 animate-slideInRight">
-            <div className="flex items-center text-gray-600 dark:text-gray-400 mb-6">
-              <FaCalendarAlt className="mr-2" />
-              <span>{experience.location || 'Remote'}</span>
-            </div>
-            
-            <div className="mb-8 bg-gray-50 dark:bg-gray-900/50 p-5 rounded-lg border border-gray-100 dark:border-gray-700">
-              <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                <span className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mr-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                </span>
+          <motion.div 
+            className="order-2 md:order-1"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <motion.div 
+              className="mb-8 glass-effect p-6 rounded-xl border border-white/20 dark:border-gray-700/30 shadow-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <h4 className="font-semibold mb-5 text-gray-900 dark:text-white flex items-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center mr-3 shadow-md">
+                  <FaCheckCircle className="text-white text-sm" />
+                </div>
                 Key Achievements
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {experience.details.map((detail: string, idx: number) => (
-                  <li key={idx} className="flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 mt-1">•</span>
+                  <motion.li 
+                    key={idx} 
+                    className="flex items-start group"
+                    variants={listItemVariants}
+                    initial="hidden"
+                    animate="visible"
+                    custom={idx}
+                  >
+                    <div className="bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 p-1.5 rounded-full mr-3 mt-0.5 flex-shrink-0 shadow-sm group-hover:shadow-md transition-all group-hover:scale-110">
+                      <FaCheckCircle className="text-xs" />
+                    </div>
                     <span className="text-gray-700 dark:text-gray-300">{parseMarkdownLinks(detail)}</span>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
-            </div>
-            
-            <div className="flex flex-wrap gap-2 mb-8">
-              {experience.tags.map((tech: string, idx: number) => (
-                <span 
-                  key={idx}
-                  className="bg-blue-100/80 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-medium"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
+            </motion.div>
             
             {experience.liveUrl && (
-              <div className="flex gap-4">
-                <Link 
+              <motion.div 
+                className="flex gap-4 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <motion.a 
                   href={experience.liveUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-2 rounded-lg transition-all transform hover:scale-105 duration-300 shadow-md"
+                  className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-md hover:shadow-xl transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <FaExternalLinkAlt /> Visit Website
-                </Link>
-              </div>
+                  <FaExternalLinkAlt /> Visit Project
+                </motion.a>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
+          
+          <motion.div 
+            className="order-1 md:order-2"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <motion.div 
+              className="mb-6 glass-effect p-6 rounded-xl border border-white/20 dark:border-gray-700/30 shadow-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-3 shadow-md">
+                  <FaCode className="text-white text-sm" />
+                </div>
+                Technologies Used
+              </h4>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {experience.tags.map((tech: string, idx: number) => (
+                  <motion.span 
+                    key={idx}
+                    className="bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/20 dark:to-indigo-900/20 text-primary-700 dark:text-primary-300 px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm hover:shadow-md transition-all"
+                    variants={tagVariants}
+                    initial="hidden"
+                    animate="visible"
+                    custom={idx}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    {tech}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+            
+            {/* Company info summary */}
+            <motion.div 
+              className="mb-6 glass-effect p-6 rounded-xl border border-white/20 dark:border-gray-700/30 shadow-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 rounded-full overflow-hidden mr-3 border border-gray-200 dark:border-gray-700 shadow-md">
+                  <Image 
+                    src={COMPANIES[experience.company]?.logo || experience.logo}
+                    alt={COMPANIES[experience.company]?.name || experience.company}
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    {COMPANIES[experience.company]?.name || experience.company}
+                  </h4>
+                  {COMPANIES[experience.company]?.location && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {COMPANIES[experience.company].location}
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-4">
+                {COMPANIES[experience.company]?.description || 'No company description available.'}
+              </p>
+              
+              <motion.button 
+                className="text-primary-600 dark:text-primary-400 text-sm font-medium flex items-center"
+                onClick={() => openCompanyModal(experience.company)}
+                whileHover={{ x: 5 }}
+              >
+                View Company Details <FaChevronRight className="ml-1" />
+              </motion.button>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 } 
