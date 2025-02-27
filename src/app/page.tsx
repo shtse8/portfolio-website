@@ -12,30 +12,32 @@ import ScrollProgressIndicator from '@/components/ScrollProgressIndicator';
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans antialiased">
       <Header />
       <ScrollProgressIndicator />
       <FloatingNavBar />
       
-      <Suspense fallback={<LoadingSpinner />}>
-        <Hero />
-      </Suspense>
-      
-      <Suspense fallback={<LoadingSpinner />}>
-        <TechStack />
-      </Suspense>
-      
-      <Suspense fallback={<LoadingSpinner />}>
-        <FeaturedProjects />
-      </Suspense>
-      
-      <Suspense fallback={<LoadingSpinner />}>
-        <Experience />
-      </Suspense>
-      
-      <Suspense fallback={<LoadingSpinner />}>
-        <Contact />
-      </Suspense>
+      <div className="flex flex-col space-y-0">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Hero />
+        </Suspense>
+        
+        <Suspense fallback={<LoadingSpinner />}>
+          <TechStack />
+        </Suspense>
+        
+        <Suspense fallback={<LoadingSpinner />}>
+          <FeaturedProjects />
+        </Suspense>
+        
+        <Suspense fallback={<LoadingSpinner />}>
+          <Experience />
+        </Suspense>
+        
+        <Suspense fallback={<LoadingSpinner />}>
+          <Contact />
+        </Suspense>
+      </div>
       
       <Footer />
     </main>

@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import Image from 'next/image';
-import { FaCalendarAlt, FaExternalLinkAlt, FaTimes, FaChevronLeft, FaChevronRight, FaBuilding, FaMapMarkerAlt, FaCode, FaCheckCircle } from 'react-icons/fa';
-import { COMPANIES, Experience } from '@/data/portfolioData';
+import { FaCalendarAlt, FaExternalLinkAlt, FaTimes, FaChevronLeft, FaChevronRight, FaBuilding, FaMapMarkerAlt, FaCode, FaCheckCircle, FaProjectDiagram } from 'react-icons/fa';
+import { COMPANIES, Experience, PROJECTS, Project } from '@/data/portfolioData';
 import { motion } from 'framer-motion';
 
 type ExperienceModalProps = {
@@ -32,6 +32,29 @@ export default function ExperienceModal({
   handleTouchEnd,
   modalContentRef
 }: ExperienceModalProps) {
+  // Get related projects from PROJECTS data
+  const getRelatedProjects = (): Project[] => {
+    // Find projects by company
+    const companyProjects = experience.company 
+      ? PROJECTS.filter(project => project.company === experience.company)
+      : [];
+    
+    // We no longer use relatedProjects array as we've changed the data structure
+    // to have projects reference skills/experiences rather than the other way around
+    
+    return companyProjects;
+  };
+
+  const relatedProjects = getRelatedProjects();
+  const companyData = experience.company ? COMPANIES[experience.company] : null;
+
+  // Helper function to safely open company modal
+  const handleOpenCompany = () => {
+    if (experience.company) {
+      openCompanyModal(experience.company);
+    }
+  };
+
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -74,6 +97,88 @@ export default function ExperienceModal({
         stiffness: 100
       }
     })
+  };
+
+  // Code to render company-related elements only when company exists
+  const renderCompanyElements = () => {
+    if (!experience.company) return null;
+    
+    return (
+      <>
+        {/* Company button in the header */}
+        <motion.button 
+          type="button"
+          className="flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 text-xs font-medium rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/70 transition-colors"
+          onClick={handleOpenCompany}
+          title={`View company details`}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <FaBuilding className="text-xs mr-1" /> 
+          {companyData?.name || experience.company}
+        </motion.button>
+        
+        {/* Company link in the details */}
+        <div className="flex items-center">
+          <FaBuilding className="text-primary-500 dark:text-primary-400 mr-2" />
+          <button 
+            className="hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
+            onClick={handleOpenCompany}
+          >
+            {companyData?.name || experience.company}
+          </button>
+        </div>
+      </>
+    );
+  };
+
+  // Company info summary component - only rendered when company exists
+  const renderCompanySummary = () => {
+    if (!experience.company) return null;
+    
+    return (
+      <motion.div 
+        className="mb-6 glass-effect p-6 rounded-xl border border-white/20 dark:border-gray-700/30 shadow-lg"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 rounded-full overflow-hidden mr-3 border border-gray-200 dark:border-gray-700 shadow-md">
+            <Image 
+              src={companyData?.logo || experience.logo}
+              alt={companyData?.name || experience.company}
+              width={40}
+              height={40}
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-900 dark:text-white">
+              {companyData?.name || experience.company}
+            </h4>
+            {companyData?.location && (
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {companyData.location}
+              </p>
+            )}
+          </div>
+        </div>
+        
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-4">
+          {companyData?.description || 'No company description available.'}
+        </p>
+        
+        <motion.button 
+          className="text-primary-600 dark:text-primary-400 text-sm font-medium flex items-center"
+          onClick={handleOpenCompany}
+          whileHover={{ x: 5 }}
+        >
+          View Company Details <FaChevronRight className="ml-1" />
+        </motion.button>
+      </motion.div>
+    );
   };
 
   return (
@@ -140,20 +245,22 @@ export default function ExperienceModal({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <motion.div 
-            className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-gray-100 dark:border-gray-700 cursor-pointer shadow-xl"
-            onClick={() => openCompanyModal(experience.company)}
-            title={`View company details`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Image 
-              src={experience.logo}
-              alt={experience.company}
-              fill
-              className="object-cover"
-            />
-          </motion.div>
+          {experience.company && (
+            <motion.div 
+              className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-gray-100 dark:border-gray-700 cursor-pointer shadow-xl"
+              onClick={handleOpenCompany}
+              title={`View company details`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <Image 
+                src={experience.logo}
+                alt={experience.company}
+                fill
+                className="object-cover"
+              />
+            </motion.div>
+          )}
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <motion.span 
@@ -165,19 +272,7 @@ export default function ExperienceModal({
                 Professional Experience
               </motion.span>
               
-              {/* Link to related company */}
-              <motion.button 
-                type="button"
-                className="flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300 text-xs font-medium rounded-full hover:bg-purple-200 dark:hover:bg-purple-900/70 transition-colors"
-                onClick={() => openCompanyModal(experience.company)}
-                title={`View company details`}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <FaBuilding className="text-xs mr-1" /> 
-                {COMPANIES[experience.company]?.name || experience.company}
-              </motion.button>
+              {renderCompanyElements()}
             </div>
             <motion.h3 
               className="text-2xl md:text-3xl font-bold mb-2 text-gray-900 dark:text-white"
@@ -193,15 +288,6 @@ export default function ExperienceModal({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <div className="flex items-center">
-                <FaBuilding className="text-primary-500 dark:text-primary-400 mr-2" />
-                <button 
-                  className="hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
-                  onClick={() => openCompanyModal(experience.company)}
-                >
-                  {COMPANIES[experience.company]?.name || experience.company}
-                </button>
-              </div>
               <div className="flex items-center">
                 <FaCalendarAlt className="text-primary-500 dark:text-primary-400 mr-2" />
                 <span>{experience.period}</span>
@@ -253,6 +339,52 @@ export default function ExperienceModal({
                 ))}
               </ul>
             </motion.div>
+            
+            {/* Related Projects Section */}
+            {relatedProjects.length > 0 && (
+              <motion.div 
+                className="mb-8 glass-effect p-6 rounded-xl border border-white/20 dark:border-gray-700/30 shadow-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
+                <h4 className="font-semibold mb-5 text-gray-900 dark:text-white flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mr-3 shadow-md">
+                    <FaProjectDiagram className="text-white text-sm" />
+                  </div>
+                  Related Projects
+                </h4>
+                <ul className="space-y-3">
+                  {relatedProjects.map((project, idx) => (
+                    <motion.li 
+                      key={project.id} 
+                      className="bg-white/50 dark:bg-gray-800/50 p-3 rounded-lg hover:bg-primary-50/50 dark:hover:bg-primary-900/20 transition-colors cursor-pointer"
+                      variants={listItemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      custom={idx}
+                      whileHover={{ x: 5 }}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-10 h-10 rounded-md overflow-hidden mr-3 border border-gray-200 dark:border-gray-700 shadow-md flex-shrink-0">
+                          <Image 
+                            src={project.image}
+                            alt={project.title}
+                            width={40}
+                            height={40}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                        <div>
+                          <h5 className="font-medium text-gray-900 dark:text-white">{project.title}</h5>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{project.description}</p>
+                        </div>
+                      </div>
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
             
             {experience.liveUrl && (
               <motion.div 
@@ -310,47 +442,7 @@ export default function ExperienceModal({
               </div>
             </motion.div>
             
-            {/* Company info summary */}
-            <motion.div 
-              className="mb-6 glass-effect p-6 rounded-xl border border-white/20 dark:border-gray-700/30 shadow-lg"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-            >
-              <div className="flex items-center mb-4">
-                <div className="w-10 h-10 rounded-full overflow-hidden mr-3 border border-gray-200 dark:border-gray-700 shadow-md">
-                  <Image 
-                    src={COMPANIES[experience.company]?.logo || experience.logo}
-                    alt={COMPANIES[experience.company]?.name || experience.company}
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">
-                    {COMPANIES[experience.company]?.name || experience.company}
-                  </h4>
-                  {COMPANIES[experience.company]?.location && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {COMPANIES[experience.company].location}
-                    </p>
-                  )}
-                </div>
-              </div>
-              
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-4">
-                {COMPANIES[experience.company]?.description || 'No company description available.'}
-              </p>
-              
-              <motion.button 
-                className="text-primary-600 dark:text-primary-400 text-sm font-medium flex items-center"
-                onClick={() => openCompanyModal(experience.company)}
-                whileHover={{ x: 5 }}
-              >
-                View Company Details <FaChevronRight className="ml-1" />
-              </motion.button>
-            </motion.div>
+            {renderCompanySummary()}
           </motion.div>
         </div>
       </div>

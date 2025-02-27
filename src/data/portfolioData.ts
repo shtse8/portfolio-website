@@ -3,20 +3,16 @@ export type Project = {
   title: string;
   description: string;
   image: string;
-  images?: string[];
+  images: string[];
   tags: string[];
   github?: string;
   liveUrl?: string;
   androidUrl?: string;
   iosUrl?: string;
-  details: string[];
   category: string;
-  featured?: boolean;
-  demoUrl?: string;
-  sourceUrl?: string;
-  company?: string | null;
-  experience?: string | null;
-  relatedExperiences?: string[];
+  company: string | null;
+  relatedSkills?: string[];
+  details: string[];
 };
 
 export type Company = {
@@ -33,16 +29,27 @@ export type Company = {
 export type Experience = {
   id: string;
   title: string;
-  company: string;
+  company: string | null;
   period: string;
-  location?: string;
+  location: string;
   description: string;
   image: string;
   logo: string;
   tags: string[];
   liveUrl?: string;
   details: string[];
-  relatedProjects?: string[];
+  relatedSkills?: string[];
+};
+
+export type TechSkill = {
+  id: string;
+  name: string;
+  description: string;
+  yearsOfExperience: number;
+  color: string;
+  bgColor: string;
+  category: string;
+  keywords: string[];
 };
 
 export const PROJECTS: Project[] = [
@@ -58,6 +65,7 @@ export const PROJECTS: Project[] = [
     liveUrl: 'https://cubeage.com',
     category: "Mobile Games",
     company: "cubeage",
+    relatedSkills: ['unity3d', 'gamedev', 'databases'],
     details: [
       'Founded and led Cubeage Limited, developing popular card and casino games',
       'Published 10+ games on Google Play and App Store with 100K+ installations',
@@ -80,6 +88,7 @@ export const PROJECTS: Project[] = [
     iosUrl: 'https://apps.apple.com/us/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A8-%E6%9C%80%E5%88%BA%E6%BF%80%E7%9A%84%E7%AD%96%E7%95%A5%E6%A3%8B%E7%89%8C%E9%81%8A%E6%88%B2/id1295634408',
     category: "Mobile Games",
     company: "cubeage",
+    relatedSkills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java'],
     details: [
       'Led development at Cubeage for this real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
       'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
@@ -100,6 +109,7 @@ export const PROJECTS: Project[] = [
     liveUrl: 'https://nakuz.com',
     category: "Web Apps",
     company: "nakuz",
+    relatedSkills: ['react', 'typescript'],
     details: [
       'Designed and developed the corporate website for Nakuz',
       'Built with modern technologies including React and Next.js',
@@ -121,6 +131,7 @@ export const PROJECTS: Project[] = [
     iosUrl: 'https://apps.apple.com/us/app/%E9%A6%99%E6%B8%AF%E9%BA%BB%E5%B0%87%E5%A4%A7%E4%BA%A8-%E9%BA%BB%E9%9B%80%E4%BF%BE%E4%BD%A0%E7%8E%A9/id1478835027',
     category: "Mobile Games",
     company: "cubeage",
+    relatedSkills: ['unity3d', 'gamedev', 'team-leadership'],
     details: [
       'Led development at Cubeage for this popular 3D Mahjong game with over 100K downloads',
       'Created authentic Hong Kong Mahjong gameplay with multiple game modes including blood flow mode, classic four-player mode, and two-player mode',
@@ -143,6 +154,7 @@ export const PROJECTS: Project[] = [
     iosUrl: 'https://apps.apple.com/us/app/fun-showhand-stud-poker/id1238318956',
     category: "Mobile Games",
     company: "cubeage",
+    relatedSkills: ['unity3d', 'gamedev', 'java'],
     details: [
       'Led development at Cubeage for this popular poker game available on both Android and iOS platforms',
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
@@ -164,6 +176,7 @@ export const PROJECTS: Project[] = [
     iosUrl: 'https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150',
     category: "Mobile Games",
     company: "cubeage",
+    relatedSkills: ['unity3d', 'gamedev', 'java', 'databases'],
     details: [
       'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
       'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
@@ -185,6 +198,7 @@ export const PROJECTS: Project[] = [
     liveUrl: 'https://anymud.com',
     category: "Web Apps",
     company: null,
+    relatedSkills: ['typescript', 'nodejs', 'docker', 'gcp'],
     details: [
       'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
       'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
@@ -204,6 +218,7 @@ export const PROJECTS: Project[] = [
     tags: ['PHP', 'MySQL', 'Percona', 'Facebook Integration', 'Responsive Design', 'SEO'],
     category: "Web Apps",
     company: null,
+    relatedSkills: ['databases'],
     details: [
       'Developed a publisher-focused article sharing platform with PHP and MySQL/Percona',
       'Created Facebook and mobile optimized versions to maximize user reach',
@@ -223,6 +238,7 @@ export const PROJECTS: Project[] = [
     tags: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Game Distribution', 'Payment Integration'],
     category: "Web Apps",
     company: "minimax",
+    relatedSkills: ['databases'],
     details: [
       'Led development of Funimax, a well-known gaming platform with significant presence in Hong Kong',
       'Built with pure PHP and JavaScript, developing a custom template system for rapid game website deployment',
@@ -244,6 +260,7 @@ export const PROJECTS: Project[] = [
     tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
     category: "Blockchain",
     company: null,
+    relatedSkills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker'],
     details: [
       'Designed and developed a hybrid Bancor-Orderbook model for cross-chain asset trading',
       'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
@@ -263,6 +280,7 @@ export const PROJECTS: Project[] = [
     tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
     category: "Blockchain",
     company: null,
+    relatedSkills: ['blockchain', 'nodejs', 'typescript'],
     details: [
       'Built a platform enabling streamlined deployment of applications across multiple blockchains',
       'Pioneered real-time profit-sharing system for developers through smart contract automation',
@@ -282,6 +300,7 @@ export const PROJECTS: Project[] = [
     tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
     category: "Blockchain",
     company: null,
+    relatedSkills: ['typescript', 'blockchain', 'kubernetes', 'nodejs', 'docker'],
     details: [
       'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
       'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
@@ -303,6 +322,7 @@ export const PROJECTS: Project[] = [
     github: 'https://github.com/shtse8/TradingBot',
     category: "AI & ML",
     company: null,
+    relatedSkills: ['python', 'ai-ml', 'firebase', 'gcp', 'typescript'],
     details: [
       'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
       'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
@@ -323,6 +343,7 @@ export const PROJECTS: Project[] = [
     github: 'https://github.com/shtse8/SotiMediaOrganizer',
     category: "Tools & Utilities",
     company: null,
+    relatedSkills: ['typescript', 'python', 'nodejs'],
     details: [
       'Created a media deduplication tool with TypeScript, Python, and Bun',
       'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
@@ -344,6 +365,7 @@ export const PROJECTS: Project[] = [
     liveUrl: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb',
     category: "Tools & Utilities",
     company: null,
+    relatedSkills: ['nodejs'],
     details: [
       'Developed a Chrome extension with 2,000+ users to efficiently manage and clean up Google Photos libraries',
       'Implemented intelligent batch processing with custom selectors for automated photo deletion',
@@ -408,7 +430,7 @@ export const EXPERIENCES: Experience[] = [
       'Utilized MySQL and Percona for high-performance game data storage and analytics',
       'Related Projects: See [Hong Kong Mahjong Tycoon](#mahjong), [Fun Mahjong 16 Tiles](#fmj), [Fun Showhand](#fun-showhand), and [Big2 Tycoon](#big2-tycoon) in this portfolio'
     ],
-    relatedProjects: ['mahjong', 'fun-showhand', 'fmj', 'big2-tycoon']
+    relatedSkills: ['unity3d', 'gamedev', 'databases', 'team-leadership', 'business-growth']
   },
   {
     id: 'minimax',
@@ -428,7 +450,7 @@ export const EXPERIENCES: Experience[] = [
       'Designed systems to manage game inventory, distribution, and analytics',
       'Built user management and loyalty systems to improve customer retention'
     ],
-    relatedProjects: ['funimax']
+    relatedSkills: ['databases', 'team-leadership', 'business-growth']
   },
   {
     id: 'nakuz',
@@ -448,7 +470,170 @@ export const EXPERIENCES: Experience[] = [
       'Integrated SEO best practices to improve visibility and organic traffic',
       'Created an intuitive user interface with streamlined navigation'
     ],
-    relatedProjects: ['nakuz']
+    relatedSkills: ['react', 'typescript', 'team-leadership']
+  }
+];
+
+export const SKILLS: TechSkill[] = [
+  {
+    id: 'react',
+    name: 'React',
+    description: 'Building interactive UIs with React and Next.js',
+    yearsOfExperience: 6,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+    category: 'frontend',
+    keywords: ['React', 'Next.js', 'JSX']
+  },
+  {
+    id: 'typescript',
+    name: 'TypeScript',
+    description: 'Type-safe development with advanced patterns',
+    yearsOfExperience: 5,
+    color: 'text-blue-700',
+    bgColor: 'bg-blue-700/90 dark:bg-blue-700/80',
+    category: 'frontend',
+    keywords: ['TypeScript', 'TS']
+  },
+  {
+    id: 'nodejs',
+    name: 'Node.js',
+    description: 'Scalable backend services with Express and Nest.js',
+    yearsOfExperience: 7,
+    color: 'text-green-600',
+    bgColor: 'bg-green-600/90 dark:bg-green-600/80',
+    category: 'backend',
+    keywords: ['Node.js', 'Express', 'Nest.js']
+  },
+  {
+    id: 'python',
+    name: 'Python',
+    description: 'Data processing, ML, and automation',
+    yearsOfExperience: 5,
+    color: 'text-yellow-600',
+    bgColor: 'bg-yellow-600/90 dark:bg-yellow-500/80',
+    category: 'backend',
+    keywords: ['Python', 'PyTorch']
+  },
+  {
+    id: 'java',
+    name: 'Java',
+    description: 'Enterprise applications and Android development',
+    yearsOfExperience: 8,
+    color: 'text-red-600',
+    bgColor: 'bg-red-600/90 dark:bg-red-600/80',
+    category: 'backend',
+    keywords: ['Java', 'Android']
+  },
+  {
+    id: 'docker',
+    name: 'Docker',
+    description: 'Containerization for consistent deployments',
+    yearsOfExperience: 5,
+    color: 'text-blue-800',
+    bgColor: 'bg-blue-800/90 dark:bg-blue-800/80',
+    category: 'devops',
+    keywords: ['Docker', 'Container']
+  },
+  {
+    id: 'kubernetes',
+    name: 'Kubernetes',
+    description: 'Orchestration for microservices architecture',
+    yearsOfExperience: 4,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+    category: 'devops',
+    keywords: ['Kubernetes', 'K8s', 'Microservices']
+  },
+  {
+    id: 'gcp',
+    name: 'GCP',
+    description: 'Cloud infrastructure and serverless solutions',
+    yearsOfExperience: 4,
+    color: 'text-red-500',
+    bgColor: 'bg-red-500/90 dark:bg-red-500/80',
+    category: 'devops',
+    keywords: ['GCP', 'Google Cloud', 'Cloud Run']
+  },
+  {
+    id: 'firebase',
+    name: 'Firebase',
+    description: 'Real-time databases and authentication',
+    yearsOfExperience: 5,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/90 dark:bg-yellow-500/80',
+    category: 'backend',
+    keywords: ['Firebase']
+  },
+  {
+    id: 'databases',
+    name: 'Databases',
+    description: 'PostgreSQL, MySQL, Redis, and NoSQL solutions',
+    yearsOfExperience: 10,
+    color: 'text-gray-700',
+    bgColor: 'bg-gray-700/90 dark:bg-gray-700/80',
+    category: 'backend',
+    keywords: ['MySQL', 'PostgreSQL', 'Redis', 'NoSQL', 'Database', 'Percona']
+  },
+  {
+    id: 'unity3d',
+    name: 'Unity3D',
+    description: '3D game development and simulations',
+    yearsOfExperience: 9,
+    color: 'text-gray-800',
+    bgColor: 'bg-gray-800/90 dark:bg-gray-800/80',
+    category: 'game',
+    keywords: ['Unity', 'Unity3D']
+  },
+  {
+    id: 'gamedev',
+    name: 'Game Dev',
+    description: 'Multiplayer systems and game mechanics',
+    yearsOfExperience: 10,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-600/90 dark:bg-purple-600/80',
+    category: 'game',
+    keywords: ['Game', 'Mobile Game', 'Multiplayer']
+  },
+  {
+    id: 'ai-ml',
+    name: 'AI & ML',
+    description: 'Reinforcement learning and LLM integration',
+    yearsOfExperience: 3,
+    color: 'text-green-700',
+    bgColor: 'bg-green-700/90 dark:bg-green-700/80',
+    category: 'ai',
+    keywords: ['AI', 'ML', 'Machine Learning', 'PyTorch']
+  },
+  {
+    id: 'blockchain',
+    name: 'Blockchain',
+    description: 'Smart contracts and decentralized applications',
+    yearsOfExperience: 5,
+    color: 'text-purple-800',
+    bgColor: 'bg-purple-800/90 dark:bg-purple-800/80',
+    category: 'blockchain',
+    keywords: ['Blockchain', 'Smart Contracts', 'EOS', 'Ethereum', 'Bitcoin']
+  },
+  {
+    id: 'team-leadership',
+    name: 'Team Leadership',
+    description: 'Building and managing high-performing development teams',
+    yearsOfExperience: 10,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-600/90 dark:bg-indigo-600/80',
+    category: 'management',
+    keywords: []
+  },
+  {
+    id: 'business-growth',
+    name: 'Business Growth',
+    description: 'Marketing, product strategy, and business development',
+    yearsOfExperience: 8,
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-600/90 dark:bg-teal-600/80',
+    category: 'management',
+    keywords: []
   }
 ];
 

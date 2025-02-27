@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { FaTerminal, FaArrowDown, FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data/portfolioData';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
-import { useScrollAnimation } from './ScrollAnimationProvider';
 
 export default function Hero() {
   // State for component mounting and initialization
@@ -29,20 +28,15 @@ export default function Hero() {
     typeSpeed: 100,
   });
   
-  // Get scroll animation values
-  const { scrollYProgress } = useScrollAnimation();
-  
   // Create scroll-driven animations
   const { scrollYProgress: sectionProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"]
   });
   
-  // Transform values based on scroll
-  const headerOpacity = useTransform(sectionProgress, [0, 0.5], [1, 0]);
-  const headerY = useTransform(sectionProgress, [0, 0.5], [0, -100]);
-  const backgroundY = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
-  const backgroundScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1]);
+  // Transform values based on scroll - more subtle for Scandinavian aesthetic
+  const headerOpacity = useTransform(sectionProgress, [0, 0.6], [1, 0]);
+  const headerY = useTransform(sectionProgress, [0, 0.6], [0, -50]);
   
   // Set mounted state on component load
   useEffect(() => {
@@ -60,110 +54,77 @@ export default function Hero() {
   if (!mounted) return null;
   
   return (
-    <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 px-4">
-      {/* Animated background blobs with scroll-driven animations */}
-      <motion.div 
-        className="absolute inset-0 overflow-hidden -z-10"
-        style={{ y: backgroundY, scale: backgroundScale }}
-      >
-        <motion.div 
-          className="absolute top-1/4 left-1/5 w-72 h-72 rounded-full bg-primary-400/20 dark:bg-primary-600/10 blur-3xl"
-          animate={{
-            x: [0, 30, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-        <motion.div 
-          className="absolute top-1/3 right-1/4 w-96 h-96 rounded-full bg-indigo-500/10 dark:bg-indigo-500/5 blur-3xl"
-          animate={{
-            x: [0, -40, 0],
-            y: [0, 60, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-1/4 right-1/3 w-64 h-64 rounded-full bg-purple-500/10 dark:bg-purple-600/5 blur-3xl"
-          animate={{
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-      </motion.div>
+    <section 
+      id="hero" 
+      ref={heroRef} 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 px-4 bg-gray-50 dark:bg-gray-900"
+    >
+      {/* Minimalist background with subtle grid pattern */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] dark:opacity-[0.06]"></div>
       
-      <div className="container mx-auto max-w-7xl">
+      {/* Simple accent element - thin horizontal line */}
+      <div className="absolute left-0 top-1/2 w-16 md:w-24 h-px bg-primary-400 dark:bg-primary-500"></div>
+      <div className="absolute right-0 top-1/2 w-16 md:w-24 h-px bg-primary-400 dark:bg-primary-500"></div>
+      
+      <div className="container mx-auto max-w-5xl">
         <motion.div 
-          className="flex flex-col items-center text-center gap-8"
+          className="flex flex-col items-center text-center"
           style={{ opacity: headerOpacity, y: headerY }}
         >
-          <div className="flex items-center justify-center w-24 h-24 rounded-full bg-primary-100 dark:bg-primary-900/30 mb-4">
-            <FaTerminal className="w-10 h-10 text-primary-600 dark:text-primary-400" />
-          </div>
-          
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white">
-            {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
+          {/* Clean, minimalist name presentation */}
+          <h1 className="text-4xl md:text-6xl font-medium tracking-tight text-gray-900 dark:text-white mb-4">
+            {PERSONAL_INFO.firstName} <span className="text-primary-500">{PERSONAL_INFO.lastName}</span>
           </h1>
           
-          <div className="h-8 md:h-12">
-            <h2 className="text-xl md:text-2xl text-gray-600 dark:text-gray-300">
+          {/* Typewriter with refined styling */}
+          <div className="h-8 md:h-12 mb-8">
+            <h2 className="text-xl md:text-2xl font-normal text-gray-700 dark:text-gray-300">
               <span>{typewriterText}</span>
-              <Cursor cursorStyle="|" />
+              <Cursor cursorStyle="｜" />
             </h2>
           </div>
           
-          <p className="max-w-2xl text-gray-600 dark:text-gray-300 text-lg">
+          {/* Clean divider - Scandinavian design often uses simple lines to create structure */}
+          <div className="w-16 h-px bg-gray-300 dark:bg-gray-700 my-8"></div>
+          
+          {/* Bio text with clean typography */}
+          <p className="max-w-xl text-gray-600 dark:text-gray-400 text-lg leading-relaxed font-light mb-12">
             {PERSONAL_INFO.shortBio}
           </p>
           
-          <div className="flex gap-4 mt-4">
+          {/* Social links with minimal styling */}
+          <div className="flex space-x-6 mb-16">
             <a 
               href={PERSONAL_INFO.social.github} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+              className="group"
+              aria-label="GitHub Profile"
             >
-              <FaGithub className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              <FaGithub className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors duration-300" />
             </a>
             <a 
               href={PERSONAL_INFO.social.linkedin} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
+              className="group"
+              aria-label="LinkedIn Profile"
             >
-              <FaLinkedin className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+              <FaLinkedin className="w-6 h-6 text-gray-700 dark:text-gray-300 group-hover:text-primary-500 dark:group-hover:text-primary-400 transition-colors duration-300" />
             </a>
           </div>
           
+          {/* Minimalist scroll indicator */}
           <motion.button
             onClick={scrollToNextSection}
-            className="mt-12 flex items-center justify-center w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/30 hover:bg-primary-200 dark:hover:bg-primary-800/40 transition-colors"
+            className="flex flex-col items-center text-gray-500 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
             whileHover={{ y: 5 }}
-            animate={{
-              y: [0, 10, 0],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
+            aria-label="Scroll down"
           >
-            <FaArrowDown className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <span className="text-xs uppercase tracking-widest mb-2 font-light">Explore</span>
+            <svg width="16" height="24" viewBox="0 0 16 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.29289 23.7071C7.68342 24.0976 8.31658 24.0976 8.70711 23.7071L15.0711 17.3431C15.4616 16.9526 15.4616 16.3195 15.0711 15.9289C14.6805 15.5384 14.0474 15.5384 13.6569 15.9289L8 21.5858L2.34315 15.9289C1.95262 15.5384 1.31946 15.5384 0.928932 15.9289C0.538408 16.3195 0.538408 16.9526 0.928932 17.3431L7.29289 23.7071ZM7 0V23H9V0H7Z" fill="currentColor"/>
+            </svg>
           </motion.button>
         </motion.div>
       </div>

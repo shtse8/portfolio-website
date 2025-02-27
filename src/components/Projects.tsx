@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FaTerminal, FaGithub, FaExternalLinkAlt, FaCodeBranch, FaRegCalendarAlt } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
 type ProjectCategory = {
@@ -26,52 +26,6 @@ export default function Projects() {
   useEffect(() => {
     setMounted(true);
   }, []);
-  
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
-    }
-  };
-  
-  const categoryVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 50,
-        damping: 10
-      }
-    }
-  };
-  
-  const projectVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 70
-      }
-    },
-    hover: {
-      y: -5,
-      boxShadow: "0 15px 30px -5px rgba(0, 0, 0, 0.1), 0 10px 15px -5px rgba(0, 0, 0, 0.04)",
-      transition: {
-        type: "spring",
-        stiffness: 200,
-        damping: 15
-      }
-    }
-  };
   
   const projectCategories: ProjectCategory[] = [
     {
@@ -187,174 +141,126 @@ export default function Projects() {
   if (!mounted) return null;
 
   return (
-    <section id="projects" className="py-20 relative overflow-hidden min-h-screen flex flex-col">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-1/4 right-1/4 w-64 h-64 rounded-full bg-primary-400/10 dark:bg-primary-600/5 blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/5 w-72 h-72 rounded-full bg-indigo-500/10 dark:bg-indigo-500/5 blur-3xl" />
-      </div>
-      
-      <div className="container mx-auto px-4 flex-1 flex flex-col">
-        <motion.div 
-          className="mb-12 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 relative">
-            <span className="relative inline-block">
-              <span className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-indigo-600"></span>
-              <span>Featured Projects</span>
-            </span>
+    <section id="projects" className="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto max-w-6xl">
+        {/* Section Header */}
+        <div className="mb-16 text-center">
+          <h2 className="text-3xl md:text-4xl font-medium mb-4 tracking-tight text-gray-900 dark:text-white">
+            Projects
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             A showcase of my work across various domains and technologies
           </p>
-        </motion.div>
-        
-        {/* Category Filter */}
-        <motion.div 
-          className="mb-8 flex flex-wrap justify-center gap-3"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <motion.button
-            onClick={() => setActiveCategory(null)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              activeCategory === null 
-                ? 'bg-gradient-to-r from-primary-500 to-indigo-600 text-white shadow-lg shadow-primary-500/20'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            All Projects
-          </motion.button>
-          
-          {categoryButtons.map((category, index) => (
-            <motion.button
-              key={index}
-              onClick={() => setActiveCategory(category === activeCategory ? null : category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeCategory === category 
-                  ? 'bg-gradient-to-r from-primary-500 to-indigo-600 text-white shadow-lg shadow-primary-500/20'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {category}
-            </motion.button>
-          ))}
-        </motion.div>
-        
-        <div className="flex items-center mb-8">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex items-center bg-black/5 dark:bg-white/5 backdrop-blur-sm px-4 py-2 rounded-lg"
-          >
-            <FaTerminal className="text-primary-600 dark:text-primary-400 mr-2" />
-            <h3 className="text-base md:text-lg font-mono text-primary-600 dark:text-primary-400 tracking-tight">$ find /projects -name &quot;*.json&quot; | xargs cat</h3>
-          </motion.div>
+          <div className="w-16 h-px bg-gray-300 dark:bg-gray-700 mx-auto mt-8"></div>
         </div>
         
-        <motion.div 
-          className="space-y-12 flex-1"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {filteredProjects.map((category, index) => (
-            <motion.div 
+        {/* Category Filter */}
+        <div className="mb-12 flex flex-wrap justify-center gap-3">
+          <button
+            onClick={() => setActiveCategory(null)}
+            className={`px-4 py-2 text-sm font-normal transition-colors ${
+              activeCategory === null 
+                ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+            }`}
+          >
+            All Projects
+          </button>
+          
+          {categoryButtons.map((category, index) => (
+            <button
               key={index}
-              variants={categoryVariants}
-              className="glass-effect rounded-2xl p-8 shadow-xl"
+              onClick={() => setActiveCategory(category === activeCategory ? null : category)}
+              className={`px-4 py-2 text-sm font-normal transition-colors ${
+                activeCategory === category 
+                  ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+              }`}
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2 flex items-center">
-                    <span className="gradient-text">{category.title}</span>
-                  </h3>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <FaRegCalendarAlt />
-                    <span>{category.period}</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  <motion.span 
-                    className="inline-flex items-center px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-xs font-medium rounded-full"
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <FaCodeBranch className="mr-1" />
-                    {category.projects.length} Projects
-                  </motion.span>
-                </div>
+              {category}
+            </button>
+          ))}
+        </div>
+        
+        <div className="space-y-16">
+          {filteredProjects.map((category, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="space-y-8"
+            >
+              <div className="border-b border-gray-200 dark:border-gray-800 pb-4">
+                <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                  {category.title}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {category.period}
+                </p>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {category.projects.map((project, idx) => (
-                  <motion.div 
-                    key={idx} 
-                    className="glass-effect rounded-xl shadow-lg overflow-hidden h-full flex flex-col border border-white/20 dark:border-gray-700/30"
-                    variants={projectVariants}
-                    whileHover="hover"
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
                   >
-                    {/* Header */}
-                    <div className="bg-gradient-to-r from-primary-600/10 to-indigo-600/10 dark:from-primary-900/20 dark:to-indigo-900/20 p-5 border-b border-white/10 dark:border-gray-700/30">
-                      <h4 className="text-lg font-semibold text-primary-600 dark:text-primary-400 mb-2">{project.name}</h4>
+                    <div className="p-6">
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
+                        {project.name}
+                      </h4>
+                      
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        {project.description}
+                      </p>
                       
                       {/* Tags */}
                       {project.tags && (
-                        <div className="flex flex-wrap gap-2 mt-3">
+                        <div className="flex flex-wrap gap-2 mb-4">
                           {project.tags.slice(0, 3).map((tag, tagIdx) => (
-                            <span key={tagIdx} className="inline-block px-2 py-1 text-xs font-medium bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 rounded-md">
+                            <span 
+                              key={tagIdx} 
+                              className="inline-block px-2 py-1 text-xs font-light text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700"
+                            >
                               {tag}
                             </span>
                           ))}
                           {project.tags.length > 3 && (
-                            <span className="inline-block px-2 py-1 text-xs font-medium bg-white/50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 rounded-md">
-                              +{project.tags.length - 3} more
+                            <span className="inline-block px-2 py-1 text-xs font-light text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700">
+                              +{project.tags.length - 3}
                             </span>
                           )}
                         </div>
                       )}
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="p-5 flex-grow flex flex-col">
-                      <p className="text-gray-700 dark:text-gray-300 mb-4 flex-grow">{project.description}</p>
                       
+                      {/* Links */}
                       {(project.github || project.liveUrl) && (
-                        <div className="flex mt-auto pt-4 space-x-4 border-t border-gray-100 dark:border-gray-800">
+                        <div className="flex items-center space-x-4 mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
                           {project.github && (
-                            <motion.a 
+                            <a 
                               href={project.github} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                              whileHover={{ x: 3 }}
-                              whileTap={{ scale: 0.97 }}
+                              className="flex items-center text-xs text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400"
                             >
-                              <FaGithub /> View Code
-                            </motion.a>
+                              <FaGithub className="mr-1" /> Source
+                            </a>
                           )}
                           {project.liveUrl && (
-                            <motion.a 
+                            <a 
                               href={project.liveUrl} 
                               target="_blank" 
                               rel="noopener noreferrer"
-                              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-                              whileHover={{ x: 3 }}
-                              whileTap={{ scale: 0.97 }}
+                              className="flex items-center text-xs text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400"
                             >
-                              <FaExternalLinkAlt /> Live Demo
-                            </motion.a>
+                              <FaExternalLinkAlt className="mr-1" /> Live Demo
+                            </a>
                           )}
                         </div>
                       )}
@@ -364,7 +270,7 @@ export default function Projects() {
               </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
