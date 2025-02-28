@@ -42,17 +42,19 @@ export default function FeaturedProjects() {
   const handleOpenProject = (index: number) => {
     const project = filteredProjects[index];
     
-    // Create navigation functions
+    // Create navigation functions - always provide them for all items
     const goToNext = () => {
       if (index < filteredProjects.length - 1) {
         handleOpenProject(index + 1);
       }
+      // No action for last item, but function still exists
     };
     
     const goToPrev = () => {
       if (index > 0) {
         handleOpenProject(index - 1);
       }
+      // No action for first item, but function still exists
     };
     
     openProject(ProjectModal, {
@@ -61,13 +63,13 @@ export default function FeaturedProjects() {
       openCompanyModal: handleOpenCompany,
       parseMarkdownLinks,
       closeModal: () => {},
-      nextProject: index < filteredProjects.length - 1 ? goToNext : undefined,
-      prevProject: index > 0 ? goToPrev : undefined
+      nextProject: goToNext,
+      prevProject: goToPrev
     }, {
-      modalKey: project.id, // Ensures proper animation during navigation
+      modalKey: project.id,
       hasNavigation: true,
-      onNext: index < filteredProjects.length - 1 ? goToNext : undefined,
-      onPrevious: index > 0 ? goToPrev : undefined
+      onNext: goToNext, 
+      onPrevious: goToPrev
     });
   };
 
