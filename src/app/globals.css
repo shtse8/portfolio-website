@@ -20,6 +20,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Style for when modal is open - prevents background scrolling without position changes */
+html.modal-open {
+  overflow: hidden; /* Prevents scrolling */
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));

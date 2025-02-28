@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
-import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, FaRobot, FaUsers, FaChartLine, FaProjectDiagram, FaTimes, FaGithub, FaExternalLinkAlt, FaBriefcase, FaChevronRight } from 'react-icons/fa';
+import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, FaRobot, FaUsers, FaChartLine, FaChevronRight } from 'react-icons/fa';
 import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum } from 'react-icons/si';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SKILLS, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
+import SkillModal from './skills/SkillModal';
 
 // Get projects related to the selected skill
 const getRelatedProjects = (skillId: string): Project[] => {
@@ -221,26 +221,6 @@ export default function TechStack() {
     }
   };
 
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.95,
-      transition: {
-        duration: 0.15
-      }
-    }
-  };
-
   const handleShowProjects = (skillId: string) => {
     setSelectedSkill(skillId);
     setShowModal(true);
@@ -249,6 +229,27 @@ export default function TechStack() {
   const closeModal = () => {
     setShowModal(false);
     setSelectedSkill(null);
+  };
+
+  // Functions for skill navigation
+  const nextSkill = () => {
+    if (!selectedSkill) return;
+    
+    const currentIndex = filteredSkills.findIndex(skill => skill.id === selectedSkill);
+    if (currentIndex === -1) return;
+    
+    const nextIndex = (currentIndex + 1) % filteredSkills.length;
+    setSelectedSkill(filteredSkills[nextIndex].id);
+  };
+  
+  const prevSkill = () => {
+    if (!selectedSkill) return;
+    
+    const currentIndex = filteredSkills.findIndex(skill => skill.id === selectedSkill);
+    if (currentIndex === -1) return;
+    
+    const prevIndex = (currentIndex - 1 + filteredSkills.length) % filteredSkills.length;
+    setSelectedSkill(filteredSkills[prevIndex].id);
   };
 
   if (!mounted) return null;
@@ -334,176 +335,16 @@ export default function TechStack() {
         </motion.div>
       </div>
 
-      {/* Projects and Experiences Modal */}
-      <AnimatePresence>
-        {showModal && selectedSkill && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4"
-            onClick={closeModal}
-          >
-            <motion.div
-              ref={modalRef}
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {selectedSkill && (
-                <div>
-                  {/* Header with gradient background */}
-                  <div className="relative bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 p-8 rounded-t-2xl">
-                    <button
-                      onClick={closeModal}
-                      aria-label="Close modal"
-                      className="absolute right-6 top-6 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 p-2 rounded-full transition-colors"
-                    >
-                      <FaTimes className="text-gray-600 dark:text-gray-400" />
-                    </button>
-                    
-                    <div className="flex items-center">
-                      <div className={`${SKILLS.find(s => s.id === selectedSkill)?.bgColor} text-white p-4 rounded-xl mr-5`}>
-                        {getSkillIcon(selectedSkill)}
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-light tracking-wide text-gray-900 dark:text-white">
-                          {SKILLS.find(s => s.id === selectedSkill)?.name}
-                        </h3>
-                        <p className="text-gray-600 dark:text-gray-400 mt-2 font-light">
-                          {SKILLS.find(s => s.id === selectedSkill)?.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-8">
-                    {/* Related Experiences Section (shown for management skills) */}
-                    {getRelatedExperiences(selectedSkill).length > 0 && (
-                      <div className="mb-10">
-                        <h4 className="text-xl font-light tracking-wide mb-6 flex items-center text-gray-900 dark:text-white">
-                          <FaBriefcase className="mr-3 text-indigo-500 dark:text-indigo-400" />
-                          Related Experiences
-                        </h4>
-                        
-                        <div className="grid grid-cols-1 gap-5">
-                          {getRelatedExperiences(selectedSkill).map((experience) => (
-                            <div
-                              key={experience.id}
-                              className="bg-gray-50 dark:bg-gray-800/20 rounded-xl overflow-hidden p-6 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800/30 cursor-pointer"
-                            >
-                              <div className="flex items-start">
-                                <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 mr-5">
-                                  <Image
-                                    src={experience.logo}
-                                    alt={experience.title}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                                <div className="flex-1">
-                                  <h5 className="font-light text-lg mb-2 text-gray-900 dark:text-white tracking-wide">{experience.title}</h5>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{experience.company}</p>
-                                  <p className="text-sm text-gray-500 dark:text-gray-500 mb-3">{experience.period}</p>
-                                  <p className="text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                                    {experience.description || experience.details?.[0] || ''}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Related Projects Section */}
-                    {getRelatedProjects(selectedSkill).length > 0 && (
-                      <div>
-                        <h4 className="text-xl font-light tracking-wide mb-6 flex items-center text-gray-900 dark:text-white">
-                          <FaProjectDiagram className="mr-3 text-blue-500 dark:text-blue-400" />
-                          Related Projects
-                        </h4>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                          {getRelatedProjects(selectedSkill).map((project) => (
-                            <div
-                              key={project.id}
-                              className="bg-gray-50 dark:bg-gray-800/20 rounded-xl overflow-hidden transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800/30 cursor-pointer"
-                            >
-                              <div className="relative h-44">
-                                <Image
-                                  src={project.image}
-                                  alt={project.title}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div className="p-6">
-                                <h5 className="font-light text-lg mb-3 text-gray-900 dark:text-white tracking-wide">{project.title}</h5>
-                                <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 font-light line-clamp-2 leading-relaxed">
-                                  {project.description}
-                                </p>
-                                <div className="flex flex-wrap gap-2 mb-5">
-                                  {project.tags.slice(0, 3).map((tag, i) => (
-                                    <span
-                                      key={i}
-                                      className="text-xs px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-full"
-                                    >
-                                      {tag}
-                                    </span>
-                                  ))}
-                                  {project.tags.length > 3 && (
-                                    <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full">
-                                      +{project.tags.length - 3} more
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="flex gap-3">
-                                  {project.liveUrl && (
-                                    <a
-                                      href={project.liveUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/80 hover:bg-blue-500/80 text-white rounded-full transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <FaExternalLinkAlt size={10} /> Live Demo
-                                    </a>
-                                  )}
-                                  {project.github && (
-                                    <a
-                                      href={project.github}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-gray-800/80 hover:bg-gray-700/80 text-white rounded-full transition-colors"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <FaGithub size={10} /> GitHub
-                                    </a>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {getRelatedProjects(selectedSkill).length === 0 && getRelatedExperiences(selectedSkill).length === 0 && (
-                      <div className="text-center py-12 text-gray-500 dark:text-gray-400 font-light">
-                        No related items found for this skill.
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Use SkillModal component */}
+      {selectedSkill && (
+        <SkillModal
+          skillId={selectedSkill}
+          closeModal={closeModal}
+          nextSkill={nextSkill}
+          prevSkill={prevSkill}
+          getSkillIcon={getSkillIcon}
+        />
+      )}
     </section>
   );
 } 

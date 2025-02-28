@@ -1,38 +1,31 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
-import { FaGithub, FaExternalLinkAlt, FaGooglePlay, FaApple, FaTimes, FaChevronLeft, FaChevronRight, FaCalendarAlt, FaTag, FaBuilding, FaCode } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaGooglePlay, FaApple, FaCalendarAlt, FaTag, FaBuilding, FaCode, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link';
 import { Project, Experience, COMPANIES, EXPERIENCES } from '../../data/portfolioData';
 import { motion } from 'framer-motion';
+import Modal from '../shared/Modal';
 
 type ProjectModalProps = {
   project: Project;
-  closeModal: () => void;
-  nextProject: () => void;
-  prevProject: () => void;
   openExperienceModal: (index: number) => void;
   openCompanyModal: (companyId: string) => void;
   parseMarkdownLinks: (text: string) => React.ReactNode;
-  handleTouchStart: (e: React.TouchEvent) => void;
-  handleTouchMove: (e: React.TouchEvent) => void;
-  handleTouchEnd: () => void;
-  modalContentRef: React.RefObject<HTMLDivElement>;
+  closeModal: () => void;
+  nextProject?: () => void;
+  prevProject?: () => void;
 };
 
 export default function ProjectModal({
   project,
-  closeModal,
-  nextProject,
-  prevProject,
   openExperienceModal,
   openCompanyModal,
   parseMarkdownLinks,
-  handleTouchStart,
-  handleTouchMove,
-  handleTouchEnd,
-  modalContentRef
+  closeModal,
+  nextProject,
+  prevProject,
 }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
@@ -46,22 +39,6 @@ export default function ProjectModal({
     }
     return null;
   };
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeModal();
-      } else if (e.key === 'ArrowRight') {
-        nextProject();
-      } else if (e.key === 'ArrowLeft') {
-        prevProject();
-      }
-    };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [closeModal, nextProject, prevProject]);
 
   // Get related experience
   const relatedExperience = getExperienceForProject();
@@ -135,278 +112,241 @@ export default function ProjectModal({
   };
   
   return (
-    <motion.div 
-      ref={modalContentRef}
-      className="bg-white dark:bg-gray-900 rounded-2xl max-h-[90vh] overflow-hidden relative flex flex-col"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      initial={{ opacity: 0, scale: 0.95, y: 10 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.98, y: 5 }}
-      transition={{ 
-        type: "spring",
-        damping: 25,
-        stiffness: 200
-      }}
+    <Modal 
+      isOpen={true} 
+      onClose={closeModal}
+      hasNavigation={!!(nextProject && prevProject)}
+      onNext={nextProject}
+      onPrevious={prevProject}
     >
-      {/* Close button - absolute positioned in top right corner */}
-      <motion.button 
-        onClick={closeModal}
-        className="absolute top-4 right-4 z-20 p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-full"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        transition={{ duration: 0.2 }}
-      >
-        <FaTimes size={18} />
-      </motion.button>
-      
-      <div className="overflow-y-auto flex-1">
-        {/* Hero section with image and title overlay */}
-        <div className="relative">
-          {renderImageGallery()}
-          
-          {/* Content overlay at bottom of image */}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 pt-16">
-            <motion.h2 
-              className="text-2xl md:text-3xl font-light text-white"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              {project.title}
-            </motion.h2>
+      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full relative flex flex-col shadow-xl">
+        <div className="flex-1">
+          {/* Hero section with image and title overlay */}
+          <div className="relative">
+            {renderImageGallery()}
             
-            <motion.div 
-              className="flex flex-wrap items-center gap-3 mt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <span className="px-2 py-1 rounded-full bg-blue-500/20 text-blue-100 text-xs backdrop-blur-sm">
-                {project.category}
-              </span>
-              
-              {project.company && (
-                <button
-                  onClick={() => openCompanyModal(project.company as string)}
-                  className="flex items-center px-2 py-1 rounded-full bg-purple-500/20 text-purple-100 text-xs backdrop-blur-sm hover:bg-purple-500/30 transition-colors"
-                >
-                  <span className="w-3 h-3 mr-1 relative overflow-hidden rounded-full">
-                    <Image 
-                      src={COMPANIES[project.company]?.logo || ''}
-                      alt={COMPANIES[project.company]?.name || project.company}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                    />
-                  </span>
-                  {COMPANIES[project.company]?.name || project.company}
-                </button>
-              )}
-            </motion.div>
-          </div>
-        </div>
-        
-        <div className="p-8">
-          {/* Main content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Left column - Project details */}
-            <div className="lg:col-span-2">
-              <motion.div 
-                className="mb-8"
-                initial={{ opacity: 0, y: 10 }}
+            {/* Content overlay at bottom of image */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 pt-16">
+              <motion.h2 
+                className="text-2xl md:text-3xl font-light text-white"
+                initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
+              >
+                {project.title}
+              </motion.h2>
+              
+              <motion.div 
+                className="flex flex-wrap items-center gap-3 mt-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <p className="text-gray-700 dark:text-gray-300 font-light leading-relaxed text-lg">
-                  {project.description}
-                </p>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-                  <FaCode className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
-                  Project Details
-                </h3>
-                <div className="prose dark:prose-invert max-w-none font-light prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed">
-                  {typeof project.details === 'string' 
-                    ? parseMarkdownLinks(project.details) 
-                    : project.details.map((detail, i) => (
-                        <p key={i} className="mb-5">{parseMarkdownLinks(detail)}</p>
-                      ))
-                  }
-                </div>
-              </motion.div>
-            </div>
-            
-            {/* Right column - Metadata */}
-            <div>
-              <motion.div 
-                className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-6 mb-8"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-5 flex items-center">
-                  <FaTag className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
-                  Technologies
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {project.tags.map((tag: string, index: number) => (
-                    <span 
-                      key={index} 
-                      className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 text-sm font-light py-1 px-3 rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                <span className="px-2 py-1 rounded-full bg-blue-500/20 text-blue-100 text-xs backdrop-blur-sm">
+                  {project.category}
+                </span>
                 
-                <div className="flex gap-3 mt-6">
-                  {project.github && (
-                    <motion.div
-                      whileHover={{ y: -2 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Link 
-                        href={project.github} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                        aria-label="GitHub Repository"
-                        title="GitHub Repository"
-                      >
-                        <FaGithub size={18} />
-                      </Link>
-                    </motion.div>
-                  )}
-                  {project.liveUrl && (
-                    <motion.div
-                      whileHover={{ y: -2 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Link 
-                        href={project.liveUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                        aria-label="Live Preview"
-                        title="Live Preview"
-                      >
-                        <FaExternalLinkAlt size={14} />
-                      </Link>
-                    </motion.div>
-                  )}
-                  {project.androidUrl && (
-                    <motion.div
-                      whileHover={{ y: -2 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Link 
-                        href={project.androidUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                        aria-label="Android App"
-                        title="Android App"
-                      >
-                        <FaGooglePlay size={16} />
-                      </Link>
-                    </motion.div>
-                  )}
-                  {project.iosUrl && (
-                    <motion.div
-                      whileHover={{ y: -2 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <Link 
-                        href={project.iosUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                        aria-label="iOS App"
-                        title="iOS App"
-                      >
-                        <FaApple size={18} />
-                      </Link>
-                    </motion.div>
-                  )}
-                </div>
-              </motion.div>
-              
-              {relatedExperience && (
-                <motion.div 
-                  className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-6"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-5 flex items-center">
-                    <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
-                    Related Experience
-                  </h3>
-                  
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 relative flex-shrink-0 rounded-md overflow-hidden mt-1">
-                      <Image
-                        src={relatedExperience.logo}
-                        alt={relatedExperience.title}
+                {project.company && (
+                  <button
+                    onClick={() => openCompanyModal(project.company as string)}
+                    className="flex items-center px-2 py-1 rounded-full bg-purple-500/20 text-purple-100 text-xs backdrop-blur-sm hover:bg-purple-500/30 transition-colors"
+                  >
+                    <span className="w-3 h-3 mr-1 relative overflow-hidden rounded-full">
+                      <Image 
+                        src={COMPANIES[project.company]?.logo || ''}
+                        alt={COMPANIES[project.company]?.name || project.company}
                         fill
                         style={{ objectFit: 'cover' }}
                       />
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium text-gray-800 dark:text-gray-200">{relatedExperience.title}</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <FaCalendarAlt className="inline-block mr-1 text-xs" />
-                        {relatedExperience.period}
-                      </p>
-                      <motion.button
-                        onClick={() => {
-                          const index = EXPERIENCES.findIndex(exp => exp.id === relatedExperience.id);
-                          if (index !== -1) {
-                            openExperienceModal(index);
-                          }
-                        }}
-                        className="text-blue-600 dark:text-blue-400 text-sm font-light inline-flex items-center bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-                        whileHover={{ x: 3 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        View experience <FaChevronRight className="ml-1.5 text-xs" />
-                      </motion.button>
-                    </div>
+                    </span>
+                    {COMPANIES[project.company]?.name || project.company}
+                  </button>
+                )}
+              </motion.div>
+            </div>
+          </div>
+          
+          <div className="p-8">
+            {/* Main content */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+              {/* Left column - Project details */}
+              <div className="lg:col-span-2">
+                <motion.div 
+                  className="mb-8"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <p className="text-gray-700 dark:text-gray-300 font-light leading-relaxed text-lg">
+                    {project.description}
+                  </p>
+                </motion.div>
+                
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+                    <FaCode className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
+                    Project Details
+                  </h3>
+                  <div className="prose dark:prose-invert max-w-none font-light prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed">
+                    {typeof project.details === 'string' 
+                      ? parseMarkdownLinks(project.details) 
+                      : project.details.map((detail, i) => (
+                          <p key={i} className="mb-5">{parseMarkdownLinks(detail)}</p>
+                        ))
+                    }
                   </div>
                 </motion.div>
-              )}
+              </div>
+              
+              {/* Right column - Metadata */}
+              <div>
+                <motion.div 
+                  className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-6 mb-8"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-5 flex items-center">
+                    <FaTag className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
+                    Technologies
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {project.tags.map((tag: string, index: number) => (
+                      <span 
+                        key={index} 
+                        className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 text-sm font-light py-1 px-3 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="flex gap-3 mt-6">
+                    {project.github && (
+                      <motion.div
+                        whileHover={{ y: -2 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Link 
+                          href={project.github} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                          aria-label="GitHub Repository"
+                          title="GitHub Repository"
+                        >
+                          <FaGithub size={18} />
+                        </Link>
+                      </motion.div>
+                    )}
+                    {project.liveUrl && (
+                      <motion.div
+                        whileHover={{ y: -2 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Link 
+                          href={project.liveUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                          aria-label="Live Preview"
+                          title="Live Preview"
+                        >
+                          <FaExternalLinkAlt size={14} />
+                        </Link>
+                      </motion.div>
+                    )}
+                    {project.androidUrl && (
+                      <motion.div
+                        whileHover={{ y: -2 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Link 
+                          href={project.androidUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                          aria-label="Android App"
+                          title="Android App"
+                        >
+                          <FaGooglePlay size={16} />
+                        </Link>
+                      </motion.div>
+                    )}
+                    {project.iosUrl && (
+                      <motion.div
+                        whileHover={{ y: -2 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Link 
+                          href={project.iosUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                          aria-label="iOS App"
+                          title="iOS App"
+                        >
+                          <FaApple size={18} />
+                        </Link>
+                      </motion.div>
+                    )}
+                  </div>
+                </motion.div>
+                
+                {relatedExperience && (
+                  <motion.div 
+                    className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-6"
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-5 flex items-center">
+                      <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
+                      Related Experience
+                    </h3>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 relative flex-shrink-0 rounded-md overflow-hidden mt-1">
+                        <Image
+                          src={relatedExperience.logo}
+                          alt={relatedExperience.title}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-medium text-gray-800 dark:text-gray-200">{relatedExperience.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          <FaCalendarAlt className="inline-block mr-1 text-xs" />
+                          {relatedExperience.period}
+                        </p>
+                        <motion.button
+                          onClick={() => {
+                            const index = EXPERIENCES.findIndex(exp => exp.id === relatedExperience.id);
+                            if (index !== -1) {
+                              openExperienceModal(index);
+                            }
+                          }}
+                          className="text-blue-600 dark:text-blue-400 text-sm font-light inline-flex items-center bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                          whileHover={{ x: 3 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          View experience <FaChevronRight className="ml-1.5 text-xs" />
+                        </motion.button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-      
-      {/* Project navigation - fixed at bottom */}
-      <div className="border-t border-gray-100 dark:border-gray-800 flex justify-between p-5 bg-white dark:bg-gray-900">
-        <motion.button 
-          onClick={prevProject}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-light py-1.5 px-4 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          whileHover={{ x: -3 }}
-          transition={{ duration: 0.2 }}
-        >
-          <FaChevronLeft size={12} /> Previous Project
-        </motion.button>
-        <motion.button 
-          onClick={nextProject}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 font-light py-1.5 px-4 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          whileHover={{ x: 3 }}
-          transition={{ duration: 0.2 }}
-        >
-          Next Project <FaChevronRight size={12} />
-        </motion.button>
-      </div>
-    </motion.div>
+    </Modal>
   );
 } 

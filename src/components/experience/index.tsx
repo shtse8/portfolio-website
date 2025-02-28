@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaChevronRight, FaMapMarkerAlt } from 'react-icons/fa';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import ExperienceModal from './ExperienceModal';
 import CompanyModal from '../shared/CompanyModal';
+import Modal from '../shared/Modal';
 import { EXPERIENCES, COMPANIES } from '@/data/portfolioData';
-import type { Experience } from '@/data/portfolioData';
 import { parseMarkdownLinks } from '../projects/utils';
 
-export default function Experience() {
+export default function ExperienceSection() {
   // State for component mounting
   const [mounted, setMounted] = useState(false);
   
@@ -22,11 +22,6 @@ export default function Experience() {
   const [modalType, setModalType] = useState<'experience' | 'company'>('experience');
   const [selectedExperienceIndex, setSelectedExperienceIndex] = useState(0);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
-  
-  // Refs for modal content
-  const modalContentRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
   
   // Use the actual experiences from data
   const sortedExperiences = [...EXPERIENCES].sort((a, b) => {
@@ -75,7 +70,6 @@ export default function Experience() {
     setSelectedExperienceIndex(index);
     setIsModalOpen(true);
     setModalType('experience');
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
   };
   
   // Open company modal
@@ -87,7 +81,6 @@ export default function Experience() {
       setSelectedCompanyId(companyId);
       setIsModalOpen(true);
       setModalType('company');
-      document.body.style.overflow = 'hidden'; // Prevent background scrolling
     } else {
       console.error("No company found for ID:", companyId);
       alert(`No company details found for: ${companyId}`);
@@ -97,35 +90,8 @@ export default function Experience() {
   // Close modal
   const closeModal = () => {
     setIsModalOpen(false);
-    document.body.style.overflow = 'auto'; // Restore background scrolling
   };
   
-  // Handle touch swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-  };
-  
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50; // Swipe must exceed this threshold to trigger page turn
-    
-    if (diff > threshold) {
-      // Swipe left, next item
-      setSelectedExperienceIndex((prev) => (prev + 1) % EXPERIENCES.length);
-    } else if (diff < -threshold) {
-      // Swipe right, previous item
-      setSelectedExperienceIndex((prev) => (prev - 1 + EXPERIENCES.length) % EXPERIENCES.length);
-    }
-    
-    // Reset touch state
-    touchStartX.current = 0;
-    touchEndX.current = 0;
-  };
-
   // Open project modal
   const openProjectModal = (index: number) => {
     // This function will be implemented in the Projects section
@@ -135,40 +101,32 @@ export default function Experience() {
 
   // Render the appropriate modal based on type
   const renderModal = () => {
-    if (!isModalOpen) return null;
-    
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm" onClick={closeModal}>
-        <div className="w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
-          <AnimatePresence mode="wait">
-            {modalType === 'experience' && (
-              <ExperienceModal
-                experience={EXPERIENCES[selectedExperienceIndex]}
-                experiences={EXPERIENCES}
-                selectedExperienceIndex={selectedExperienceIndex}
-                setSelectedExperienceIndex={setSelectedExperienceIndex}
-                closeModal={closeModal}
-                openCompanyModal={openCompanyModal}
-                parseMarkdownLinks={parseMarkdownLinks}
-                handleTouchStart={handleTouchStart}
-                handleTouchMove={handleTouchMove}
-                handleTouchEnd={handleTouchEnd}
-                modalContentRef={modalContentRef}
-              />
-            )}
-            
-            {modalType === 'company' && selectedCompanyId && (
-              <CompanyModal
-                company={COMPANIES[selectedCompanyId]}
-                closeModal={closeModal}
-                openProjectModal={openProjectModal}
-                openExperienceModal={openExperienceModal}
-                modalContentRef={modalContentRef}
-              />
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={closeModal}
+      >
+        {modalType === 'experience' && (
+          <ExperienceModal
+            experience={EXPERIENCES[selectedExperienceIndex]}
+            experiences={EXPERIENCES}
+            selectedExperienceIndex={selectedExperienceIndex}
+            setSelectedExperienceIndex={setSelectedExperienceIndex}
+            closeModal={closeModal}
+            openCompanyModal={openCompanyModal}
+            parseMarkdownLinks={parseMarkdownLinks}
+          />
+        )}
+        
+        {modalType === 'company' && selectedCompanyId && (
+          <CompanyModal
+            company={COMPANIES[selectedCompanyId]}
+            closeModal={closeModal}
+            openProjectModal={openProjectModal}
+            openExperienceModal={openExperienceModal}
+          />
+        )}
+      </Modal>
     );
   };
 
@@ -247,100 +205,87 @@ export default function Experience() {
                            ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
                 variants={itemVariants}
               >
-                {/* Timeline dot and year */}
-                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center pointer-events-none">
-                  <div className="bg-white dark:bg-gray-800/80 border border-blue-200 dark:border-blue-800/50 text-gray-700 dark:text-gray-300 text-xs font-medium rounded-full px-3 py-1.5 mb-3 whitespace-nowrap shadow-sm backdrop-blur-sm">
-                    {startYear} — {endYear}
-                  </div>
-                  <div className="w-3 h-3 rounded-full bg-white dark:bg-gray-800 border-2 border-blue-400 dark:border-blue-500 shadow-sm"></div>
+                {/* Timeline Node */}
+                <div className="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-white dark:bg-gray-800 rounded-full border-4 border-blue-500 dark:border-blue-600 shadow-md z-10"></div>
+                
+                {/* Year Label */}
+                <div className={`absolute left-1/2 top-8 text-sm font-medium text-gray-500 dark:text-gray-400
+                                ${isEven ? 'md:left-[calc(50%+2rem)] md:translate-x-0' : 'md:right-[calc(50%+2rem)] md:translate-x-0 md:left-auto'}`}>
+                  {startYear} - {endYear}
                 </div>
                 
-                {/* Content card */}
+                {/* Experience Card */}
                 <motion.div 
-                  className={`bg-white/80 dark:bg-gray-800/70 backdrop-blur-sm z-10
-                             rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/50
-                             shadow-sm hover:shadow-lg hover:border-blue-100 dark:hover:border-blue-900/30
-                             transition-all duration-300 cursor-pointer
-                             w-full 
-                             md:w-[40%] md:mx-0
-                             ${isEven ? 'md:mr-auto md:pr-0' : 'md:ml-auto md:pl-0'}`}
-                  onClick={() => openExperienceModal(sortedExperiences.findIndex(e => e.id === exp.id))}
-                  whileHover={{ y: -5 }}
+                  className={`w-full mt-16 md:mt-0 md:w-[calc(50%-2.5rem)] bg-white dark:bg-gray-800/70 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700/30 overflow-hidden cursor-pointer hover:shadow-md transform transition-all
+                             ${isEven ? 'md:text-right' : ''}`}
+                  onClick={() => openExperienceModal(filteredExperiences.indexOf(exp))}
+                  whileHover={{ y: -5, transition: { duration: 0.3 } }}
                 >
                   <div className="p-6">
-                    <div className="flex flex-col mb-5">
-                      <h3 className="text-xl font-medium text-gray-900 dark:text-white tracking-wide mb-2">{exp.title}</h3>
-                      
+                    <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-1">{exp.title}</h3>
+                    <div className="flex items-center gap-1 mb-4 text-gray-600 dark:text-gray-400 text-sm">
                       {exp.company && (
-                        <button
+                        <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (exp.company) {
-                              openCompanyModal(exp.company);
-                            }
+                            openCompanyModal(exp.company as string);
                           }}
-                          className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 text-sm group transition-colors self-start"
+                          className={`flex items-center hover:text-blue-500 dark:hover:text-blue-300 transition-colors
+                                     ${isEven ? 'md:flex-row-reverse' : ''}`}
                         >
-                          <div className="w-5 h-5 mr-2 relative overflow-hidden rounded">
-                            <Image 
-                              src={COMPANIES[exp.company].logo} 
-                              alt={COMPANIES[exp.company].name}
-                              width={20}
-                              height={20}
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
+                          <div className="relative w-4 h-4 rounded overflow-hidden mr-1">
+                            {exp.logo && (
+                              <Image 
+                                src={exp.logo} 
+                                alt={exp.company}
+                                fill
+                                className="object-cover"
+                              />
+                            )}
                           </div>
-                          <span className="underline-offset-4 group-hover:underline">
-                            {COMPANIES[exp.company].name}
-                          </span>
+                          <span>{exp.company}</span>
                         </button>
                       )}
-                      
-                      <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        <FaMapMarkerAlt className="text-gray-400 dark:text-gray-500 mr-1" />
-                        <span>{exp.location}</span>
-                      </div>
+                      {exp.location && (
+                        <div className={`flex items-center ml-4 ${isEven ? 'md:flex-row-reverse md:ml-0 md:mr-4' : ''}`}>
+                          <FaMapMarkerAlt className={`text-blue-500 dark:text-blue-400 text-xs ${isEven ? 'md:ml-1' : 'mr-1'}`} />
+                          <span>{exp.location}</span>
+                        </div>
+                      )}
                     </div>
-                    
-                    <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm leading-relaxed line-clamp-3">
-                      {exp.description}
+                    <p className="text-gray-600 dark:text-gray-300 mb-5 line-clamp-2 font-light">
+                      {exp.description || exp.details?.[0]}
                     </p>
-                    
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mb-4">
                       {exp.tags.slice(0, 3).map((tag, tagIndex) => (
-                        <span 
-                          key={tagIndex} 
-                          className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
-                                   rounded-md text-xs font-light"
+                        <span
+                          key={tagIndex}
+                          className="text-xs px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-full"
                         >
                           {tag}
                         </span>
                       ))}
                       {exp.tags.length > 3 && (
-                        <span className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
-                                       rounded-md text-xs font-light">
+                        <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full">
                           +{exp.tags.length - 3}
                         </span>
                       )}
                     </div>
-                    
-                    <motion.button 
-                      className="mt-4 w-full flex items-center justify-center text-sm text-blue-500 dark:text-blue-400 border border-blue-200 dark:border-blue-800/30 rounded-md py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                      whileHover={{ x: 5 }}
-                    >
-                      View Details <FaChevronRight className="ml-1 text-xs" />
-                    </motion.button>
+                    <div className={`flex items-center text-blue-500 dark:text-blue-400 text-sm
+                                    ${isEven ? 'md:justify-end' : ''}`}>
+                      <span>View details</span>
+                      <FaChevronRight className="ml-1 text-xs" />
+                    </div>
                   </div>
                 </motion.div>
               </motion.div>
             );
           })}
         </motion.div>
+        
+        {/* Render modals */}
+        {renderModal()}
       </div>
-      
-      {/* Modal */}
-      {renderModal()}
     </section>
   );
-} 
+}
