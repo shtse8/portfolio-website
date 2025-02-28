@@ -35,12 +35,11 @@ export default function ExperienceSection() {
     open(
       <ExperienceModal
         experience={experience}
-        experiences={EXPERIENCES}
-        selectedExperienceIndex={index}
         openCompanyModal={handleOpenCompany}
         parseMarkdownLinks={parseMarkdownLinks}
         nextExperience={handleNext}
         prevExperience={handlePrev}
+        closeModal={() => {}}
       />,
       { 
         modalKey: experience.id,

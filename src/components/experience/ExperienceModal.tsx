@@ -1,27 +1,22 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { FaChevronRight, FaChevronLeft, FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding } from 'react-icons/fa';
 import { Experience, COMPANIES } from '../../data/portfolioData';
 import { motion } from 'framer-motion';
 
 type ExperienceModalProps = {
   experience: Experience;
-  experiences: Experience[];
-  selectedExperienceIndex: number;
-  setSelectedExperienceIndex?: (index: number) => void;
   nextExperience?: () => void;
   prevExperience?: () => void;
   openCompanyModal: (companyId: string) => void;
   parseMarkdownLinks: (text: string) => React.ReactNode;
+  closeModal?: () => void;
 };
 
 export default function ExperienceModal({
   experience,
-  experiences,
-  selectedExperienceIndex,
-  setSelectedExperienceIndex,
   nextExperience,
   prevExperience,
   openCompanyModal,
@@ -30,30 +25,19 @@ export default function ExperienceModal({
   // Active tab state
   const [activeTab, setActiveTab] = useState<'overview' | 'details'>('overview');
   
-  // Calculate if navigation is possible
-  const canGoNext = selectedExperienceIndex < experiences.length - 1;
-  const canGoPrev = selectedExperienceIndex > 0;
-  
-  // Handle navigation
-  const handleNext = () => {
-    if (canGoNext) {
-      if (nextExperience) {
+  // Add keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' && nextExperience) {
         nextExperience();
-      } else if (setSelectedExperienceIndex) {
-        setSelectedExperienceIndex(selectedExperienceIndex + 1);
-      }
-    }
-  };
-  
-  const handlePrev = () => {
-    if (canGoPrev) {
-      if (prevExperience) {
+      } else if (e.key === 'ArrowLeft' && prevExperience) {
         prevExperience();
-      } else if (setSelectedExperienceIndex) {
-        setSelectedExperienceIndex(selectedExperienceIndex - 1);
       }
-    }
-  };
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextExperience, prevExperience]);
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl w-full shadow-xl overflow-hidden max-h-[85vh] flex flex-col">
@@ -100,38 +84,7 @@ export default function ExperienceModal({
               </div>
             </div>
             
-            {/* Navigation Controls */}
-            {(canGoNext || canGoPrev) && (
-              <div className="flex items-center gap-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`p-3 rounded-full ${
-                    canGoPrev 
-                      ? 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800'
-                      : 'bg-white/50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                  }`}
-                  onClick={handlePrev}
-                  disabled={!canGoPrev}
-                >
-                  <FaChevronLeft size={14} />
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`p-3 rounded-full ${
-                    canGoNext 
-                      ? 'bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800'
-                      : 'bg-white/50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                  }`}
-                  onClick={handleNext}
-                  disabled={!canGoNext}
-                >
-                  <FaChevronRight size={14} />
-                </motion.button>
-              </div>
-            )}
+            {/* Removed navigation controls - now handled by modal context */}
           </div>
           
           {/* Tabs */}

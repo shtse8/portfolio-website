@@ -87,16 +87,16 @@ export default function FeaturedProjects() {
     
     openExperience(ExperienceModal, {
       experience,
-      experiences: EXPERIENCES,
-      selectedExperienceIndex: index,
-      setSelectedExperienceIndex: () => {}, // No-op, we'll use our navigation functions
-      closeModal: () => {},
       openCompanyModal: handleOpenCompany,
       parseMarkdownLinks,
       nextExperience: handleNext,
-      prevExperience: handlePrev
+      prevExperience: handlePrev,
+      closeModal: () => {}
     }, {
-      modalKey: experience.id
+      modalKey: experience.id,
+      hasNavigation: true,
+      onNext: handleNext,
+      onPrevious: handlePrev
     });
   };
   
