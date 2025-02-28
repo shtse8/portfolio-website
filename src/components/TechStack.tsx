@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, FaRobot, FaUsers, FaChartLine, FaProjectDiagram, FaTimes, FaGithub, FaExternalLinkAlt, FaBriefcase } from 'react-icons/fa';
+import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, FaRobot, FaUsers, FaChartLine, FaProjectDiagram, FaTimes, FaGithub, FaExternalLinkAlt, FaBriefcase, FaChevronRight } from 'react-icons/fa';
 import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum } from 'react-icons/si';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SKILLS, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
@@ -47,7 +47,9 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05
+      staggerChildren: 0.05,
+      duration: 0.5,
+      ease: "easeOut"
     }
   }
 };
@@ -59,8 +61,10 @@ const itemVariants = {
     opacity: 1,
     transition: {
       type: "spring",
-      stiffness: 80,
-      damping: 12
+      stiffness: 50,
+      damping: 15,
+      mass: 1.2,
+      duration: 0.7
     }
   }
 };
@@ -80,83 +84,61 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, onClick, getSkillIcon }) =
   return (
     <motion.div 
       variants={itemVariants}
-      onClick={() => onClick(skill.id)}
-      className="group cursor-pointer relative overflow-hidden rounded-xl transition-all duration-300 
-        bg-white dark:bg-gray-800/90 
-        border-[1.5px] border-gray-100 dark:border-gray-700 hover:border-primary-300/50 dark:hover:border-primary-700/30
-        shadow-sm hover:shadow-md h-full flex flex-col"
-      whileHover={{ 
-        y: -6, 
-        transition: { duration: 0.3, ease: "easeOut" }
-      }}
-      whileTap={{ scale: 0.98 }}
+      className={`group relative bg-gray-50 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl overflow-hidden 
+                transition-all duration-300 ${relationshipCount > 0 ? 'cursor-pointer' : ''}`}
+      whileHover={relationshipCount > 0 ? { 
+        y: -3,
+        backgroundColor: relationshipCount > 0 ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.8)"
+      } : {}}
+      onClick={() => relationshipCount > 0 && onClick(skill.id)}
     >
-      {/* Clean accent stripe at top */}
-      <div className={`h-1 w-full ${skill.bgColor} opacity-80 dark:opacity-70`}></div>
+      {/* Colored accent in a minimal way */}
+      <div className={`h-0.5 w-full ${skill.bgColor}`}></div>
       
-      {/* Card content container */}
-      <div className="relative flex-1 flex flex-col z-10 p-6">
-        {/* Icon and name with clean styling */}
-        <div className="flex items-center mb-5 z-10">
-          <div className={`flex items-center justify-center w-14 h-14 rounded-lg 
-            bg-gray-50 dark:bg-gray-800
-            border border-gray-100 dark:border-gray-700
-            mr-4 ${skill.color} group-hover:scale-105 transition-all duration-300`}>
+      <div className="p-8">
+        {/* Icon and title with more spacing and flatter design */}
+        <div className="flex items-center mb-6">
+          <div className={`${skill.color} p-3 rounded-lg mr-5`}>
             {getSkillIcon(skill.id)}
           </div>
-          <div>
-            <h3 className="text-xl font-medium tracking-tight text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300">{skill.name}</h3>
-            {/* Clean relationship count badge */}
-            {relationshipCount > 0 && (
-              <div className="mt-1 inline-flex items-center text-xs text-gray-600 dark:text-gray-400">
-                {skill.category === 'management' ? (
-                  <FaBriefcase className="mr-1.5" size={12} />
-                ) : (
-                  <FaProjectDiagram className="mr-1.5" size={12} />
-                )}
-                <span>
-                  {skill.category === 'management' ? (
-                    `${relatedExperiences.length} experience${relatedExperiences.length !== 1 ? 's' : ''}`
-                  ) : (
-                    `${relationshipCount} project${relationshipCount !== 1 ? 's' : ''}`
-                  )}
-                </span>
-              </div>
-            )}
-          </div>
+          <h3 className="text-xl font-light tracking-wide">{skill.name}</h3>
         </div>
         
-        {/* Description with clean typography */}
-        <div className="mb-6 flex-grow">
-          <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-            {skill.description}
-          </p>
-        </div>
+        {/* Description with better spacing */}
+        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-8">{skill.description}</p>
         
-        {/* Minimal expertise meter */}
-        <div className="mt-auto space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500 dark:text-gray-400 font-medium">EXPERTISE</span>
-            <span className="text-gray-700 dark:text-gray-200 font-medium">Advanced</span>
+        {/* Expertise level with simplified flat design */}
+        <div className="mt-auto">
+          <div className="flex items-center justify-between text-sm mb-2">
+            <span className="text-gray-500 dark:text-gray-400 font-light">Expertise</span>
+            <span className="text-gray-500 dark:text-gray-400 font-light">Expert</span>
           </div>
-          <div className="h-1 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-            <motion.div 
+          <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+            <motion.div
               className={`h-full ${skill.bgColor}`}
               initial={{ width: 0 }}
               whileInView={{ width: `${80 + Math.random() * 20}%` }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 1, ease: "easeOut" }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
             />
           </div>
         </div>
-
-        {/* Minimal details indicator */}
-        <div className="mt-5 flex justify-end items-center text-xs font-medium text-primary-600 dark:text-primary-400 opacity-70 group-hover:opacity-100 transition-all duration-300">
-          <span className="transform translate-x-0 group-hover:translate-x-1 transition-transform duration-300">View details</span>
-          <svg className="w-3.5 h-3.5 ml-1.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-          </svg>
-        </div>
+        
+        {/* Simplified related items info */}
+        {relationshipCount > 0 && (
+          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800/50">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-500 dark:text-gray-400 font-light">
+                {relationshipCount} related {relationshipCount === 1 ? 'item' : 'items'}
+              </span>
+              {relationshipCount > 0 && (
+                <div className="text-blue-500 dark:text-blue-400">
+                  <FaChevronRight size={12} />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
@@ -240,21 +222,21 @@ export default function TechStack() {
   };
 
   const modalVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, scale: 0.95 },
     visible: { 
       opacity: 1, 
       scale: 1,
       transition: {
         type: "spring",
-        stiffness: 400,
-        damping: 30
+        stiffness: 300,
+        damping: 25
       }
     },
     exit: {
       opacity: 0,
-      scale: 0.9,
+      scale: 0.95,
       transition: {
-        duration: 0.2
+        duration: 0.15
       }
     }
   };
@@ -339,11 +321,11 @@ export default function TechStack() {
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
+          viewport={{ once: true, amount: 0.05 }}
         >
-          {filteredSkills.map((skill, index) => (
+          {filteredSkills.map((skill) => (
             <SkillCard 
-              key={index}
+              key={skill.id}
               skill={skill}
               onClick={handleShowProjects}
               getSkillIcon={getSkillIcon}
@@ -359,7 +341,7 @@ export default function TechStack() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4"
             onClick={closeModal}
           >
             <motion.div
@@ -368,142 +350,154 @@ export default function TechStack() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white dark:bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {selectedSkill && (
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
+                <div>
+                  {/* Header with gradient background */}
+                  <div className="relative bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 p-8 rounded-t-2xl">
+                    <button
+                      onClick={closeModal}
+                      aria-label="Close modal"
+                      className="absolute right-6 top-6 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 p-2 rounded-full transition-colors"
+                    >
+                      <FaTimes className="text-gray-600 dark:text-gray-400" />
+                    </button>
+                    
                     <div className="flex items-center">
-                      <div className={`${SKILLS.find(s => s.id === selectedSkill)?.bgColor} text-white p-3 rounded-xl mr-4`}>
+                      <div className={`${SKILLS.find(s => s.id === selectedSkill)?.bgColor} text-white p-4 rounded-xl mr-5`}>
                         {getSkillIcon(selectedSkill)}
                       </div>
                       <div>
-                        <h3 className="text-2xl font-bold">{SKILLS.find(s => s.id === selectedSkill)?.name}</h3>
+                        <h3 className="text-2xl font-light tracking-wide text-gray-900 dark:text-white">
+                          {SKILLS.find(s => s.id === selectedSkill)?.name}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mt-2 font-light">
+                          {SKILLS.find(s => s.id === selectedSkill)?.description}
+                        </p>
                       </div>
                     </div>
-                    <button
-                      onClick={closeModal}
-                      className="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 p-2 rounded-full transition-colors"
-                    >
-                      <FaTimes className="text-gray-600 dark:text-gray-300" />
-                    </button>
                   </div>
 
-                  {/* Related Experiences Section (shown for management skills) */}
-                  {getRelatedExperiences(selectedSkill).length > 0 && (
-                    <div className="mb-8">
-                      <h4 className="text-xl font-semibold mb-4 flex items-center">
-                        <FaBriefcase className="mr-2 text-indigo-600 dark:text-indigo-400" />
-                        Related Experiences
-                      </h4>
-                      
-                      <div className="grid grid-cols-1 gap-4">
-                        {getRelatedExperiences(selectedSkill).map((experience) => (
-                          <div
-                            key={experience.id}
-                            className="bg-gray-50 dark:bg-gray-700/50 rounded-lg overflow-hidden shadow-md border border-gray-100 dark:border-gray-600/30 p-4"
-                          >
-                            <div className="flex items-start">
-                              <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0 mr-4 border border-gray-200 dark:border-gray-700">
+                  <div className="p-8">
+                    {/* Related Experiences Section (shown for management skills) */}
+                    {getRelatedExperiences(selectedSkill).length > 0 && (
+                      <div className="mb-10">
+                        <h4 className="text-xl font-light tracking-wide mb-6 flex items-center text-gray-900 dark:text-white">
+                          <FaBriefcase className="mr-3 text-indigo-500 dark:text-indigo-400" />
+                          Related Experiences
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 gap-5">
+                          {getRelatedExperiences(selectedSkill).map((experience) => (
+                            <div
+                              key={experience.id}
+                              className="bg-gray-50 dark:bg-gray-800/20 rounded-xl overflow-hidden p-6 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800/30 cursor-pointer"
+                            >
+                              <div className="flex items-start">
+                                <div className="relative w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 mr-5">
+                                  <Image
+                                    src={experience.logo}
+                                    alt={experience.title}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <h5 className="font-light text-lg mb-2 text-gray-900 dark:text-white tracking-wide">{experience.title}</h5>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{experience.company}</p>
+                                  <p className="text-sm text-gray-500 dark:text-gray-500 mb-3">{experience.period}</p>
+                                  <p className="text-sm text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+                                    {experience.description || experience.details?.[0] || ''}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Related Projects Section */}
+                    {getRelatedProjects(selectedSkill).length > 0 && (
+                      <div>
+                        <h4 className="text-xl font-light tracking-wide mb-6 flex items-center text-gray-900 dark:text-white">
+                          <FaProjectDiagram className="mr-3 text-blue-500 dark:text-blue-400" />
+                          Related Projects
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          {getRelatedProjects(selectedSkill).map((project) => (
+                            <div
+                              key={project.id}
+                              className="bg-gray-50 dark:bg-gray-800/20 rounded-xl overflow-hidden transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800/30 cursor-pointer"
+                            >
+                              <div className="relative h-44">
                                 <Image
-                                  src={experience.logo}
-                                  alt={experience.title}
+                                  src={project.image}
+                                  alt={project.title}
                                   fill
                                   className="object-cover"
                                 />
                               </div>
-                              <div className="flex-1">
-                                <h5 className="font-bold text-lg mb-1">{experience.title}</h5>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{experience.company}</p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{experience.period}</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                                  {experience.description}
+                              <div className="p-6">
+                                <h5 className="font-light text-lg mb-3 text-gray-900 dark:text-white tracking-wide">{project.title}</h5>
+                                <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 font-light line-clamp-2 leading-relaxed">
+                                  {project.description}
                                 </p>
+                                <div className="flex flex-wrap gap-2 mb-5">
+                                  {project.tags.slice(0, 3).map((tag, i) => (
+                                    <span
+                                      key={i}
+                                      className="text-xs px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-full"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                  {project.tags.length > 3 && (
+                                    <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full">
+                                      +{project.tags.length - 3} more
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex gap-3">
+                                  {project.liveUrl && (
+                                    <a
+                                      href={project.liveUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/80 hover:bg-blue-500/80 text-white rounded-full transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <FaExternalLinkAlt size={10} /> Live Demo
+                                    </a>
+                                  )}
+                                  {project.github && (
+                                    <a
+                                      href={project.github}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-gray-800/80 hover:bg-gray-700/80 text-white rounded-full transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <FaGithub size={10} /> GitHub
+                                    </a>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Related Projects Section */}
-                  {getRelatedProjects(selectedSkill).length > 0 && (
-                    <div>
-                      <h4 className="text-xl font-semibold mb-4 flex items-center">
-                        <FaProjectDiagram className="mr-2 text-primary-600 dark:text-primary-400" />
-                        Related Projects
-                      </h4>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {getRelatedProjects(selectedSkill).map((project) => (
-                          <div
-                            key={project.id}
-                            className="bg-gray-50 dark:bg-gray-700/50 rounded-lg overflow-hidden shadow-md border border-gray-100 dark:border-gray-600/30"
-                          >
-                            <div className="relative h-40">
-                              <Image
-                                src={project.image}
-                                alt={project.title}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="p-4">
-                              <h5 className="font-bold text-lg mb-2">{project.title}</h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
-                                {project.description}
-                              </p>
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                {project.tags.slice(0, 3).map((tag, i) => (
-                                  <span
-                                    key={i}
-                                    className="text-xs px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 rounded-full"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                                {project.tags.length > 3 && (
-                                  <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
-                                    +{project.tags.length - 3} more
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex gap-2">
-                                {project.liveUrl && (
-                                  <a
-                                    href={project.liveUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs flex items-center gap-1 px-2 py-1 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors"
-                                  >
-                                    <FaExternalLinkAlt size={10} /> Live Demo
-                                  </a>
-                                )}
-                                {project.github && (
-                                  <a
-                                    href={project.github}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs flex items-center gap-1 px-2 py-1 bg-gray-800 text-white rounded hover:bg-gray-900 transition-colors"
-                                  >
-                                    <FaGithub size={10} /> GitHub
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
+                    )}
+                    
+                    {getRelatedProjects(selectedSkill).length === 0 && getRelatedExperiences(selectedSkill).length === 0 && (
+                      <div className="text-center py-12 text-gray-500 dark:text-gray-400 font-light">
+                        No related items found for this skill.
                       </div>
-                    </div>
-                  )}
-                  
-                  {getRelatedProjects(selectedSkill).length === 0 && getRelatedExperiences(selectedSkill).length === 0 && (
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      No related items found for this skill.
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
             </motion.div>

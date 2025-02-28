@@ -12,33 +12,48 @@ import ScrollProgressIndicator from '@/components/ScrollProgressIndicator';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans antialiased">
+    <main className="min-h-screen bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-200">
+      {/* Navigation elements */}
       <Header />
       <ScrollProgressIndicator />
       <FloatingNavBar />
       
-      <div className="flex flex-col space-y-0">
-        <Suspense fallback={<LoadingSpinner />}>
+      {/* Hero section with full-height display */}
+      <div className="min-h-[95vh] w-full flex items-center justify-center">
+        <Suspense fallback={<div className="w-full h-screen flex items-center justify-center"><LoadingSpinner /></div>}>
           <Hero />
         </Suspense>
-        
-        <Suspense fallback={<LoadingSpinner />}>
+      </div>
+      
+      {/* Technical skills with Swedish-inspired spacing */}
+      <div className="py-40">
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
           <TechStack />
         </Suspense>
-        
-        <Suspense fallback={<LoadingSpinner />}>
+      </div>
+      
+      {/* Projects section with refined spacing and darker background */}
+      <div className="py-40 bg-gray-100 dark:bg-gray-800/30">
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
           <FeaturedProjects />
         </Suspense>
-        
-        <Suspense fallback={<LoadingSpinner />}>
+      </div>
+      
+      {/* Experience section with Swedish-inspired styling */}
+      <div className="py-40 bg-white dark:bg-gray-900/10">
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
           <Experience />
         </Suspense>
-        
-        <Suspense fallback={<LoadingSpinner />}>
+      </div>
+      
+      {/* Contact section */}
+      <div className="py-40 bg-gray-100 dark:bg-gray-800/30">
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
           <Contact />
         </Suspense>
       </div>
       
+      {/* Footer */}
       <Footer />
     </main>
   );

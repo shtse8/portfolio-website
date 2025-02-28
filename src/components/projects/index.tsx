@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Project, Experience, COMPANIES, EXPERIENCES, PROJECTS, CATEGORIES } from '../../data/portfolioData';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
-import ExperienceModal from './ExperienceModal';
-import CompanyModal from './CompanyModal';
+import ExperienceModal from '../experience/ExperienceModal';
+import CompanyModal from '../shared/CompanyModal';
 import { parseMarkdownLinks } from './utils';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FeaturedProjects() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -33,7 +34,7 @@ export default function FeaturedProjects() {
   // Touch swipe handling
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
-  const modalContentRef = useRef<HTMLDivElement>(null);
+  const modalContentRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   
   // Filter projects and experiences
   useEffect(() => {
@@ -61,8 +62,6 @@ export default function FeaturedProjects() {
     setSelectedProjectIndex((prev) => (prev - 1 + filteredProjects.length) % filteredProjects.length);
   };
   
-  const selectedExperience = filteredExperiences[selectedExperienceIndex];
-
   const handleImageError = (projectId: string) => {
     setImageError(prev => ({ ...prev, [projectId]: true }));
   };
@@ -124,144 +123,230 @@ export default function FeaturedProjects() {
       console.error("No company found for ID:", companyId);
     }
   };
+  
+  // Helper function to handle company click with null check
+  const handleCompanyClick = (e: React.MouseEvent, companyId: string | null) => {
+    e.stopPropagation();
+    if (companyId) {
+      openCompanyModal(companyId);
+    }
+  };
+  
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 15
+      }
+    }
+  };
 
   return (
-    <section id="projects" className="py-20 bg-white dark:bg-gray-900">
-      <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Projects</h2>
+    <section id="projects" className="relative py-32">
+      {/* Background elements */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-neutral-100 to-transparent dark:from-gray-900 dark:to-transparent opacity-60 -z-10"></div>
+      <div className="absolute inset-0 -z-20">
+        <div className="absolute top-40 left-10 w-64 h-64 rounded-full bg-blue-50 dark:bg-blue-900/10 blur-3xl opacity-40"></div>
+        <div className="absolute bottom-40 right-10 w-80 h-80 rounded-full bg-blue-50 dark:bg-blue-900/10 blur-3xl opacity-30"></div>
+      </div>
+      
+      <div className="container mx-auto px-4 max-w-6xl">
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mb-20 text-center"
+        >
+          <h2 className="font-light text-5xl mb-6 tracking-wide text-gray-800 dark:text-gray-100">
+            My <span className="font-medium text-blue-500 dark:text-blue-400">Work</span>
+          </h2>
+          <p className="text-lg max-w-2xl mx-auto text-gray-600 dark:text-gray-400 leading-relaxed">
+            A collection of projects and professional experiences that showcase my skills and expertise in creating solutions that are both functional and aesthetically pleasing.
+          </p>
+        </motion.div>
         
         {/* Categories Tabs */}
-        <div className="flex flex-wrap justify-center mb-8 gap-2">
+        <div className="flex flex-wrap justify-center mb-16 gap-3">
           {CATEGORIES.map(category => (
-            <button
+            <motion.button
               key={category}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              whileHover={{ y: -2 }}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-5 py-3 rounded-md text-sm transition-all duration-300 font-light tracking-wide ${
                 activeCategory === category 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  ? 'bg-blue-500/80 text-white' 
+                  : 'bg-white dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
               {category}
-            </button>
+            </motion.button>
           ))}
         </div>
         
         {/* Projects Grid */}
         {filteredProjects.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
             {filteredProjects.map((project, index) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={index}
-                openProjectModal={openProjectModal}
-                openCompanyModal={openCompanyModal}
-                handleImageError={handleImageError}
-                imageError={imageError}
-              />
+              <motion.div key={project.id} variants={itemVariants}>
+                <ProjectCard
+                  project={project}
+                  index={index}
+                  openProjectModal={openProjectModal}
+                  openCompanyModal={openCompanyModal}
+                  handleImageError={handleImageError}
+                  imageError={imageError}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
         
-        {/* Experiences List (for Professional Experience category) */}
+        {/* Experiences List */}
         {filteredExperiences.length > 0 && (
-          <div className="space-y-6">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="space-y-6 max-w-4xl mx-auto"
+          >
             {filteredExperiences.map((experience, index) => (
-              <div 
+              <motion.div 
                 key={experience.id} 
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                variants={itemVariants}
+                className="bg-white dark:bg-gray-800/70 backdrop-blur-sm rounded-xl overflow-hidden 
+                          cursor-pointer transition-all duration-300 border border-gray-100 dark:border-gray-700/50
+                          hover:shadow-lg hover:border-blue-100 dark:hover:border-blue-900/30"
                 onClick={() => openExperienceModal(index)}
               >
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
+                <div className="p-8">
+                  <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{experience.title}</h3>
-                      <div className="flex items-center mt-1">
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openCompanyModal(experience.company);
-                          }}
-                          className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
-                        >
-                          <span className="w-5 h-5 mr-2 relative">
-                            <Image 
-                              src={COMPANIES[experience.company].logo} 
-                              alt={COMPANIES[experience.company].name}
-                              fill
-                              style={{ objectFit: 'cover' }}
-                              className="rounded-sm"
-                            />
-                          </span>
-                          {COMPANIES[experience.company].name}
-                        </button>
-                        <span className="mx-2 text-gray-500 dark:text-gray-400">|</span>
-                        <span className="text-gray-600 dark:text-gray-400">{experience.period}</span>
+                      <h3 className="text-xl md:text-2xl font-medium text-gray-900 dark:text-white tracking-wide">{experience.title}</h3>
+                      <div className="flex items-center mt-2 text-sm">
+                        {experience.company && (
+                          <>
+                            <button 
+                              onClick={(e) => handleCompanyClick(e, experience.company)}
+                              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 group transition-colors"
+                            >
+                              <span className="w-6 h-6 mr-2 relative overflow-hidden rounded">
+                                <Image 
+                                  src={COMPANIES[experience.company].logo} 
+                                  alt={COMPANIES[experience.company].name}
+                                  fill
+                                  style={{ objectFit: 'cover' }}
+                                  className="rounded-sm group-hover:scale-105 transition-transform duration-300"
+                                />
+                              </span>
+                              <span className="underline-offset-4 group-hover:underline">
+                                {COMPANIES[experience.company].name}
+                              </span>
+                            </button>
+                            <span className="mx-3 text-gray-400 dark:text-gray-500">•</span>
+                          </>
+                        )}
+                        <span className="text-gray-600 dark:text-gray-400 font-light tracking-wider">{experience.period}</span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-gray-700 dark:text-gray-300 mb-4">{experience.description}</p>
+                  
+                  <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{experience.description}</p>
+                  
                   <div className="flex flex-wrap gap-2">
                     {experience.tags.slice(0, 5).map((tag, tagIndex) => (
                       <span 
                         key={tagIndex} 
-                        className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full text-sm"
+                        className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
+                                 rounded-md text-xs font-light"
                       >
                         {tag}
                       </span>
                     ))}
                     {experience.tags.length > 5 && (
-                      <span className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full text-sm">
+                      <span className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
+                                     rounded-md text-xs font-light">
                         +{experience.tags.length - 5}
                       </span>
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
         
-        {/* Modal */}
+        {/* Modal Container */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black bg-opacity-75" onClick={closeModal}>
-            <div className="w-full max-w-4xl" onClick={(e) => e.stopPropagation()}>
-              {modalType === 'project' && selectedProjectIndex !== null && (
-                <ProjectModal 
-                  project={filteredProjects[selectedProjectIndex]}
-                  closeModal={closeModal}
-                  nextProject={nextProject}
-                  prevProject={prevProject}
-                  openExperienceModal={openExperienceModal}
-                  openCompanyModal={openCompanyModal}
-                  parseMarkdownLinks={parseMarkdownLinks}
-                  handleTouchStart={handleTouchStart}
-                  handleTouchMove={handleTouchMove}
-                  handleTouchEnd={handleTouchEnd}
-                  modalContentRef={modalContentRef as React.RefObject<HTMLDivElement>}
-                />
-              )}
-              
-              {modalType === 'experience' && selectedExperience && (
-                <ExperienceModal 
-                  experience={selectedExperience}
-                  closeModal={closeModal}
-                  openCompanyModal={openCompanyModal}
-                  parseMarkdownLinks={parseMarkdownLinks}
-                  modalContentRef={modalContentRef as React.RefObject<HTMLDivElement>}
-                />
-              )}
-              
-              {modalType === 'company' && selectedCompanyId && COMPANIES[selectedCompanyId] && (
-                <CompanyModal 
-                  company={COMPANIES[selectedCompanyId]}
-                  closeModal={closeModal}
-                  openProjectModal={openProjectModal}
-                  openExperienceModal={openExperienceModal}
-                  modalContentRef={modalContentRef as React.RefObject<HTMLDivElement>}
-                />
-              )}
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm" onClick={closeModal}>
+            <div className="w-full max-w-6xl" onClick={(e) => e.stopPropagation()}>
+              <AnimatePresence mode="wait">
+                {modalType === 'project' && (
+                  <ProjectModal 
+                    project={filteredProjects[selectedProjectIndex]}
+                    closeModal={closeModal}
+                    nextProject={nextProject}
+                    prevProject={prevProject}
+                    openExperienceModal={openExperienceModal}
+                    openCompanyModal={openCompanyModal}
+                    parseMarkdownLinks={parseMarkdownLinks}
+                    handleTouchStart={handleTouchStart}
+                    handleTouchMove={handleTouchMove}
+                    handleTouchEnd={handleTouchEnd}
+                    modalContentRef={modalContentRef}
+                  />
+                )}
+                
+                {modalType === 'experience' && (
+                  <ExperienceModal 
+                    experience={EXPERIENCES[selectedExperienceIndex]}
+                    experiences={EXPERIENCES}
+                    selectedExperienceIndex={selectedExperienceIndex}
+                    setSelectedExperienceIndex={setSelectedExperienceIndex}
+                    closeModal={closeModal}
+                    openCompanyModal={openCompanyModal}
+                    parseMarkdownLinks={parseMarkdownLinks}
+                    handleTouchStart={handleTouchStart}
+                    handleTouchMove={handleTouchMove}
+                    handleTouchEnd={handleTouchEnd}
+                    modalContentRef={modalContentRef}
+                  />
+                )}
+                
+                {modalType === 'company' && selectedCompanyId && (
+                  <CompanyModal 
+                    company={COMPANIES[selectedCompanyId]}
+                    closeModal={closeModal}
+                    openProjectModal={openProjectModal}
+                    openExperienceModal={openExperienceModal}
+                    modalContentRef={modalContentRef}
+                  />
+                )}
+              </AnimatePresence>
             </div>
           </div>
         )}

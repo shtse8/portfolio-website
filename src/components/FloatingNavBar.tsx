@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Section {
   id: string;
@@ -15,19 +16,19 @@ export default function FloatingNavBar() {
   const [mounted, setMounted] = useState<boolean>(false);
 
   const sections: Section[] = [
-    { id: 'hero', label: 'Home', icon: <FaHome className="md:mr-2" /> },
-    { id: 'tech', label: 'Skills', icon: <FaCode className="md:mr-2" /> },
-    { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="md:mr-2" /> },
-    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="md:mr-2" /> },
-    { id: 'contact', label: 'Contact', icon: <FaEnvelope className="md:mr-2" /> },
+    { id: 'hero', label: 'Home', icon: <FaHome className="mr-2" /> },
+    { id: 'tech-stack', label: 'Skills', icon: <FaCode className="mr-2" /> },
+    { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="mr-2" /> },
+    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="mr-2" /> },
+    { id: 'contact', label: 'Contact', icon: <FaEnvelope className="mr-2" /> },
   ];
 
   useEffect(() => {
     setMounted(true);
     
     const handleScroll = () => {
-      // Show navbar after scrolling past hero section
-      if (window.scrollY > window.innerHeight * 0.5) {
+      // Show navbar after scrolling past hero section with a small buffer
+      if (window.scrollY > window.innerHeight * 0.6) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -86,30 +87,44 @@ export default function FloatingNavBar() {
 
   // Don't render anything on the server to prevent hydration issues
   if (!mounted) return null;
-  
-  // Don't render when navbar shouldn't be visible
-  if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
-      <div className="flex items-center bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm py-2 px-3 rounded-full shadow-lg">
-        {sections.map((section) => (
-          <button
-            key={section.id}
-            onClick={() => handleNavClick(section.id)}
-            className={`p-2 md:px-3 rounded-full transition-all duration-300 flex items-center ${
-              activeSection === section.id
-                ? 'bg-blue-600 text-white'
-                : 'text-gray-600 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-700'
-            } mx-1`}
-            aria-label={section.label}
-            title={section.label}
+    <AnimatePresence>
+      {isVisible && (
+        <div className="fixed bottom-8 inset-x-0 flex justify-center items-center z-40">
+          <motion.nav
+            className="inline-flex bg-white/60 dark:bg-gray-900/50 backdrop-blur-md py-3.5 px-6 rounded-full"
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
           >
-            {section.icon}
-            <span className="hidden md:inline text-sm font-medium">{section.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
+            {sections.map((section, index) => (
+              <motion.button
+                key={section.id}
+                onClick={() => handleNavClick(section.id)}
+                className={`px-3 py-2 rounded-full transition-all duration-300 flex items-center ${
+                  activeSection === section.id
+                    ? 'bg-blue-500/70 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/70 dark:hover:bg-gray-800/40 hover:text-blue-500 dark:hover:text-blue-400'
+                }`}
+                aria-label={section.label}
+                title={section.label}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  margin: index === 0 ? '0 4px 0 0' : 
+                         index === sections.length - 1 ? '0 0 0 4px' : 
+                         '0 4px'
+                }}
+              >
+                {section.icon}
+                <span className="hidden md:inline text-sm font-light tracking-wide ml-1">{section.label}</span>
+              </motion.button>
+            ))}
+          </motion.nav>
+        </div>
+      )}
+    </AnimatePresence>
   );
 } 

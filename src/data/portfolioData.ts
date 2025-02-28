@@ -680,7 +680,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   social: {
     github: "https://github.com/shtse8",
     linkedin: "https://linkedin.com/in/shtse8",
-    stackoverflow: "https://stackoverflow.com/users/1161053/kyle-tse"
+    stackoverflow: "https://stackoverflow.com/users/4380384/shtse8"
   },
   contactFormSubjects: [
     "Project Inquiry",

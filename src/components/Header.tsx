@@ -50,28 +50,30 @@ export default function Header() {
   
   const navLinks = [
     { href: '#hero', label: 'Home' },
-    { href: '#tech-stack', label: 'Tech Stack' },
+    { href: '#tech-stack', label: 'Skills' },
     { href: '#projects', label: 'Projects' },
     { href: '#experience', label: 'Experience' },
     { href: '#contact', label: 'Contact' }
   ];
   
-  // Animations - simplified for Scandinavian aesthetic
+  // Animations
   const mobileMenuVariants = {
     closed: {
       opacity: 0,
       y: -10,
       transition: {
-        duration: 0.3,
-        ease: "easeInOut"
+        type: "tween",
+        ease: "easeInOut",
+        duration: 0.3
       }
     },
     open: {
       opacity: 1,
       y: 0,
       transition: {
+        type: "tween",
+        ease: "easeOut",
         duration: 0.3,
-        ease: "easeInOut",
         staggerChildren: 0.05,
         delayChildren: 0.1
       }
@@ -79,10 +81,74 @@ export default function Header() {
   };
   
   const navItemVariants = {
-    closed: { opacity: 0 },
+    closed: { opacity: 0, y: -8 },
     open: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "tween",
+        ease: "easeOut",
+        duration: 0.3
+      }
+    }
+  };
+  
+  const logoVariants = {
+    hidden: { opacity: 0, y: -8 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "tween",
+        ease: "easeOut",
+        duration: 0.4
+      }
+    }
+  };
+  
+  const navContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
       opacity: 1,
       transition: {
+        delayChildren: 0.2,
+        staggerChildren: 0.08
+      }
+    }
+  };
+  
+  const navLinkVariants = {
+    hidden: { opacity: 0, y: -8 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "tween",
+        ease: "easeOut",
+        duration: 0.3
+      }
+    }
+  };
+  
+  const socialVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        delay: 0.5,
+        staggerChildren: 0.08
+      }
+    }
+  };
+  
+  const iconVariants = {
+    hidden: { opacity: 0, y: -8 },
+    visible: { 
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: "tween",
+        ease: "easeOut",
         duration: 0.3
       }
     }
@@ -95,165 +161,207 @@ export default function Header() {
     <header 
       className={`fixed top-0 left-0 right-0 z-[90] transition-all duration-300 ${
         isScrolled 
-          ? 'py-3 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-800' 
+          ? 'py-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm' 
           : 'py-5 bg-transparent'
       }`}
     >
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-6 max-w-7xl">
         <div className="flex justify-between items-center">
-          {/* Logo - Simplified */}
-          <Link href="#hero" className="group">
-            <h1 className="text-xl font-normal tracking-wide">
-              <span className="text-gray-900 dark:text-white">{PERSONAL_INFO.firstName}</span>
-              <span className="text-primary-500 ml-1">{PERSONAL_INFO.lastName}</span>
-            </h1>
-          </Link>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={logoVariants}
+          >
+            <Link href="#hero" className="flex items-center">
+              <span className="text-xl font-light tracking-wide">
+                <span className="text-blue-500 dark:text-blue-400">{PERSONAL_INFO.firstName}</span>
+                <span className="text-gray-800 dark:text-white ml-1">{PERSONAL_INFO.lastName}</span>
+              </span>
+            </Link>
+          </motion.div>
           
-          {/* Desktop Navigation - Cleaner styling */}
-          <nav className="hidden md:flex items-center space-x-10">
+          {/* Desktop Navigation */}
+          <motion.nav 
+            className="hidden md:flex items-center space-x-8 lg:space-x-10"
+            initial="hidden"
+            animate="visible"
+            variants={navContainerVariants}
+          >
             {navLinks.map((link, index) => (
-              <Link 
-                key={index}
-                href={link.href}
-                className="text-sm font-normal text-gray-700 dark:text-gray-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-              >
-                {link.label}
-              </Link>
+              <motion.div key={index} variants={navLinkVariants}>
+                <Link 
+                  href={link.href}
+                  className="text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-sm uppercase tracking-wide font-light px-2 py-1"
+                >
+                  {link.label}
+                </Link>
+              </motion.div>
             ))}
-          </nav>
+          </motion.nav>
           
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center">
             {/* Social Links - Desktop Only */}
-            <div className="hidden md:flex items-center space-x-5">
-              <Link 
-                href={PERSONAL_INFO.social.github}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-                aria-label="GitHub"
-              >
-                <FaGithub className="text-lg" />
-              </Link>
-              <Link 
-                href={PERSONAL_INFO.social.linkedin}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-                aria-label="LinkedIn"
-              >
-                <FaLinkedin className="text-lg" />
-              </Link>
-              <Link 
-                href={PERSONAL_INFO.social.stackoverflow}
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-                aria-label="Stack Overflow"
-              >
-                <FaStackOverflow className="text-lg" />
-              </Link>
-            </div>
+            <motion.div 
+              className="hidden md:flex items-center space-x-5 mr-5"
+              initial="hidden"
+              animate="visible"
+              variants={socialVariants}
+            >
+              <motion.div variants={iconVariants}>
+                <Link 
+                  href={PERSONAL_INFO.social.github}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                  aria-label="GitHub"
+                >
+                  <FaGithub className="text-lg" />
+                </Link>
+              </motion.div>
+              <motion.div variants={iconVariants}>
+                <Link 
+                  href={PERSONAL_INFO.social.linkedin}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                  aria-label="LinkedIn"
+                >
+                  <FaLinkedin className="text-lg" />
+                </Link>
+              </motion.div>
+              <motion.div variants={iconVariants}>
+                <Link 
+                  href={PERSONAL_INFO.social.stackoverflow}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                  aria-label="Stack Overflow"
+                >
+                  <FaStackOverflow className="text-lg" />
+                </Link>
+              </motion.div>
+            </motion.div>
             
             {/* Theme Switch */}
-            <ThemeSwitch />
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+              className="mr-3 md:mr-0"
+            >
+              <ThemeSwitch />
+            </motion.div>
             
-            {/* Mobile Menu Button - Simplified */}
-            <button 
+            {/* Mobile Menu Button */}
+            <motion.button 
               onClick={toggleMobileMenu}
-              className="md:hidden p-1.5 text-gray-700 dark:text-gray-300"
+              className="md:hidden ml-3 p-1.5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-800/50 transition-all"
               aria-label="Toggle mobile menu"
               aria-expanded={isMobileMenuOpen}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
             >
               {isMobileMenuOpen ? <FaTimes className="text-lg" /> : <FaBars className="text-lg" />}
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Menu - Simplified overlay */}
+      {/* Mobile Menu - Fade In */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
-            className="fixed inset-0 bg-white/98 dark:bg-gray-900/98 z-[99] md:hidden flex flex-col"
+            className="fixed inset-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-[99] md:hidden"
             initial="closed"
             animate="open"
             exit="closed"
             variants={mobileMenuVariants}
           >
-            <div className="p-6 flex justify-between items-center border-b border-gray-100 dark:border-gray-800">
-              <Link 
-                href="#hero" 
-                onClick={closeMobileMenu}
-                className="text-xl font-normal tracking-wide"
-              >
-                <span className="text-gray-900 dark:text-white">{PERSONAL_INFO.firstName}</span>
-                <span className="text-primary-500 ml-1">{PERSONAL_INFO.lastName}</span>
-              </Link>
-              <button 
-                onClick={closeMobileMenu}
-                className="text-gray-700 dark:text-gray-300"
-                aria-label="Close menu"
-              >
-                <FaTimes className="text-lg" />
-              </button>
-            </div>
-            
-            <nav className="flex flex-col p-6 space-y-8">
-              {navLinks.map((link, index) => (
-                <motion.div 
-                  key={index}
-                  variants={navItemVariants}
+            <div className="h-full flex flex-col overflow-y-auto">
+              <div className="flex justify-between items-center p-6">
+                <Link 
+                  href="#hero" 
+                  className="text-xl font-light tracking-wide"
+                  onClick={closeMobileMenu}
                 >
-                  <Link 
-                    href={link.href}
-                    onClick={closeMobileMenu}
-                    className="block text-lg font-normal text-gray-800 dark:text-white hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
+                  <span className="text-blue-500 dark:text-blue-400">{PERSONAL_INFO.firstName}</span>
+                  <span className="text-gray-800 dark:text-white ml-1">{PERSONAL_INFO.lastName}</span>
+                </Link>
+                <button 
+                  onClick={closeMobileMenu}
+                  className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-800/50 transition-all"
+                  aria-label="Close menu"
+                >
+                  <FaTimes className="text-lg" />
+                </button>
+              </div>
               
-              {/* Mobile Menu - Bottom Section */}
-              <motion.div 
-                variants={navItemVariants}
-                className="pt-8 mt-auto border-t border-gray-100 dark:border-gray-800"
-              >
-                <div className="flex space-x-8 mb-6">
-                  <Link 
-                    href={PERSONAL_INFO.social.github}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-                    aria-label="GitHub"
-                  >
-                    <FaGithub className="text-xl" />
-                  </Link>
-                  <Link 
-                    href={PERSONAL_INFO.social.linkedin}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-                    aria-label="LinkedIn"
-                  >
-                    <FaLinkedin className="text-xl" />
-                  </Link>
-                  <Link 
-                    href={PERSONAL_INFO.social.stackoverflow}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-gray-600 dark:text-gray-400 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
-                    aria-label="Stack Overflow"
-                  >
-                    <FaStackOverflow className="text-xl" />
-                  </Link>
+              <nav className="flex-1 flex flex-col p-6">
+                <div className="space-y-6 mb-10">
+                  {navLinks.map((link, index) => (
+                    <motion.div 
+                      key={index}
+                      variants={navItemVariants}
+                    >
+                      <Link 
+                        href={link.href}
+                        onClick={closeMobileMenu}
+                        className="block text-lg font-light tracking-wide text-gray-700 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400 transition-colors py-2"
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  ))}
                 </div>
                 
-                <div className="text-xs text-gray-500 dark:text-gray-500 font-light">
-                  © {new Date().getFullYear()} {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
-                </div>
-              </motion.div>
-            </nav>
+                {/* Theme Switch - Mobile */}
+                <motion.div 
+                  className="my-8"
+                  variants={navItemVariants}
+                >
+                  <ThemeSwitch isMobile={true} />
+                </motion.div>
+                
+                <motion.div 
+                  className="mt-auto"
+                  variants={navItemVariants}
+                >
+                  <div className="pt-6">
+                    <p className="text-gray-500 dark:text-gray-400 mb-4 font-light text-sm">Connect with me</p>
+                    <div className="flex space-x-6">
+                      <Link 
+                        href={PERSONAL_INFO.social.github}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        aria-label="GitHub"
+                      >
+                        <FaGithub className="text-xl" />
+                      </Link>
+                      <Link 
+                        href={PERSONAL_INFO.social.linkedin}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        aria-label="LinkedIn"
+                      >
+                        <FaLinkedin className="text-xl" />
+                      </Link>
+                      <Link 
+                        href={PERSONAL_INFO.social.stackoverflow}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                        aria-label="Stack Overflow"
+                      >
+                        <FaStackOverflow className="text-xl" />
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              </nav>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

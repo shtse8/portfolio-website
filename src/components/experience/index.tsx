@@ -1,40 +1,39 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { FaLink, FaBuilding, FaExternalLinkAlt, FaChevronRight, FaTimes, FaBriefcase, FaCalendarAlt, FaMapMarkerAlt } from 'react-icons/fa';
+import { useEffect, useRef, useState } from 'react';
+import { FaChevronRight, FaMapMarkerAlt } from 'react-icons/fa';
 import Image from 'next/image';
-import { PROJECTS, COMPANIES, EXPERIENCES, Project } from '@/data/portfolioData';
-import type { Experience } from '@/data/portfolioData';
-import ExperienceModal from './ExperienceModal';
-import { parseMarkdownLinks } from '../projects/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import ExperienceModal from './ExperienceModal';
+import CompanyModal from '../shared/CompanyModal';
+import { EXPERIENCES, COMPANIES } from '@/data/portfolioData';
+import type { Experience } from '@/data/portfolioData';
+import { parseMarkdownLinks } from '../projects/utils';
 
 export default function Experience() {
-  // Modal states
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedExperienceIndex, setSelectedExperienceIndex] = useState<number>(0);
-  const [modalType, setModalType] = useState<'experience' | 'company'>('experience');
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
-  const [mounted, setMounted] = useState<boolean>(false);
-  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  // State for component mounting
+  const [mounted, setMounted] = useState(false);
   
-  // Touch swipe handling
+  // State for filtering
+  const [activeFilter] = useState<string | null>(null);
+  
+  // State for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<'experience' | 'company'>('experience');
+  const [selectedExperienceIndex, setSelectedExperienceIndex] = useState(0);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  
+  // Refs for modal content
+  const modalContentRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
-  const modalContentRef = useRef<HTMLDivElement>(null);
   
   // Use the actual experiences from data
-  const experiences = EXPERIENCES;
-  
-  // Sort experiences by start year (descending)
-  const sortedExperiences = [...experiences].sort((a, b) => {
+  const sortedExperiences = [...EXPERIENCES].sort((a, b) => {
     const yearA = parseInt(a.period.split(' - ')[0]);
     const yearB = parseInt(b.period.split(' - ')[0]);
     return yearB - yearA;
   });
-  
-  // Get unique companies from experiences
-  const uniqueCompanies = [...new Set(experiences.map(exp => exp.company))];
   
   // Filter experiences based on activeFilter
   const filteredExperiences = activeFilter 
@@ -66,19 +65,6 @@ export default function Experience() {
     }
   };
   
-  const filterVariants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        delay: 0.2,
-        type: "spring",
-        stiffness: 100
-      }
-    }
-  };
-  
   // Set mounted state after hydration is complete
   useEffect(() => {
     setMounted(true);
@@ -94,8 +80,8 @@ export default function Experience() {
   
   // Open company modal
   const openCompanyModal = (companyId: string) => {
-    // Check if the company exists
     const company = COMPANIES[companyId];
+    
     if (company) {
       // Open the company modal directly
       setSelectedCompanyId(companyId);
@@ -114,16 +100,6 @@ export default function Experience() {
     document.body.style.overflow = 'auto'; // Restore background scrolling
   };
   
-  // Get projects by company
-  const getProjectsByCompany = (companyId: string): Project[] => {
-    return PROJECTS.filter((project: Project) => project.company === companyId);
-  };
-  
-  // Get experiences by company
-  const getExperiencesByCompany = (companyId: string): Experience[] => {
-    return experiences.filter(exp => exp.company === companyId);
-  };
-  
   // Handle touch swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -139,10 +115,10 @@ export default function Experience() {
     
     if (diff > threshold) {
       // Swipe left, next item
-      setSelectedExperienceIndex((prev) => (prev + 1) % experiences.length);
+      setSelectedExperienceIndex((prev) => (prev + 1) % EXPERIENCES.length);
     } else if (diff < -threshold) {
       // Swipe right, previous item
-      setSelectedExperienceIndex((prev) => (prev - 1 + experiences.length) % experiences.length);
+      setSelectedExperienceIndex((prev) => (prev - 1 + EXPERIENCES.length) % EXPERIENCES.length);
     }
     
     // Reset touch state
@@ -150,234 +126,25 @@ export default function Experience() {
     touchEndX.current = 0;
   };
 
-  if (!mounted) return null;
+  // Open project modal
+  const openProjectModal = (index: number) => {
+    // This function will be implemented in the Projects section
+    // Here we just provide a stub for the CompanyModal
+    console.log("Project modal would open for index:", index);
+  };
 
-  return (
-    <section id="experience" className="py-20 px-4 relative overflow-hidden min-h-screen flex flex-col">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <motion.div 
-          className="absolute top-1/3 left-1/4 w-72 h-72 rounded-full bg-primary-400/10 dark:bg-primary-600/5 blur-3xl"
-          animate={{
-            x: [0, 30, 0],
-            y: [0, -50, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-1/4 right-1/5 w-64 h-64 rounded-full bg-indigo-500/10 dark:bg-indigo-500/5 blur-3xl"
-          animate={{
-            x: [0, -40, 0],
-            y: [0, 60, 0],
-            scale: [1, 1.3, 1],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            repeatType: "reverse"
-          }}
-        />
-        <div className="absolute inset-0 opacity-5 dark:opacity-10 -z-10">
-          <div className="absolute h-full w-full bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]"></div>
-        </div>
-      </div>
-      
-      <div className="container mx-auto flex-1 flex flex-col">
-        <motion.div 
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 relative inline-block">
-            <span className="relative inline-block">
-              <span className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-primary-500 to-indigo-600"></span>
-              <span>Professional Experience</span>
-            </span>
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mt-4">
-            Over 20 years of experience building innovative solutions and managing teams. Full stack expertise across multiple industries with strong leadership and marketing skills.
-          </p>
-        </motion.div>
-        
-        {/* Company filter */}
-        <motion.div 
-          className="flex justify-center flex-wrap gap-3 mb-12" 
-          variants={filterVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.button
-            onClick={() => setActiveFilter(null)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              activeFilter === null
-                ? 'bg-gradient-to-r from-primary-500 to-indigo-600 text-white shadow-lg shadow-primary-500/20'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            All Companies
-          </motion.button>
-          
-          {uniqueCompanies.map((companyId, index) => {
-            const company = COMPANIES[companyId];
-            return (
-              <motion.button
-                key={index}
-                onClick={() => setActiveFilter(activeFilter === companyId ? null : companyId)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center ${
-                  activeFilter === companyId
-                    ? 'bg-gradient-to-r from-primary-500 to-indigo-600 text-white shadow-lg shadow-primary-500/20'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="w-4 h-4 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                  <Image 
-                    src={company.logo} 
-                    alt={company.name} 
-                    width={16} 
-                    height={16} 
-                    className="object-cover"
-                  />
-                </div>
-                {company.name}
-              </motion.button>
-            );
-          })}
-        </motion.div>
-        
-        {/* Timeline View - With responsive layout changes */}
-        <motion.div 
-          className="max-w-4xl mx-auto mb-16 relative flex-1"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Timeline Line - Longer to extend below the last card */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-300 to-indigo-500 dark:from-primary-700 dark:to-indigo-700 h-[calc(100%+50px)]"></div>
-          
-          {filteredExperiences.map((exp, index) => {
-            const startYear = exp.period.split(' - ')[0];
-            const isEven = index % 2 === 0;
-            const companyName = COMPANIES[exp.company]?.name || exp.company;
-            
-            return (
-              <motion.div 
-                key={exp.id} 
-                className={`relative ${index === 0 ? 'mt-8' : ''} mb-16
-                           flex flex-col items-center
-                           md:flex-row md:items-center md:mb-10
-                           ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
-                variants={itemVariants}
-              >
-                {/* Timeline dot - positioned at top on mobile, centered on desktop */}
-                <motion.div 
-                  className="mb-8 flex flex-col items-center z-10 md:mb-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  <div className="bg-gradient-to-r from-primary-500 to-indigo-600 text-white text-xs font-bold rounded-full px-3 py-1 mb-2 whitespace-nowrap shadow-md">
-                    {startYear}
-                  </div>
-                  <div className="w-5 h-5 rounded-full bg-white dark:bg-gray-800 border-4 border-primary-500 dark:border-primary-400 shadow-lg"></div>
-                </motion.div>
-                
-                {/* Content - Mobile: below dot, Desktop: alternating sides */}
-                <motion.div 
-                  className={`glass-effect p-5 rounded-xl shadow-xl hover:shadow-2xl 
-                             transition-all duration-300 cursor-pointer
-                             w-11/12 max-w-sm
-                             md:w-5/12 md:mx-0
-                             ${isEven ? 'md:mr-auto md:pr-6' : 'md:ml-auto md:pl-6'}`}
-                  onClick={() => openExperienceModal(sortedExperiences.findIndex(e => e.id === exp.id))}
-                  whileHover={{ 
-                    y: -5,
-                    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-                  }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="flex items-center mb-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden mr-3 flex-shrink-0 border border-gray-200 dark:border-gray-600 shadow-inner">
-                      <Image 
-                        src={exp.logo} 
-                        alt={companyName} 
-                        width={48} 
-                        height={48} 
-                        className="object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white text-lg">{exp.title}</h3>
-                      <p className="text-sm text-primary-600 dark:text-primary-400 font-medium">{companyName}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                      <FaCalendarAlt className="mr-1 text-primary-500 dark:text-primary-400" />
-                      <span>{exp.period}</span>
-                    </div>
-                    {exp.location && (
-                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                        <FaMapMarkerAlt className="mr-1 text-primary-500 dark:text-primary-400" />
-                        <span>{exp.location}</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">{exp.description}</p>
-                  
-                  {exp.tags && exp.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {exp.tags.slice(0, 3).map((tag, idx) => (
-                        <span key={idx} className="text-xs bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 px-2 py-0.5 rounded-md">
-                          {tag}
-                        </span>
-                      ))}
-                      {exp.tags.length > 3 && (
-                        <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-0.5 rounded-md">
-                          +{exp.tags.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="flex justify-end mt-2">
-                    <motion.span 
-                      className="text-primary-600 dark:text-primary-400 text-xs font-medium flex items-center bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded-full"
-                      whileHover={{ x: 3 }}
-                      transition={{ type: "spring", stiffness: 400 }}
-                    >
-                      View Details <FaChevronRight className="ml-1 h-2 w-2" />
-                    </motion.span>
-                  </div>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-        
-        {/* Experience details modal - only render on client side */}
-        <AnimatePresence>
-          {isModalOpen && modalType === 'experience' && experiences[selectedExperienceIndex] && (
-            <motion.div 
-              className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" 
-              onClick={closeModal}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+  // Render the appropriate modal based on type
+  const renderModal = () => {
+    if (!isModalOpen) return null;
+    
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm" onClick={closeModal}>
+        <div className="w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
+          <AnimatePresence mode="wait">
+            {modalType === 'experience' && (
               <ExperienceModal
-                experience={experiences[selectedExperienceIndex]}
-                experiences={experiences}
+                experience={EXPERIENCES[selectedExperienceIndex]}
+                experiences={EXPERIENCES}
                 selectedExperienceIndex={selectedExperienceIndex}
                 setSelectedExperienceIndex={setSelectedExperienceIndex}
                 closeModal={closeModal}
@@ -386,203 +153,194 @@ export default function Experience() {
                 handleTouchStart={handleTouchStart}
                 handleTouchMove={handleTouchMove}
                 handleTouchEnd={handleTouchEnd}
-                modalContentRef={modalContentRef as React.RefObject<HTMLDivElement>}
+                modalContentRef={modalContentRef}
               />
-            </motion.div>
-          )}
+            )}
+            
+            {modalType === 'company' && selectedCompanyId && (
+              <CompanyModal
+                company={COMPANIES[selectedCompanyId]}
+                closeModal={closeModal}
+                openProjectModal={openProjectModal}
+                openExperienceModal={openExperienceModal}
+                modalContentRef={modalContentRef}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    );
+  };
+
+  if (!mounted) return null;
+
+  return (
+    <section id="experience" className="py-32 px-4 relative overflow-hidden min-h-screen flex flex-col">
+      {/* Background elements */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-neutral-50 to-transparent dark:from-gray-950 dark:to-transparent opacity-60"></div>
+        
+        <motion.div 
+          className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full bg-blue-50/40 dark:bg-blue-900/10 blur-3xl"
+          animate={{
+            x: [0, 30, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-1/4 right-1/5 w-72 h-72 rounded-full bg-blue-50/30 dark:bg-blue-900/10 blur-3xl"
+          animate={{
+            x: [0, -40, 0],
+            y: [0, 60, 0],
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+      </div>
+      
+      <div className="container mx-auto flex-1 flex flex-col max-w-6xl">
+        <motion.div 
+          className="text-center mb-20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="font-light text-5xl mb-6 tracking-wide text-gray-800 dark:text-gray-100">
+            Professional <span className="font-medium text-blue-500 dark:text-blue-400">Experience</span>
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+            Over 20 years of experience building innovative solutions and managing teams. Full stack expertise across multiple industries with strong leadership and marketing skills.
+          </p>
+        </motion.div>
+        
+        {/* Timeline View */}
+        <motion.div 
+          className="w-full mx-auto mb-16 relative flex-1"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Timeline Line */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-200 via-blue-300 to-blue-200 dark:from-blue-900/30 dark:via-blue-800/40 dark:to-blue-900/30 h-[calc(100%+2rem)]"></div>
           
-          {/* Company details modal - only render on client side */}
-          {isModalOpen && modalType === 'company' && selectedCompanyId && COMPANIES[selectedCompanyId] && (
-            <motion.div 
-              className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" 
-              onClick={closeModal}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+          {filteredExperiences.map((exp, index) => {
+            const startYear = exp.period.split(' - ')[0];
+            const endYear = exp.period.split(' - ')[1] || 'Present';
+            const isEven = index % 2 === 0;
+            
+            return (
               <motion.div 
-                ref={modalContentRef}
-                className="relative glass-effect rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                key={exp.id} 
+                className={`relative ${index === 0 ? 'mt-8' : ''} mb-20
+                           flex flex-col items-center
+                           md:flex-row md:items-center md:mb-24 md:gap-20
+                           ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                variants={itemVariants}
               >
-                <motion.button 
-                  onClick={closeModal}
-                  className="absolute right-4 top-4 z-20 bg-white/90 dark:bg-gray-700/90 backdrop-blur-sm rounded-full p-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors shadow-md"
-                  aria-label="Close modal"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <FaTimes />
-                </motion.button>
+                {/* Timeline dot and year */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center pointer-events-none">
+                  <div className="bg-white dark:bg-gray-800/80 border border-blue-200 dark:border-blue-800/50 text-gray-700 dark:text-gray-300 text-xs font-medium rounded-full px-3 py-1.5 mb-3 whitespace-nowrap shadow-sm backdrop-blur-sm">
+                    {startYear} — {endYear}
+                  </div>
+                  <div className="w-3 h-3 rounded-full bg-white dark:bg-gray-800 border-2 border-blue-400 dark:border-blue-500 shadow-sm"></div>
+                </div>
                 
-                {(() => {
-                  const company = COMPANIES[selectedCompanyId];
-                  const relatedProjects = getProjectsByCompany(selectedCompanyId);
-                  const relatedExperiences = getExperiencesByCompany(selectedCompanyId);
-                  
-                  return (
-                    <div className="p-6 md:p-8">
-                      <motion.div 
-                        className="flex items-center mb-8"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 }}
-                      >
-                        <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-gray-100 dark:border-gray-700 shadow-lg">
-                          <Image 
-                            src={company.logo}
-                            alt={company.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="ml-6">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="px-3 py-1 bg-gradient-to-r from-primary-100 to-indigo-100 dark:from-primary-900/40 dark:to-indigo-900/40 text-primary-800 dark:text-primary-300 text-xs font-medium rounded-full">
-                              <FaBuilding className="inline mr-1" /> Company
-                            </span>
-                          </div>
-                          <h3 className="text-2xl md:text-3xl font-bold mb-1 text-gray-900 dark:text-white">{company.name}</h3>
-                          {company.location && (
-                            <div className="flex items-center text-gray-600 dark:text-gray-400">
-                              <FaMapMarkerAlt className="w-4 h-4 mr-1" />
-                              <span>{company.location}</span>
-                            </div>
-                          )}
-                        </div>
-                      </motion.div>
+                {/* Content card */}
+                <motion.div 
+                  className={`bg-white/80 dark:bg-gray-800/70 backdrop-blur-sm z-10
+                             rounded-xl overflow-hidden border border-gray-100 dark:border-gray-700/50
+                             shadow-sm hover:shadow-lg hover:border-blue-100 dark:hover:border-blue-900/30
+                             transition-all duration-300 cursor-pointer
+                             w-full 
+                             md:w-[40%] md:mx-0
+                             ${isEven ? 'md:mr-auto md:pr-0' : 'md:ml-auto md:pl-0'}`}
+                  onClick={() => openExperienceModal(sortedExperiences.findIndex(e => e.id === exp.id))}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="p-6">
+                    <div className="flex flex-col mb-5">
+                      <h3 className="text-xl font-medium text-gray-900 dark:text-white tracking-wide mb-2">{exp.title}</h3>
                       
-                      <div className="grid md:grid-cols-2 gap-8 items-start">
-                        <motion.div 
-                          className="order-2 md:order-1"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 }}
+                      {exp.company && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (exp.company) {
+                              openCompanyModal(exp.company);
+                            }
+                          }}
+                          className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 text-sm group transition-colors self-start"
                         >
-                          <p className="text-gray-600 dark:text-gray-400 mb-6 text-lg">{company.description}</p>
-                          
-                          {/* Company Website */}
-                          {company.website && (
-                            <div className="flex gap-4 mb-8">
-                              <motion.a 
-                                href={company.website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg shadow-md"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                <FaExternalLinkAlt /> Visit Website
-                              </motion.a>
-                            </div>
-                          )}
-                          
-                          {/* Related Work Experiences */}
-                          {relatedExperiences.length > 0 && (
-                            <motion.div 
-                              className="mb-8 glass-effect p-5 rounded-lg border border-white/20 dark:border-gray-700/30 shadow-md"
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.4 }}
-                            >
-                              <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                                <FaBriefcase className="mr-2 text-primary-600 dark:text-primary-400" />
-                                Work Experiences
-                              </h4>
-                              <div className="space-y-4">
-                                {relatedExperiences.map((exp) => (
-                                  <motion.button
-                                    key={exp.id}
-                                    type="button"
-                                    className="w-full text-left glass-effect p-4 rounded-lg border border-white/10 dark:border-gray-700/20 cursor-pointer hover:shadow-md transition-all"
-                                    onClick={() => {
-                                      setSelectedExperienceIndex(
-                                        experiences.findIndex(e => e.id === exp.id)
-                                      );
-                                      setModalType('experience');
-                                    }}
-                                    whileHover={{ y: -3 }}
-                                    whileTap={{ scale: 0.98 }}
-                                  >
-                                    <div className="flex items-center">
-                                      <div>
-                                        <h5 className="font-medium text-gray-900 dark:text-white">{exp.title}</h5>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400">{exp.period}</p>
-                                      </div>
-                                      <div className="ml-auto">
-                                        <FaChevronRight className="text-primary-500" />
-                                      </div>
-                                    </div>
-                                  </motion.button>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </motion.div>
-                        
-                        <motion.div 
-                          className="order-1 md:order-2"
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 }}
-                        >
-                          {/* Related Projects */}
-                          {relatedProjects.length > 0 && (
-                            <div className="glass-effect p-5 rounded-xl shadow-lg border border-white/20 dark:border-gray-700/30">
-                              <h4 className="font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-                                <FaLink className="mr-2 text-primary-600 dark:text-primary-400" />
-                                Related Projects
-                              </h4>
-                              <div className="grid grid-cols-1 gap-3">
-                                {relatedProjects.map((project: Project) => (
-                                  <motion.div 
-                                    key={project.id}
-                                    className="flex items-center glass-effect p-3 rounded-lg border border-white/10 dark:border-gray-700/20 cursor-pointer hover:shadow-md transition-all"
-                                    onClick={() => {
-                                      // Navigate to projects section
-                                      closeModal();
-                                      setTimeout(() => {
-                                        const projectsSection = document.getElementById('projects');
-                                        if (projectsSection) {
-                                          projectsSection.scrollIntoView({ behavior: 'smooth' });
-                                        }
-                                      }, 300);
-                                    }}
-                                    whileHover={{ x: 3 }}
-                                    whileTap={{ scale: 0.98 }}
-                                  >
-                                    <div className="relative w-12 h-12 rounded-lg overflow-hidden mr-3 shadow-md">
-                                      <Image 
-                                        src={project.image}
-                                        alt={project.title}
-                                        fill
-                                        className="object-cover"
-                                      />
-                                    </div>
-                                    <div>
-                                      <h5 className="font-medium text-gray-900 dark:text-white text-sm">{project.title}</h5>
-                                      <p className="text-xs text-gray-500 dark:text-gray-400">{project.category}</p>
-                                    </div>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </motion.div>
+                          <div className="w-5 h-5 mr-2 relative overflow-hidden rounded">
+                            <Image 
+                              src={COMPANIES[exp.company].logo} 
+                              alt={COMPANIES[exp.company].name}
+                              width={20}
+                              height={20}
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                          <span className="underline-offset-4 group-hover:underline">
+                            {COMPANIES[exp.company].name}
+                          </span>
+                        </button>
+                      )}
+                      
+                      <div className="flex items-center mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        <FaMapMarkerAlt className="text-gray-400 dark:text-gray-500 mr-1" />
+                        <span>{exp.location}</span>
                       </div>
                     </div>
-                  );
-                })()}
+                    
+                    <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm leading-relaxed line-clamp-3">
+                      {exp.description}
+                    </p>
+                    
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-2">
+                      {exp.tags.slice(0, 3).map((tag, tagIndex) => (
+                        <span 
+                          key={tagIndex} 
+                          className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
+                                   rounded-md text-xs font-light"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                      {exp.tags.length > 3 && (
+                        <span className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
+                                       rounded-md text-xs font-light">
+                          +{exp.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <motion.button 
+                      className="mt-4 w-full flex items-center justify-center text-sm text-blue-500 dark:text-blue-400 border border-blue-200 dark:border-blue-800/30 rounded-md py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                      whileHover={{ x: 5 }}
+                    >
+                      View Details <FaChevronRight className="ml-1 text-xs" />
+                    </motion.button>
+                  </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            );
+          })}
+        </motion.div>
       </div>
+      
+      {/* Modal */}
+      {renderModal()}
     </section>
   );
 } 
