@@ -38,51 +38,49 @@ export default function CompanyModal({
 
   return (
     <motion.div 
-      className="bg-white dark:bg-gray-900 rounded-2xl w-full overflow-hidden shadow-xl max-h-[80vh] flex flex-col"
+      className="bg-white dark:bg-gray-900 rounded-2xl w-full overflow-hidden shadow-xl"
     >
       {/* Company Header */}
-      <div className="relative">
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-10">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 relative overflow-hidden rounded-lg shadow-sm">
-              <Image
-                src={company.logo}
-                alt={company.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div>
-              <h2 className="text-3xl font-light tracking-wide text-gray-900 dark:text-white mb-2">
-                {company.name}
-              </h2>
-              <div className="flex flex-wrap gap-4 text-sm">
-                {company.location && (
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
-                    <FaMapMarkerAlt className="mr-2 text-blue-500 dark:text-blue-400" />
-                    <span>{company.location}</span>
-                  </div>
-                )}
-                {company.industry && (
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
-                    <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400" />
-                    <span>{company.industry}</span>
-                  </div>
-                )}
-                {company.size && (
-                  <div className="flex items-center text-gray-600 dark:text-gray-400">
-                    <FaUsers className="mr-2 text-blue-500 dark:text-blue-400" />
-                    <span>{company.size}</span>
-                  </div>
-                )}
-              </div>
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-10">
+        <div className="flex items-center gap-6">
+          <div className="w-20 h-20 relative overflow-hidden rounded-lg shadow-sm">
+            <Image
+              src={company.logo}
+              alt={company.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+          <div>
+            <h2 className="text-3xl font-light tracking-wide text-gray-900 dark:text-white mb-2">
+              {company.name}
+            </h2>
+            <div className="flex flex-wrap gap-4 text-sm">
+              {company.location && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <FaMapMarkerAlt className="mr-2 text-blue-500 dark:text-blue-400" />
+                  <span>{company.location}</span>
+                </div>
+              )}
+              {company.industry && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400" />
+                  <span>{company.industry}</span>
+                </div>
+              )}
+              {company.size && (
+                <div className="flex items-center text-gray-600 dark:text-gray-400">
+                  <FaUsers className="mr-2 text-blue-500 dark:text-blue-400" />
+                  <span>{company.size}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
       
       <motion.div 
-        className="p-10 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent flex-grow"
+        className="p-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.2 }}
