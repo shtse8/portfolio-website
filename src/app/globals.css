@@ -2,11 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  ========================================
+  MODERN SWEDISH DESIGN SYSTEM
+  ========================================
+  Key principles:
+  - Minimalism and functional clarity
+  - Generous whitespace and balanced proportions
+  - Light, airy color palette with thoughtful accents
+  - Typography that prioritizes readability
+*/
+
+/* ======== THEME VARIABLES ======== */
 :root {
+  /* Base colors */
   --foreground-rgb: 33, 37, 41;
   --background-rgb: 255, 255, 255;
   --primary-color: 69, 123, 157;
   --accent-color: 0, 98, 114;
+  
+  /* Design system values */
+  --space-unit: 4px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --shadow-elevation-1: 0 2px 10px rgba(0, 0, 0, 0.04);
+  --shadow-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .dark {
@@ -16,40 +38,43 @@
   --accent-color: 165, 180, 252;
 }
 
+/* ======== BASE STYLES ======== */
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Space for fixed header */
 }
 
-/* Style for when modal is open - prevents background scrolling without position changes */
+/* Prevent background scrolling when modal is open */
 html.modal-open {
-  overflow: hidden; /* Prevents scrolling */
+  overflow: hidden;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
   font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
 }
 
-/* Animation delay utilities */
-.animation-delay-2000 {
-  animation-delay: 2s;
+/* Improves readability with balanced text wrapping */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
-.animation-delay-4000 {
-  animation-delay: 4s;
+/* ======== ACCESSIBILITY ======== */
+/* Focus styles that align with Swedish design - subtle but clear */
+*:focus-visible {
+  @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
+  transition: all 0.2s var(--ease-out);
 }
 
-/* Gradient text */
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600 dark:from-primary-400 dark:to-indigo-400;
-  background-size: 200% auto;
-  animation: gradient 8s ease infinite;
-}
-
-/* Custom scrollbar */
+/* ======== SCROLLBAR STYLING ======== */
+/* Clean, minimal scrollbar design */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -64,169 +89,21 @@ body {
   @apply bg-gray-400 dark:bg-gray-500;
 }
 
-/* Focus styles */
-*:focus-visible {
-  @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
-}
-
-/* Smooth transitions for dark mode */
-.dark-transition {
-  @apply transition-colors duration-300;
-}
-
-/* Utility classes */
+/* ======== LAYOUT UTILITIES ======== */
+/* Swedish design emphasizes generous white space */
 .section-padding {
-  @apply py-20 px-4;
+  @apply py-24 px-6 md:px-8;
 }
 
 .container-narrow {
-  @apply max-w-4xl mx-auto;
+  @apply max-w-4xl mx-auto px-4;
 }
 
 .container-wide {
-  @apply max-w-6xl mx-auto;
+  @apply max-w-6xl mx-auto px-4;
 }
 
-/* Card hover effects */
-.hover-card {
-  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes slideInLeft {
-  from { transform: translateX(-30px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideInRight {
-  from { transform: translateX(30px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes pulseLight {
-  0% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(var(--primary-color), 0); }
-  100% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0); }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.animate-scaleIn {
-  animation: scaleIn 0.3s ease-out forwards;
-}
-
-.animate-slideInLeft {
-  animation: slideInLeft 0.5s ease-out forwards;
-}
-
-.animate-slideInRight {
-  animation: slideInRight 0.5s ease-out forwards;
-}
-
-.animate-pulseLight {
-  animation: pulseLight 2s infinite;
-}
-
-/* Section transitions */
-section {
-  transition: opacity 0.5s ease-in-out;
-}
-
-/* Scroll-based animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-on-scroll {
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.animation-delay-300 {
-  animation-delay: 300ms;
-}
-
-.animation-delay-600 {
-  animation-delay: 600ms;
-}
-
-.animation-delay-900 {
-  animation-delay: 900ms;
-}
-
-/* Improved focus styles for accessibility */
-:focus {
-  outline: 2px solid rgb(var(--primary-color));
-  outline-offset: 2px;
-}
-
-/* Custom scrollbar for better UX */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(var(--primary-color), 0.5);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(var(--primary-color), 0.7);
-}
-
-/* Animated gradient text */
-@keyframes gradient {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% auto;
-  animation: gradient 6s ease infinite;
-}
-
-/* Custom positions for decorative elements */
+/* Modern Swedish positioning utilities */
 .left-1\/5 {
   left: 20%;
 }
@@ -235,60 +112,108 @@ section {
   right: 20%;
 }
 
-/* Improved hover transition for cards and buttons */
-.hover-translate {
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+/* ======== TRANSITIONS ======== */
+/* Smooth theme transitions */
+.dark-transition {
+  @apply transition-colors duration-300;
 }
 
-.hover-translate:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Glass effect */
-.glass-effect {
-  @apply bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-white/20 dark:border-gray-700/30;
-}
-
-/* Button styles */
+/* ======== COMPONENT STYLES ======== */
+/* Button styles with Swedish influence - clean, subtle, functional */
 .btn-primary {
-  @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-indigo-600 text-white rounded-full font-medium shadow-lg shadow-primary-500/20 hover:shadow-xl hover:shadow-primary-500/30 transition-all transform hover:scale-105 active:scale-95;
+  @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-indigo-600 text-white rounded-full font-light tracking-wide
+         shadow-md shadow-primary-500/10 hover:shadow-lg hover:shadow-primary-500/20 
+         transition-all transform hover:-translate-y-0.5 active:translate-y-0;
 }
 
 .btn-secondary {
-  @apply px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full font-medium shadow-lg hover:shadow-xl transition-all transform hover:scale-105 active:scale-95;
+  @apply px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+         rounded-full font-light tracking-wide shadow-sm hover:shadow-md 
+         transition-all transform hover:-translate-y-0.5 active:translate-y-0;
 }
 
-/* Card styles */
+/* Card styles with Swedish aesthetic */
 .card-hover {
-  @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1;
 }
 
-/* Floating animation */
+/* Glass effect - very Swedish modern approach */
+.glass-effect {
+  @apply bg-white/70 dark:bg-gray-800/70 backdrop-blur-md 
+         border border-white/20 dark:border-gray-700/30 
+         shadow-sm;
+}
+
+/* ======== ANIMATIONS ======== */
+/* Keyframes Definitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.97); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
 @keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* Staggered animation for lists */
+@keyframes pulseLight {
+  0% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0.5); }
+  70% { box-shadow: 0 0 0 8px rgba(var(--primary-color), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0); }
+}
+
+/* Animation Utilities */
+.animate-fadeIn { animation: fadeIn 0.4s var(--ease-out) forwards; }
+.animate-scaleIn { animation: scaleIn 0.4s var(--ease-out) forwards; }
+.animate-slideInLeft { animation: slideInLeft 0.5s var(--ease-out) forwards; }
+.animate-slideInRight { animation: slideInRight 0.5s var(--ease-out) forwards; }
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-pulseLight { animation: pulseLight 2s infinite; }
+
+/* Animation delays */
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-600 { animation-delay: 600ms; }
+.animation-delay-900 { animation-delay: 900ms; }
+.animation-delay-2000 { animation-delay: 2000ms; }
+.animation-delay-4000 { animation-delay: 4000ms; }
+
+/* Gradient text - subtle Swedish-influenced effect */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600 dark:from-primary-400 dark:to-indigo-400;
+  background-size: 200% auto;
+  animation: gradient 8s ease infinite;
+}
+
+/* Staggered animation for lists - creates a calm, balanced flow */
 .stagger-item:nth-child(1) { animation-delay: 0.1s; }
-.stagger-item:nth-child(2) { animation-delay: 0.2s; }
-.stagger-item:nth-child(3) { animation-delay: 0.3s; }
-.stagger-item:nth-child(4) { animation-delay: 0.4s; }
-.stagger-item:nth-child(5) { animation-delay: 0.5s; }
-.stagger-item:nth-child(6) { animation-delay: 0.6s; }
-.stagger-item:nth-child(7) { animation-delay: 0.7s; }
-.stagger-item:nth-child(8) { animation-delay: 0.8s; }
-.stagger-item:nth-child(9) { animation-delay: 0.9s; }
-.stagger-item:nth-child(10) { animation-delay: 1s; }
+.stagger-item:nth-child(2) { animation-delay: 0.15s; }
+.stagger-item:nth-child(3) { animation-delay: 0.2s; }
+.stagger-item:nth-child(4) { animation-delay: 0.25s; }
+.stagger-item:nth-child(5) { animation-delay: 0.3s; }
+.stagger-item:nth-child(6) { animation-delay: 0.35s; }
+.stagger-item:nth-child(7) { animation-delay: 0.4s; }
+.stagger-item:nth-child(8) { animation-delay: 0.45s; }
+.stagger-item:nth-child(9) { animation-delay: 0.5s; }
+.stagger-item:nth-child(10) { animation-delay: 0.55s; }
