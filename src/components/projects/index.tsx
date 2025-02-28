@@ -6,28 +6,16 @@ import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
 import ExperienceModal from '../experience/ExperienceModal';
 import CompanyModal from '../shared/CompanyModal';
-import Modal from '../shared/Modal';
 import { parseMarkdownLinks } from './utils';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { useModalManager } from '@/hooks/useModalManager';
 
 export default function FeaturedProjects() {
+  const { openProject, openExperience, openCompany } = useModalManager();
   const [activeCategory, setActiveCategory] = useState<string>("All");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(PROJECTS);
   const [filteredExperiences, setFilteredExperiences] = useState<Experience[]>([]);
-  
-  // Project modal state
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedProjectIndex, setSelectedProjectIndex] = useState<number>(0);
-  
-  // Experience modal state
-  const [selectedExperienceIndex, setSelectedExperienceIndex] = useState<number>(0);
-  
-  // Modal type state - 'project', 'experience', or 'company'
-  const [modalType, setModalType] = useState<'project' | 'experience' | 'company'>('project');
-  
-  // Selected company for company modal
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   
   // Image error tracking
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
@@ -37,7 +25,6 @@ export default function FeaturedProjects() {
     if (activeCategory === "Professional Experience") {
       setFilteredProjects([]);
       setFilteredExperiences(EXPERIENCES);
-      setSelectedExperienceIndex(0);
     } else {
       if (activeCategory === "All") {
         setFilteredProjects(PROJECTS);
@@ -46,42 +33,87 @@ export default function FeaturedProjects() {
       }
       setFilteredExperiences([]);
     }
-    setSelectedProjectIndex(0);
-    setSelectedExperienceIndex(0);
   }, [activeCategory]);
   
   const handleImageError = (projectId: string) => {
     setImageError(prev => ({ ...prev, [projectId]: true }));
   };
 
-  const openProjectModal = (index: number) => {
-    setSelectedProjectIndex(index);
-    setIsModalOpen(true);
-    setModalType('project');
+  const handleOpenProject = (index: number) => {
+    const project = filteredProjects[index];
+    
+    // Create navigation functions
+    const goToNext = () => {
+      if (index < filteredProjects.length - 1) {
+        handleOpenProject(index + 1);
+      }
+    };
+    
+    const goToPrev = () => {
+      if (index > 0) {
+        handleOpenProject(index - 1);
+      }
+    };
+    
+    openProject(ProjectModal, {
+      project,
+      openExperienceModal: handleOpenExperience,
+      openCompanyModal: handleOpenCompany,
+      parseMarkdownLinks,
+      closeModal: () => {},
+      nextProject: index < filteredProjects.length - 1 ? goToNext : undefined,
+      prevProject: index > 0 ? goToPrev : undefined
+    }, {
+      modalKey: project.id // Ensures proper animation during navigation
+    });
   };
 
-  const openExperienceModal = (index: number) => {
-    setSelectedExperienceIndex(index);
-    setIsModalOpen(true);
-    setModalType('experience');
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
+  // Adapter function for experience modal
+  const handleOpenExperience = (index: number) => {
+    const experience = EXPERIENCES[index];
+    
+    const handleNext = () => {
+      const nextIndex = (index + 1) % EXPERIENCES.length;
+      handleOpenExperience(nextIndex);
+    };
+    
+    const handlePrev = () => {
+      const prevIndex = (index - 1 + EXPERIENCES.length) % EXPERIENCES.length;
+      handleOpenExperience(prevIndex);
+    };
+    
+    openExperience(ExperienceModal, {
+      experience,
+      experiences: EXPERIENCES,
+      selectedExperienceIndex: index,
+      setSelectedExperienceIndex: () => {}, // No-op, we'll use our navigation functions
+      closeModal: () => {},
+      openCompanyModal: handleOpenCompany,
+      parseMarkdownLinks,
+      nextExperience: handleNext,
+      prevExperience: handlePrev
+    }, {
+      modalKey: experience.id
+    });
   };
   
-  // Open company modal
-  const openCompanyModal = (companyId: string) => {
-    setSelectedCompanyId(companyId);
-    setModalType('company');
-    setIsModalOpen(true);
+  // Adapter function for company modal
+  const handleOpenCompany = (companyId: string) => {
+    openCompany(CompanyModal, {
+      company: COMPANIES[companyId],
+      closeModal: () => {},
+      openProjectModal: handleOpenProject,
+      openExperienceModal: handleOpenExperience
+    }, {
+      modalKey: companyId
+    });
   };
   
   // Helper function to handle company click with null check
   const handleCompanyClick = (e: React.MouseEvent, companyId: string | null) => {
     e.stopPropagation();
     if (companyId) {
-      openCompanyModal(companyId);
+      handleOpenCompany(companyId);
     }
   };
   
@@ -168,8 +200,8 @@ export default function FeaturedProjects() {
                 <ProjectCard
                   project={project}
                   index={index}
-                  openProjectModal={openProjectModal}
-                  openCompanyModal={openCompanyModal}
+                  openProjectModal={handleOpenProject}
+                  openCompanyModal={handleOpenCompany}
                   handleImageError={handleImageError}
                   imageError={imageError}
                 />
@@ -194,7 +226,7 @@ export default function FeaturedProjects() {
                 className="bg-white dark:bg-gray-800/70 backdrop-blur-sm rounded-xl overflow-hidden 
                           cursor-pointer transition-all duration-300 border border-gray-100 dark:border-gray-700/50
                           hover:shadow-lg hover:border-blue-100 dark:hover:border-blue-900/30"
-                onClick={() => openExperienceModal(index)}
+                onClick={() => handleOpenExperience(index)}
               >
                 <div className="p-8">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
@@ -252,60 +284,6 @@ export default function FeaturedProjects() {
             ))}
           </motion.div>
         )}
-        
-        {/* Modal Container */}
-        <Modal
-          isOpen={isModalOpen} 
-          onClose={closeModal}
-          hasNavigation={modalType === 'project' && filteredProjects.length > 1}
-          onNext={modalType === 'project' && filteredProjects.length > 1 ? 
-            () => {
-              console.log('Next project clicked, current index:', selectedProjectIndex);
-              const newIndex = (selectedProjectIndex + 1) % filteredProjects.length;
-              console.log('New index will be:', newIndex);
-              setSelectedProjectIndex(newIndex);
-            } 
-            : undefined}
-          onPrevious={modalType === 'project' && filteredProjects.length > 1 ? 
-            () => {
-              console.log('Previous project clicked, current index:', selectedProjectIndex);
-              const newIndex = (selectedProjectIndex - 1 + filteredProjects.length) % filteredProjects.length;
-              console.log('New index will be:', newIndex);
-              setSelectedProjectIndex(newIndex);
-            } 
-            : undefined}
-        >
-          {modalType === 'project' && (
-            <ProjectModal 
-              project={filteredProjects[selectedProjectIndex]}
-              openExperienceModal={openExperienceModal}
-              openCompanyModal={openCompanyModal}
-              parseMarkdownLinks={parseMarkdownLinks}
-              closeModal={closeModal}
-            />
-          )}
-          
-          {modalType === 'experience' && (
-            <ExperienceModal 
-              experience={EXPERIENCES[selectedExperienceIndex]}
-              experiences={EXPERIENCES}
-              selectedExperienceIndex={selectedExperienceIndex}
-              setSelectedExperienceIndex={setSelectedExperienceIndex}
-              closeModal={closeModal}
-              openCompanyModal={openCompanyModal}
-              parseMarkdownLinks={parseMarkdownLinks}
-            />
-          )}
-          
-          {modalType === 'company' && selectedCompanyId && (
-            <CompanyModal 
-              company={COMPANIES[selectedCompanyId]}
-              closeModal={closeModal}
-              openProjectModal={openProjectModal}
-              openExperienceModal={openExperienceModal}
-            />
-          )}
-        </Modal>
       </div>
     </section>
   );

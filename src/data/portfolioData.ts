@@ -3,7 +3,8 @@ export type Project = {
   title: string;
   description: string;
   image: string;
-  images: string[];
+  images?: string[];
+  gallery?: string[];
   tags: string[];
   github?: string;
   liveUrl?: string;
@@ -12,7 +13,16 @@ export type Project = {
   category: string;
   company: string | null;
   relatedSkills?: string[];
-  details: string[];
+  details: string[] | string;
+  technologies?: string[];
+  year?: string;
+  teamSize?: string;
+  duration?: string;
+  role?: string;
+  challenges?: {
+    title: string;
+    description: string;
+  }[];
 };
 
 export type Company = {
@@ -39,6 +49,7 @@ export type Experience = {
   liveUrl?: string;
   details: string[];
   relatedSkills?: string[];
+  projects?: string[];
 };
 
 export type TechSkill = {

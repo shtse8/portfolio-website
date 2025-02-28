@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { PERSONAL_INFO } from '@/data/portfolioData';
 import ScrollAnimationProvider from '@/components/ScrollAnimationProvider';
+import { ModalProvider } from '@/context/ModalContext';
+import ModalPortal from '@/components/shared/ModalPortal';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -101,9 +103,12 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: clientThemeScript }} />
       </head>
       <body className={inter.className}>
-        <ScrollAnimationProvider>
-          {children}
-        </ScrollAnimationProvider>
+        <ModalProvider>
+          <ScrollAnimationProvider>
+            {children}
+          </ScrollAnimationProvider>
+          <ModalPortal />
+        </ModalProvider>
       </body>
     </html>
   );

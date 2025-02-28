@@ -1,40 +1,71 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { FaChevronRight, FaMapMarkerAlt } from 'react-icons/fa';
-import Image from 'next/image';
+import { FaChevronRight, FaBuilding } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import ExperienceModal from './ExperienceModal';
 import CompanyModal from '../shared/CompanyModal';
-import Modal from '../shared/Modal';
 import { EXPERIENCES, COMPANIES } from '@/data/portfolioData';
 import { parseMarkdownLinks } from '../projects/utils';
+import { useModalManager } from '@/hooks/useModalManager';
 
 export default function ExperienceSection() {
-  // State for component mounting
   const [mounted, setMounted] = useState(false);
+  const { open } = useModalManager();
   
-  // State for filtering
-  const [activeFilter] = useState<string | null>(null);
+  // Set mounted state after hydration is complete
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
-  // State for modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<'experience' | 'company'>('experience');
-  const [selectedExperienceIndex, setSelectedExperienceIndex] = useState(0);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
+  // Adapter function for experience modal
+  const handleOpenExperience = (index: number) => {
+    const experience = EXPERIENCES[index];
+    
+    const handleNext = () => {
+      const nextIndex = (index + 1) % EXPERIENCES.length;
+      handleOpenExperience(nextIndex);
+    };
+    
+    const handlePrev = () => {
+      const prevIndex = (index - 1 + EXPERIENCES.length) % EXPERIENCES.length;
+      handleOpenExperience(prevIndex);
+    };
+    
+    open(
+      <ExperienceModal
+        experience={experience}
+        experiences={EXPERIENCES}
+        selectedExperienceIndex={index}
+        openCompanyModal={handleOpenCompany}
+        parseMarkdownLinks={parseMarkdownLinks}
+        nextExperience={handleNext}
+        prevExperience={handlePrev}
+      />,
+      { modalKey: experience.id }
+    );
+  };
   
-  // Use the actual experiences from data
-  const sortedExperiences = [...EXPERIENCES].sort((a, b) => {
-    const yearA = parseInt(a.period.split(' - ')[0]);
-    const yearB = parseInt(b.period.split(' - ')[0]);
-    return yearB - yearA;
-  });
+  // Adapter function for company modal
+  const handleOpenCompany = (companyId: string) => {
+    open(
+      <CompanyModal
+        company={COMPANIES[companyId]}
+        openProjectModal={() => {}}
+        openExperienceModal={handleOpenExperience}
+      />,
+      { modalKey: companyId }
+    );
+  };
   
-  // Filter experiences based on activeFilter
-  const filteredExperiences = activeFilter 
-    ? sortedExperiences.filter(exp => exp.company === activeFilter)
-    : sortedExperiences;
-  
+  // Helper function to handle company click with null check
+  const handleCompanyClick = (e: React.MouseEvent, companyId: string | null) => {
+    e.stopPropagation();
+    if (companyId) {
+      handleOpenCompany(companyId);
+    }
+  };
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -58,76 +89,6 @@ export default function ExperienceSection() {
         damping: 10
       }
     }
-  };
-  
-  // Set mounted state after hydration is complete
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  // Open experience modal
-  const openExperienceModal = (index: number) => {
-    setSelectedExperienceIndex(index);
-    setIsModalOpen(true);
-    setModalType('experience');
-  };
-  
-  // Open company modal
-  const openCompanyModal = (companyId: string) => {
-    const company = COMPANIES[companyId];
-    
-    if (company) {
-      // Open the company modal directly
-      setSelectedCompanyId(companyId);
-      setIsModalOpen(true);
-      setModalType('company');
-    } else {
-      console.error("No company found for ID:", companyId);
-      alert(`No company details found for: ${companyId}`);
-    }
-  };
-  
-  // Close modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-  
-  // Open project modal
-  const openProjectModal = (index: number) => {
-    // This function will be implemented in the Projects section
-    // Here we just provide a stub for the CompanyModal
-    console.log("Project modal would open for index:", index);
-  };
-
-  // Render the appropriate modal based on type
-  const renderModal = () => {
-    return (
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={closeModal}
-      >
-        {modalType === 'experience' && (
-          <ExperienceModal
-            experience={EXPERIENCES[selectedExperienceIndex]}
-            experiences={EXPERIENCES}
-            selectedExperienceIndex={selectedExperienceIndex}
-            setSelectedExperienceIndex={setSelectedExperienceIndex}
-            closeModal={closeModal}
-            openCompanyModal={openCompanyModal}
-            parseMarkdownLinks={parseMarkdownLinks}
-          />
-        )}
-        
-        {modalType === 'company' && selectedCompanyId && (
-          <CompanyModal
-            company={COMPANIES[selectedCompanyId]}
-            closeModal={closeModal}
-            openProjectModal={openProjectModal}
-            openExperienceModal={openExperienceModal}
-          />
-        )}
-      </Modal>
-    );
   };
 
   if (!mounted) return null;
@@ -191,7 +152,7 @@ export default function ExperienceSection() {
           {/* Timeline Line */}
           <div className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-200 via-blue-300 to-blue-200 dark:from-blue-900/30 dark:via-blue-800/40 dark:to-blue-900/30 h-[calc(100%+2rem)]"></div>
           
-          {filteredExperiences.map((exp, index) => {
+          {EXPERIENCES.map((exp, index) => {
             const startYear = exp.period.split(' - ')[0];
             const endYear = exp.period.split(' - ')[1] || 'Present';
             const isEven = index % 2 === 0;
@@ -218,73 +179,55 @@ export default function ExperienceSection() {
                 <motion.div 
                   className={`w-full mt-16 md:mt-0 md:w-[calc(50%-2.5rem)] bg-white dark:bg-gray-800/70 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700/30 overflow-hidden cursor-pointer hover:shadow-md transform transition-all
                              ${isEven ? 'md:text-right' : ''}`}
-                  onClick={() => openExperienceModal(filteredExperiences.indexOf(exp))}
+                  onClick={() => handleOpenExperience(index)}
                   whileHover={{ y: -5, transition: { duration: 0.3 } }}
                 >
                   <div className="p-6">
                     <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-1">{exp.title}</h3>
-                    <div className="flex items-center gap-1 mb-4 text-gray-600 dark:text-gray-400 text-sm">
-                      {exp.company && (
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openCompanyModal(exp.company as string);
-                          }}
-                          className={`flex items-center hover:text-blue-500 dark:hover:text-blue-300 transition-colors
-                                     ${isEven ? 'md:flex-row-reverse' : ''}`}
-                        >
-                          <div className="relative w-4 h-4 rounded overflow-hidden mr-1">
-                            {exp.logo && (
-                              <Image 
-                                src={exp.logo} 
-                                alt={exp.company}
-                                fill
-                                className="object-cover"
-                              />
-                            )}
-                          </div>
-                          <span>{exp.company}</span>
-                        </button>
-                      )}
-                      {exp.location && (
-                        <div className={`flex items-center ml-4 ${isEven ? 'md:flex-row-reverse md:ml-0 md:mr-4' : ''}`}>
-                          <FaMapMarkerAlt className={`text-blue-500 dark:text-blue-400 text-xs ${isEven ? 'md:ml-1' : 'mr-1'}`} />
-                          <span>{exp.location}</span>
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 mb-5 line-clamp-2 font-light">
-                      {exp.description || exp.details?.[0]}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {exp.tags.slice(0, 3).map((tag, tagIndex) => (
-                        <span
-                          key={tagIndex}
-                          className="text-xs px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-full"
-                        >
+                    
+                    {exp.company && (
+                      <button 
+                        onClick={(e) => handleCompanyClick(e, exp.company)}
+                        className={`flex items-center text-gray-600 dark:text-gray-400 mb-4 hover:text-blue-500 dark:hover:text-blue-400 transition-colors
+                                  ${isEven ? 'md:ml-auto md:justify-end' : ''}`}
+                      >
+                        <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400" />
+                        <span className="underline-offset-2 hover:underline">
+                          {COMPANIES[exp.company].name}
+                        </span>
+                      </button>
+                    )}
+                    
+                    <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm leading-relaxed">{exp.description}</p>
+                    
+                    <div className={`flex flex-wrap gap-2 mt-4 mb-4 ${isEven ? 'md:justify-end' : ''}`}>
+                      {exp.tags.slice(0, 3).map((tag, idx) => (
+                        <span key={idx} className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 rounded-md">
                           {tag}
                         </span>
                       ))}
                       {exp.tags.length > 3 && (
-                        <span className="text-xs px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full">
+                        <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 rounded-md">
                           +{exp.tags.length - 3}
                         </span>
                       )}
                     </div>
-                    <div className={`flex items-center text-blue-500 dark:text-blue-400 text-sm
-                                    ${isEven ? 'md:justify-end' : ''}`}>
-                      <span>View details</span>
-                      <FaChevronRight className="ml-1 text-xs" />
-                    </div>
+                    
+                    <motion.div 
+                      className={`flex items-center text-blue-500 dark:text-blue-400 mt-4 
+                                ${isEven ? 'md:justify-end' : ''}`}
+                      whileHover={{ x: isEven ? -3 : 3 }}
+                    >
+                      {isEven && <FaChevronRight className="ml-2 text-xs" />}
+                      <span className="text-sm font-medium">View Details</span>
+                      {!isEven && <FaChevronRight className="ml-2 text-xs" />}
+                    </motion.div>
                   </div>
                 </motion.div>
               </motion.div>
             );
           })}
         </motion.div>
-        
-        {/* Render modals */}
-        {renderModal()}
       </div>
     </section>
   );

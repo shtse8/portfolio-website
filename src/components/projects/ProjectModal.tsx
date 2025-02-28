@@ -2,18 +2,16 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { FaGithub, FaExternalLinkAlt, FaGooglePlay, FaApple, FaCalendarAlt, FaTag, FaBuilding, FaCode, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import Link from 'next/link';
+import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Project, Experience, COMPANIES, EXPERIENCES } from '../../data/portfolioData';
 import { motion } from 'framer-motion';
-import Modal from '../shared/Modal';
 
 type ProjectModalProps = {
   project: Project;
   openExperienceModal: (index: number) => void;
   openCompanyModal: (companyId: string) => void;
   parseMarkdownLinks: (text: string) => React.ReactNode;
-  closeModal: () => void;
+  closeModal?: () => void;
   nextProject?: () => void;
   prevProject?: () => void;
 };
@@ -23,33 +21,37 @@ export default function ProjectModal({
   openExperienceModal,
   openCompanyModal,
   parseMarkdownLinks,
-  closeModal,
-  nextProject,
-  prevProject,
 }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
-  // Convert single image to array for consistent handling
-  const projectImages = Array.isArray(project.image) ? project.image : [project.image];
+  // Get images from project (handle both legacy and new data structures)
+  const projectGallery = project.gallery || project.images || (Array.isArray(project.image) ? project.image : [project.image]);
   
   const getExperienceForProject = (): Experience | null => {
-    if (project.company) {
-      const relatedExperiences = EXPERIENCES.filter(exp => exp.company === project.company);
-      return relatedExperiences.length > 0 ? relatedExperiences[0] : null;
+    // First check if there's an experience that lists this project
+    const relatedExperience = EXPERIENCES.find(exp => 
+      exp.projects?.includes(project.id)
+    );
+    
+    // If not found, fall back to company match
+    if (!relatedExperience && project.company) {
+      const companyExperiences = EXPERIENCES.filter(exp => exp.company === project.company);
+      return companyExperiences.length > 0 ? companyExperiences[0] : null;
     }
-    return null;
+    
+    return relatedExperience || null;
   };
 
-  // Get related experience
-  const relatedExperience = getExperienceForProject();
-  
-  // Handle image navigation
   const nextImage = () => {
-    setActiveImageIndex((prev) => (prev + 1) % projectImages.length);
+    if (projectGallery.length > 0) {
+      setActiveImageIndex((activeImageIndex + 1) % projectGallery.length);
+    }
   };
-  
+
   const prevImage = () => {
-    setActiveImageIndex((prev) => (prev - 1 + projectImages.length) % projectImages.length);
+    if (projectGallery.length > 0) {
+      setActiveImageIndex((activeImageIndex - 1 + projectGallery.length) % projectGallery.length);
+    }
   };
   
   // Image gallery section
@@ -59,7 +61,7 @@ export default function ProjectModal({
         {/* Main image */}
         <div className="relative w-full h-full">
           <Image
-            src={projectImages[activeImageIndex]}
+            src={projectGallery[activeImageIndex]}
             alt={`${project.title} - Image ${activeImageIndex + 1}`}
             fill
             style={{ objectFit: 'cover' }}
@@ -68,7 +70,7 @@ export default function ProjectModal({
         </div>
         
         {/* Image navigation controls */}
-        {projectImages.length > 1 && (
+        {projectGallery.length > 1 && (
           <>
             <motion.button 
               className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/60 dark:bg-gray-800/70 p-3 rounded-full text-gray-800 dark:text-white z-10"
@@ -92,7 +94,7 @@ export default function ProjectModal({
             
             {/* Image dots indicator */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {projectImages.map((_, idx) => (
+              {projectGallery.map((_, idx: number) => (
                 <button 
                   key={idx} 
                   onClick={() => setActiveImageIndex(idx)}
@@ -112,241 +114,240 @@ export default function ProjectModal({
   };
   
   return (
-    <Modal 
-      isOpen={true} 
-      onClose={closeModal}
-      hasNavigation={!!(nextProject && prevProject)}
-      onNext={nextProject}
-      onPrevious={prevProject}
-    >
-      <div className="bg-white dark:bg-gray-900 rounded-2xl w-full relative flex flex-col shadow-xl">
-        <div className="flex-1">
-          {/* Hero section with image and title overlay */}
-          <div className="relative">
-            {renderImageGallery()}
-            
-            {/* Content overlay at bottom of image */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 pt-16">
-              <motion.h2 
-                className="text-2xl md:text-3xl font-light text-white"
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-              >
+    <div className="bg-white dark:bg-gray-900 rounded-2xl w-full shadow-xl overflow-hidden max-h-[85vh] flex flex-col">
+      {/* Project Header */}
+      <div className="relative">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-10">
+          <div className="flex flex-col md:flex-row md:items-start gap-8">
+            <div className="w-full md:w-auto flex-shrink-0">
+              <div className="w-full md:w-28 h-28 relative overflow-hidden rounded-xl shadow-sm">
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-3xl font-light tracking-wide text-gray-900 dark:text-white mb-3">
                 {project.title}
-              </motion.h2>
+              </h2>
               
-              <motion.div 
-                className="flex flex-wrap items-center gap-3 mt-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <span className="px-2 py-1 rounded-full bg-blue-500/20 text-blue-100 text-xs backdrop-blur-sm">
-                  {project.category}
-                </span>
+              <div className="flex flex-wrap gap-3 mb-4">
+                {project.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="text-xs px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-300 rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              
+              <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
+                {project.year && (
+                  <div className="flex items-center">
+                    <FaCalendarAlt className="mr-2 text-blue-500 dark:text-blue-400" />
+                    <span>{project.year}</span>
+                  </div>
+                )}
                 
                 {project.company && (
                   <button
                     onClick={() => openCompanyModal(project.company as string)}
-                    className="flex items-center px-2 py-1 rounded-full bg-purple-500/20 text-purple-100 text-xs backdrop-blur-sm hover:bg-purple-500/30 transition-colors"
+                    className="flex items-center hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                   >
-                    <span className="w-3 h-3 mr-1 relative overflow-hidden rounded-full">
-                      <Image 
-                        src={COMPANIES[project.company]?.logo || ''}
-                        alt={COMPANIES[project.company]?.name || project.company}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                      />
+                    <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400" />
+                    <span className="underline-offset-4 hover:underline">
+                      {COMPANIES[project.company]?.name || project.company}
                     </span>
-                    {COMPANIES[project.company]?.name || project.company}
                   </button>
-                )}
-              </motion.div>
-            </div>
-          </div>
-          
-          <div className="p-8">
-            {/* Main content */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-              {/* Left column - Project details */}
-              <div className="lg:col-span-2">
-                <motion.div 
-                  className="mb-8"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <p className="text-gray-700 dark:text-gray-300 font-light leading-relaxed text-lg">
-                    {project.description}
-                  </p>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-4 flex items-center">
-                    <FaCode className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
-                    Project Details
-                  </h3>
-                  <div className="prose dark:prose-invert max-w-none font-light prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed">
-                    {typeof project.details === 'string' 
-                      ? parseMarkdownLinks(project.details) 
-                      : project.details.map((detail, i) => (
-                          <p key={i} className="mb-5">{parseMarkdownLinks(detail)}</p>
-                        ))
-                    }
-                  </div>
-                </motion.div>
-              </div>
-              
-              {/* Right column - Metadata */}
-              <div>
-                <motion.div 
-                  className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-6 mb-8"
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-5 flex items-center">
-                    <FaTag className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
-                    Technologies
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag: string, index: number) => (
-                      <span 
-                        key={index} 
-                        className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 text-sm font-light py-1 px-3 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <div className="flex gap-3 mt-6">
-                    {project.github && (
-                      <motion.div
-                        whileHover={{ y: -2 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Link 
-                          href={project.github} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                          aria-label="GitHub Repository"
-                          title="GitHub Repository"
-                        >
-                          <FaGithub size={18} />
-                        </Link>
-                      </motion.div>
-                    )}
-                    {project.liveUrl && (
-                      <motion.div
-                        whileHover={{ y: -2 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Link 
-                          href={project.liveUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                          aria-label="Live Preview"
-                          title="Live Preview"
-                        >
-                          <FaExternalLinkAlt size={14} />
-                        </Link>
-                      </motion.div>
-                    )}
-                    {project.androidUrl && (
-                      <motion.div
-                        whileHover={{ y: -2 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Link 
-                          href={project.androidUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                          aria-label="Android App"
-                          title="Android App"
-                        >
-                          <FaGooglePlay size={16} />
-                        </Link>
-                      </motion.div>
-                    )}
-                    {project.iosUrl && (
-                      <motion.div
-                        whileHover={{ y: -2 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Link 
-                          href={project.iosUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center w-9 h-9 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                          aria-label="iOS App"
-                          title="iOS App"
-                        >
-                          <FaApple size={18} />
-                        </Link>
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
-                
-                {relatedExperience && (
-                  <motion.div 
-                    className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-6"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 }}
-                  >
-                    <h3 className="text-xl font-light text-gray-800 dark:text-gray-200 mb-5 flex items-center">
-                      <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400 text-sm" />
-                      Related Experience
-                    </h3>
-                    
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 relative flex-shrink-0 rounded-md overflow-hidden mt-1">
-                        <Image
-                          src={relatedExperience.logo}
-                          alt={relatedExperience.title}
-                          fill
-                          style={{ objectFit: 'cover' }}
-                        />
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium text-gray-800 dark:text-gray-200">{relatedExperience.title}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          <FaCalendarAlt className="inline-block mr-1 text-xs" />
-                          {relatedExperience.period}
-                        </p>
-                        <motion.button
-                          onClick={() => {
-                            const index = EXPERIENCES.findIndex(exp => exp.id === relatedExperience.id);
-                            if (index !== -1) {
-                              openExperienceModal(index);
-                            }
-                          }}
-                          className="text-blue-600 dark:text-blue-400 text-sm font-light inline-flex items-center bg-blue-50 dark:bg-blue-900/20 px-3 py-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-                          whileHover={{ x: 3 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          View experience <FaChevronRight className="ml-1.5 text-xs" />
-                        </motion.button>
-                      </div>
-                    </div>
-                  </motion.div>
                 )}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </Modal>
+      
+      <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+        {/* Project Content */}
+        <div className="p-10 grid grid-cols-1 lg:grid-cols-5 gap-10">
+          {/* Main Content */}
+          <div className="lg:col-span-3 order-2 lg:order-1">
+            <div className="prose dark:prose-invert prose-lg max-w-none">
+              <h3 className="text-2xl font-light mb-6 text-gray-900 dark:text-white">Overview</h3>
+              
+              <div className="text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+                {parseMarkdownLinks(project.description)}
+              </div>
+              
+              {project.details && (
+                <>
+                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Key Features</h3>
+                  <ul className="space-y-4">
+                    {Array.isArray(project.details) ? (
+                      project.details.map((detail: string, index: number) => (
+                        <li key={index} className="text-gray-700 dark:text-gray-300 font-light">
+                          {parseMarkdownLinks(detail)}
+                        </li>
+                      ))
+                    ) : (
+                      <div className="text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+                        {parseMarkdownLinks(project.details as string)}
+                      </div>
+                    )}
+                  </ul>
+                </>
+              )}
+              
+              {project.challenges && project.challenges.length > 0 && (
+                <>
+                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Challenges & Solutions</h3>
+                  <div className="space-y-8">
+                    {project.challenges.map((challenge, index) => (
+                      <div key={index} className="bg-gray-50 dark:bg-gray-800/30 p-6 rounded-xl">
+                        <h4 className="font-medium text-lg mb-3 text-gray-900 dark:text-white">{challenge.title}</h4>
+                        <div className="text-gray-700 dark:text-gray-300 font-light leading-relaxed">
+                          {parseMarkdownLinks(challenge.description)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              
+              {/* Related Experience Section */}
+              {getExperienceForProject() && (
+                <>
+                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Related Experience</h3>
+                  
+                  <div 
+                    className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
+                    onClick={() => {
+                      const exp = getExperienceForProject();
+                      if (exp) {
+                        const expIndex = EXPERIENCES.findIndex(e => e.id === exp.id);
+                        if (expIndex !== -1) {
+                          openExperienceModal(expIndex);
+                        }
+                      }
+                    }}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                        {getExperienceForProject()?.logo && (
+                          <Image
+                            src={getExperienceForProject()?.logo || ''}
+                            alt={getExperienceForProject()?.title || ''}
+                            fill
+                            className="object-cover"
+                          />
+                        )}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-1">{getExperienceForProject()?.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                          {getExperienceForProject()?.company} • {getExperienceForProject()?.period}
+                        </p>
+                        <p className="text-gray-700 dark:text-gray-300 font-light">
+                          {getExperienceForProject()?.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* Sidebar */}
+          <div className="lg:col-span-2 order-1 lg:order-2">
+            {/* Project Gallery */}
+            {projectGallery.length > 0 && (
+              <div className="mb-10">
+                {renderImageGallery()}
+              </div>
+            )}
+            
+            {/* Project Links */}
+            {(project.liveUrl || project.github) && (
+              <div className="mb-8">
+                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Project Links</h3>
+                <div className="flex flex-col gap-3">
+                  {project.liveUrl && (
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      <FaExternalLinkAlt />
+                      <span>View Live Project</span>
+                    </a>
+                  )}
+                  
+                  {project.github && (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      <FaGithub />
+                      <span>View on GitHub</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {/* Technologies Used */}
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Technologies Used</h3>
+              <div className="flex flex-wrap gap-2">
+                {project.technologies?.map((tech, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg text-sm"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            {/* Additional Metadata */}
+            {(project.teamSize || project.duration || project.role) && (
+              <div className="mb-8">
+                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Project Details</h3>
+                <div className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-5 space-y-4">
+                  {project.role && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">My Role</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{project.role}</span>
+                    </div>
+                  )}
+                  
+                  {project.teamSize && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Team Size</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{project.teamSize}</span>
+                    </div>
+                  )}
+                  
+                  {project.duration && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600 dark:text-gray-400">Duration</span>
+                      <span className="text-gray-900 dark:text-white font-medium">{project.duration}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 } 

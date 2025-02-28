@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, FaRobot, FaUsers, FaChartLine, FaChevronRight } from 'react-icons/fa';
 import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum } from 'react-icons/si';
 import { motion } from 'framer-motion';
 import { SKILLS, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
 import SkillModal from './skills/SkillModal';
+import { useModalManager } from '@/hooks/useModalManager';
 
 // Get projects related to the selected skill
 const getRelatedProjects = (skillId: string): Project[] => {
@@ -146,29 +147,23 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, onClick, getSkillIcon }) =
 
 export default function TechStack() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [filteredSkills, setFilteredSkills] = useState(SKILLS);
   const [mounted, setMounted] = useState(false);
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const modalRef = useRef<HTMLDivElement>(null);
+  const { open } = useModalManager();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Filter skills by category
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        setShowModal(false);
-      }
-    };
-
-    if (showModal) {
-      document.addEventListener('mousedown', handleClickOutside);
+    if (activeFilter) {
+      const filtered = SKILLS.filter(skill => skill.category === activeFilter);
+      setFilteredSkills(filtered);
+    } else {
+      setFilteredSkills(SKILLS);
     }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showModal]);
+  }, [activeFilter]);
 
   // Get the icon component for a skill
   const getSkillIcon = (skillId: string) => {
@@ -193,10 +188,6 @@ export default function TechStack() {
     return iconMap[skillId] || <FaReact className="text-4xl" />;
   };
   
-  const filteredSkills = activeFilter 
-    ? SKILLS.filter(skill => skill.category === activeFilter)
-    : SKILLS;
-    
   const categories = [
     { id: 'frontend', name: 'Frontend' },
     { id: 'backend', name: 'Backend' },
@@ -222,34 +213,28 @@ export default function TechStack() {
   };
 
   const handleShowProjects = (skillId: string) => {
-    setSelectedSkill(skillId);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedSkill(null);
-  };
-
-  // Functions for skill navigation
-  const nextSkill = () => {
-    if (!selectedSkill) return;
+    const currentIndex = filteredSkills.findIndex(skill => skill.id === skillId);
     
-    const currentIndex = filteredSkills.findIndex(skill => skill.id === selectedSkill);
-    if (currentIndex === -1) return;
+    const goToNext = () => {
+      const nextIndex = (currentIndex + 1) % filteredSkills.length;
+      handleShowProjects(filteredSkills[nextIndex].id);
+    };
     
-    const nextIndex = (currentIndex + 1) % filteredSkills.length;
-    setSelectedSkill(filteredSkills[nextIndex].id);
-  };
-  
-  const prevSkill = () => {
-    if (!selectedSkill) return;
+    const goToPrev = () => {
+      const prevIndex = (currentIndex - 1 + filteredSkills.length) % filteredSkills.length;
+      handleShowProjects(filteredSkills[prevIndex].id);
+    };
     
-    const currentIndex = filteredSkills.findIndex(skill => skill.id === selectedSkill);
-    if (currentIndex === -1) return;
-    
-    const prevIndex = (currentIndex - 1 + filteredSkills.length) % filteredSkills.length;
-    setSelectedSkill(filteredSkills[prevIndex].id);
+    open(
+      <SkillModal
+        skillId={skillId}
+        closeModal={() => {}}
+        nextSkill={goToNext}
+        prevSkill={goToPrev}
+        getSkillIcon={getSkillIcon}
+      />,
+      { modalKey: skillId }
+    );
   };
 
   if (!mounted) return null;
@@ -334,17 +319,6 @@ export default function TechStack() {
           ))}
         </motion.div>
       </div>
-
-      {/* Use SkillModal component */}
-      {selectedSkill && (
-        <SkillModal
-          skillId={selectedSkill}
-          closeModal={closeModal}
-          nextSkill={nextSkill}
-          prevSkill={prevSkill}
-          getSkillIcon={getSkillIcon}
-        />
-      )}
     </section>
   );
 } 
