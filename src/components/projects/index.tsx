@@ -64,7 +64,10 @@ export default function FeaturedProjects() {
       nextProject: index < filteredProjects.length - 1 ? goToNext : undefined,
       prevProject: index > 0 ? goToPrev : undefined
     }, {
-      modalKey: project.id // Ensures proper animation during navigation
+      modalKey: project.id, // Ensures proper animation during navigation
+      hasNavigation: true,
+      onNext: index < filteredProjects.length - 1 ? goToNext : undefined,
+      onPrevious: index > 0 ? goToPrev : undefined
     });
   };
 

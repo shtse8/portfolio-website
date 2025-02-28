@@ -2,15 +2,15 @@
 
 import React, { useEffect } from 'react';
 import Image from 'next/image';
-import { FaProjectDiagram, FaBriefcase, FaExternalLinkAlt, FaGithub, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaProjectDiagram, FaBriefcase, FaExternalLinkAlt, FaGithub } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { SKILLS, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
 
 type SkillModalProps = {
   skillId: string;
-  closeModal: () => void;
-  nextSkill: () => void;
-  prevSkill: () => void;
+  closeModal?: () => void;
+  nextSkill?: () => void;
+  prevSkill?: () => void;
   getSkillIcon: (id: string) => React.ReactNode;
 };
 
@@ -64,11 +64,11 @@ export default function SkillModal({
   // Add keyboard navigation - placed before the return statement
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && closeModal) {
         closeModal();
-      } else if (e.key === 'ArrowRight') {
+      } else if (e.key === 'ArrowRight' && nextSkill) {
         nextSkill();
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === 'ArrowLeft' && prevSkill) {
         prevSkill();
       }
     };
@@ -135,44 +135,21 @@ export default function SkillModal({
         exit="exit"
         key={`skill-header-${skillId}`}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <motion.div 
-              className={`${skill.bgColor} text-white p-4 rounded-xl mr-5`}
-              variants={itemVariants}
-            >
-              {getSkillIcon(skillId)}
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <h3 className="text-2xl font-light tracking-wide text-gray-900 dark:text-white">
-                {skill.name}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mt-2 font-light">
-                {skill.description}
-              </p>
-            </motion.div>
-          </div>
-          
-          {/* Add navigation controls */}
-          <div className="flex gap-2">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={prevSkill}
-              className="p-3 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800"
-            >
-              <FaChevronLeft size={14} />
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={nextSkill}
-              className="p-3 rounded-full bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-800"
-            >
-              <FaChevronRight size={14} />
-            </motion.button>
-          </div>
+        <div className="flex items-center">
+          <motion.div 
+            className={`${skill.bgColor} text-white p-4 rounded-xl mr-5`}
+            variants={itemVariants}
+          >
+            {getSkillIcon(skillId)}
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <h3 className="text-2xl font-light tracking-wide text-gray-900 dark:text-white">
+              {skill.name}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mt-2 font-light">
+              {skill.description}
+            </p>
+          </motion.div>
         </div>
       </motion.div>
 

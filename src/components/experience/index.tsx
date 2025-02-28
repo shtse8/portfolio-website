@@ -42,7 +42,12 @@ export default function ExperienceSection() {
         nextExperience={handleNext}
         prevExperience={handlePrev}
       />,
-      { modalKey: experience.id }
+      { 
+        modalKey: experience.id,
+        hasNavigation: true,
+        onNext: handleNext,
+        onPrevious: handlePrev
+      }
     );
   };
   

@@ -233,7 +233,12 @@ export default function TechStack() {
         prevSkill={goToPrev}
         getSkillIcon={getSkillIcon}
       />,
-      { modalKey: skillId }
+      { 
+        modalKey: skillId,
+        hasNavigation: true,
+        onNext: goToNext,
+        onPrevious: goToPrev
+      }
     );
   };
 
