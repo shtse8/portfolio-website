@@ -2,7 +2,9 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import { FaTools, FaUsers, FaFingerprint, FaRocket, FaCode, FaLightbulb } from 'react-icons/fa';
+import { FaTools, FaUsers, FaFingerprint, FaRocket, FaCode, FaLightbulb, 
+  FaRegSquare, FaLayerGroup, FaGlasses, FaHandPointer, FaRegSmile, 
+  FaRecycle, FaCodeBranch, FaBolt, FaMinusCircle, FaFileAlt } from 'react-icons/fa';
 import { useModalManager } from '@/hooks/useModalManager';
 import { PHILOSOPHY_PRINCIPLES, PhilosophyPrinciple } from '@/data';
 
@@ -13,7 +15,17 @@ const iconMap = {
   FaFingerprint,
   FaRocket,
   FaCode,
-  FaLightbulb
+  FaLightbulb,
+  FaRegSquare,
+  FaLayerGroup,
+  FaGlasses,
+  FaHandPointer,
+  FaRegSmile,
+  FaRecycle,
+  FaCodeBranch,
+  FaBolt,
+  FaMinusCircle,
+  FaFileAlt
 };
 
 // Philosophy modal component
@@ -36,9 +48,11 @@ function PhilosophyModal({
       
       <div className="p-6 md:p-8">
         <div className="max-w-none">
-          <h3 className="text-lg text-gray-800 dark:text-gray-200 font-light mb-5 tracking-wide">
-            Core principle
-          </h3>
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg text-gray-800 dark:text-gray-200 font-light tracking-wide">
+              Core principle
+            </h3>
+          </div>
           
           <div className="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-lg mb-6">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -80,6 +94,7 @@ export default function Philosophy() {
 
   // Handle opening a principle modal
   const handlePrincipleClick = (principleId: string) => {
+    // Find the principle within the full array
     const currentIndex = PHILOSOPHY_PRINCIPLES.findIndex(p => p.id === principleId);
     
     const goToNext = () => {
@@ -119,25 +134,29 @@ export default function Philosophy() {
   return (
     <div id="philosophy" ref={sectionRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900/30">
       <motion.div style={{ opacity, y }} className="max-w-5xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-normal text-center mb-16 text-gray-700 dark:text-gray-300">
+        <h2 className="text-2xl md:text-3xl font-normal text-center mb-12 text-gray-700 dark:text-gray-300">
           philosophy
         </h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {PHILOSOPHY_PRINCIPLES.map((principle, index) => {
             // Get the icon component
             const IconComponent = iconMap[principle.icon as keyof typeof iconMap];
+            
+            // Calculate if this is the last item and needs special centering
+            const isLastItem = index === PHILOSOPHY_PRINCIPLES.length - 1;
+            const isLastItemAlone = PHILOSOPHY_PRINCIPLES.length % 3 === 1 && isLastItem;
             
             return (
               <motion.div 
                 key={principle.id}
                 initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 * index }}
-                viewport={{ once: true }}
-                className="flex flex-col items-center text-center cursor-pointer rounded-xl p-4 
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3, delay: 0.05 * index }}
+                className={`flex flex-col items-center text-center cursor-pointer rounded-xl p-4 
                   transition-all duration-200 hover:scale-105 hover:bg-white/50 dark:hover:bg-gray-800/30 
-                  hover:shadow-sm relative group"
+                  hover:shadow-sm relative group ${isLastItemAlone ? 'md:col-start-2' : ''}`}
                 onClick={() => handlePrincipleClick(principle.id)}
                 onKeyDown={(e) => handleKeyDown(e, principle.id)}
                 role="button"
