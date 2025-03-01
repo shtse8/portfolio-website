@@ -146,20 +146,6 @@ export default function SkillCloudView() {
   const setCloudMode = useCallback(() => setVisualizationMode('cloud'), []);
   const setGridMode = useCallback(() => setVisualizationMode('grid'), []);
   const clearFilter = useCallback(() => setActiveFilter(null), []);
-  
-  // Animation variants - memoized
-  const headingVariants = useMemo(() => ({
-    hidden: { opacity: 0, y: -20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: 0.2,
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  }), []);
 
   // Early return for SSR
   if (!mounted) return null;

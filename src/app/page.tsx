@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import FloatingNavBar from '@/components/FloatingNavBar';
 import ScrollProgressIndicator from '@/components/ScrollProgressIndicator';
+import Philosophy from '@/components/Philosophy';
 
 export default function Home() {
   return (
@@ -29,6 +30,13 @@ export default function Home() {
       <div className="py-40">
         <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
           <TechStack />
+        </Suspense>
+      </div>
+      
+      {/* Philosophy section with elegant design */}
+      <div className="py-40 bg-gray-50 dark:bg-gray-900/20">
+        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
+          <Philosophy />
         </Suspense>
       </div>
       

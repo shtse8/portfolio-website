@@ -1,18 +1,113 @@
 "use client";
 
+import React from 'react';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { FaTerminal, FaArrowDown, FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data/portfolioData';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
 import { useScrollAnimation } from './ScrollAnimationProvider';
+
+// Interface for social media links
+interface SocialLink {
+  url: string;
+  icon: React.ReactNode;
+  label: string;
+}
+
+// Extracted background animation component
+const AnimatedBackground = ({ 
+  backgroundY, 
+  backgroundScale 
+}: { 
+  backgroundY: MotionValue<number>;
+  backgroundScale: MotionValue<number>;
+}) => (
+  <motion.div 
+    className="absolute inset-0 overflow-hidden -z-10"
+    style={{ y: backgroundY, scale: backgroundScale }}
+  >
+    <div className="absolute w-full h-full bg-gradient-to-b from-blue-50/20 to-white/0 dark:from-blue-950/20 dark:to-gray-950/0"></div>
+    
+    {/* Background grid pattern with reduced opacity */}
+    <div className="absolute inset-0 opacity-3 dark:opacity-8">
+      <div className="absolute h-full w-full bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_50%,transparent_100%)]"></div>
+    </div>
+    
+    {/* Floating elements */}
+    <BackgroundBlob 
+      className="absolute top-1/4 left-1/5 w-96 h-96 rounded-full bg-blue-400/5 dark:bg-blue-600/5 blur-3xl"
+      animationProps={{
+        x: [0, 20, 0],
+        y: [0, -30, 0],
+      }}
+      duration={25}
+    />
+    <BackgroundBlob 
+      className="absolute top-1/3 right-1/4 w-[30rem] h-[30rem] rounded-full bg-indigo-500/3 dark:bg-indigo-500/3 blur-3xl"
+      animationProps={{
+        x: [0, -25, 0],
+        y: [0, 35, 0],
+      }}
+      duration={30}
+    />
+    <BackgroundBlob 
+      className="absolute bottom-1/4 right-1/3 w-72 h-72 rounded-full bg-blue-300/5 dark:bg-blue-600/3 blur-3xl"
+      animationProps={{
+        x: [0, 30, 0],
+        y: [0, 20, 0],
+      }}
+      duration={20}
+    />
+  </motion.div>
+);
+
+// Background blob component
+const BackgroundBlob = ({ 
+  className, 
+  animationProps, 
+  duration 
+}: { 
+  className: string;
+  animationProps: {
+    x: number[];
+    y: number[];
+  };
+  duration: number;
+}) => (
+  <motion.div 
+    className={className}
+    animate={animationProps}
+    transition={{
+      duration,
+      repeat: Infinity,
+      repeatType: "reverse",
+      ease: "easeInOut"
+    }}
+  />
+);
+
+// Social Link Component
+const SocialLinkButton = ({ link }: { link: SocialLink }) => (
+  <motion.a 
+    href={link.url} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="flex items-center justify-center w-12 h-12 rounded-full text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+    whileHover={{ y: -2 }}
+    whileTap={{ scale: 0.97 }}
+    aria-label={link.label}
+  >
+    {link.icon}
+  </motion.a>
+);
 
 export default function Hero() {
   // State for component mounting and initialization
   const [mounted, setMounted] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   
-  // Multiple texts to display in sequence - memoized to prevent recreating on each render
+  // Multiple texts to display in sequence - memoized
   const texts = useMemo(() => [
     'Full Stack Developer & Founder',
     'Cloud Architecture Specialist',
@@ -20,7 +115,7 @@ export default function Hero() {
     PERSONAL_INFO.title || 'Software Engineer'
   ], []);
   
-  // Using react-simple-typewriter for more efficient typing animation
+  // Using react-simple-typewriter for efficient typing animation
   const [typewriterText] = useTypewriter({
     words: texts,
     loop: true,
@@ -44,12 +139,38 @@ export default function Hero() {
   const backgroundY = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
   const backgroundScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.05]);
   
+  // Prepare social links - memoized to prevent recreation
+  const socialLinks = useMemo(() => {
+    const links: SocialLink[] = [
+      {
+        url: PERSONAL_INFO.social.github,
+        icon: <FaGithub className="w-6 h-6" />,
+        label: "GitHub Profile"
+      },
+      {
+        url: PERSONAL_INFO.social.linkedin,
+        icon: <FaLinkedin className="w-6 h-6" />,
+        label: "LinkedIn Profile"
+      }
+    ];
+    
+    if (PERSONAL_INFO.email) {
+      links.push({
+        url: `mailto:${PERSONAL_INFO.email}`,
+        icon: <FaEnvelope className="w-6 h-6" />,
+        label: "Email Contact"
+      });
+    }
+    
+    return links;
+  }, []);
+  
   // Set mounted state on component load
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  // Scroll down handler - memoized to prevent recreation on each render
+  // Scroll down handler - memoized
   const scrollToNextSection = useCallback(() => {
     const nextSection = document.getElementById('tech-stack');
     if (nextSection) {
@@ -60,60 +181,14 @@ export default function Hero() {
   if (!mounted) return null;
   
   return (
-    <section id="hero" ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 px-4">
-      {/* Simplified background with subtle effects */}
-      <motion.div 
-        className="absolute inset-0 overflow-hidden -z-10"
-        style={{ y: backgroundY, scale: backgroundScale }}
-      >
-        <div className="absolute w-full h-full bg-gradient-to-b from-blue-50/20 to-white/0 dark:from-blue-950/20 dark:to-gray-950/0"></div>
-        
-        {/* Background grid pattern with reduced opacity */}
-        <div className="absolute inset-0 opacity-3 dark:opacity-8">
-          <div className="absolute h-full w-full bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_50%,transparent_100%)]"></div>
-        </div>
-        
-        {/* Simplified floating elements with more subtle animations */}
-        <motion.div 
-          className="absolute top-1/4 left-1/5 w-96 h-96 rounded-full bg-blue-400/5 dark:bg-blue-600/5 blur-3xl"
-          animate={{
-            x: [0, 20, 0],
-            y: [0, -30, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute top-1/3 right-1/4 w-[30rem] h-[30rem] rounded-full bg-indigo-500/3 dark:bg-indigo-500/3 blur-3xl"
-          animate={{
-            x: [0, -25, 0],
-            y: [0, 35, 0],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-1/4 right-1/3 w-72 h-72 rounded-full bg-blue-300/5 dark:bg-blue-600/3 blur-3xl"
-          animate={{
-            x: [0, 30, 0],
-            y: [0, 20, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "easeInOut"
-          }}
-        />
-      </motion.div>
+    <section 
+      id="hero" 
+      ref={heroRef} 
+      className="relative min-h-screen flex items-center justify-center overflow-hidden py-20 px-4"
+      aria-label="Introduction"
+    >
+      {/* Animated background */}
+      <AnimatedBackground backgroundY={backgroundY} backgroundScale={backgroundScale} />
       
       <div className="container mx-auto max-w-5xl">
         <motion.div 
@@ -123,7 +198,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          {/* Simplified profile icon with flatter design */}
+          {/* Profile icon */}
           <motion.div 
             className="w-28 h-28 rounded-full bg-blue-50/80 dark:bg-blue-900/20 mb-10 flex items-center justify-center"
             initial={{ scale: 0.9, opacity: 0 }}
@@ -134,7 +209,7 @@ export default function Hero() {
             <FaTerminal className="w-12 h-12 text-blue-600/90 dark:text-blue-400/90" />
           </motion.div>
           
-          {/* Name with lighter typography */}
+          {/* Name */}
           <motion.h1 
             className="text-5xl md:text-7xl font-extralight text-gray-900 dark:text-white mb-8 tracking-wide"
             initial={{ opacity: 0, y: 20 }}
@@ -147,7 +222,7 @@ export default function Hero() {
             </span>
           </motion.h1>
           
-          {/* Typewriter effect with increased spacing */}
+          {/* Typewriter effect */}
           <motion.div 
             className="h-10 md:h-14 mb-12 px-6 py-2"
             initial={{ opacity: 0, y: 20 }}
@@ -160,7 +235,7 @@ export default function Hero() {
             </h2>
           </motion.div>
           
-          {/* Bio with better spacing and typography */}
+          {/* Bio */}
           <motion.p 
             className="max-w-2xl text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-16 font-light"
             initial={{ opacity: 0, y: 20 }}
@@ -170,49 +245,19 @@ export default function Hero() {
             {PERSONAL_INFO.shortBio}
           </motion.p>
           
-          {/* Social links with flatter design */}
+          {/* Social links */}
           <motion.div 
             className="flex gap-8 mb-20"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
           >
-            <motion.a 
-              href={PERSONAL_INFO.social.github} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 rounded-full text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              aria-label="GitHub Profile"
-            >
-              <FaGithub className="w-6 h-6" />
-            </motion.a>
-            <motion.a 
-              href={PERSONAL_INFO.social.linkedin} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center justify-center w-12 h-12 rounded-full text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              whileHover={{ y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              aria-label="LinkedIn Profile"
-            >
-              <FaLinkedin className="w-6 h-6" />
-            </motion.a>
-            {PERSONAL_INFO.email && (
-              <motion.a 
-                href={`mailto:${PERSONAL_INFO.email}`}
-                className="flex items-center justify-center w-12 h-12 rounded-full text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                aria-label="Email Contact"
-              >
-                <FaEnvelope className="w-6 h-6" />
-              </motion.a>
-            )}
+            {socialLinks.map((link, index) => (
+              <SocialLinkButton key={index} link={link} />
+            ))}
           </motion.div>
           
-          {/* Scroll button with flatter design */}
+          {/* Scroll button */}
           <motion.button
             onClick={scrollToNextSection}
             className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-500/80 text-white hover:bg-blue-600/80 transition-colors"

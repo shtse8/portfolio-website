@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope } from 'react-icons/fa';
+import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope, FaLightbulb } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Section {
@@ -18,6 +18,7 @@ export default function FloatingNavBar() {
   const sections: Section[] = [
     { id: 'hero', label: 'Home', icon: <FaHome className="mr-2" /> },
     { id: 'tech-stack', label: 'Skills', icon: <FaCode className="mr-2" /> },
+    { id: 'philosophy', label: 'Philosophy', icon: <FaLightbulb className="mr-2" /> },
     { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="mr-2" /> },
     { id: 'experience', label: 'Experience', icon: <FaBriefcase className="mr-2" /> },
     { id: 'contact', label: 'Contact', icon: <FaEnvelope className="mr-2" /> },
