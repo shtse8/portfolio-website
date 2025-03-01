@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import * as d3 from 'd3';
 import * as d3Cloud from 'd3-cloud';
-import { SKILLS, PROJECTS } from '@/data/portfolioData';
+import { SKILLS, PROJECTS } from '@/data';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
@@ -40,8 +40,8 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   const [animationComplete, setAnimationComplete] = useState(false);
   const [hoveredWord, setHoveredWord] = useState<string | null>(null);
   const isInView = useInView(containerRef, { once: true, amount: 0.1 }); 
-  const { theme } = useTheme();
-  const isDarkMode = theme === 'dark';
+  const { resolvedTheme } = useTheme();
+  const isDarkMode = resolvedTheme === 'dark';
   
   // Font options for variety
   const fonts = useMemo(() => [
@@ -80,10 +80,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   }, [activeCategory]);
 
   // Process skills data for cloud visualization
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Only generate word cloud once when component mounts
-    if (words.length === 0) {
+    if (words.length === 0 && SKILLS && SKILLS.length > 0) {
       const processedWords = SKILLS.map(skill => {
         const projectCount = getProjectCountForSkill(skill.id);
         
@@ -103,13 +102,17 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       
       setWords(processedWords);
     }
-  }, [words.length]);
+  }, [activeCategory, fonts, getProjectCountForSkill, words.length]);
 
   // Improved visual scaling functions
   const getWordSize = useCallback((projectCount: number): number => {
     const minSize = 14;
     const maxSize = 62; // Slightly larger max size
     const minProjects = 0;
+    
+    // Ensure we have skills to avoid errors
+    if (!SKILLS || SKILLS.length === 0) return minSize;
+    
     const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
     
     // Improved power curve for more dramatic scaling
@@ -122,6 +125,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   }, [getProjectCountForSkill]);
 
   const getWeightValue = useCallback((projectCount: number): number => {
+    // Ensure we have skills to avoid errors
+    if (!SKILLS || SKILLS.length === 0) return 400;
+    
     const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
     // Scale from normal to bold based on project count
     const weightScale = d3.scaleQuantize<number>()
@@ -133,6 +139,10 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
 
   const getOpacityByProjectCount = useCallback((projectCount: number): number => {
     const minProjects = 0;
+    
+    // Ensure we have skills to avoid errors
+    if (!SKILLS || SKILLS.length === 0) return 0.65;
+    
     const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
     
     // Scale from 0.65 to 1.0 - slightly higher minimum opacity
@@ -159,10 +169,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Second useEffect hook with fixed dependencies
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Main cloud generation and rendering
   useEffect(() => {
-    if (!svgRef.current || !cloudGenerated || !isInView || animationComplete) return;
+    if (!svgRef.current || words.length === 0 || !isInView || animationComplete || cloudGenerated) return;
     
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -204,12 +213,14 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       .fontSize(d => (d as CloudWord).size)
       .fontWeight(d => (d as CloudWord).weight.toString())
       .spiral("archimedean")
-      .on("end", draw);
+      .on("end", drawCloud);
 
     layout.start();
-    setCloudGenerated(true);
-
-    function draw(computedWords: d3Cloud.Word[]) {
+    
+    function drawCloud(computedWords: d3Cloud.Word[]) {
+      // Skip if no words or container unmounted
+      if (computedWords.length === 0 || !svgRef.current) return;
+      
       const typedWords = computedWords as (d3Cloud.Word & CloudWord)[];
       
       // Enhance words with animation properties
@@ -257,6 +268,40 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
         });
       }
       
+      // Color mapping function
+      const getWordColor = (colorStr: string) => {
+        const color = colorStr.replace('text-', '');
+        // Enhanced color mapping with slightly richer colors
+        const colorMap: Record<string, string> = {
+          'blue-500': '#3b82f6',
+          'blue-600': '#2563eb',
+          'blue-700': '#1d4ed8',
+          'blue-800': '#1e40af',
+          'green-500': '#22c55e',
+          'green-600': '#16a34a',
+          'green-700': '#15803d',
+          'green-800': '#166534',
+          'yellow-500': '#eab308',
+          'yellow-600': '#ca8a04',
+          'red-500': '#ef4444',
+          'red-600': '#dc2626',
+          'purple-500': '#a855f7',
+          'purple-600': '#9333ea',
+          'purple-700': '#7e22ce',
+          'purple-800': '#6b21a8',
+          'pink-500': '#ec4899',
+          'gray-600': '#4b5563',
+          'gray-700': '#374151',
+          'gray-800': '#1f2937',
+          'indigo-600': '#4f46e5',
+          'teal-600': '#0d9488',
+          'orange-500': '#f97316',
+          'black': '#000000'
+        };
+        
+        return colorMap[color] || (isDarkMode ? '#e5e7eb' : '#111827');
+      };
+      
       // Add the text elements with enhanced styling
       g.selectAll("text")
         .data(enhancedWords)
@@ -267,38 +312,7 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
         .style("font-size", d => `${d.size}px`)
         .style("font-family", d => d.fontFamily || "sans-serif")
         .style("font-weight", d => d.weight)
-        .style("fill", d => {
-          const color = d.color.replace('text-', '');
-          // Enhanced color mapping with slightly richer colors
-          const colorMap: Record<string, string> = {
-            'blue-500': '#3b82f6',
-            'blue-600': '#2563eb',
-            'blue-700': '#1d4ed8',
-            'blue-800': '#1e40af',
-            'green-500': '#22c55e',
-            'green-600': '#16a34a',
-            'green-700': '#15803d',
-            'green-800': '#166534',
-            'yellow-500': '#eab308',
-            'yellow-600': '#ca8a04',
-            'red-500': '#ef4444',
-            'red-600': '#dc2626',
-            'purple-500': '#a855f7',
-            'purple-600': '#9333ea',
-            'purple-700': '#7e22ce',
-            'purple-800': '#6b21a8',
-            'pink-500': '#ec4899',
-            'gray-600': '#4b5563',
-            'gray-700': '#374151',
-            'gray-800': '#1f2937',
-            'indigo-600': '#4f46e5',
-            'teal-600': '#0d9488',
-            'orange-500': '#f97316',
-            'black': '#000000'
-          };
-          
-          return colorMap[color] || (isDarkMode ? '#e5e7eb' : '#111827');
-        })
+        .style("fill", d => getWordColor(d.color))
         .style("opacity", 0)
         .attr("text-anchor", "middle")
         .attr("transform", d => `translate(${d.initialX},${d.initialY}) scale(0.1)`)
@@ -412,22 +426,24 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
             .attr("stroke-opacity", 0.15)
             .attr("stroke-width", 0.5);
         });
+        
+      // Start entry animations
+      animateWordsEntry(svg, enhancedWords);
+      
+      // Mark cloud as generated
+      setCloudGenerated(true);
     }
-  }, [words, dimensions, isDarkMode, onSkillClick, cloudGenerated, hoveredWord, isInView, animationComplete]);
-
-  // Enhanced entry animation
-  useEffect(() => {
-    if (!svgRef.current || !cloudGenerated || !isInView || animationComplete) return;
-    
-    const svg = d3.select(svgRef.current);
+  }, [words, dimensions, isDarkMode, onSkillClick, isInView, animationComplete, activeCategory, cloudGenerated]);
+  
+  // Separate function for word entry animation
+  const animateWordsEntry = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, words: CloudWord[]) => {
+    if (!svg || !words.length) return;
     
     // Group words by importance for staggered animation
     const primaryWords = words.filter(w => w.size > 45);
     const secondaryWords = words.filter(w => w.size > 30 && w.size <= 45);
     const tertiaryWords = words.filter(w => w.size > 20 && w.size <= 30);
     const quaternaryWords = words.filter(w => w.size <= 20);
-    
-    // Refined explosive animation with better timing
     
     // First wave - the largest words (immediate impact)
     primaryWords.forEach(word => {
@@ -478,60 +494,62 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
     setTimeout(() => {
       setAnimationComplete(true);
     }, totalDuration);
-    
-  }, [words, cloudGenerated, isInView, animationComplete]);
+  };
 
   // Update active/inactive skills when filtering
   useEffect(() => {
-    if (!svgRef.current || !cloudGenerated) return;
+    if (!svgRef.current || !cloudGenerated || words.length === 0) return;
 
     const svg = d3.select(svgRef.current);
+    
+    // Get color function
+    const getWordColor = (colorStr: string, isActive: boolean) => {
+      const color = colorStr.replace('text-', '');
+      const colorMap: Record<string, string> = {
+        'blue-500': '#3b82f6',
+        'blue-600': '#2563eb',
+        'blue-700': '#1d4ed8',
+        'blue-800': '#1e40af',
+        'green-500': '#22c55e',
+        'green-600': '#16a34a',
+        'green-700': '#15803d',
+        'green-800': '#166534',
+        'yellow-500': '#eab308',
+        'yellow-600': '#ca8a04',
+        'red-500': '#ef4444',
+        'red-600': '#dc2626',
+        'purple-500': '#a855f7',
+        'purple-600': '#9333ea',
+        'purple-700': '#7e22ce',
+        'purple-800': '#6b21a8',
+        'pink-500': '#ec4899',
+        'gray-600': '#4b5563',
+        'gray-700': '#374151',
+        'gray-800': '#1f2937',
+        'indigo-600': '#4f46e5',
+        'teal-600': '#0d9488',
+        'orange-500': '#f97316',
+        'black': '#000000'
+      };
+      
+      const baseColor = colorMap[color] || (isDarkMode ? '#e5e7eb' : '#111827');
+      
+      // Refined inactive style
+      if (activeCategory && !isActive) {
+        return isDarkMode 
+          ? 'rgba(229, 231, 235, 0.18)' // Very light gray in dark mode
+          : 'rgba(17, 24, 39, 0.12)';  // Very light black in light mode
+      }
+      
+      return baseColor;
+    };
     
     // Update word styling based on active status
     words.forEach(word => {
       svg.select<SVGTextElement>(`text[data-id="${word.id}"]`)
         .transition()
         .duration(400)
-        .style("fill", () => {
-          const color = word.color.replace('text-', '');
-          const colorMap: Record<string, string> = {
-            'blue-500': '#3b82f6',
-            'blue-600': '#2563eb',
-            'blue-700': '#1d4ed8',
-            'blue-800': '#1e40af',
-            'green-500': '#22c55e',
-            'green-600': '#16a34a',
-            'green-700': '#15803d',
-            'green-800': '#166534',
-            'yellow-500': '#eab308',
-            'yellow-600': '#ca8a04',
-            'red-500': '#ef4444',
-            'red-600': '#dc2626',
-            'purple-500': '#a855f7',
-            'purple-600': '#9333ea',
-            'purple-700': '#7e22ce',
-            'purple-800': '#6b21a8',
-            'pink-500': '#ec4899',
-            'gray-600': '#4b5563',
-            'gray-700': '#374151',
-            'gray-800': '#1f2937',
-            'indigo-600': '#4f46e5',
-            'teal-600': '#0d9488',
-            'orange-500': '#f97316',
-            'black': '#000000'
-          };
-          
-          const baseColor = colorMap[color] || (isDarkMode ? '#e5e7eb' : '#111827');
-          
-          // Refined inactive style
-          if (activeCategory && !word.isActive) {
-            return isDarkMode 
-              ? 'rgba(229, 231, 235, 0.18)' // Very light gray in dark mode
-              : 'rgba(17, 24, 39, 0.12)';  // Very light black in light mode
-          }
-          
-          return baseColor;
-        })
+        .style("fill", () => getWordColor(word.color, word.isActive))
         .style("opacity", () => {
           const baseOpacity = word.opacity;
           
@@ -567,7 +585,7 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
 
   // Add subtle continuous animation for "alive" feeling
   useEffect(() => {
-    if (!svgRef.current || !cloudGenerated || !animationComplete || hoveredWord) return;
+    if (!svgRef.current || !cloudGenerated || !animationComplete || hoveredWord || words.length === 0) return;
     
     const svg = d3.select(svgRef.current);
     let stopAnimation = false;
@@ -617,17 +635,27 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   return (
     <motion.div 
       ref={containerRef}
-      className="w-full h-[600px] relative"
+      className="w-full h-[600px] relative flex items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+      {words.length === 0 && (
+        <div className="text-gray-400 dark:text-gray-500 text-center font-light p-4">
+          <div className="animate-pulse mb-4">
+            <div className="h-8 w-36 bg-gray-200 dark:bg-gray-700 mx-auto rounded"></div>
+          </div>
+          Loading skills...
+        </div>
+      )}
+      
       <svg 
         ref={svgRef} 
         width="100%" 
         height="100%" 
         style={{ overflow: 'visible' }}
         className="skill-cloud"
+        aria-label="Interactive skill cloud visualization"
       ></svg>
     </motion.div>
   );
