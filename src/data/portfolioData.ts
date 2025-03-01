@@ -77,6 +77,7 @@ export const PROJECTS: Project[] = [
     category: "Mobile Games",
     company: "cubeage",
     relatedSkills: ['unity3d', 'gamedev', 'databases'],
+    technologies: ['Unity3D', 'C#', 'iOS SDK', 'Android SDK', 'MySQL', 'Percona', 'Git', 'Jenkins'],
     details: [
       'Founded and led Cubeage Limited, developing popular card and casino games',
       'Published 10+ games on Google Play and App Store with 100K+ installations',
@@ -100,6 +101,7 @@ export const PROJECTS: Project[] = [
     category: "Mobile Games",
     company: "cubeage",
     relatedSkills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java'],
+    technologies: ['Unity3D', 'TypeScript', 'Node.js', 'Socket.IO', 'Protocol Buffers', 'MySQL', 'Ubuntu', 'Redis'],
     details: [
       'Led development at Cubeage for this real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
       'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
@@ -121,6 +123,7 @@ export const PROJECTS: Project[] = [
     category: "Web Apps",
     company: "nakuz",
     relatedSkills: ['react', 'typescript'],
+    technologies: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Vercel', 'Git'],
     details: [
       'Designed and developed the corporate website for Nakuz',
       'Built with modern technologies including React and Next.js',
@@ -143,6 +146,7 @@ export const PROJECTS: Project[] = [
     category: "Mobile Games",
     company: "cubeage",
     relatedSkills: ['unity3d', 'gamedev', 'team-leadership'],
+    technologies: ['Unity3D', 'C#', '3D Modeling', 'iOS SDK', 'Android SDK', 'Firebase', 'PlayFab', 'Git'],
     details: [
       'Led development at Cubeage for this popular 3D Mahjong game with over 100K downloads',
       'Created authentic Hong Kong Mahjong gameplay with multiple game modes including blood flow mode, classic four-player mode, and two-player mode',
@@ -166,6 +170,7 @@ export const PROJECTS: Project[] = [
     category: "Mobile Games",
     company: "cubeage",
     relatedSkills: ['unity3d', 'gamedev', 'java'],
+    technologies: ['Unity3D', 'C#', 'Appodeal', 'AdMob', 'Facebook Ads', 'IAP', 'Monte Carlo Simulation', 'Git'],
     details: [
       'Led development at Cubeage for this popular poker game available on both Android and iOS platforms',
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
@@ -188,6 +193,7 @@ export const PROJECTS: Project[] = [
     category: "Mobile Games",
     company: "cubeage",
     relatedSkills: ['unity3d', 'gamedev', 'java', 'databases'],
+    technologies: ['Unity3D', 'C#', 'Corona SDK', 'Appodeal', 'Monte Carlo AI', 'Cloud Save', 'Git', 'Lua'],
     details: [
       'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
       'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
@@ -210,6 +216,7 @@ export const PROJECTS: Project[] = [
     category: "Web Apps",
     company: null,
     relatedSkills: ['typescript', 'nodejs', 'docker', 'gcp'],
+    technologies: ['TypeScript', 'Vue.js', 'Nest.js', 'Google Cloud Platform', 'Docker', 'PostgreSQL', 'Redis', 'Nginx'],
     details: [
       'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
       'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
@@ -230,6 +237,7 @@ export const PROJECTS: Project[] = [
     category: "Web Apps",
     company: null,
     relatedSkills: ['databases'],
+    technologies: ['PHP', 'MySQL', 'Percona', 'Facebook API', 'HTML5', 'CSS3', 'jQuery', 'Apache'],
     details: [
       'Developed a publisher-focused article sharing platform with PHP and MySQL/Percona',
       'Created Facebook and mobile optimized versions to maximize user reach',
@@ -250,6 +258,7 @@ export const PROJECTS: Project[] = [
     category: "Web Apps",
     company: "minimax",
     relatedSkills: ['databases'],
+    technologies: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Apache', 'Payment Gateway APIs', 'Custom Template System', 'Redis'],
     details: [
       'Led development of Funimax, a well-known gaming platform with significant presence in Hong Kong',
       'Built with pure PHP and JavaScript, developing a custom template system for rapid game website deployment',
@@ -272,6 +281,7 @@ export const PROJECTS: Project[] = [
     category: "Blockchain",
     company: null,
     relatedSkills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker'],
+    technologies: ['TypeScript', 'Node.js', 'Kubernetes', 'Docker', 'Ethereum', 'EOS', 'WebSockets', 'Redis', 'PostgreSQL'],
     details: [
       'Designed and developed a hybrid Bancor-Orderbook model for cross-chain asset trading',
       'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
@@ -292,6 +302,7 @@ export const PROJECTS: Project[] = [
     category: "Blockchain",
     company: null,
     relatedSkills: ['blockchain', 'nodejs', 'typescript'],
+    technologies: ['TypeScript', 'Node.js', 'Ethereum', 'EOS', 'Bitcoin', 'Smart Contracts', 'WebSockets', 'Redis', 'MongoDB'],
     details: [
       'Built a platform enabling streamlined deployment of applications across multiple blockchains',
       'Pioneered real-time profit-sharing system for developers through smart contract automation',
@@ -312,6 +323,7 @@ export const PROJECTS: Project[] = [
     category: "Blockchain",
     company: null,
     relatedSkills: ['typescript', 'blockchain', 'kubernetes', 'nodejs', 'docker'],
+    technologies: ['TypeScript', 'Vue.js', 'Node.js', 'Kubernetes', 'Docker', 'Ethereum', 'EOS', 'Bitcoin', 'WebSockets', 'Redis', 'PostgreSQL'],
     details: [
       'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
       'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
@@ -334,6 +346,7 @@ export const PROJECTS: Project[] = [
     category: "AI & ML",
     company: null,
     relatedSkills: ['python', 'ai-ml', 'firebase', 'gcp', 'typescript'],
+    technologies: ['Go', 'Python', 'Firebase', 'Google Cloud Run', 'PyTorch', 'pandas', 'TradingView API', 'TigerTrade API', 'Telegram API', 'Docker'],
     details: [
       'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
       'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
@@ -355,6 +368,7 @@ export const PROJECTS: Project[] = [
     category: "Tools & Utilities",
     company: null,
     relatedSkills: ['typescript', 'python', 'nodejs'],
+    technologies: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash', 'VP Tree', 'Perceptual Hashing', 'Node.js'],
     details: [
       'Created a media deduplication tool with TypeScript, Python, and Bun',
       'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
@@ -377,6 +391,7 @@ export const PROJECTS: Project[] = [
     category: "Tools & Utilities",
     company: null,
     relatedSkills: ['nodejs'],
+    technologies: ['JavaScript', 'Chrome Extensions API', 'HTML', 'CSS', 'Google Photos API', 'DOM Manipulation', 'Asynchronous Programming'],
     details: [
       'Developed a Chrome extension with 2,000+ users to efficiently manage and clean up Google Photos libraries',
       'Implemented intelligent batch processing with custom selectors for automated photo deletion',
