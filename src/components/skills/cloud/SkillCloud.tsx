@@ -17,14 +17,18 @@ interface CloudWord {
   size: number;
   id: string;
   color: string;
-  projectCount: number; // Number of projects using this skill
+  projectCount: number;
   weight: number;
-  opacity: number; // Base opacity based on project count
+  opacity: number;
   category: string;
-  isActive: boolean; // Whether this skill belongs to the active category
+  isActive: boolean;
   x?: number;
   y?: number;
   rotate?: number;
+  fontFamily?: string;
+  initialX?: number;
+  initialY?: number;
+  initialOpacity?: number;
 }
 
 const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory }) => {
@@ -34,37 +38,52 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   const [words, setWords] = useState<CloudWord[]>([]);
   const [cloudGenerated, setCloudGenerated] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
-  const isInView = useInView(containerRef, { once: true, amount: 0.1 }); // Trigger sooner (10% visibility)
+  const [hoveredWord, setHoveredWord] = useState<string | null>(null);
+  const isInView = useInView(containerRef, { once: true, amount: 0.1 }); 
   const { theme } = useTheme();
   const isDarkMode = theme === 'dark';
+  
+  // Font options for variety
+  const fonts = [
+    "system-ui", 
+    "Segoe UI", 
+    "Roboto", 
+    "Helvetica", 
+    "Arial", 
+    "sans-serif"
+  ];
 
   // Count projects for each skill
   const getProjectCountForSkill = (skillId: string): number => {
     return PROJECTS.filter(project => project.skills.includes(skillId)).length;
   };
 
-  // Process skills data for cloud visualization (only once)
+  // Process skills data for cloud visualization
   useEffect(() => {
     if (words.length === 0) {
-      // Initial creation of all words
+      // Prepare words with enhanced visual properties
       const processedWords = SKILLS.map(skill => {
         const projectCount = getProjectCountForSkill(skill.id);
+        // Assign a consistent font based on skill category for subtle grouping
+        const fontIndex = Math.abs(skill.category.charCodeAt(0) + skill.category.charCodeAt(skill.category.length - 1)) % fonts.length;
+        
         return {
           text: skill.name,
-          size: getWordSize(skill.id, projectCount),
+          size: getWordSize(projectCount),
           id: skill.id,
           color: skill.color.replace('text-', ''),
           projectCount: projectCount,
-          weight: Math.log(projectCount + 1) * 10, // Scale for better visual distribution
-          opacity: getOpacityByProjectCount(projectCount), // Set base opacity by project count
+          weight: getWeightValue(projectCount),
+          opacity: getOpacityByProjectCount(projectCount),
           category: skill.category,
-          isActive: true
+          isActive: true,
+          fontFamily: fonts[fontIndex]
         };
       });
       
       setWords(processedWords);
     } else if (activeCategory !== null) {
-      // Just update the isActive status without regenerating words
+      // Update active status without regenerating
       setWords(prevWords => 
         prevWords.map(word => ({
           ...word,
@@ -72,7 +91,7 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
         }))
       );
     } else {
-      // Make all words active if filter is cleared
+      // Reset all to active
       setWords(prevWords => 
         prevWords.map(word => ({
           ...word,
@@ -82,32 +101,40 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
     }
   }, [activeCategory]);
 
-  // Adjust size based on project count - increased contrast
-  const getWordSize = (skillId: string, projectCount: number): number => {
-    // Base size range with greater difference for better hierarchy
+  // Improved visual scaling functions
+  const getWordSize = (projectCount: number): number => {
     const minSize = 14;
-    const maxSize = 60;
+    const maxSize = 62; // Slightly larger max size
     const minProjects = 0;
     const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
     
-    // Use exponential scale for more dramatic size difference
+    // Improved power curve for more dramatic scaling
     const scale = d3.scalePow()
-      .exponent(1.3) // Exponential scaling for more pronounced differences
+      .exponent(1.4) // Steeper curve for better visual hierarchy
       .domain([minProjects, maxProjects])
       .range([minSize, maxSize]);
     
     return scale(projectCount);
   };
 
-  // Get opacity based on project count - more projects = more solid
+  const getWeightValue = (projectCount: number): number => {
+    const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
+    // Scale from normal to bold based on project count
+    const weightScale = d3.scaleQuantize<number>()
+      .domain([0, maxProjects])
+      .range([400, 500, 600, 700]); // Normal to bold weights
+    
+    return weightScale(projectCount);
+  };
+
   const getOpacityByProjectCount = (projectCount: number): number => {
     const minProjects = 0;
     const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
     
-    // Scale from 0.6 (fewer projects) to 1.0 (most projects)
+    // Scale from 0.65 to 1.0 - slightly higher minimum opacity
     const opacityScale = d3.scaleLinear()
       .domain([minProjects, maxProjects])
-      .range([0.6, 1.0]);
+      .range([0.65, 1.0]);
     
     return opacityScale(projectCount);
   };
@@ -118,8 +145,6 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
         setDimensions({ width, height });
-        
-        // Regenerate cloud on resize
         setCloudGenerated(false);
         setAnimationComplete(false);
       }
@@ -130,19 +155,49 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Generate the word cloud layout (only once)
+  // Generate the word cloud layout
   useEffect(() => {
     if (!svgRef.current || words.length === 0 || cloudGenerated) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
+    
+    // Create a radial gradient background for the cloud
+    const defs = svg.append("defs");
+    const gradient = defs.append("radialGradient")
+      .attr("id", "cloud-background")
+      .attr("cx", "50%")
+      .attr("cy", "50%")
+      .attr("r", "50%");
+      
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", isDarkMode ? "#2d3748" : "#f3f4f6")
+      .attr("stop-opacity", 0.3);
+      
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", isDarkMode ? "#1a202c" : "#f9fafb")
+      .attr("stop-opacity", 0);
+    
+    // Add subtle background
+    svg.append("circle")
+      .attr("cx", dimensions.width / 2)
+      .attr("cy", dimensions.height / 2)
+      .attr("r", Math.min(dimensions.width, dimensions.height) * 0.45)
+      .attr("fill", "url(#cloud-background)")
+      .attr("class", "cloud-background");
+
+    // Sort words by project count for better placement
+    const sortedWords = [...words].sort((a, b) => b.projectCount - a.projectCount);
 
     const layout = d3Cloud.default()
       .size([dimensions.width, dimensions.height])
-      .words(words as d3Cloud.Word[])
-      .padding(8)
-      .rotate(() => 0) // No rotation for better readability
+      .words(sortedWords as d3Cloud.Word[])
+      .padding(12) // Increased padding for better spacing
+      .rotate(() => 0)
       .fontSize(d => (d as CloudWord).size)
+      .fontWeight(d => (d as CloudWord).weight.toString())
       .spiral("archimedean")
       .on("end", draw);
 
@@ -152,7 +207,7 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
     function draw(computedWords: d3Cloud.Word[]) {
       const typedWords = computedWords as (d3Cloud.Word & CloudWord)[];
       
-      // Set initial positions for animation - all start from center
+      // Enhance words with animation properties
       const enhancedWords = typedWords.map(word => {
         return {
           ...word,
@@ -160,27 +215,56 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
           y: word.y,
           initialX: 0, // Start from center
           initialY: 0, // Start from center
-          initialOpacity: 0 // Start invisible
+          initialOpacity: 0
         };
       });
       
-      // Save computed layout back to words state
       setWords(enhancedWords);
       
       const g = svg.append("g")
         .attr("transform", `translate(${dimensions.width / 2},${dimensions.height / 2})`);
       
+      // Add subtle connecting lines between words in the same category
+      if (enhancedWords.length > 0) {
+        const categories = Array.from(new Set(enhancedWords.map(w => w.category)));
+        categories.forEach(category => {
+          const categoryWords = enhancedWords.filter(w => w.category === category);
+          if (categoryWords.length > 1) {
+            // Find central word for this category (largest)
+            const centralWord = categoryWords.reduce((max, word) => 
+              word.size > max.size ? word : max, categoryWords[0]);
+            
+            // Add subtle connecting lines to central word
+            categoryWords.forEach(word => {
+              if (word.id !== centralWord.id) {
+                g.append("line")
+                  .attr("x1", centralWord.x!)
+                  .attr("y1", centralWord.y!)
+                  .attr("x2", word.x!)
+                  .attr("y2", word.y!)
+                  .attr("stroke", isDarkMode ? "#4b5563" : "#e5e7eb")
+                  .attr("stroke-width", 0.5)
+                  .attr("stroke-opacity", 0.15)
+                  .attr("class", `connection ${word.category}`);
+              }
+            });
+          }
+        });
+      }
+      
+      // Add the text elements with enhanced styling
       g.selectAll("text")
         .data(enhancedWords)
         .enter()
         .append("text")
         .attr("data-id", d => d.id)
+        .attr("data-category", d => d.category)
         .style("font-size", d => `${d.size}px`)
-        .style("font-family", "sans-serif")
-        .style("font-weight", d => d.weight > 30 ? "bold" : "normal")
+        .style("font-family", d => d.fontFamily || "sans-serif")
+        .style("font-weight", d => d.weight)
         .style("fill", d => {
           const color = d.color.replace('text-', '');
-          // Use tailwind color classes mapping
+          // Enhanced color mapping with slightly richer colors
           const colorMap: Record<string, string> = {
             'blue-500': '#3b82f6',
             'blue-600': '#2563eb',
@@ -210,110 +294,201 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
           
           return colorMap[color] || (isDarkMode ? '#e5e7eb' : '#111827');
         })
-        .style("opacity", 0) // Start invisible
+        .style("opacity", 0)
         .attr("text-anchor", "middle")
-        .attr("transform", d => `translate(${d.initialX},${d.initialY}) scale(0.1)`) // All start from center, small scale
+        .attr("transform", d => `translate(${d.initialX},${d.initialY}) scale(0.1)`)
         .text(d => d.text)
-        .attr("class", "skill-cloud-word transition-all duration-300 hover:opacity-100 cursor-pointer")
+        .attr("class", "skill-cloud-word")
+        .style("cursor", "pointer")
+        // Add subtle letter-spacing for better readability
+        .style("letter-spacing", "0.02em")
+        // Add subtle text shadow for depth
+        .style("text-shadow", isDarkMode ? 
+          "0 1px 2px rgba(0,0,0,0.2)" : 
+          "0 1px 2px rgba(0,0,0,0.05)")
         .on("click", (event, d) => {
           onSkillClick(d.id);
         })
-        // Hover effect
-        .on("mouseover", function(this: SVGTextElement) {
-          if (!animationComplete) return;
+        // Refined hover effects
+        .on("mouseover", function(event, d) {
+          const currentWord = d as CloudWord;
+          setHoveredWord(currentWord.id);
+          
+          const wordX = currentWord.x!;
+          const wordY = currentWord.y!;
+          
+          // Highlight the hovered word
           d3.select(this)
             .transition()
-            .duration(200)
-            .attr("transform", function(d) {
-              return `translate(${(d as d3Cloud.Word).x},${(d as d3Cloud.Word).y}) scale(1.1)`;
-            })
-            .style("opacity", 1); // Full opacity on hover
+            .duration(180)
+            .ease(d3.easeBackOut.overshoot(1.1))
+            .attr("transform", `translate(${wordX},${wordY}) scale(1.3)`)
+            .style("opacity", 1)
+            .style("letter-spacing", "0.03em") // Slightly increase spacing on hover
+            .style("z-index", 100);
+          
+          // Highlight connection lines for this category
+          if (currentWord.category) {
+            g.selectAll(`line.${currentWord.category}`)
+              .transition()
+              .duration(180)
+              .attr("stroke-opacity", 0.4)
+              .attr("stroke-width", 1);
+          }
+          
+          // Make ALL words move away with refined distance-based effect
+          svg.selectAll<SVGTextElement, CloudWord>("text").each(function(otherWord) {
+            if (otherWord.id !== currentWord.id) {
+              const otherX = otherWord.x!;
+              const otherY = otherWord.y!;
+              
+              // Calculate distance between words
+              const dx = otherX - wordX;
+              const dy = otherY - wordY;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              
+              // Create dynamic wave-like effect
+              const maxDistance = 450;
+              const maxMoveAmount = 55;
+              
+              // Improved curve for more natural displacement
+              const moveAmount = maxMoveAmount * Math.pow(1 - Math.min(distance / maxDistance, 1), 1.7);
+              
+              // Normalize direction vector
+              const totalDist = Math.sqrt(dx * dx + dy * dy);
+              const dirX = totalDist > 0 ? dx / totalDist : 0;
+              const dirY = totalDist > 0 ? dy / totalDist : 0;
+              
+              // Apply the movement with refined physics
+              d3.select(this)
+                .transition()
+                .duration(220)
+                .ease(d3.easeQuadOut)
+                .attr("transform", `translate(${otherX + dirX * moveAmount},${otherY + dirY * moveAmount}) scale(1)`)
+                .style("opacity", () => {
+                  const baseOpacity = otherWord.opacity;
+                  
+                  // Keep words in same category more visible
+                  if (otherWord.category === currentWord.category) {
+                    return baseOpacity * 0.8;
+                  }
+                  
+                  // Distant words fade more
+                  const opacityReduction = 0.2 + 0.2 * (1 - Math.min(distance / maxDistance, 1));
+                  return Math.max(0.4, baseOpacity - opacityReduction);
+                });
+            }
+          });
         })
-        .on("mouseout", function(this: SVGTextElement, event, d) {
-          if (!animationComplete) return;
-          d3.select(this)
+        .on("mouseout", function() {
+          setHoveredWord(null);
+          
+          // Reset all elements
+          svg.selectAll<SVGTextElement, CloudWord>("text")
             .transition()
-            .duration(200)
-            .attr("transform", function(d) {
-              return `translate(${(d as d3Cloud.Word).x},${(d as d3Cloud.Word).y}) scale(1)`;
+            .duration(160)
+            .ease(d3.easeQuadIn)
+            .attr("transform", function(word) {
+              return `translate(${word.x},${word.y}) scale(1)`;
             })
-            .style("opacity", (d as CloudWord).opacity); // Return to original opacity
+            .style("opacity", function(word) {
+              if (activeCategory && !word.isActive) {
+                return word.opacity * 0.4;
+              }
+              return word.opacity;
+            })
+            .style("letter-spacing", "0.02em")
+            .style("z-index", 1);
+          
+          // Reset connection lines
+          g.selectAll("line")
+            .transition()
+            .duration(160)
+            .attr("stroke-opacity", 0.15)
+            .attr("stroke-width", 0.5);
         });
     }
-  }, [words, dimensions, isDarkMode, onSkillClick, cloudGenerated]);
+  }, [words, dimensions, isDarkMode, onSkillClick, cloudGenerated, hoveredWord]);
 
-  // Trigger the entry animation when component comes into view
+  // Enhanced entry animation
   useEffect(() => {
     if (!svgRef.current || !cloudGenerated || !isInView || animationComplete) return;
     
     const svg = d3.select(svgRef.current);
     
-    // Fast big-bang appearance - immediate and impactful 
-    // No initial delay - start right away
+    // Group words by importance for staggered animation
+    const primaryWords = words.filter(w => w.size > 45);
+    const secondaryWords = words.filter(w => w.size > 30 && w.size <= 45);
+    const tertiaryWords = words.filter(w => w.size > 20 && w.size <= 30);
+    const quaternaryWords = words.filter(w => w.size <= 20);
     
-    // Group words by size for better animation
-    const bigWords = words.filter(w => w.size > 40);
-    const mediumWords = words.filter(w => w.size > 25 && w.size <= 40);
-    const smallWords = words.filter(w => w.size <= 25);
+    // Refined explosive animation with better timing
     
-    // Animate the words by size groups - big ones first (they're more important)
-    // But do all groups with minimal delay for immediate impact
-    
-    // First the big words - almost immediately
-    bigWords.forEach(word => {
+    // First wave - the largest words (immediate impact)
+    primaryWords.forEach(word => {
       svg.select(`text[data-id="${word.id}"]`)
         .transition()
-        .delay(0) // No delay
-        .duration(600)
-        .ease(d3.easeElasticOut.amplitude(1).period(0.3))
+        .delay(0)
+        .duration(650)
+        .ease(d3.easeElasticOut.amplitude(0.9).period(0.3))
         .style("opacity", word.opacity)
         .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
     });
     
-    // Then medium words with a tiny stagger
-    mediumWords.forEach((word, i) => {
+    // Second wave - medium-large words
+    secondaryWords.forEach((word, i) => {
       svg.select(`text[data-id="${word.id}"]`)
         .transition()
-        .delay(50 + (i % 5) * 30) // Small staggered delay by groups of 5
+        .delay(40 + (i % 4) * 25)
         .duration(700)
-        .ease(d3.easeElasticOut.amplitude(1).period(0.3))
+        .ease(d3.easeElasticOut.amplitude(0.8).period(0.3))
         .style("opacity", word.opacity)
         .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
     });
     
-    // Then small words with slightly more stagger
-    smallWords.forEach((word, i) => {
+    // Third wave - medium-small words
+    tertiaryWords.forEach((word, i) => {
       svg.select(`text[data-id="${word.id}"]`)
         .transition()
-        .delay(100 + (i % 8) * 20) // Small staggered delay by groups of 8
-        .duration(800)
-        .ease(d3.easeElasticOut.amplitude(1).period(0.35))
+        .delay(80 + (i % 6) * 20)
+        .duration(700)
+        .ease(d3.easeElasticOut.amplitude(0.8).period(0.35))
         .style("opacity", word.opacity)
         .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
     });
     
-    // Set animation complete after reasonable time
-    const totalDuration = 800; // Fast animation
+    // Fourth wave - smallest words
+    quaternaryWords.forEach((word, i) => {
+      svg.select(`text[data-id="${word.id}"]`)
+        .transition()
+        .delay(120 + (i % 8) * 15)
+        .duration(750)
+        .ease(d3.easeElasticOut.amplitude(0.7).period(0.4))
+        .style("opacity", word.opacity)
+        .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
+    });
+    
+    // Mark animation as complete after reasonable time
+    const totalDuration = 850;
     setTimeout(() => {
       setAnimationComplete(true);
     }, totalDuration);
     
   }, [words, cloudGenerated, isInView, animationComplete]);
 
-  // Update active/inactive skills without regenerating the cloud
+  // Update active/inactive skills when filtering
   useEffect(() => {
-    if (!svgRef.current || !cloudGenerated || !animationComplete) return;
+    if (!svgRef.current || !cloudGenerated) return;
 
     const svg = d3.select(svgRef.current);
     
-    // Update each word based on its active status
+    // Update word styling based on active status
     words.forEach(word => {
       svg.select<SVGTextElement>(`text[data-id="${word.id}"]`)
         .transition()
-        .duration(500)
+        .duration(400)
         .style("fill", () => {
           const color = word.color.replace('text-', '');
-          // Use tailwind color classes mapping
           const colorMap: Record<string, string> = {
             'blue-500': '#3b82f6',
             'blue-600': '#2563eb',
@@ -343,29 +518,96 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
           
           const baseColor = colorMap[color] || (isDarkMode ? '#e5e7eb' : '#111827');
           
-          // If we have an active filter and this word doesn't match, return a very faded version
+          // Refined inactive style
           if (activeCategory && !word.isActive) {
             return isDarkMode 
-              ? 'rgba(229, 231, 235, 0.2)' // Very light gray in dark mode
-              : 'rgba(17, 24, 39, 0.15)';  // Very light black in light mode
+              ? 'rgba(229, 231, 235, 0.18)' // Very light gray in dark mode
+              : 'rgba(17, 24, 39, 0.12)';  // Very light black in light mode
           }
           
           return baseColor;
         })
         .style("opacity", () => {
-          // Base opacity is determined by project count
           const baseOpacity = word.opacity;
           
-          // Further reduce opacity if not in active category
           if (activeCategory && !word.isActive) {
-            return baseOpacity * 0.4;
+            return baseOpacity * 0.35;
           }
           
           return baseOpacity;
         })
         .style("pointer-events", () => word.isActive ? "auto" : "none");
     });
-  }, [words, activeCategory, isDarkMode, cloudGenerated, animationComplete]);
+    
+    // Also update connection lines visibility
+    if (activeCategory) {
+      svg.selectAll("line")
+        .transition()
+        .duration(400)
+        .attr("stroke-opacity", function() {
+          // Get class from DOM element safely
+          // @ts-expect-error - d3 selections have the DOM element as `this`
+          const className = this.getAttribute("class") || "";
+          const category = className.replace("connection ", "");
+          return category === activeCategory ? 0.25 : 0.05;
+        });
+    } else {
+      svg.selectAll("line")
+        .transition()
+        .duration(400)
+        .attr("stroke-opacity", 0.15);
+    }
+    
+  }, [words, activeCategory, isDarkMode, cloudGenerated]);
+
+  // Add subtle continuous animation for "alive" feeling
+  useEffect(() => {
+    if (!svgRef.current || !cloudGenerated || !animationComplete || hoveredWord) return;
+    
+    const svg = d3.select(svgRef.current);
+    let stopAnimation = false;
+    
+    const subtleMovement = () => {
+      if (stopAnimation) return;
+      
+      // Select a few random words to subtly move
+      const wordCount = words.length;
+      const moveCount = Math.min(3, Math.floor(wordCount * 0.1));
+      
+      for (let i = 0; i < moveCount; i++) {
+        const randomIndex = Math.floor(Math.random() * wordCount);
+        const wordToMove = words[randomIndex];
+        
+        if (wordToMove && wordToMove.x && wordToMove.y) {
+          const randomOffset = Math.random() * 3 - 1.5; // -1.5 to 1.5px
+          
+          svg.select<SVGTextElement>(`text[data-id="${wordToMove.id}"]`)
+            .transition()
+            .duration(2000)
+            .ease(d3.easeSinInOut)
+            .attr("transform", `translate(${wordToMove.x + randomOffset},${wordToMove.y + randomOffset}) scale(1)`)
+            .on("end", function() {
+              d3.select(this)
+                .transition()
+                .duration(2000)
+                .ease(d3.easeSinInOut)
+                .attr("transform", `translate(${wordToMove.x},${wordToMove.y}) scale(1)`);
+            });
+        }
+      }
+      
+      // Schedule next subtle movement
+      setTimeout(subtleMovement, 3000);
+    };
+    
+    // Start the subtle animation
+    subtleMovement();
+    
+    // Cleanup
+    return () => {
+      stopAnimation = true;
+    };
+  }, [words, cloudGenerated, animationComplete, hoveredWord]);
 
   return (
     <motion.div 
