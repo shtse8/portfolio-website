@@ -19,12 +19,21 @@ export type PhilosophyPrinciple = {
 export const PHILOSOPHY_PRINCIPLES: PhilosophyPrinciple[] = [
   {
     id: 'minimal',
-    title: 'minimalism',
-    shortDescription: 'less is more',
-    fullDescription: 'I believe in extreme minimalism in all aspects of technology. For user interfaces, this means removing unnecessary elements and focusing only on what truly matters. For code, this means writing as little as necessary to solve the problem effectively. Every line of code is a liability that must be maintained, so fewer lines mean fewer bugs and easier maintenance. This minimalist approach favors clarity over cleverness and simplicity over complexity in all contexts.',
+    title: 'purposeful minimalism',
+    shortDescription: 'reduce, not restrict',
+    fullDescription: 'I believe in purposeful minimalism, not sterile simplicity. This means creating clean layouts with low visual noise, where content breathes through generous whitespace. My approach eliminates unnecessary decorative elements while maintaining visual interest through thoughtful use of color, subtle hierarchies, and meaningful interactions. Every element serves a purpose – if it doesn\'t contribute to functionality or user understanding, it doesn\'t belong. This philosophy applies equally to interfaces and code: both should contain only what\'s necessary, but everything necessary.',
     icon: 'FaRegSquare',
     color: 'bg-gray-800 dark:bg-gray-700',
     textColor: 'text-gray-100'
+  },
+  {
+    id: 'aesthetics',
+    title: 'purposeful aesthetics',
+    shortDescription: 'beauty with intention',
+    fullDescription: 'Design aesthetics should serve function, not compete with it. I employ a limited color palette with soft backgrounds and strategic accent colors to create focus. Rather than relying on hard borders or heavy shadows, I use subtle layering, gentle shadows, and rounded corners to create a more approachable, human experience. Animation is used purposefully – micro-interactions provide feedback, smooth transitions maintain context, and subtle motion brings interfaces to life without distraction. This approach creates experiences that feel considered and refined rather than decorated.',
+    icon: 'FaPalette',
+    color: 'bg-indigo-400 dark:bg-indigo-500',
+    textColor: 'text-indigo-100'
   },
   {
     id: 'clarity',
@@ -34,6 +43,15 @@ export const PHILOSOPHY_PRINCIPLES: PhilosophyPrinciple[] = [
     icon: 'FaGlasses',
     color: 'bg-cyan-500 dark:bg-cyan-600',
     textColor: 'text-cyan-100'
+  },
+  {
+    id: 'content',
+    title: 'content-first',
+    shortDescription: 'substance over style',
+    fullDescription: 'Content is the heart of every experience. I design interfaces that showcase content rather than competing with it – where typography, space, and visual hierarchy work together to elevate the substance rather than the container. Navigation and UI controls are supportive elements that should feel almost invisible when not needed. This principle extends to code structure as well, where the core business logic and data models take precedence over implementation details or framework-specific patterns. The goal is to create experiences where users engage with content directly, not the interface.',
+    icon: 'FaAlignLeft',
+    color: 'bg-pink-500 dark:bg-pink-600',
+    textColor: 'text-pink-100'
   },
   {
     id: 'open',
@@ -77,8 +95,8 @@ export const PHILOSOPHY_PRINCIPLES: PhilosophyPrinciple[] = [
     shortDescription: 'people first, technology second',
     fullDescription: 'Technology should enhance human experiences, not complicate them. I approach every project with a deep focus on user needs, preferences, and pain points. This user-centric philosophy informs decisions about features, interfaces, and interactions. By prioritizing accessibility, usability, and meaningful functionality, I create solutions that genuinely improve lives and deliver value. Ultimately, even the most advanced technology is only successful if it serves people effectively.',
     icon: 'FaUsers',
-    color: 'bg-pink-500 dark:bg-pink-600',
-    textColor: 'text-pink-100'
+    color: 'bg-rose-500 dark:bg-rose-600',
+    textColor: 'text-rose-100'
   },
   {
     id: 'adaptable',
@@ -86,8 +104,8 @@ export const PHILOSOPHY_PRINCIPLES: PhilosophyPrinciple[] = [
     shortDescription: 'flexible to individual needs',
     fullDescription: 'Each user brings unique preferences, needs, and contexts to their interactions with technology. I believe in designing systems that adapt to individual differences rather than forcing uniformity. This means implementing customization options, responsive designs, and intelligent defaults that respect diverse use cases. By acknowledging and accommodating human variety, we create more inclusive, satisfying, and effective digital experiences that resonate on a personal level.',
     icon: 'FaFingerprint',
-    color: 'bg-indigo-500 dark:bg-indigo-600',
-    textColor: 'text-indigo-100'
+    color: 'bg-violet-500 dark:bg-violet-600',
+    textColor: 'text-violet-100'
   },
   {
     id: 'space',
