@@ -28,7 +28,7 @@ const iconMap = {
   FaFileAlt
 };
 
-// Philosophy modal component
+// Philosophy modal component with improved spacing and readability
 function PhilosophyModal({ 
   principle
 }: { 
@@ -39,35 +39,35 @@ function PhilosophyModal({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-xl">
-      <div className={`${principle.color} p-6 flex items-center`}>
-        <div className={`${principle.textColor} mr-4 bg-white/10 p-3 rounded-full`}>
-          <IconComponent className="h-5 w-5" />
+      <div className={`${principle.color} p-6 sm:p-8 flex items-center`}>
+        <div className={`${principle.textColor} mr-5 bg-white/10 p-3.5 rounded-full`}>
+          <IconComponent className="h-6 w-6" />
         </div>
         <h2 className="text-xl md:text-2xl font-light text-white">{principle.title}</h2>
       </div>
       
       <div className="p-6 md:p-8">
         <div className="max-w-none">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg text-gray-800 dark:text-gray-200 font-light tracking-wide">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg md:text-xl text-gray-800 dark:text-gray-200 font-light tracking-wide">
               Core principle
             </h3>
           </div>
           
-          <div className="bg-gray-50 dark:bg-gray-800/50 p-5 rounded-lg mb-6">
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-lg mb-8">
+            <p className="text-base md:text-lg font-medium text-gray-700 dark:text-gray-300">
               {principle.shortDescription}
             </p>
           </div>
           
-          <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-base space-y-4">
+          <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-base md:text-lg space-y-5">
             {principle.fullDescription.split('. ').map((sentence, i) => (
               sentence ? <p key={i}>{sentence}.</p> : null
             ))}
           </div>
         </div>
         
-        <div className="mt-10 text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center border-t border-gray-100 dark:border-gray-700 pt-5">
+        <div className="mt-12 text-sm text-gray-500 dark:text-gray-400 flex items-center justify-center border-t border-gray-100 dark:border-gray-700 pt-6">
           <span className="inline-flex items-center">
             <span className="mr-2">←</span> 
             Navigate between principles
@@ -132,13 +132,13 @@ export default function Philosophy() {
   };
 
   return (
-    <div id="philosophy" ref={sectionRef} className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900/30">
+    <div id="philosophy" ref={sectionRef} className="py-24 px-6 sm:px-8 lg:px-10 bg-gray-50 dark:bg-gray-900/30">
       <motion.div style={{ opacity, y }} className="max-w-5xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-normal text-center mb-12 text-gray-700 dark:text-gray-300">
+        <h2 className="text-3xl md:text-4xl font-normal text-center mb-16 text-gray-700 dark:text-gray-300">
           philosophy
         </h2>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-10">
           {PHILOSOPHY_PRINCIPLES.map((principle, index) => {
             // Get the icon component
             const IconComponent = iconMap[principle.icon as keyof typeof iconMap];
@@ -154,7 +154,7 @@ export default function Philosophy() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.3, delay: 0.05 * index }}
-                className={`flex flex-col items-center text-center cursor-pointer rounded-xl p-4 
+                className={`flex flex-col items-center text-center cursor-pointer rounded-xl p-5 sm:p-6
                   transition-all duration-200 hover:scale-105 hover:bg-white/50 dark:hover:bg-gray-800/30 
                   hover:shadow-sm relative group ${isLastItemAlone ? 'md:col-start-2' : ''}`}
                 onClick={() => handlePrincipleClick(principle.id)}
@@ -163,15 +163,15 @@ export default function Philosophy() {
                 tabIndex={0}
                 aria-label={`View details about ${principle.title}`}
               >
-                <div className={principle.color.replace('bg-', 'text-').replace('dark:bg-', 'dark:text-') + " mb-3"}>
-                  <IconComponent className="h-5 w-5" />
+                <div className={principle.color.replace('bg-', 'text-').replace('dark:bg-', 'dark:text-') + " mb-4"}>
+                  <IconComponent className="h-6 w-6" />
                 </div>
-                <p className="text-sm font-medium text-gray-800 dark:text-gray-200 mb-2">{principle.title}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{principle.shortDescription}</p>
+                <p className="text-base md:text-lg font-medium text-gray-800 dark:text-gray-200 mb-3">{principle.title}</p>
+                <p className="text-sm md:text-base text-gray-500 dark:text-gray-400">{principle.shortDescription}</p>
                 
                 <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-gray-800/60 
                   rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <span className="text-xs bg-gray-800 dark:bg-white text-white dark:text-gray-800 px-2 py-1 rounded">
+                  <span className="text-sm bg-gray-800 dark:bg-white text-white dark:text-gray-800 px-3 py-1.5 rounded">
                     View details
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export default function Philosophy() {
           })}
         </div>
         
-        <p className="text-center mt-12 text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-center mt-16 text-sm md:text-base text-gray-500 dark:text-gray-400">
           Click or press Enter on any principle to learn more
         </p>
       </motion.div>
