@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import * as d3 from 'd3';
 import * as d3Cloud from 'd3-cloud';
 import { SKILLS, PROJECTS } from '@/data/portfolioData';
@@ -44,46 +44,24 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   const isDarkMode = theme === 'dark';
   
   // Font options for variety
-  const fonts = [
+  const fonts = useMemo(() => [
     "system-ui", 
     "Segoe UI", 
     "Roboto", 
     "Helvetica", 
     "Arial", 
     "sans-serif"
-  ];
+  ], []);
 
   // Count projects for each skill
-  const getProjectCountForSkill = (skillId: string): number => {
+  const getProjectCountForSkill = useCallback((skillId: string): number => {
     return PROJECTS.filter(project => project.skills.includes(skillId)).length;
-  };
+  }, []);
 
-  // Process skills data for cloud visualization
+  // First useEffect for updating active/inactive status - removing the conflicting dependencies
   useEffect(() => {
-    if (words.length === 0) {
-      // Prepare words with enhanced visual properties
-      const processedWords = SKILLS.map(skill => {
-        const projectCount = getProjectCountForSkill(skill.id);
-        // Assign a consistent font based on skill category for subtle grouping
-        const fontIndex = Math.abs(skill.category.charCodeAt(0) + skill.category.charCodeAt(skill.category.length - 1)) % fonts.length;
-        
-        return {
-          text: skill.name,
-          size: getWordSize(projectCount),
-          id: skill.id,
-          color: skill.color.replace('text-', ''),
-          projectCount: projectCount,
-          weight: getWeightValue(projectCount),
-          opacity: getOpacityByProjectCount(projectCount),
-          category: skill.category,
-          isActive: true,
-          fontFamily: fonts[fontIndex]
-        };
-      });
-      
-      setWords(processedWords);
-    } else if (activeCategory !== null) {
-      // Update active status without regenerating
+    if (activeCategory) {
+      // Update words to mark active/inactive based on category
       setWords(prevWords => 
         prevWords.map(word => ({
           ...word,
@@ -101,8 +79,34 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
     }
   }, [activeCategory]);
 
+  // Process skills data for cloud visualization
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Only generate word cloud once when component mounts
+    if (words.length === 0) {
+      const processedWords = SKILLS.map(skill => {
+        const projectCount = getProjectCountForSkill(skill.id);
+        
+        return {
+          text: skill.name,
+          size: getWordSize(projectCount),
+          id: skill.id,
+          color: skill.color || '#3182CE',
+          projectCount,
+          weight: getWeightValue(projectCount),
+          opacity: getOpacityByProjectCount(projectCount),
+          category: skill.category,
+          isActive: !activeCategory || skill.category === activeCategory,
+          fontFamily: fonts[Math.floor(Math.random() * fonts.length)]
+        };
+      });
+      
+      setWords(processedWords);
+    }
+  }, [words.length]);
+
   // Improved visual scaling functions
-  const getWordSize = (projectCount: number): number => {
+  const getWordSize = useCallback((projectCount: number): number => {
     const minSize = 14;
     const maxSize = 62; // Slightly larger max size
     const minProjects = 0;
@@ -115,9 +119,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       .range([minSize, maxSize]);
     
     return scale(projectCount);
-  };
+  }, [getProjectCountForSkill]);
 
-  const getWeightValue = (projectCount: number): number => {
+  const getWeightValue = useCallback((projectCount: number): number => {
     const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
     // Scale from normal to bold based on project count
     const weightScale = d3.scaleQuantize<number>()
@@ -125,9 +129,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       .range([400, 500, 600, 700]); // Normal to bold weights
     
     return weightScale(projectCount);
-  };
+  }, [getProjectCountForSkill]);
 
-  const getOpacityByProjectCount = (projectCount: number): number => {
+  const getOpacityByProjectCount = useCallback((projectCount: number): number => {
     const minProjects = 0;
     const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
     
@@ -137,7 +141,7 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       .range([0.65, 1.0]);
     
     return opacityScale(projectCount);
-  };
+  }, [getProjectCountForSkill]);
 
   // Resize handler
   useEffect(() => {
@@ -155,10 +159,11 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Generate the word cloud layout
+  // Second useEffect hook with fixed dependencies
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (!svgRef.current || words.length === 0 || cloudGenerated) return;
-
+    if (!svgRef.current || !cloudGenerated || !isInView || animationComplete) return;
+    
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
     
@@ -408,7 +413,7 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
             .attr("stroke-width", 0.5);
         });
     }
-  }, [words, dimensions, isDarkMode, onSkillClick, cloudGenerated, hoveredWord]);
+  }, [words, dimensions, isDarkMode, onSkillClick, cloudGenerated, hoveredWord, isInView, animationComplete]);
 
   // Enhanced entry animation
   useEffect(() => {

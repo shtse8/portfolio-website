@@ -5,7 +5,6 @@ import { FaCalendarAlt, FaChevronDown, FaChevronUp, FaMapMarkerAlt, FaLink, FaCh
 import Link from 'next/link';
 import { PROJECTS, COMPANIES, Project, Experience } from '@/data/portfolioData';
 import { parseMarkdownLinks } from '../projects/utils';
-import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
 
 type ExperienceCardProps = {

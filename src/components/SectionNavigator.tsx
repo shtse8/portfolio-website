@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope } from 'react-icons/fa';
 
 interface Section {
@@ -13,13 +13,13 @@ export default function SectionNavigator() {
   const [activeSection, setActiveSection] = useState<string>('');
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
-  const sections: Section[] = [
+  const sections = useMemo<Section[]>(() => [
     { id: 'hero', label: 'Home', icon: <FaHome className="text-lg" /> },
     { id: 'tech', label: 'Skills', icon: <FaCode className="text-lg" /> },
     { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="text-lg" /> },
     { id: 'experience', label: 'Experience', icon: <FaBriefcase className="text-lg" /> },
     { id: 'contact', label: 'Contact', icon: <FaEnvelope className="text-lg" /> },
-  ];
+  ], []);
 
   useEffect(() => {
     const handleScroll = () => {
