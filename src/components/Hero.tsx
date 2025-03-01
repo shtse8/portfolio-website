@@ -1,167 +1,149 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { FaTerminal, FaArrowDown, FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data';
-import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useTypewriter, Cursor } from 'react-simple-typewriter';
-import { useScrollAnimation } from './ScrollAnimationProvider';
 
-// Types
-type BackgroundBlobProps = {
-  className: string;
-  x: number[];
-  y: number[];
-  duration: number;
-};
-
-type SocialLink = {
-  url: string;
-  icon: React.ReactNode;
-  label: string;
-};
-
-// BackgroundBlob - extracted for clarity and reusability
-const BackgroundBlob: React.FC<BackgroundBlobProps> = ({ 
-  className, 
-  x, 
-  y, 
-  duration 
-}) => (
-  <motion.div 
-    className={className}
-    animate={{ x, y }}
-    transition={{
-      duration,
-      repeat: Infinity,
-      repeatType: "reverse",
-      ease: "easeInOut"
-    }}
-  />
-);
-
-// Background - separated for better component organization
-const Background: React.FC<{ backgroundY: MotionValue<number>; backgroundScale: MotionValue<number> }> = ({ 
-  backgroundY, 
-  backgroundScale 
-}) => (
-  <motion.div 
-    className="absolute inset-0 overflow-hidden -z-10"
-    style={{ y: backgroundY, scale: backgroundScale }}
-  >
-    {/* Subtle gradient overlay */}
-    <div className="absolute w-full h-full bg-gradient-to-b from-blue-50/10 to-white/0 dark:from-blue-950/10 dark:to-gray-950/0"></div>
+// Background component with purposeful subtle animations
+const HeroBackground = () => (
+  <div className="absolute inset-0 overflow-hidden -z-10">
+    {/* Soft gradient overlay */}
+    <div className="absolute w-full h-full bg-gradient-to-b from-blue-50/30 to-slate-50/20 dark:from-blue-950/30 dark:to-slate-950/10"></div>
     
-    {/* Background grid with reduced visual weight */}
-    <div className="absolute inset-0 opacity-2 dark:opacity-5">
-      <div className="absolute h-full w-full bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:28px_28px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_50%,transparent_100%)]"></div>
+    {/* Subtle grid pattern with reduced opacity */}
+    <div className="absolute inset-0 opacity-5 dark:opacity-7">
+      <div className="absolute h-full w-full bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_70%_70%_at_50%_50%,#000_45%,transparent_100%)]"></div>
     </div>
     
-    {/* Subtle background blobs - declutter by using prop shorthand */}
-    <BackgroundBlob 
-      className="absolute top-1/4 left-1/5 w-96 h-96 rounded-full bg-blue-400/3 dark:bg-blue-600/3 blur-3xl"
-      x={[0, 20, 0]}
-      y={[0, -30, 0]}
-      duration={25}
+    {/* Accent elements with purposeful animation */}
+    <motion.div 
+      className="absolute left-1/4 bottom-1/4 w-[45rem] h-[45rem] rounded-full bg-blue-400/5 dark:bg-blue-500/5 blur-3xl"
+      animate={{
+        y: [0, -15, 0],
+        x: [0, 10, 0],
+      }}
+      transition={{
+        duration: 25,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }}
     />
-    <BackgroundBlob 
-      className="absolute top-1/3 right-1/4 w-[30rem] h-[30rem] rounded-full bg-indigo-500/2 dark:bg-indigo-500/2 blur-3xl"
-      x={[0, -25, 0]}
-      y={[0, 35, 0]}
-      duration={30}
+    <motion.div 
+      className="absolute right-1/4 top-1/3 w-[30rem] h-[30rem] rounded-full bg-indigo-300/4 dark:bg-indigo-400/4 blur-3xl"
+      animate={{
+        y: [0, 10, 0],
+        x: [0, -5, 0],
+      }}
+      transition={{
+        duration: 20,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }}
     />
-    <BackgroundBlob 
-      className="absolute bottom-1/4 right-1/3 w-72 h-72 rounded-full bg-blue-300/3 dark:bg-blue-600/2 blur-3xl"
-      x={[0, 30, 0]}
-      y={[0, 20, 0]}
-      duration={20}
-    />
-  </motion.div>
+  </div>
 );
 
-// Social link component - improves reusability
-const SocialLink: React.FC<{ link: SocialLink }> = ({ link }) => (
+// Social link button component with micro-interactions
+const SocialButton = ({ 
+  url, 
+  icon, 
+  label,
+  delay = 0 
+}: { 
+  url: string; 
+  icon: React.ReactNode; 
+  label: string;
+  delay?: number;
+}) => (
   <motion.a 
-    href={link.url} 
+    href={url} 
     target="_blank" 
     rel="noopener noreferrer"
-    className="flex items-center justify-center w-12 h-12 rounded-full text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-    whileHover={{ y: -2 }}
-    whileTap={{ scale: 0.97 }}
-    aria-label={link.label}
+    className="flex items-center justify-center w-11 h-11 rounded-full 
+               text-gray-600 dark:text-gray-300
+               hover:text-blue-600 dark:hover:text-blue-400 
+               hover:bg-white/70 dark:hover:bg-gray-800/50 
+               transition-all duration-200
+               shadow-sm hover:shadow-md"
+    whileHover={{ y: -3, scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ 
+      delay: 0.5 + delay, 
+      duration: 0.4,
+      type: "spring",
+      stiffness: 300,
+      damping: 15
+    }}
+    aria-label={label}
   >
-    {link.icon}
+    {icon}
   </motion.a>
 );
 
-// Main component
 export default function Hero() {
-  // State and refs
   const [mounted, setMounted] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   
-  // Handle typewriter effect with roles
-  const roles = [
-    'Full Stack Developer & Founder',
-    'Cloud Architecture Specialist',
-    'UI/UX Enthusiast',
-    PERSONAL_INFO.title || 'Software Engineer'
-  ];
+  // Text options for typewriter - purposeful and focused
+  const texts = useMemo(() => [
+    PERSONAL_INFO.title,
+    'Full Stack Developer',
+    'UI/UX Enthusiast'
+  ], []);
   
   const [typewriterText] = useTypewriter({
-    words: roles,
+    words: texts,
     loop: true,
-    delaySpeed: 2000,
-    deleteSpeed: 50,
-    typeSpeed: 100,
+    delaySpeed: 2500,
+    deleteSpeed: 40,
+    typeSpeed: 80,
   });
   
-  // Scroll animations
-  const { scrollYProgress } = useScrollAnimation();
-  const { scrollYProgress: sectionProgress } = useScroll({
+  // Purposeful scroll animations
+  const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"]
   });
   
-  // Animation values
-  const headerOpacity = useTransform(sectionProgress, [0, 0.5], [1, 0]);
-  const headerY = useTransform(sectionProgress, [0, 0.5], [0, -100]);
-  const backgroundY = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
-  const backgroundScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.05]);
+  const headerOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
+  const headerY = useTransform(scrollYProgress, [0, 0.4], [0, -50]);
   
-  // Social links
-  const socialLinks: SocialLink[] = [
+  // Social links with optimized structure
+  const socialLinks = useMemo(() => [
     {
       url: PERSONAL_INFO.social.github,
-      icon: <FaGithub className="w-6 h-6" />,
+      icon: <FaGithub className="w-5 h-5" />,
       label: "GitHub Profile"
     },
     {
       url: PERSONAL_INFO.social.linkedin,
-      icon: <FaLinkedin className="w-6 h-6" />,
+      icon: <FaLinkedin className="w-5 h-5" />,
       label: "LinkedIn Profile"
-    }
-  ];
-  
-  if (PERSONAL_INFO.email) {
-    socialLinks.push({
+    },
+    ...(PERSONAL_INFO.email ? [{
       url: `mailto:${PERSONAL_INFO.email}`,
-      icon: <FaEnvelope className="w-6 h-6" />,
+      icon: <FaEnvelope className="w-5 h-5" />,
       label: "Email Contact"
-    });
-  }
+    }] : [])
+  ], []);
   
-  // Scroll handler
+  // Initialization
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Smooth scroll function
   const scrollToNextSection = useCallback(() => {
     const nextSection = document.getElementById('tech-stack');
     if (nextSection) {
       nextSection.scrollIntoView({ behavior: 'smooth' });
     }
-  }, []);
-  
-  // Component initialization
-  useEffect(() => {
-    setMounted(true);
   }, []);
   
   if (!mounted) return null;
@@ -170,95 +152,116 @@ export default function Hero() {
     <section 
       id="hero" 
       ref={heroRef} 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden py-24 px-6"
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden py-20 px-6"
       aria-label="Introduction"
     >
-      {/* Background */}
-      <Background backgroundY={backgroundY} backgroundScale={backgroundScale} />
+      {/* Purposeful background */}
+      <HeroBackground />
       
-      <div className="container mx-auto max-w-4xl">
+      <div className="w-full max-w-4xl mx-auto">
         <motion.div 
           className="flex flex-col items-center text-center"
           style={{ opacity: headerOpacity, y: headerY }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7 }}
         >
-          {/* Profile icon */}
+          {/* Terminal icon with soft shadow */}
           <motion.div 
-            className="w-24 h-24 rounded-full bg-blue-50/50 dark:bg-blue-900/10 mb-12 flex items-center justify-center"
+            className="mb-10 text-blue-600/90 dark:text-blue-400/90 
+                     p-4 rounded-full bg-white/30 dark:bg-gray-900/30 
+                     shadow-sm"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            whileHover={{ scale: 1.03 }}
+            transition={{ 
+              duration: 0.5,
+              type: "spring",
+              stiffness: 200
+            }}
+            whileHover={{ scale: 1.05 }}
           >
-            <FaTerminal className="w-10 h-10 text-blue-500/80 dark:text-blue-400/80" />
+            <FaTerminal className="w-8 h-8" />
           </motion.div>
           
-          {/* Name with subtle gradient accent */}
+          {/* Name with purposeful gradient */}
           <motion.h1 
-            className="text-5xl md:text-7xl font-extralight text-gray-800 dark:text-white mb-10 tracking-wide"
+            className="text-4xl md:text-6xl font-light text-gray-900 dark:text-white mb-6 tracking-wide"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
           >
-            <span className="font-light">{PERSONAL_INFO.firstName}</span>{' '}
-            <span className="font-normal bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-blue-400 dark:to-indigo-400">
+            <span className="font-extralight">{PERSONAL_INFO.firstName}</span>{' '}
+            <span className="font-normal bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
               {PERSONAL_INFO.lastName}
             </span>
           </motion.h1>
           
-          {/* Role display with typewriter */}
+          {/* Typewriter with balanced spacing */}
           <motion.div 
-            className="h-10 md:h-14 mb-14 px-4"
-            initial={{ opacity: 0, y: 20 }}
+            className="h-8 md:h-10 mb-10"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <h2 className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 font-light tracking-wide">
+            <h2 className="text-lg md:text-xl text-gray-600 dark:text-gray-300 font-light">
               <span>{typewriterText}</span>
               <Cursor cursorStyle="|" />
             </h2>
           </motion.div>
           
-          {/* Concise bio */}
-          <motion.p 
-            className="max-w-xl text-gray-600 dark:text-gray-400 text-lg leading-relaxed mb-16 font-light"
-            initial={{ opacity: 0, y: 20 }}
+          {/* Bio with optimal content presentation */}
+          <motion.div
+            className="mb-14 p-5 rounded-xl bg-white/50 dark:bg-gray-900/30 backdrop-blur-sm shadow-sm"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
           >
-            {PERSONAL_INFO.shortBio}
-          </motion.p>
+            <p className="max-w-xl text-gray-600 dark:text-gray-400 text-base leading-relaxed font-light">
+              {PERSONAL_INFO.shortBio}
+            </p>
+          </motion.div>
           
-          {/* Social links row */}
+          {/* Social links with refined aesthetic */}
           <motion.div 
-            className="flex gap-10 mb-20"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            className="flex gap-6 mb-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
           >
             {socialLinks.map((link, index) => (
-              <SocialLink key={index} link={link} />
+              <SocialButton 
+                key={index} 
+                url={link.url} 
+                icon={link.icon} 
+                label={link.label} 
+                delay={index * 0.1}
+              />
             ))}
           </motion.div>
           
-          {/* Subtle scroll indicator */}
+          {/* Scroll button with purposeful animation */}
           <motion.button
             onClick={scrollToNextSection}
-            className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-400/60 text-white hover:bg-blue-500/60 transition-colors"
-            whileHover={{ scale: 1.03 }}
+            className="w-10 h-10 rounded-full flex items-center justify-center 
+                     text-gray-500 dark:text-gray-400 
+                     hover:text-blue-600 dark:hover:text-blue-400
+                     transition-all duration-200 
+                     bg-white/70 dark:bg-gray-800/50
+                     shadow-sm hover:shadow-md
+                     border border-gray-100 dark:border-gray-700"
+            whileHover={{ y: -4, scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             animate={{
               y: [0, 4, 0],
             }}
             transition={{
-              duration: 2.5,
+              duration: 2,
               repeat: Infinity,
               repeatType: "reverse"
             }}
             aria-label="Scroll to technical skills section"
           >
-            <FaArrowDown className="w-5 h-5" />
+            <FaArrowDown className="w-4 h-4" />
           </motion.button>
         </motion.div>
       </div>
