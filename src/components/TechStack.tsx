@@ -1,46 +1,16 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, FaRobot, FaUsers, FaChartLine, FaChevronRight } from 'react-icons/fa';
-import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum } from 'react-icons/si';
+import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, FaRobot, FaUsers, FaChartLine, 
+  FaNetworkWired, FaFileCode, FaSortAmountUp, FaApple, FaAndroid, FaMobileAlt, FaSearch, FaVuejs, FaPhp, FaFacebook, 
+  FaCreditCard, FaImages, FaVideo, FaFingerprint, FaBolt, FaMoneyBillWave, FaTelegram } from 'react-icons/fa';
+import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum, SiSharp, SiNextdotjs, 
+  SiNestjs, SiGooglechrome, SiGo, SiPytorch } from 'react-icons/si';
 import { motion } from 'framer-motion';
-import { SKILLS, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
+import { SKILLS } from '@/data/portfolioData';
 import SkillModal from './skills/SkillModal';
+import SkillCard from './skills/SkillCard';
 import { useModalManager } from '@/hooks/useModalManager';
-
-// Get projects related to the selected skill
-const getRelatedProjects = (skillId: string): Project[] => {
-  const skill = SKILLS.find(s => s.id === skillId);
-  if (!skill) return [];
-
-  // PRIMARY CONNECTION: Get projects that explicitly list this skill in their relatedSkills array
-  const explicitlyRelatedProjects = PROJECTS.filter(project => 
-    project.relatedSkills?.includes(skillId)
-  );
-  
-  // If we have explicit connections, prefer those
-  if (explicitlyRelatedProjects.length > 0) {
-    return explicitlyRelatedProjects;
-  }
-  
-  // SECONDARY CONNECTION (FALLBACK): Find projects by matching skill keywords against project tags
-  const keywordMatchedProjects = PROJECTS.filter(project => 
-    project.tags.some(tag => 
-      skill.keywords.some(keyword => 
-        tag.toLowerCase().includes(keyword.toLowerCase())
-      )
-    )
-  );
-  
-  return keywordMatchedProjects;
-};
-
-// Get experiences related to the selected skill
-const getRelatedExperiences = (skillId: string): Experience[] => {
-  return EXPERIENCES.filter(experience => 
-    experience.relatedSkills?.includes(skillId)
-  );
-};
 
 // Animation variants
 const containerVariants = {
@@ -53,96 +23,6 @@ const containerVariants = {
       ease: "easeOut"
     }
   }
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 50,
-      damping: 15,
-      mass: 1.2,
-      duration: 0.7
-    }
-  }
-};
-
-// SkillCard component for individual skill display
-interface SkillCardProps {
-  skill: typeof SKILLS[0];
-  onClick: (skillId: string) => void;
-  getSkillIcon: (skillId: string) => React.ReactNode;
-}
-
-const SkillCard: React.FC<SkillCardProps> = ({ skill, onClick, getSkillIcon }) => {
-  const relatedProjects = getRelatedProjects(skill.id);
-  const relatedExperiences = getRelatedExperiences(skill.id);
-  const relationshipCount = relatedProjects.length + relatedExperiences.length;
-  
-  return (
-    <motion.div 
-      variants={itemVariants}
-      className={`group relative bg-gray-50 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl overflow-hidden 
-                transition-all duration-300 ${relationshipCount > 0 ? 'cursor-pointer' : ''}`}
-      whileHover={relationshipCount > 0 ? { 
-        y: -3,
-        backgroundColor: relationshipCount > 0 ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.8)"
-      } : {}}
-      onClick={() => relationshipCount > 0 && onClick(skill.id)}
-    >
-      {/* Colored accent in a minimal way */}
-      <div className={`h-0.5 w-full ${skill.bgColor}`}></div>
-      
-      <div className="p-8">
-        {/* Icon and title with more spacing and flatter design */}
-        <div className="flex items-center mb-6">
-          <div className={`${skill.color} p-3 rounded-lg mr-5`}>
-            {getSkillIcon(skill.id)}
-          </div>
-          <h3 className="text-xl font-light tracking-wide">{skill.name}</h3>
-        </div>
-        
-        {/* Description with better spacing */}
-        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-8">{skill.description}</p>
-        
-        {/* Expertise level with simplified flat design */}
-        <div className="mt-auto">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="text-gray-500 dark:text-gray-400 font-light">Expertise</span>
-            <span className="text-gray-500 dark:text-gray-400 font-light">Expert</span>
-          </div>
-          <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-            <motion.div
-              className={`h-full ${skill.bgColor}`}
-              initial={{ width: 0 }}
-              whileInView={{ width: `${80 + Math.random() * 20}%` }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
-            />
-          </div>
-        </div>
-        
-        {/* Simplified related items info */}
-        {relationshipCount > 0 && (
-          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800/50">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-500 dark:text-gray-400 font-light">
-                {relationshipCount} related {relationshipCount === 1 ? 'item' : 'items'}
-              </span>
-              {relationshipCount > 0 && (
-                <div className="text-blue-500 dark:text-blue-400">
-                  <FaChevronRight size={12} />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
 };
 
 export default function TechStack() {
@@ -167,25 +47,56 @@ export default function TechStack() {
 
   // Get the icon component for a skill
   const getSkillIcon = (skillId: string) => {
-    const iconMap: Record<string, React.ReactNode> = {
-      'react': <FaReact className="text-4xl" />,
-      'typescript': <SiTypescript className="text-4xl" />,
-      'nodejs': <FaNodeJs className="text-4xl" />,
-      'python': <FaPython className="text-4xl" />,
-      'java': <FaJava className="text-4xl" />,
-      'docker': <FaDocker className="text-4xl" />,
-      'kubernetes': <SiKubernetes className="text-4xl" />,
-      'gcp': <SiGooglecloud className="text-4xl" />,
-      'firebase': <SiFirebase className="text-4xl" />,
-      'databases': <FaDatabase className="text-4xl" />,
-      'unity3d': <SiUnity className="text-4xl" />,
-      'gamedev': <FaGamepad className="text-4xl" />,
-      'ai-ml': <FaRobot className="text-4xl" />,
-      'blockchain': <SiEthereum className="text-4xl" />,
-      'team-leadership': <FaUsers className="text-4xl" />,
-      'business-growth': <FaChartLine className="text-4xl" />
+    const skill = SKILLS.find(s => s.id === skillId);
+    if (!skill) return <FaReact className="text-4xl" />;
+
+    const iconName = skill.icon;
+    const iconComponents: Record<string, React.ReactNode> = {
+      // Fa icons
+      'FaReact': <FaReact className="text-4xl" />,
+      'FaNodeJs': <FaNodeJs className="text-4xl" />,
+      'FaPython': <FaPython className="text-4xl" />,
+      'FaJava': <FaJava className="text-4xl" />,
+      'FaDocker': <FaDocker className="text-4xl" />,
+      'FaDatabase': <FaDatabase className="text-4xl" />,
+      'FaGamepad': <FaGamepad className="text-4xl" />,
+      'FaRobot': <FaRobot className="text-4xl" />,
+      'FaUsers': <FaUsers className="text-4xl" />,
+      'FaChartLine': <FaChartLine className="text-4xl" />,
+      'FaNetworkWired': <FaNetworkWired className="text-4xl" />,
+      'FaFileCode': <FaFileCode className="text-4xl" />,
+      'FaSortAmountUp': <FaSortAmountUp className="text-4xl" />,
+      'FaApple': <FaApple className="text-4xl" />,
+      'FaAndroid': <FaAndroid className="text-4xl" />,
+      'FaMobileAlt': <FaMobileAlt className="text-4xl" />,
+      'FaSearch': <FaSearch className="text-4xl" />,
+      'FaVuejs': <FaVuejs className="text-4xl" />,
+      'FaPhp': <FaPhp className="text-4xl" />,
+      'FaFacebook': <FaFacebook className="text-4xl" />,
+      'FaCreditCard': <FaCreditCard className="text-4xl" />,
+      'FaImages': <FaImages className="text-4xl" />,
+      'FaVideo': <FaVideo className="text-4xl" />,
+      'FaFingerprint': <FaFingerprint className="text-4xl" />,
+      'FaBolt': <FaBolt className="text-4xl" />,
+      'FaMoneyBillWave': <FaMoneyBillWave className="text-4xl" />,
+      'FaTelegram': <FaTelegram className="text-4xl" />,
+      
+      // Si icons
+      'SiTypescript': <SiTypescript className="text-4xl" />,
+      'SiKubernetes': <SiKubernetes className="text-4xl" />,
+      'SiGooglecloud': <SiGooglecloud className="text-4xl" />,
+      'SiFirebase': <SiFirebase className="text-4xl" />,
+      'SiUnity': <SiUnity className="text-4xl" />,
+      'SiEthereum': <SiEthereum className="text-4xl" />,
+      'SiCsharp': <SiSharp className="text-4xl" />,
+      'SiNextdotjs': <SiNextdotjs className="text-4xl" />,
+      'SiNestjs': <SiNestjs className="text-4xl" />,
+      'SiGooglechrome': <SiGooglechrome className="text-4xl" />,
+      'SiGo': <SiGo className="text-4xl" />,
+      'SiPytorch': <SiPytorch className="text-4xl" />,
     };
-    return iconMap[skillId] || <FaReact className="text-4xl" />;
+
+    return iconComponents[iconName] || <FaReact className="text-4xl" />;
   };
   
   const categories = [
@@ -195,7 +106,7 @@ export default function TechStack() {
     { id: 'ai', name: 'AI & ML' },
     { id: 'game', name: 'Game Dev' },
     { id: 'blockchain', name: 'Blockchain' },
-    { id: 'management', name: 'Management' }
+    { id: 'management', name: 'Leadership & Management' }
   ];
 
   // Animation variants
@@ -231,7 +142,6 @@ export default function TechStack() {
         closeModal={() => {}}
         nextSkill={goToNext}
         prevSkill={goToPrev}
-        getSkillIcon={getSkillIcon}
       />,
       { 
         modalKey: skillId,
@@ -263,10 +173,10 @@ export default function TechStack() {
           variants={headingVariants}
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
-            <span className="gradient-text">Technical</span> Expertise
+            <span className="gradient-text">Skills</span> & Expertise
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-            Full-stack developer with extensive experience across multiple domains and technologies
+            Full-stack developer with expertise across technical domains and professional leadership
           </p>
         </motion.div>
         

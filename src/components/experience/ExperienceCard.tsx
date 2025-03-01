@@ -5,6 +5,8 @@ import { FaCalendarAlt, FaChevronDown, FaChevronUp, FaMapMarkerAlt, FaLink, FaCh
 import Link from 'next/link';
 import { PROJECTS, COMPANIES, Project, Experience } from '@/data/portfolioData';
 import { parseMarkdownLinks } from '../projects/utils';
+import { motion } from 'framer-motion';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 type ExperienceCardProps = {
   experience: Experience;
@@ -128,18 +130,18 @@ export default function ExperienceCard({
         )}
         
         {/* Skills tags */}
-        <div className="flex flex-wrap gap-3 mb-4">
-          {experience.tags.slice(0, expandedId === experience.id ? experience.tags.length : 3).map((tech: string, idx: number) => (
+        <div className="flex flex-wrap gap-2 mt-4">
+          {experience.skills && getSkillNames(experience.skills).slice(0, expandedId === experience.id ? experience.skills.length : 3).map((skillName, idx) => (
             <span 
-              key={idx}
-              className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 text-xs rounded-full"
+              key={idx} 
+              className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800/30 rounded-full text-gray-600 dark:text-gray-300"
             >
-              {tech}
+              {skillName}
             </span>
           ))}
-          {expandedId !== experience.id && experience.tags.length > 3 && (
-            <span className="text-gray-500 dark:text-gray-400 text-xs font-light">
-              +{experience.tags.length - 3} more
+          {expandedId !== experience.id && experience.skills && experience.skills.length > 3 && (
+            <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800/30 rounded-full text-gray-600 dark:text-gray-300">
+              +{experience.skills.length - 3} more
             </span>
           )}
         </div>

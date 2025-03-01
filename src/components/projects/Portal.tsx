@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaExternalLinkAlt, FaGithub, FaShareAlt, FaTimes } from 'react-icons/fa';
 import { Project } from '@/data/portfolioData';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 type PortalModalProps = {
   project: Project;
@@ -51,24 +52,15 @@ export default function PortalModal({ project, onClose }: PortalModalProps) {
             {project.description}
           </p>
           
-          <div className="flex flex-wrap gap-3 mt-5">
-            {project.tags.map((skill: string, index: number) => (
-              <motion.span
-                key={index}
-                className="inline-block px-3 py-1 bg-gray-50 dark:bg-gray-800/20 text-gray-700 dark:text-gray-300 rounded-md text-sm shadow-sm"
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ 
-                  opacity: 1, 
-                  y: 0,
-                  transition: {
-                    delay: 0.1 + index * 0.03,
-                    duration: 0.2
-                  }
-                }}
-                whileHover={{ y: -2, transition: { duration: 0.2 } }}
+          {/* Skills */}
+          <div className="flex flex-wrap gap-2 mb-8">
+            {project.skills && getSkillNames(project.skills).map((skillName, index) => (
+              <span 
+                key={index} 
+                className="text-xs px-3 py-1.5 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-md"
               >
-                {skill}
-              </motion.span>
+                {skillName}
+              </span>
             ))}
           </div>
         </motion.div>

@@ -2,16 +2,21 @@
 
 import React, { useEffect } from 'react';
 import Image from 'next/image';
-import { FaProjectDiagram, FaBriefcase, FaExternalLinkAlt, FaGithub } from 'react-icons/fa';
+import { FaProjectDiagram, FaBriefcase, FaExternalLinkAlt, FaGithub, FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, 
+  FaGamepad, FaRobot, FaUsers, FaChartLine, FaNetworkWired, FaFileCode, FaSortAmountUp, FaApple, FaAndroid, 
+  FaMobileAlt, FaSearch, FaVuejs, FaPhp, FaFacebook, FaCreditCard, FaImages, FaVideo, FaFingerprint, FaBolt, 
+  FaMoneyBillWave, FaTelegram } from 'react-icons/fa';
+import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum, SiSharp, SiNextdotjs, 
+  SiNestjs, SiGooglechrome, SiGo, SiPytorch } from 'react-icons/si';
 import { motion } from 'framer-motion';
 import { SKILLS, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 type SkillModalProps = {
   skillId: string;
   closeModal?: () => void;
   nextSkill?: () => void;
   prevSkill?: () => void;
-  getSkillIcon: (id: string) => React.ReactNode;
 };
 
 // Get projects related to the selected skill
@@ -19,33 +24,67 @@ const getRelatedProjects = (skillId: string): Project[] => {
   const skill = SKILLS.find(s => s.id === skillId);
   if (!skill) return [];
 
-  // PRIMARY CONNECTION: Get projects that explicitly list this skill in their relatedSkills array
-  const explicitlyRelatedProjects = PROJECTS.filter(project => 
-    project.relatedSkills?.includes(skillId)
+  // Get projects that explicitly list this skill in their skills array
+  return PROJECTS.filter(project => 
+    project.skills.includes(skillId)
   );
-  
-  // If we have explicit connections, prefer those
-  if (explicitlyRelatedProjects.length > 0) {
-    return explicitlyRelatedProjects;
-  }
-  
-  // SECONDARY CONNECTION (FALLBACK): Find projects by matching skill keywords against project tags
-  const keywordMatchedProjects = PROJECTS.filter(project => 
-    project.tags.some(tag => 
-      skill.keywords.some(keyword => 
-        tag.toLowerCase().includes(keyword.toLowerCase())
-      )
-    )
-  );
-  
-  return keywordMatchedProjects;
 };
 
 // Get experiences related to the selected skill
 const getRelatedExperiences = (skillId: string): Experience[] => {
   return EXPERIENCES.filter(experience => 
-    experience.relatedSkills?.includes(skillId)
+    experience.skills.includes(skillId)
   );
+};
+
+// Get the appropriate icon component for a skill
+const getSkillIcon = (iconName: string) => {
+  const iconComponents: Record<string, React.ReactNode> = {
+    // Fa icons
+    'FaReact': <FaReact className="text-4xl" />,
+    'FaNodeJs': <FaNodeJs className="text-4xl" />,
+    'FaPython': <FaPython className="text-4xl" />,
+    'FaJava': <FaJava className="text-4xl" />,
+    'FaDocker': <FaDocker className="text-4xl" />,
+    'FaDatabase': <FaDatabase className="text-4xl" />,
+    'FaGamepad': <FaGamepad className="text-4xl" />,
+    'FaRobot': <FaRobot className="text-4xl" />,
+    'FaUsers': <FaUsers className="text-4xl" />,
+    'FaChartLine': <FaChartLine className="text-4xl" />,
+    'FaNetworkWired': <FaNetworkWired className="text-4xl" />,
+    'FaFileCode': <FaFileCode className="text-4xl" />,
+    'FaSortAmountUp': <FaSortAmountUp className="text-4xl" />,
+    'FaApple': <FaApple className="text-4xl" />,
+    'FaAndroid': <FaAndroid className="text-4xl" />,
+    'FaMobileAlt': <FaMobileAlt className="text-4xl" />,
+    'FaSearch': <FaSearch className="text-4xl" />,
+    'FaVuejs': <FaVuejs className="text-4xl" />,
+    'FaPhp': <FaPhp className="text-4xl" />,
+    'FaFacebook': <FaFacebook className="text-4xl" />,
+    'FaCreditCard': <FaCreditCard className="text-4xl" />,
+    'FaImages': <FaImages className="text-4xl" />,
+    'FaVideo': <FaVideo className="text-4xl" />,
+    'FaFingerprint': <FaFingerprint className="text-4xl" />,
+    'FaBolt': <FaBolt className="text-4xl" />,
+    'FaMoneyBillWave': <FaMoneyBillWave className="text-4xl" />,
+    'FaTelegram': <FaTelegram className="text-4xl" />,
+    
+    // Si icons
+    'SiTypescript': <SiTypescript className="text-4xl" />,
+    'SiKubernetes': <SiKubernetes className="text-4xl" />,
+    'SiGooglecloud': <SiGooglecloud className="text-4xl" />,
+    'SiFirebase': <SiFirebase className="text-4xl" />,
+    'SiUnity': <SiUnity className="text-4xl" />,
+    'SiEthereum': <SiEthereum className="text-4xl" />,
+    'SiCsharp': <SiSharp className="text-4xl" />,
+    'SiNextdotjs': <SiNextdotjs className="text-4xl" />,
+    'SiNestjs': <SiNestjs className="text-4xl" />,
+    'SiGooglechrome': <SiGooglechrome className="text-4xl" />,
+    'SiGo': <SiGo className="text-4xl" />,
+    'SiPytorch': <SiPytorch className="text-4xl" />,
+  };
+
+  return iconComponents[iconName] || <FaReact className="text-4xl" />;
 };
 
 export default function SkillModal({
@@ -53,7 +92,6 @@ export default function SkillModal({
   closeModal,
   nextSkill,
   prevSkill,
-  getSkillIcon,
 }: SkillModalProps) {
   const skill = SKILLS.find(s => s.id === skillId);
   
@@ -140,7 +178,7 @@ export default function SkillModal({
             className={`${skill.bgColor} text-white p-4 rounded-xl mr-5`}
             variants={itemVariants}
           >
-            {getSkillIcon(skillId)}
+            {getSkillIcon(skill.icon)}
           </motion.div>
           <motion.div variants={itemVariants}>
             <h3 className="text-2xl font-light tracking-wide text-gray-900 dark:text-white">
@@ -236,17 +274,17 @@ export default function SkillModal({
                       {project.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-5">
-                      {project.tags.slice(0, 3).map((tag, i) => (
+                      {project.skills && getSkillNames(project.skills).slice(0, 3).map((skillName, i) => (
                         <span
                           key={i}
-                          className="text-xs px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-300 rounded-full"
+                          className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full"
                         >
-                          {tag}
+                          {skillName}
                         </span>
                       ))}
-                      {project.tags.length > 3 && (
+                      {project.skills && project.skills.length > 3 && (
                         <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full">
-                          +{project.tags.length - 3} more
+                          +{project.skills.length - 3} more
                         </span>
                       )}
                     </div>

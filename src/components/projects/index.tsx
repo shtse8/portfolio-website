@@ -10,6 +10,7 @@ import { parseMarkdownLinks } from './utils';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useModalManager } from '@/hooks/useModalManager';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 export default function FeaturedProjects() {
   const { openProject, openExperience, openCompany } = useModalManager();
@@ -267,20 +268,19 @@ export default function FeaturedProjects() {
                   
                   <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{experience.description}</p>
                   
-                  <div className="flex flex-wrap gap-2">
-                    {experience.tags.slice(0, 5).map((tag, tagIndex) => (
+                  {/* Technologies used */}
+                  <div className="flex flex-wrap gap-2 mt-6">
+                    {experience.skills && getSkillNames(experience.skills).slice(0, 5).map((skillName, tagIndex) => (
                       <span 
-                        key={tagIndex} 
-                        className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
-                                 rounded-md text-xs font-light"
+                        key={tagIndex}
+                        className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full"
                       >
-                        {tag}
+                        {skillName}
                       </span>
                     ))}
-                    {experience.tags.length > 5 && (
-                      <span className="px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 
-                                     rounded-md text-xs font-light">
-                        +{experience.tags.length - 5}
+                    {experience.skills && experience.skills.length > 5 && (
+                      <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full">
+                        +{experience.skills.length - 5}
                       </span>
                     )}
                   </div>

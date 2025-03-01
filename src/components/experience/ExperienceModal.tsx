@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding } from 'react-icons/fa';
 import { Experience, COMPANIES } from '../../data/portfolioData';
 import { motion } from 'framer-motion';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 type ExperienceModalProps = {
   experience: Experience;
@@ -141,13 +142,14 @@ export default function ExperienceModal({
                 {experience.description}
               </div>
               
-              <div className="mt-8 flex flex-wrap gap-2">
-                {experience.tags.map((tag, index) => (
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                {experience.skills && getSkillNames(experience.skills).map((skillName, i) => (
                   <span
-                    key={index}
-                    className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg text-sm"
+                    key={i}
+                    className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full"
                   >
-                    {tag}
+                    {skillName}
                   </span>
                 ))}
               </div>

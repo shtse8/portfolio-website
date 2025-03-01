@@ -5,16 +5,15 @@ export type Project = {
   image: string;
   images?: string[];
   gallery?: string[];
-  tags: string[];
+  skills: string[];
+  skillTags?: string[];
   github?: string;
   liveUrl?: string;
   androidUrl?: string;
   iosUrl?: string;
   category: string;
   company: string | null;
-  relatedSkills?: string[];
   details: string[] | string;
-  technologies?: string[];
   year?: string;
   teamSize?: string;
   duration?: string;
@@ -45,10 +44,9 @@ export type Experience = {
   description: string;
   image: string;
   logo: string;
-  tags: string[];
+  skills: string[];
   liveUrl?: string;
   details: string[];
-  relatedSkills?: string[];
   projects?: string[];
 };
 
@@ -61,6 +59,7 @@ export type TechSkill = {
   bgColor: string;
   category: string;
   keywords: string[];
+  icon: string;
 };
 
 export const PROJECTS: Project[] = [
@@ -72,12 +71,11 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/cubeage.jpg',
     ],
-    tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#', 'MySQL', 'Percona'],
+    skills: ['unity3d', 'gamedev', 'databases', 'ios', 'android', 'csharp'],
+    skillTags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#', 'MySQL', 'Percona'],
     liveUrl: 'https://cubeage.com',
     category: "Mobile Games",
     company: "cubeage",
-    relatedSkills: ['unity3d', 'gamedev', 'databases'],
-    technologies: ['Unity3D', 'C#', 'iOS SDK', 'Android SDK', 'MySQL', 'Percona', 'Git', 'Jenkins'],
     details: [
       'Founded and led Cubeage Limited, developing popular card and casino games',
       'Published 10+ games on Google Play and App Store with 100K+ installations',
@@ -95,13 +93,12 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/big2_tycoon.jpg',
     ],
-    tags: ['Unity3D', 'TypeScript', 'Socket.IO', 'Protobuf', 'Multiplayer', 'ELO Rating', 'Cubeage'],
+    skills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java', 'socket-io', 'protobuf', 'elo-rating'],
+    skillTags: ['Unity3D', 'TypeScript', 'Socket.IO', 'Protobuf', 'Multiplayer', 'ELO Rating', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.gameflask.btthk',
     iosUrl: 'https://apps.apple.com/us/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A8-%E6%9C%80%E5%88%BA%E6%BF%80%E7%9A%84%E7%AD%96%E7%95%A5%E6%A3%8B%E7%89%8C%E9%81%8A%E6%88%B2/id1295634408',
     category: "Mobile Games",
     company: "cubeage",
-    relatedSkills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java'],
-    technologies: ['Unity3D', 'TypeScript', 'Node.js', 'Socket.IO', 'Protocol Buffers', 'MySQL', 'Ubuntu', 'Redis'],
     details: [
       'Led development at Cubeage for this real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
       'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
@@ -118,12 +115,11 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/nakuz.jpg',
     ],
-    tags: ['React', 'Next.js', 'Responsive Design', 'SEO', 'Nakuz'],
+    skills: ['react', 'typescript', 'nextjs', 'responsive-design', 'seo'],
+    skillTags: ['React', 'Next.js', 'Responsive Design', 'SEO', 'Nakuz'],
     liveUrl: 'https://nakuz.com',
     category: "Web Apps",
     company: "nakuz",
-    relatedSkills: ['react', 'typescript'],
-    technologies: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Vercel', 'Git'],
     details: [
       'Designed and developed the corporate website for Nakuz',
       'Built with modern technologies including React and Next.js',
@@ -140,13 +136,12 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/hkmj.jpeg',
     ],
-    tags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer', 'Cubeage'],
+    skills: ['unity3d', 'gamedev', 'team-leadership', 'csharp', 'ios', 'android'],
+    skillTags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.crazycube.hkmahjongtycoon.app',
     iosUrl: 'https://apps.apple.com/us/app/%E9%A6%99%E6%B8%AF%E9%BA%BB%E5%B0%87%E5%A4%A7%E4%BA%A8-%E9%BA%BB%E9%9B%80%E4%BF%BE%E4%BD%A0%E7%8E%A9/id1478835027',
     category: "Mobile Games",
     company: "cubeage",
-    relatedSkills: ['unity3d', 'gamedev', 'team-leadership'],
-    technologies: ['Unity3D', 'C#', '3D Modeling', 'iOS SDK', 'Android SDK', 'Firebase', 'PlayFab', 'Git'],
     details: [
       'Led development at Cubeage for this popular 3D Mahjong game with over 100K downloads',
       'Created authentic Hong Kong Mahjong gameplay with multiple game modes including blood flow mode, classic four-player mode, and two-player mode',
@@ -164,13 +159,12 @@ export const PROJECTS: Project[] = [
       '/projects/fsh/1.jpg',
       '/projects/fsh/2.jpg',
     ],
-    tags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation', 'Cubeage'],
+    skills: ['unity3d', 'gamedev', 'java', 'csharp', 'ios', 'android'],
+    skillTags: ['Unity', 'C#', 'Mobile Game', 'IAP', 'Ad Mediation', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
     iosUrl: 'https://apps.apple.com/us/app/fun-showhand-stud-poker/id1238318956',
     category: "Mobile Games",
     company: "cubeage",
-    relatedSkills: ['unity3d', 'gamedev', 'java'],
-    technologies: ['Unity3D', 'C#', 'Appodeal', 'AdMob', 'Facebook Ads', 'IAP', 'Monte Carlo Simulation', 'Git'],
     details: [
       'Led development at Cubeage for this popular poker game available on both Android and iOS platforms',
       'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
@@ -187,13 +181,12 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/fmj.jpeg',
     ],
-    tags: ['Unity', 'C#', 'Mobile Game', 'Corona SDK', 'Taiwanese Mahjong', 'AI', 'Cubeage'],
+    skills: ['unity3d', 'gamedev', 'java', 'databases', 'csharp', 'ios', 'android', 'ai-ml'],
+    skillTags: ['Unity', 'C#', 'Mobile Game', 'Corona SDK', 'Taiwanese Mahjong', 'AI', 'Cubeage'],
     androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app',
     iosUrl: 'https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150',
     category: "Mobile Games",
     company: "cubeage",
-    relatedSkills: ['unity3d', 'gamedev', 'java', 'databases'],
-    technologies: ['Unity3D', 'C#', 'Corona SDK', 'Appodeal', 'Monte Carlo AI', 'Cloud Save', 'Git', 'Lua'],
     details: [
       'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
       'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
@@ -210,13 +203,12 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/anymud.jpeg',
     ],
-    tags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO'],
+    skills: ['typescript', 'nodejs', 'docker', 'gcp', 'vuejs', 'nestjs', 'seo'],
+    skillTags: ['TypeScript', 'Vue.js', 'Nest.js', 'GCP', 'Docker', 'SEO'],
     github: 'https://github.com/shtse8/anymud',
     liveUrl: 'https://anymud.com',
     category: "Web Apps",
     company: null,
-    relatedSkills: ['typescript', 'nodejs', 'docker', 'gcp'],
-    technologies: ['TypeScript', 'Vue.js', 'Nest.js', 'Google Cloud Platform', 'Docker', 'PostgreSQL', 'Redis', 'Nginx'],
     details: [
       'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
       'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
@@ -233,11 +225,10 @@ export const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
     ],
-    tags: ['PHP', 'MySQL', 'Percona', 'Facebook Integration', 'Responsive Design', 'SEO'],
+    skills: ['databases', 'php', 'responsive-design', 'seo', 'facebook-integration'],
+    skillTags: ['PHP', 'MySQL', 'Percona', 'Facebook Integration', 'Responsive Design', 'SEO'],
     category: "Web Apps",
     company: null,
-    relatedSkills: ['databases'],
-    technologies: ['PHP', 'MySQL', 'Percona', 'Facebook API', 'HTML5', 'CSS3', 'jQuery', 'Apache'],
     details: [
       'Developed a publisher-focused article sharing platform with PHP and MySQL/Percona',
       'Created Facebook and mobile optimized versions to maximize user reach',
@@ -254,11 +245,10 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/funimax.jpg',
     ],
-    tags: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Game Distribution', 'Payment Integration'],
+    skills: ['databases', 'php', 'nodejs', 'payment-integration'],
+    skillTags: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Game Distribution', 'Payment Integration'],
     category: "Web Apps",
     company: "minimax",
-    relatedSkills: ['databases'],
-    technologies: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Apache', 'Payment Gateway APIs', 'Custom Template System', 'Redis'],
     details: [
       'Led development of Funimax, a well-known gaming platform with significant presence in Hong Kong',
       'Built with pure PHP and JavaScript, developing a custom template system for rapid game website deployment',
@@ -277,11 +267,10 @@ export const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
     ],
-    tags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
+    skills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker'],
+    skillTags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
     category: "Blockchain",
     company: null,
-    relatedSkills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker'],
-    technologies: ['TypeScript', 'Node.js', 'Kubernetes', 'Docker', 'Ethereum', 'EOS', 'WebSockets', 'Redis', 'PostgreSQL'],
     details: [
       'Designed and developed a hybrid Bancor-Orderbook model for cross-chain asset trading',
       'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
@@ -298,11 +287,10 @@ export const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
     ],
-    tags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
+    skills: ['blockchain', 'nodejs', 'typescript'],
+    skillTags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
     category: "Blockchain",
     company: null,
-    relatedSkills: ['blockchain', 'nodejs', 'typescript'],
-    technologies: ['TypeScript', 'Node.js', 'Ethereum', 'EOS', 'Bitcoin', 'Smart Contracts', 'WebSockets', 'Redis', 'MongoDB'],
     details: [
       'Built a platform enabling streamlined deployment of applications across multiple blockchains',
       'Pioneered real-time profit-sharing system for developers through smart contract automation',
@@ -319,11 +307,10 @@ export const PROJECTS: Project[] = [
     images: [
       'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
     ],
-    tags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
+    skills: ['typescript', 'blockchain', 'kubernetes', 'nodejs', 'docker', 'vuejs'],
+    skillTags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
     category: "Blockchain",
     company: null,
-    relatedSkills: ['typescript', 'blockchain', 'kubernetes', 'nodejs', 'docker'],
-    technologies: ['TypeScript', 'Vue.js', 'Node.js', 'Kubernetes', 'Docker', 'Ethereum', 'EOS', 'Bitcoin', 'WebSockets', 'Redis', 'PostgreSQL'],
     details: [
       'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
       'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
@@ -341,12 +328,11 @@ export const PROJECTS: Project[] = [
       '/projects/quant_trading.jpg',
       '/projects/quant_trading_ror.jpg',
     ],
-    tags: ['Go', 'Python', 'TradingView', 'TigerTrade', 'Firebase', 'PyTorch', 'Telegram'],
+    skills: ['python', 'ai-ml', 'firebase', 'gcp', 'typescript', 'go', 'tradingview', 'tigertrade', 'pytorch', 'telegram'],
+    skillTags: ['Go', 'Python', 'TradingView', 'TigerTrade', 'Firebase', 'PyTorch', 'Telegram'],
     github: 'https://github.com/shtse8/TradingBot',
     category: "AI & ML",
     company: null,
-    relatedSkills: ['python', 'ai-ml', 'firebase', 'gcp', 'typescript'],
-    technologies: ['Go', 'Python', 'Firebase', 'Google Cloud Run', 'PyTorch', 'pandas', 'TradingView API', 'TigerTrade API', 'Telegram API', 'Docker'],
     details: [
       'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
       'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
@@ -363,12 +349,11 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/SotiMediaOrganizer.jpg',
     ],
-    tags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
+    skills: ['typescript', 'python', 'nodejs', 'ffmpeg', 'simhash', 'bun'],
+    skillTags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
     github: 'https://github.com/shtse8/SotiMediaOrganizer',
     category: "Tools & Utilities",
     company: null,
-    relatedSkills: ['typescript', 'python', 'nodejs'],
-    technologies: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash', 'VP Tree', 'Perceptual Hashing', 'Node.js'],
     details: [
       'Created a media deduplication tool with TypeScript, Python, and Bun',
       'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
@@ -385,13 +370,12 @@ export const PROJECTS: Project[] = [
     images: [
       '/projects/google_photo_delete_tool.jpg',
     ],
-    tags: ['JavaScript', 'Chrome Extension', 'Automation', 'Google Photos API'],
+    skills: ['nodejs', 'chrome-extension', 'google-photos-api'],
+    skillTags: ['JavaScript', 'Chrome Extension', 'Automation', 'Google Photos API'],
     github: 'https://github.com/shtse8/google-photos-delete-tool',
     liveUrl: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb',
     category: "Tools & Utilities",
     company: null,
-    relatedSkills: ['nodejs'],
-    technologies: ['JavaScript', 'Chrome Extensions API', 'HTML', 'CSS', 'Google Photos API', 'DOM Manipulation', 'Asynchronous Programming'],
     details: [
       'Developed a Chrome extension with 2,000+ users to efficiently manage and clean up Google Photos libraries',
       'Implemented intelligent batch processing with custom selectors for automated photo deletion',
@@ -445,7 +429,7 @@ export const EXPERIENCES: Experience[] = [
     description: 'Founded and led a mobile gaming company specializing in card and casino games with millions of downloads',
     image: '/projects/cubeage.jpg',
     logo: '/companys/cubeage.jpeg',
-    tags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#', 'MySQL', 'Percona'],
+    skills: ['unity3d', 'gamedev', 'databases', 'team-leadership', 'business-growth', 'csharp', 'ios', 'android', 'java'],
     liveUrl: 'https://cubeage.com',
     details: [
       'Founded and led Cubeage Limited, developing popular card and casino games',
@@ -455,8 +439,7 @@ export const EXPERIENCES: Experience[] = [
       'Built and managed cross-functional teams for game development and operations',
       'Utilized MySQL and Percona for high-performance game data storage and analytics',
       'Related Projects: See [Hong Kong Mahjong Tycoon](#mahjong), [Fun Mahjong 16 Tiles](#fmj), [Fun Showhand](#fun-showhand), and [Big2 Tycoon](#big2-tycoon) in this portfolio'
-    ],
-    relatedSkills: ['unity3d', 'gamedev', 'databases', 'team-leadership', 'business-growth']
+    ]
   },
   {
     id: 'minimax',
@@ -467,7 +450,7 @@ export const EXPERIENCES: Experience[] = [
     description: 'Led development at a gaming platform company focusing on game operations and agency distribution in Hong Kong',
     image: '/companys/minimax.jpeg',
     logo: '/companys/minimax.jpeg',
-    tags: ['Gaming Platform', 'Game Distribution', 'Physical Game Cards', 'Game Operations'],
+    skills: ['databases', 'team-leadership', 'business-growth', 'php', 'nodejs', 'payment-integration'],
     details: [
       'Led development at MiniMax Game Entertainment Limited, a gaming platform company in Hong Kong',
       'Managed Funimax platform, a well-known game distribution service with physical game cards',
@@ -475,8 +458,7 @@ export const EXPERIENCES: Experience[] = [
       'Implemented payment systems integration for physical and digital purchases',
       'Designed systems to manage game inventory, distribution, and analytics',
       'Built user management and loyalty systems to improve customer retention'
-    ],
-    relatedSkills: ['databases', 'team-leadership', 'business-growth']
+    ]
   },
   {
     id: 'nakuz',
@@ -487,7 +469,7 @@ export const EXPERIENCES: Experience[] = [
     description: 'Designed and developed professional corporate website and business solutions',
     image: '/companys/nakuz.jpeg',
     logo: '/companys/nakuz.jpeg',
-    tags: ['React', 'Next.js', 'Responsive Design', 'SEO'],
+    skills: ['react', 'typescript', 'team-leadership', 'nextjs', 'responsive-design', 'seo', 'business-growth'],
     liveUrl: 'https://nakuz.com',
     details: [
       'Designed and developed the corporate website for Nakuz.com Limited',
@@ -495,8 +477,7 @@ export const EXPERIENCES: Experience[] = [
       'Implemented responsive design for optimal viewing on all devices',
       'Integrated SEO best practices to improve visibility and organic traffic',
       'Created an intuitive user interface with streamlined navigation'
-    ],
-    relatedSkills: ['react', 'typescript', 'team-leadership']
+    ]
   }
 ];
 
@@ -509,7 +490,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
     category: 'frontend',
-    keywords: ['React', 'Next.js', 'JSX']
+    keywords: ['React', 'Next.js', 'JSX'],
+    icon: 'FaReact'
   },
   {
     id: 'typescript',
@@ -519,7 +501,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-blue-700',
     bgColor: 'bg-blue-700/90 dark:bg-blue-700/80',
     category: 'frontend',
-    keywords: ['TypeScript', 'TS']
+    keywords: ['TypeScript', 'TS'],
+    icon: 'SiTypescript'
   },
   {
     id: 'nodejs',
@@ -529,7 +512,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-green-600',
     bgColor: 'bg-green-600/90 dark:bg-green-600/80',
     category: 'backend',
-    keywords: ['Node.js', 'Express', 'Nest.js']
+    keywords: ['Node.js', 'Express', 'Nest.js'],
+    icon: 'FaNodeJs'
   },
   {
     id: 'python',
@@ -539,7 +523,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-yellow-600',
     bgColor: 'bg-yellow-600/90 dark:bg-yellow-500/80',
     category: 'backend',
-    keywords: ['Python', 'PyTorch']
+    keywords: ['Python', 'PyTorch'],
+    icon: 'FaPython'
   },
   {
     id: 'java',
@@ -549,7 +534,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-red-600',
     bgColor: 'bg-red-600/90 dark:bg-red-600/80',
     category: 'backend',
-    keywords: ['Java', 'Android']
+    keywords: ['Java', 'Android'],
+    icon: 'FaJava'
   },
   {
     id: 'docker',
@@ -559,7 +545,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-blue-800',
     bgColor: 'bg-blue-800/90 dark:bg-blue-800/80',
     category: 'devops',
-    keywords: ['Docker', 'Container']
+    keywords: ['Docker', 'Container'],
+    icon: 'FaDocker'
   },
   {
     id: 'kubernetes',
@@ -569,7 +556,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-blue-600',
     bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
     category: 'devops',
-    keywords: ['Kubernetes', 'K8s', 'Microservices']
+    keywords: ['Kubernetes', 'K8s', 'Microservices'],
+    icon: 'SiKubernetes'
   },
   {
     id: 'gcp',
@@ -579,7 +567,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-red-500',
     bgColor: 'bg-red-500/90 dark:bg-red-500/80',
     category: 'devops',
-    keywords: ['GCP', 'Google Cloud', 'Cloud Run']
+    keywords: ['GCP', 'Google Cloud', 'Cloud Run'],
+    icon: 'SiGooglecloud'
   },
   {
     id: 'firebase',
@@ -589,7 +578,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-yellow-500',
     bgColor: 'bg-yellow-500/90 dark:bg-yellow-500/80',
     category: 'backend',
-    keywords: ['Firebase']
+    keywords: ['Firebase'],
+    icon: 'SiFirebase'
   },
   {
     id: 'databases',
@@ -599,7 +589,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-gray-700',
     bgColor: 'bg-gray-700/90 dark:bg-gray-700/80',
     category: 'backend',
-    keywords: ['MySQL', 'PostgreSQL', 'Redis', 'NoSQL', 'Database', 'Percona']
+    keywords: ['MySQL', 'PostgreSQL', 'Redis', 'NoSQL', 'Database', 'Percona'],
+    icon: 'FaDatabase'
   },
   {
     id: 'unity3d',
@@ -609,7 +600,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-gray-800',
     bgColor: 'bg-gray-800/90 dark:bg-gray-800/80',
     category: 'game',
-    keywords: ['Unity', 'Unity3D']
+    keywords: ['Unity', 'Unity3D'],
+    icon: 'SiUnity'
   },
   {
     id: 'gamedev',
@@ -619,7 +611,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-purple-600',
     bgColor: 'bg-purple-600/90 dark:bg-purple-600/80',
     category: 'game',
-    keywords: ['Game', 'Mobile Game', 'Multiplayer']
+    keywords: ['Game', 'Mobile Game', 'Multiplayer'],
+    icon: 'FaGamepad'
   },
   {
     id: 'ai-ml',
@@ -629,7 +622,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-green-700',
     bgColor: 'bg-green-700/90 dark:bg-green-700/80',
     category: 'ai',
-    keywords: ['AI', 'ML', 'Machine Learning', 'PyTorch']
+    keywords: ['AI', 'ML', 'Machine Learning', 'PyTorch'],
+    icon: 'FaRobot'
   },
   {
     id: 'blockchain',
@@ -639,7 +633,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-purple-800',
     bgColor: 'bg-purple-800/90 dark:bg-purple-800/80',
     category: 'blockchain',
-    keywords: ['Blockchain', 'Smart Contracts', 'EOS', 'Ethereum', 'Bitcoin']
+    keywords: ['Blockchain', 'Smart Contracts', 'EOS', 'Ethereum', 'Bitcoin'],
+    icon: 'SiEthereum'
   },
   {
     id: 'team-leadership',
@@ -649,7 +644,8 @@ export const SKILLS: TechSkill[] = [
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-600/90 dark:bg-indigo-600/80',
     category: 'management',
-    keywords: []
+    keywords: ['Leadership', 'Management', 'Team Building', 'Agile', 'Mentoring', 'Project Management'],
+    icon: 'FaUsers'
   },
   {
     id: 'business-growth',
@@ -659,7 +655,272 @@ export const SKILLS: TechSkill[] = [
     color: 'text-teal-600',
     bgColor: 'bg-teal-600/90 dark:bg-teal-600/80',
     category: 'management',
-    keywords: []
+    keywords: ['Marketing', 'Strategy', 'Business Development', 'Product Management', 'Growth Hacking', 'Analytics'],
+    icon: 'FaChartLine'
+  },
+  {
+    id: 'socket-io',
+    name: 'Socket.IO',
+    description: 'Real-time bidirectional event-based communication',
+    yearsOfExperience: 5,
+    color: 'text-gray-600',
+    bgColor: 'bg-gray-600/90 dark:bg-gray-600/80',
+    category: 'backend',
+    keywords: ['Socket.IO', 'WebSockets', 'Real-time'],
+    icon: 'FaNetworkWired'
+  },
+  {
+    id: 'protobuf',
+    name: 'Protocol Buffers',
+    description: 'Language-neutral data serialization for APIs',
+    yearsOfExperience: 4,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+    category: 'backend',
+    keywords: ['Protobuf', 'Protocol Buffers', 'gRPC'],
+    icon: 'FaFileCode'
+  },
+  {
+    id: 'elo-rating',
+    name: 'ELO Rating',
+    description: 'Mathematical rating system for competitive games',
+    yearsOfExperience: 3,
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/90 dark:bg-purple-500/80',
+    category: 'game',
+    keywords: ['ELO', 'Rating System', 'Matchmaking'],
+    icon: 'FaSortAmountUp'
+  },
+  {
+    id: 'csharp',
+    name: 'C#',
+    description: 'Object-oriented programming with .NET',
+    yearsOfExperience: 8,
+    color: 'text-purple-700',
+    bgColor: 'bg-purple-700/90 dark:bg-purple-700/80',
+    category: 'backend',
+    keywords: ['C#', '.NET', 'Unity'],
+    icon: 'SiCsharp'
+  },
+  {
+    id: 'ios',
+    name: 'iOS',
+    description: 'Mobile development for Apple devices',
+    yearsOfExperience: 6,
+    color: 'text-gray-700',
+    bgColor: 'bg-gray-700/90 dark:bg-gray-700/80',
+    category: 'mobile',
+    keywords: ['iOS', 'Apple', 'Mobile Development'],
+    icon: 'FaApple'
+  },
+  {
+    id: 'android',
+    name: 'Android',
+    description: 'Mobile development for Android devices',
+    yearsOfExperience: 7,
+    color: 'text-green-700',
+    bgColor: 'bg-green-700/90 dark:bg-green-700/80',
+    category: 'mobile',
+    keywords: ['Android', 'Mobile Development'],
+    icon: 'FaAndroid'
+  },
+  {
+    id: 'responsive-design',
+    name: 'Responsive Design',
+    description: 'Creating websites that work on all devices',
+    yearsOfExperience: 7,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+    category: 'frontend',
+    keywords: ['Responsive Design', 'Mobile First', 'CSS'],
+    icon: 'FaMobileAlt'
+  },
+  {
+    id: 'seo',
+    name: 'SEO',
+    description: 'Search engine optimization techniques',
+    yearsOfExperience: 6,
+    color: 'text-green-600',
+    bgColor: 'bg-green-600/90 dark:bg-green-600/80',
+    category: 'marketing',
+    keywords: ['SEO', 'Search Engine Optimization', 'Analytics'],
+    icon: 'FaSearch'
+  },
+  {
+    id: 'nextjs',
+    name: 'Next.js',
+    description: 'React framework for production-grade applications',
+    yearsOfExperience: 4,
+    color: 'text-black',
+    bgColor: 'bg-black/90 dark:bg-gray-800/80',
+    category: 'frontend',
+    keywords: ['Next.js', 'React', 'SSR', 'Static Site'],
+    icon: 'SiNextdotjs'
+  },
+  {
+    id: 'vuejs',
+    name: 'Vue.js',
+    description: 'Progressive JavaScript framework',
+    yearsOfExperience: 5,
+    color: 'text-green-500',
+    bgColor: 'bg-green-500/90 dark:bg-green-500/80',
+    category: 'frontend',
+    keywords: ['Vue.js', 'Vue', 'JavaScript Framework'],
+    icon: 'FaVuejs'
+  },
+  {
+    id: 'nestjs',
+    name: 'Nest.js',
+    description: 'Progressive Node.js framework for building server-side applications',
+    yearsOfExperience: 3,
+    color: 'text-red-600',
+    bgColor: 'bg-red-600/90 dark:bg-red-600/80',
+    category: 'backend',
+    keywords: ['Nest.js', 'Node.js', 'TypeScript', 'Server-side'],
+    icon: 'SiNestjs'
+  },
+  {
+    id: 'php',
+    name: 'PHP',
+    description: 'Server-side scripting language for web development',
+    yearsOfExperience: 10,
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-600/90 dark:bg-indigo-600/80',
+    category: 'backend',
+    keywords: ['PHP', 'Web Development', 'Server-side'],
+    icon: 'FaPhp'
+  },
+  {
+    id: 'facebook-integration',
+    name: 'Facebook Integration',
+    description: 'Integrating applications with Facebook platform',
+    yearsOfExperience: 6,
+    color: 'text-blue-700',
+    bgColor: 'bg-blue-700/90 dark:bg-blue-700/80',
+    category: 'social',
+    keywords: ['Facebook', 'Social Media', 'API Integration'],
+    icon: 'FaFacebook'
+  },
+  {
+    id: 'payment-integration',
+    name: 'Payment Integration',
+    description: 'Implementing secure payment processing systems',
+    yearsOfExperience: 7,
+    color: 'text-green-800',
+    bgColor: 'bg-green-800/90 dark:bg-green-800/80',
+    category: 'backend',
+    keywords: ['Payments', 'E-commerce', 'Stripe', 'PayPal'],
+    icon: 'FaCreditCard'
+  },
+  {
+    id: 'chrome-extension',
+    name: 'Chrome Extensions',
+    description: 'Building browser extensions for Chrome',
+    yearsOfExperience: 3,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+    category: 'frontend',
+    keywords: ['Chrome Extension', 'Browser Extension', 'JavaScript'],
+    icon: 'SiGooglechrome'
+  },
+  {
+    id: 'google-photos-api',
+    name: 'Google Photos API',
+    description: 'Working with Google Photos API for image management',
+    yearsOfExperience: 2,
+    color: 'text-red-500',
+    bgColor: 'bg-red-500/90 dark:bg-red-500/80',
+    category: 'api',
+    keywords: ['Google Photos', 'API', 'Photo Management'],
+    icon: 'FaImages'
+  },
+  {
+    id: 'ffmpeg',
+    name: 'FFmpeg',
+    description: 'Audio and video processing solution',
+    yearsOfExperience: 4,
+    color: 'text-green-700',
+    bgColor: 'bg-green-700/90 dark:bg-green-700/80',
+    category: 'tools',
+    keywords: ['FFmpeg', 'Video Processing', 'Audio Processing'],
+    icon: 'FaVideo'
+  },
+  {
+    id: 'simhash',
+    name: 'Simhash',
+    description: 'Similarity detection algorithm for near-duplicate detection',
+    yearsOfExperience: 3,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-600/90 dark:bg-purple-600/80',
+    category: 'algorithms',
+    keywords: ['Simhash', 'Duplicate Detection', 'Algorithms'],
+    icon: 'FaFingerprint'
+  },
+  {
+    id: 'bun',
+    name: 'Bun',
+    description: 'Fast JavaScript runtime and toolkit',
+    yearsOfExperience: 1,
+    color: 'text-pink-500',
+    bgColor: 'bg-pink-500/90 dark:bg-pink-500/80',
+    category: 'tools',
+    keywords: ['Bun', 'JavaScript Runtime', 'Node.js Alternative'],
+    icon: 'FaBolt'
+  },
+  {
+    id: 'go',
+    name: 'Go',
+    description: 'High-performance systems programming language',
+    yearsOfExperience: 3,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+    category: 'backend',
+    keywords: ['Go', 'Golang', 'Systems Programming'],
+    icon: 'SiGo'
+  },
+  {
+    id: 'tradingview',
+    name: 'TradingView',
+    description: 'Financial charting and analysis platform',
+    yearsOfExperience: 2,
+    color: 'text-green-600',
+    bgColor: 'bg-green-600/90 dark:bg-green-600/80',
+    category: 'trading',
+    keywords: ['TradingView', 'Trading', 'Financial Analysis'],
+    icon: 'FaChartLine'
+  },
+  {
+    id: 'tigertrade',
+    name: 'TigerTrade',
+    description: 'Brokerage API integration for automated trading',
+    yearsOfExperience: 2,
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/90 dark:bg-orange-500/80',
+    category: 'trading',
+    keywords: ['TigerTrade', 'Trading API', 'Brokerage'],
+    icon: 'FaMoneyBillWave'
+  },
+  {
+    id: 'pytorch',
+    name: 'PyTorch',
+    description: 'Deep learning framework for machine learning',
+    yearsOfExperience: 3,
+    color: 'text-red-600',
+    bgColor: 'bg-red-600/90 dark:bg-red-600/80',
+    category: 'ai',
+    keywords: ['PyTorch', 'Deep Learning', 'ML', 'AI'],
+    icon: 'SiPytorch'
+  },
+  {
+    id: 'telegram',
+    name: 'Telegram API',
+    description: 'Building bots and integrations for Telegram',
+    yearsOfExperience: 3,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+    category: 'api',
+    keywords: ['Telegram', 'Bot', 'Messaging API'],
+    icon: 'FaTelegram'
   }
 ];
 

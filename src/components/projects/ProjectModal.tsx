@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { Project, Experience, COMPANIES, EXPERIENCES } from '../../data/portfolioData';
 import { motion } from 'framer-motion';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 type ProjectModalProps = {
   project: Project;
@@ -134,13 +135,14 @@ export default function ProjectModal({
                 {project.title}
               </h2>
               
-              <div className="flex flex-wrap gap-3 mb-4">
-                {project.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="text-xs px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-300 rounded-full"
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 mb-8">
+                {project.skills && project.skills.length > 0 && getSkillNames(project.skills).map((skillName, index) => (
+                  <span 
+                    key={index} 
+                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs"
                   >
-                    {tag}
+                    {skillName}
                   </span>
                 ))}
               </div>
@@ -306,7 +308,7 @@ export default function ProjectModal({
             <div className="mb-8">
               <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Technologies Used</h3>
               <div className="flex flex-wrap gap-2">
-                {project.technologies?.map((tech, index) => (
+                {project.skills && project.skills.length > 0 && getSkillNames(project.skills).map((tech, index) => (
                   <span
                     key={index}
                     className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg text-sm"

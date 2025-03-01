@@ -67,7 +67,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -102,7 +102,7 @@ export default function RootLayout({
         {/* Client-side theme initialization - simplified version */}
         <script dangerouslySetInnerHTML={{ __html: clientThemeScript }} />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} scroll-smooth`}>
         <ModalProvider>
           <ScrollAnimationProvider>
             {children}

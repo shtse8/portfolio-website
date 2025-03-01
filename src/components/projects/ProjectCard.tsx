@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Project, COMPANIES } from '../../data/portfolioData';
 import { motion } from 'framer-motion';
 import { FaLink, FaGithub, FaBuilding } from 'react-icons/fa';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 type ProjectCardProps = {
   project: Project;
@@ -68,19 +69,19 @@ export default function ProjectCard({
         <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 line-clamp-2 leading-relaxed font-light">{project.description}</p>
         
         <div className="mt-auto flex flex-wrap gap-2">
-          {project.tags.slice(0, 3).map((tag, index) => (
+          {project.skills && getSkillNames(project.skills).slice(0, 3).map((skillName, index) => (
             <span 
               key={index} 
               className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700/30 text-gray-600 dark:text-gray-300 
                         rounded-full text-xs"
             >
-              {tag}
+              {skillName}
             </span>
           ))}
-          {project.tags.length > 3 && (
+          {project.skills && project.skills.length > 3 && (
             <span className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700/30 text-gray-500 dark:text-gray-400 
                            rounded-full text-xs">
-              +{project.tags.length - 3} more
+              +{project.skills.length - 3} more
             </span>
           )}
         </div>

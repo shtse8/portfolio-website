@@ -8,6 +8,7 @@ import CompanyModal from '../shared/CompanyModal';
 import { EXPERIENCES, COMPANIES } from '@/data/portfolioData';
 import { parseMarkdownLinks } from '../projects/utils';
 import { useModalManager } from '@/hooks/useModalManager';
+import { getSkillNames } from '@/utils/skillHelpers';
 
 export default function ExperienceSection() {
   const [mounted, setMounted] = useState(false);
@@ -204,15 +205,18 @@ export default function ExperienceSection() {
                     
                     <p className="text-gray-600 dark:text-gray-300 mb-6 text-sm leading-relaxed">{exp.description}</p>
                     
-                    <div className={`flex flex-wrap gap-2 mt-4 mb-4 ${isEven ? 'md:justify-end' : ''}`}>
-                      {exp.tags.slice(0, 3).map((tag, idx) => (
-                        <span key={idx} className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 rounded-md">
-                          {tag}
+                    <div className={`flex flex-wrap gap-2 mt-2 mb-4 ${isEven ? 'md:justify-end' : ''}`}>
+                      {exp.skills && getSkillNames(exp.skills).slice(0, 3).map((skillName, i) => (
+                        <span
+                          key={i}
+                          className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full"
+                        >
+                          {skillName}
                         </span>
                       ))}
-                      {exp.tags.length > 3 && (
-                        <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 rounded-md">
-                          +{exp.tags.length - 3}
+                      {exp.skills && exp.skills.length > 3 && (
+                        <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full">
+                          +{exp.skills.length - 3} more
                         </span>
                       )}
                     </div>
