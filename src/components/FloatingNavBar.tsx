@@ -16,12 +16,12 @@ export default function FloatingNavBar() {
   const [mounted, setMounted] = useState<boolean>(false);
 
   const sections = useMemo<Section[]>(() => [
-    { id: 'hero', label: 'Home', icon: <FaHome className="mr-2" /> },
-    { id: 'tech-stack', label: 'Skills', icon: <FaCode className="mr-2" /> },
-    { id: 'philosophy', label: 'Philosophy', icon: <FaLightbulb className="mr-2" /> },
-    { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="mr-2" /> },
-    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="mr-2" /> },
-    { id: 'contact', label: 'Contact', icon: <FaEnvelope className="mr-2" /> },
+    { id: 'hero', label: 'Home', icon: <FaHome className="text-sm" /> },
+    { id: 'tech-stack', label: 'Skills', icon: <FaCode className="text-sm" /> },
+    { id: 'philosophy', label: 'Philosophy', icon: <FaLightbulb className="text-sm" /> },
+    { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="text-sm" /> },
+    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="text-sm" /> },
+    { id: 'contact', label: 'Contact', icon: <FaEnvelope className="text-sm" /> },
   ], []);
 
   useEffect(() => {
@@ -92,35 +92,63 @@ export default function FloatingNavBar() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <div className="fixed bottom-8 inset-x-0 flex justify-center items-center z-40">
+        <div className="fixed bottom-8 inset-x-0 flex justify-center items-center z-40 pointer-events-none">
           <motion.nav
-            className="inline-flex bg-white/60 dark:bg-gray-900/50 backdrop-blur-md py-3.5 px-6 rounded-full"
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="inline-flex bg-white/80 dark:bg-gray-900/80 backdrop-blur-md 
+                      py-3 px-4 rounded-full shadow-sm
+                      border border-gray-100/50 dark:border-gray-800/50
+                      pointer-events-auto"
+            initial={{ y: 30, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 20, opacity: 0, scale: 0.95 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 25, 
+              mass: 0.8 
+            }}
           >
-            {sections.map((section, index) => (
+            {sections.map((section) => (
               <motion.button
                 key={section.id}
                 onClick={() => handleNavClick(section.id)}
-                className={`px-3 py-2 rounded-full transition-all duration-300 flex items-center ${
-                  activeSection === section.id
-                    ? 'bg-blue-500/70 text-white'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100/70 dark:hover:bg-gray-800/40 hover:text-blue-500 dark:hover:text-blue-400'
-                }`}
+                className={`relative flex items-center justify-center 
+                          transition-all duration-300 px-3 py-2 rounded-full mx-1
+                          ${activeSection === section.id 
+                            ? 'text-white' 
+                            : 'text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400'
+                          }`}
                 aria-label={section.label}
                 title={section.label}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                style={{
-                  margin: index === 0 ? '0 4px 0 0' : 
-                         index === sections.length - 1 ? '0 0 0 4px' : 
-                         '0 4px'
+                whileHover={{ 
+                  y: -2,
+                  transition: { 
+                    type: "spring", 
+                    stiffness: 400, 
+                    damping: 12 
+                  } 
                 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {section.icon}
-                <span className="hidden md:inline text-sm font-light tracking-wide ml-1">{section.label}</span>
+                {/* Animated background for active section */}
+                {activeSection === section.id && (
+                  <motion.div
+                    className="absolute inset-0 bg-blue-500 dark:bg-blue-500 rounded-full"
+                    layoutId="activeBackground"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ 
+                      type: "spring", 
+                      stiffness: 300, 
+                      damping: 20 
+                    }}
+                  />
+                )}
+                
+                <span className="relative flex items-center z-10">
+                  <span className="mr-1.5">{section.icon}</span>
+                  <span className="hidden md:block text-xs font-light tracking-wide">{section.label}</span>
+                </span>
               </motion.button>
             ))}
           </motion.nav>
