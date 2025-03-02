@@ -7,8 +7,6 @@ import Experience from '@/components/Experience';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import FloatingNavBar from '@/components/FloatingNavBar';
-import ScrollProgressIndicator from '@/components/ScrollProgressIndicator';
 import Philosophy from '@/components/Philosophy';
 
 export default function Home() {
@@ -16,8 +14,6 @@ export default function Home() {
     <main className="min-h-screen bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-200">
       {/* Navigation elements */}
       <Header />
-      <ScrollProgressIndicator />
-      <FloatingNavBar />
       
       {/* Hero section with full-height display */}
       <div className="min-h-[95vh] w-full flex items-center justify-center">

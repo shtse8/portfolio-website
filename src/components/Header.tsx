@@ -11,6 +11,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [activeSection, setActiveSection] = useState('hero');
   
   // Set mounted state
   useEffect(() => {
@@ -26,6 +27,39 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  // Track active section based on scroll
+  useEffect(() => {
+    const sections = navLinks.map(link => link.href.replace('#', ''));
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -80% 0px',
+      threshold: 0
+    };
+    
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+    
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    
+    sections.forEach(section => {
+      const element = document.getElementById(section);
+      if (element) observer.observe(element);
+    });
+    
+    return () => {
+      sections.forEach(section => {
+        const element = document.getElementById(section);
+        if (element) observer.unobserve(element);
+      });
+    };
+  }, [mounted]);
   
   // Handle body scroll locking
   useEffect(() => {
@@ -155,6 +189,11 @@ export default function Header() {
     }
   };
   
+  // Function to check if a link is active
+  const isActive = (href: string) => {
+    return activeSection === href.replace('#', '');
+  };
+  
   // Don't render anything until mounted to prevent hydration issues
   if (!mounted) return null;
   
@@ -189,20 +228,29 @@ export default function Header() {
             animate="visible"
             variants={navContainerVariants}
           >
-            {navLinks.map((link, index) => (
-              <motion.div key={index} variants={navLinkVariants}>
-                <Link 
-                  href={link.href}
-                  className="relative text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 
-                            transition-colors text-sm font-light tracking-wide py-1 px-2
-                            after:absolute after:left-0 after:right-0 after:bottom-0 after:h-0.5 after:bg-blue-500 
-                            after:dark:bg-blue-400 after:origin-center after:scale-x-0 after:transition-transform 
-                            hover:after:scale-x-100"
-                >
-                  {link.label}
-                </Link>
-              </motion.div>
-            ))}
+            {navLinks.map((link, index) => {
+              const active = isActive(link.href);
+              return (
+                <motion.div key={index} variants={navLinkVariants}>
+                  <Link 
+                    href={link.href}
+                    className={`relative text-sm font-light tracking-wide py-1 px-2
+                              transition-colors duration-200
+                              ${active 
+                                ? 'text-blue-500 dark:text-blue-400' 
+                                : 'text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'}
+                              after:absolute after:left-0 after:right-0 after:bottom-0 after:h-0.5 
+                              after:bg-blue-500 after:dark:bg-blue-400 after:origin-center 
+                              after:transition-transform after:duration-200
+                              ${active 
+                                ? 'after:scale-x-100' 
+                                : 'after:scale-x-0 hover:after:scale-x-100'}`}
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
+              );
+            })}
           </motion.nav>
           
           <div className="flex items-center">
@@ -309,23 +357,38 @@ export default function Header() {
               
               <nav className="flex-1 flex flex-col p-5">
                 <div className="space-y-5 mb-10">
-                  {navLinks.map((link, index) => (
-                    <motion.div 
-                      key={index}
-                      variants={navItemVariants}
-                    >
-                      <Link 
-                        href={link.href}
-                        onClick={closeMobileMenu}
-                        className="block text-lg font-light tracking-wide
-                                 text-gray-600 dark:text-gray-200 
-                                 hover:text-blue-500 dark:hover:text-blue-400 
-                                 transition-colors py-2"
+                  {navLinks.map((link, index) => {
+                    const active = isActive(link.href);
+                    return (
+                      <motion.div 
+                        key={index}
+                        variants={navItemVariants}
                       >
-                        {link.label}
-                      </Link>
-                    </motion.div>
-                  ))}
+                        <Link 
+                          href={link.href}
+                          onClick={closeMobileMenu}
+                          className={`block text-lg font-light tracking-wide
+                                   transition-colors duration-200 py-2
+                                   ${active 
+                                     ? 'text-blue-500 dark:text-blue-400' 
+                                     : 'text-gray-600 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400'}`}
+                        >
+                          <span className="relative">
+                            {link.label}
+                            {active && (
+                              <motion.span 
+                                className="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"
+                                layoutId="mobileNavIndicator"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.3 }}
+                              />
+                            )}
+                          </span>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
                 </div>
                 
                 {/* Theme Switch - Mobile */}
