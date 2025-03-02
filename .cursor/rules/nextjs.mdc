@@ -1,0 +1,116 @@
+---
+description: Next.js best practices
+globs: 
+alwaysApply: true
+---
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI and Tailwind.
+
+Key Principles
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content, types.
+
+Naming Conventions
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
+- Use PascalCase for component files and camelCase for utility files.
+- Name hooks with 'use' prefix (e.g., useAuth, useMediaQuery).
+
+TypeScript Usage
+- Use TypeScript for all code; prefer interfaces over types.
+- Avoid enums; use const maps or union types instead.
+- Use functional components with TypeScript interfaces.
+- Enable strict mode and use proper type narrowing.
+- Create dedicated type files for complex shared types.
+
+Syntax and Formatting
+- Use the "function" keyword for pure functions.
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Use declarative JSX.
+- Prefer destructuring for props and state.
+- Use optional chaining and nullish coalescing operators.
+
+Component Organization
+- Use a consistent directory structure for components:
+  - /components/[feature-name]/index.tsx - Main component export
+  - /components/[feature-name]/[component-name].tsx - Subcomponents
+  - /components/ui/ - For reusable UI components
+  - /components/[feature-name]/types.ts - Component-specific types
+- Create specialized directories for logical groupings (e.g., forms, layouts, cards)
+
+UI and Styling
+- Use Shadcn UI, Radix, and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+- Group Tailwind classes by function (layout, typography, colors, etc.).
+- Extract complex styling patterns into reusable components.
+- Use CSS variables for theming and dark mode.
+
+Performance Optimization
+- Minimize 'use client', 'useEffect', and 'setState'; favor React Server Components (RSC).
+- Wrap client components in Suspense with fallback.
+- Use dynamic loading for non-critical components.
+- Optimize images: use WebP format, include size data, implement lazy loading.
+- Memoize expensive calculations and component renders.
+- Virtualize long lists with react-virtual or similar libraries.
+
+State Management
+- Server Components: Use React cache() and fetch() for data
+- Client Components: 
+  - URL state: Use 'nuqs' for search parameters
+  - Form state: Use React Hook Form
+  - Global state: Use Context API sparingly with good memoization
+  - Consider Zustand for complex client-side state that can't be handled by URL or server
+
+Data Fetching
+- Prefer Server Components with async/await pattern
+- Use React cache() to deduplicate requests
+- Implement proper error boundaries
+- For client components, use SWR or TanStack Query
+- Always type your API responses
+- Handle loading and error states consistently
+
+Client Component Usage
+- Limit 'use client' directives:
+  • Use server components by default
+  • Add 'use client' only when needed for:
+    - Browser APIs (localStorage, navigator, etc.)
+    - React hooks (useState, useEffect, etc.)
+    - Client-side event handlers
+  • Create small client component islands inside larger server components
+  • Avoid using 'use client' for data fetching when possible
+
+App Router Structure
+- Use /app/(routes)/route-name/page.tsx for pages
+- Group related routes in directories with parentheses: /app/(authenticated)/dashboard/
+- Place layout components in /app/(routes)/route-name/layout.tsx
+- Store route-specific components in /app/(routes)/route-name/components/
+- Use /app/api/route.ts for API endpoints
+- Organize parallel routes with @folder notation
+
+Accessibility
+- Use semantic HTML elements
+- Implement proper ARIA attributes
+- Ensure keyboard navigation works
+- Maintain color contrast ratios
+- Test with screen readers
+- Use Radix UI primitives which have accessibility built-in
+- Include focus states for interactive elements
+
+Testing
+- Unit tests: Use Vitest for component and utility tests
+- Integration tests: Use React Testing Library
+- E2E tests: Use Playwright
+- Test files should be co-located with components: [ComponentName].test.tsx
+- Focus on testing behavior, not implementation
+- Mock external services and APIs
+
+Code Quality Tools
+- ESLint: Follow Next.js recommended rules
+- Prettier: Use consistent formatting
+- TypeScript strict mode enabled
+- Husky for pre-commit hooks
+- Run linting and type checking before commits
+
+Follow Next.js docs for Data Fetching, Rendering, and Routing best practices.
