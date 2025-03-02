@@ -108,49 +108,53 @@ export default function FloatingNavBar() {
               mass: 0.8 
             }}
           >
-            {sections.map((section) => (
-              <motion.button
-                key={section.id}
-                onClick={() => handleNavClick(section.id)}
-                className={`relative flex items-center justify-center 
-                          transition-all duration-300 px-3 py-2 rounded-full mx-1
-                          ${activeSection === section.id 
-                            ? 'text-white' 
-                            : 'text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400'
-                          }`}
-                aria-label={section.label}
-                title={section.label}
-                whileHover={{ 
-                  y: -2,
-                  transition: { 
-                    type: "spring", 
-                    stiffness: 400, 
-                    damping: 12 
-                  } 
-                }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {/* Animated background for active section */}
-                {activeSection === section.id && (
-                  <motion.div
-                    className="absolute inset-0 bg-blue-500 dark:bg-blue-500 rounded-full"
-                    layoutId="activeBackground"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ 
+            {sections.map((section) => {
+              const isActive = activeSection === section.id;
+              return (
+                <motion.button
+                  key={section.id}
+                  onClick={() => handleNavClick(section.id)}
+                  className={`relative flex items-center justify-center 
+                            transition-all duration-300 rounded-full mx-1
+                            ${isActive 
+                              ? 'text-white' 
+                              : 'text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400'
+                            }
+                            w-10 h-10 xs:h-10 xs:w-auto xs:px-3`}
+                  aria-label={section.label}
+                  title={section.label}
+                  whileHover={{ 
+                    y: -2,
+                    transition: { 
                       type: "spring", 
-                      stiffness: 300, 
-                      damping: 20 
-                    }}
-                  />
-                )}
-                
-                <span className="relative flex items-center z-10">
-                  <span className="mr-1.5">{section.icon}</span>
-                  <span className="hidden xs:block text-xs font-light tracking-wide">{section.label}</span>
-                </span>
-              </motion.button>
-            ))}
+                      stiffness: 400, 
+                      damping: 12 
+                    } 
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {/* Animated background for active section */}
+                  {isActive && (
+                    <motion.div
+                      className="absolute inset-0 bg-blue-500 dark:bg-blue-500 rounded-full"
+                      layoutId="activeBackground"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ 
+                        type: "spring", 
+                        stiffness: 300, 
+                        damping: 20 
+                      }}
+                    />
+                  )}
+                  
+                  <span className="relative flex items-center justify-center z-10">
+                    <span className="flex items-center justify-center">{section.icon}</span>
+                    <span className="hidden xs:inline-block ml-1.5 text-xs font-light tracking-wide">{section.label}</span>
+                  </span>
+                </motion.button>
+              );
+            })}
           </motion.nav>
         </div>
       )}
