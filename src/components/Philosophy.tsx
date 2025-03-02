@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { FaTools, FaUsers, FaFingerprint, FaRocket, FaCode, FaLightbulb, 
   FaRegSquare, FaLayerGroup, FaGlasses, FaHandPointer, FaRegSmile, 
   FaRecycle, FaCodeBranch, FaBolt, FaMinusCircle, FaFileAlt, 
-  FaPalette, FaAlignLeft, FaSwatchbook } from 'react-icons/fa';
+  FaPalette, FaAlignLeft, FaSwatchbook, FaExpandAlt } from 'react-icons/fa';
 import { useModalManager } from '@/hooks/useModalManager';
 import { PHILOSOPHY_PRINCIPLES, PhilosophyPrinciple } from '@/data';
 
@@ -63,7 +63,8 @@ const iconMap = {
   FaFileAlt,
   FaPalette,
   FaAlignLeft,
-  FaSwatchbook
+  FaSwatchbook,
+  FaExpandAlt
 };
 
 // Simplified philosophy modal

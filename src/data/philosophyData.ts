@@ -217,7 +217,7 @@ export const PHILOSOPHY_PRINCIPLES: PhilosophyPrinciple[] = [
     title: 'breathing room',
     shortDescription: 'space creates clarity',
     fullDescription: 'Generous spacing is essential for creating calm, focused experiences. I use negative space deliberately to separate content, establish hierarchy, and give elements room to breathe. This approach improves readability and comprehension in interfaces and creates a sense of tranquility. In code, this means proper formatting, logical separation of concerns, and appropriate abstraction levels. By resisting the temptation to overcomplicate, I create solutions that feel expansive rather than cramped, reducing cognitive load.',
-    icon: 'FaRegSquare',
+    icon: 'FaExpandAlt',
     visualElement: 'space',
     category: 'design',
     keyPoints: [
