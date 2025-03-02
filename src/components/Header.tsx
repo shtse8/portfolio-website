@@ -84,10 +84,10 @@ export default function Header() {
   
   const navLinks = [
     { href: '#hero', label: 'Home' },
-    { href: '#tech-stack', label: 'Skills' },
-    { href: '#projects', label: 'Projects' },
-    { href: '#experience', label: 'Experience' },
     { href: '#philosophy', label: 'Philosophy' },
+    { href: '#tech-stack', label: 'Skills' },
+    { href: '#experience', label: 'Experience' },
+    { href: '#projects', label: 'Projects' },
     { href: '#contact', label: 'Contact' }
   ];
   
