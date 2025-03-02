@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FaGithub, FaLinkedin, FaStackOverflow, FaBars, FaTimes } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaStackOverflow } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data';
 import ThemeSwitch from './ThemeSwitch';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import FloatingNavBar from './FloatingNavBar';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   
@@ -61,27 +61,6 @@ export default function Header() {
     };
   }, [mounted]);
   
-  // Handle body scroll locking
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isMobileMenuOpen]);
-  
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-  
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-  
   const navLinks = [
     { href: '#hero', label: 'Home' },
     { href: '#philosophy', label: 'Philosophy' },
@@ -92,42 +71,6 @@ export default function Header() {
   ];
   
   // Animations
-  const mobileMenuVariants = {
-    closed: {
-      opacity: 0,
-      backdropFilter: "blur(0px)",
-      transition: {
-        type: "tween",
-        ease: "easeInOut",
-        duration: 0.3
-      }
-    },
-    open: {
-      opacity: 1,
-      backdropFilter: "blur(8px)",
-      transition: {
-        type: "tween",
-        ease: "easeOut",
-        duration: 0.3,
-        staggerChildren: 0.05,
-        delayChildren: 0.05
-      }
-    }
-  };
-  
-  const navItemVariants = {
-    closed: { opacity: 0, y: -8 },
-    open: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25
-      }
-    }
-  };
-  
   const logoVariants = {
     hidden: { opacity: 0, y: -10 },
     visible: { 
@@ -147,7 +90,7 @@ export default function Header() {
       opacity: 1,
       transition: {
         delayChildren: 0.1,
-        staggerChildren: 0.05
+        staggerChildren: 0.07
       }
     }
   };
@@ -171,7 +114,7 @@ export default function Header() {
       opacity: 1,
       transition: {
         delay: 0.3,
-        staggerChildren: 0.05
+        staggerChildren: 0.07
       }
     }
   };
@@ -198,249 +141,171 @@ export default function Header() {
   if (!mounted) return null;
   
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        isScrolled 
-          ? 'py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-sm' 
-          : 'py-4 bg-transparent'
-      }`}
-    >
-      <div className="container mx-auto px-5 sm:px-6 max-w-6xl">
-        <div className="flex justify-between items-center">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={logoVariants}
-            className="flex-shrink-0"
-          >
-            <Link href="#hero" className="flex items-center">
-              <span className="text-lg font-light tracking-wide">
-                <span className="text-blue-500 dark:text-blue-400">{PERSONAL_INFO.firstName}</span>
-                <span className="text-gray-700 dark:text-white ml-1">{PERSONAL_INFO.lastName}</span>
-              </span>
-            </Link>
-          </motion.div>
-          
-          {/* Desktop Navigation */}
-          <motion.nav 
-            className="hidden md:flex items-center space-x-5 lg:space-x-7"
-            initial="hidden"
-            animate="visible"
-            variants={navContainerVariants}
-          >
-            {navLinks.map((link, index) => {
-              const active = isActive(link.href);
-              return (
-                <motion.div key={index} variants={navLinkVariants}>
-                  <Link 
-                    href={link.href}
-                    className={`relative text-sm font-light tracking-wide py-1 px-2
-                              transition-colors duration-200
-                              ${active 
-                                ? 'text-blue-500 dark:text-blue-400' 
-                                : 'text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'}
-                              after:absolute after:left-0 after:right-0 after:bottom-0 after:h-0.5 
-                              after:bg-blue-500 after:dark:bg-blue-400 after:origin-center 
-                              after:transition-transform after:duration-200
-                              ${active 
-                                ? 'after:scale-x-100' 
-                                : 'after:scale-x-0 hover:after:scale-x-100'}`}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              );
-            })}
-          </motion.nav>
-          
-          <div className="flex items-center">
-            {/* Social Links - Desktop Only */}
-            <motion.div 
-              className="hidden md:flex items-center space-x-4 mr-5"
+    <>
+      <header 
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
+          isScrolled 
+            ? 'py-3 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md shadow-sm' 
+            : 'py-5 bg-transparent'
+        }`}
+      >
+        <div className="container mx-auto px-5 sm:px-8 max-w-6xl">
+          <div className="flex justify-between items-center">
+            <motion.div
               initial="hidden"
               animate="visible"
-              variants={socialVariants}
+              variants={logoVariants}
+              className="flex-shrink-0"
             >
-              <motion.div variants={iconVariants} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>
+              <Link 
+                href="#hero" 
+                className="group flex items-center transition-transform duration-300 hover:translate-x-0.5" 
+                aria-label="Go to home section"
+              >
+                <span className="text-lg font-light tracking-wider">
+                  <span className="text-blue-500 dark:text-blue-400 mr-0.5">{PERSONAL_INFO.firstName}</span>
+                  <span className="text-gray-700 dark:text-white group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-300">{PERSONAL_INFO.lastName}</span>
+                </span>
+              </Link>
+            </motion.div>
+            
+            {/* Desktop Navigation */}
+            <motion.nav 
+              className="hidden md:flex items-center space-x-7 lg:space-x-9"
+              initial="hidden"
+              animate="visible"
+              variants={navContainerVariants}
+            >
+              {navLinks.map((link, index) => {
+                const active = isActive(link.href);
+                return (
+                  <motion.div 
+                    key={index} 
+                    variants={navLinkVariants}
+                    className="relative"
+                  >
+                    <Link 
+                      href={link.href}
+                      className={`relative text-sm font-light tracking-wide py-1.5 px-2.5
+                                transition-all duration-300 rounded-md
+                                ${active 
+                                  ? 'text-blue-500 dark:text-blue-400' 
+                                  : 'text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'}`}
+                    >
+                      <span className="relative z-10">{link.label}</span>
+                      
+                      {/* Animated underline indicator */}
+                      <span 
+                        className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-500 dark:bg-blue-400
+                                  transition-all duration-300 ease-out 
+                                  ${active ? 'opacity-100' : 'opacity-0'}`}
+                      />
+                      
+                      {/* Hover background effect */}
+                      <span 
+                        className={`absolute inset-0 rounded-md bg-blue-50 dark:bg-blue-900/20 transition-all duration-300
+                                  ${active ? 'opacity-10' : 'opacity-0 group-hover:opacity-10'}`}
+                      />
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </motion.nav>
+            
+            <div className="flex items-center">
+              {/* Social Links - Desktop Only */}
+              <motion.div 
+                className="hidden md:flex items-center space-x-5 mr-6"
+                initial="hidden"
+                animate="visible"
+                variants={socialVariants}
+              >
+                <motion.div 
+                  variants={iconVariants} 
+                  whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
+                  whileTap={{ scale: 0.92 }}
+                  className="relative"
+                >
+                  <Link 
+                    href={PERSONAL_INFO.social.github}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+                    aria-label="GitHub"
+                  >
+                    <FaGithub className="text-lg" />
+                    <span className="sr-only">GitHub Profile</span>
+                  </Link>
+                </motion.div>
+                <motion.div 
+                  variants={iconVariants} 
+                  whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
+                  whileTap={{ scale: 0.92 }}
+                  className="relative"
+                >
+                  <Link 
+                    href={PERSONAL_INFO.social.linkedin}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+                    aria-label="LinkedIn"
+                  >
+                    <FaLinkedin className="text-lg" />
+                    <span className="sr-only">LinkedIn Profile</span>
+                  </Link>
+                </motion.div>
+                <motion.div 
+                  variants={iconVariants} 
+                  whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
+                  whileTap={{ scale: 0.92 }}
+                  className="relative"
+                >
+                  <Link 
+                    href={PERSONAL_INFO.social.stackoverflow}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
+                    aria-label="Stack Overflow"
+                  >
+                    <FaStackOverflow className="text-lg" />
+                    <span className="sr-only">Stack Overflow Profile</span>
+                  </Link>
+                </motion.div>
+              </motion.div>
+              
+              {/* Theme Switch */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+              >
+                <ThemeSwitch />
+              </motion.div>
+              
+              {/* Mobile - Social Media Icons (small screen only) */}
+              <motion.div
+                className="md:hidden flex items-center ml-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.5 }}
+              >
                 <Link 
                   href={PERSONAL_INFO.social.github}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                  className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors p-1.5"
                   aria-label="GitHub"
                 >
-                  <FaGithub className="text-lg" />
+                  <FaGithub className="text-sm" />
                 </Link>
               </motion.div>
-              <motion.div variants={iconVariants} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>
-                <Link 
-                  href={PERSONAL_INFO.social.linkedin}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <FaLinkedin className="text-lg" />
-                </Link>
-              </motion.div>
-              <motion.div variants={iconVariants} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>
-                <Link 
-                  href={PERSONAL_INFO.social.stackoverflow}
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
-                  aria-label="Stack Overflow"
-                >
-                  <FaStackOverflow className="text-lg" />
-                </Link>
-              </motion.div>
-            </motion.div>
-            
-            {/* Theme Switch */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.4 }}
-              className="mr-3 md:mr-0"
-            >
-              <ThemeSwitch />
-            </motion.div>
-            
-            {/* Mobile Menu Button */}
-            <motion.button 
-              onClick={toggleMobileMenu}
-              className="md:hidden ml-2 p-1.5 rounded-full text-gray-600 dark:text-gray-300 
-                        hover:bg-gray-100/70 dark:hover:bg-gray-800/70 transition-all"
-              aria-label="Toggle mobile menu"
-              aria-expanded={isMobileMenuOpen}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.4 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isMobileMenuOpen ? <FaTimes className="text-lg" /> : <FaBars className="text-lg" />}
-            </motion.button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      {/* Mobile Menu - Fade In */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div 
-            className="fixed inset-0 bg-white/90 dark:bg-gray-900/90 z-45 md:hidden"
-            initial="closed"
-            animate="open"
-            exit="closed"
-            variants={mobileMenuVariants}
-          >
-            <div className="h-full flex flex-col overflow-y-auto">
-              <div className="flex justify-between items-center p-5">
-                <Link 
-                  href="#hero" 
-                  className="text-lg font-light tracking-wide"
-                  onClick={closeMobileMenu}
-                >
-                  <span className="text-blue-500 dark:text-blue-400">{PERSONAL_INFO.firstName}</span>
-                  <span className="text-gray-700 dark:text-white ml-1">{PERSONAL_INFO.lastName}</span>
-                </Link>
-                <button 
-                  onClick={closeMobileMenu}
-                  className="p-2 rounded-full text-gray-600 dark:text-gray-300 
-                            hover:bg-gray-100/70 dark:hover:bg-gray-800/70 transition-all"
-                  aria-label="Close menu"
-                >
-                  <FaTimes className="text-lg" />
-                </button>
-              </div>
-              
-              <nav className="flex-1 flex flex-col p-5">
-                <div className="space-y-5 mb-10">
-                  {navLinks.map((link, index) => {
-                    const active = isActive(link.href);
-                    return (
-                      <motion.div 
-                        key={index}
-                        variants={navItemVariants}
-                      >
-                        <Link 
-                          href={link.href}
-                          onClick={closeMobileMenu}
-                          className={`block text-lg font-light tracking-wide
-                                   transition-colors duration-200 py-2
-                                   ${active 
-                                     ? 'text-blue-500 dark:text-blue-400' 
-                                     : 'text-gray-600 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400'}`}
-                        >
-                          <span className="relative">
-                            {link.label}
-                            {active && (
-                              <motion.span 
-                                className="absolute -left-2.5 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400"
-                                layoutId="mobileNavIndicator"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                              />
-                            )}
-                          </span>
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-                
-                {/* Theme Switch - Mobile */}
-                <motion.div 
-                  className="my-8"
-                  variants={navItemVariants}
-                >
-                  <ThemeSwitch isMobile={true} />
-                </motion.div>
-                
-                <motion.div 
-                  className="mt-auto"
-                  variants={navItemVariants}
-                >
-                  <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
-                    <p className="text-gray-500 dark:text-gray-400 mb-4 font-light text-sm">Connect with me</p>
-                    <div className="flex space-x-5">
-                      <Link 
-                        href={PERSONAL_INFO.social.github}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors p-1"
-                        aria-label="GitHub"
-                      >
-                        <FaGithub className="text-xl" />
-                      </Link>
-                      <Link 
-                        href={PERSONAL_INFO.social.linkedin}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors p-1"
-                        aria-label="LinkedIn"
-                      >
-                        <FaLinkedin className="text-xl" />
-                      </Link>
-                      <Link 
-                        href={PERSONAL_INFO.social.stackoverflow}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors p-1"
-                        aria-label="Stack Overflow"
-                      >
-                        <FaStackOverflow className="text-xl" />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              </nav>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+      </header>
+
+      {/* Floating Mobile Navigation */}
+      <FloatingNavBar />
+    </>
   );
 } 
