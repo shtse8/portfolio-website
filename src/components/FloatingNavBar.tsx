@@ -19,10 +19,10 @@ export default function FloatingNavBar() {
   // Define navigation sections
   const sections = useMemo<Section[]>(() => [
     { id: 'hero', label: 'Home', icon: <FaHome className="w-3.5 h-3.5" /> },
-    { id: 'philosophy', label: 'Philosophy', icon: <FaLightbulb className="w-3.5 h-3.5" /> },
     { id: 'tech-stack', label: 'Skills', icon: <FaCode className="w-3.5 h-3.5" /> },
-    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="w-3.5 h-3.5" /> },
+    { id: 'philosophy', label: 'Philosophy', icon: <FaLightbulb className="w-3.5 h-3.5" /> },
     { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="w-3.5 h-3.5" /> },
+    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="w-3.5 h-3.5" /> },
     { id: 'contact', label: 'Contact', icon: <FaEnvelope className="w-3.5 h-3.5" /> },
   ], []);
 
