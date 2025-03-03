@@ -167,10 +167,46 @@ export default function SkillCloudView() {
           Skills Visualization
         </h3>
         
-        {/* Category filter buttons */}
-        <div 
-          className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6"
-        >
+        {/* Category filter buttons with compact visualization toggle */}
+        <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mb-6">
+          <div className="flex mr-1 sm:mr-3">
+            <div className="inline-flex h-8 items-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-0.5 shadow-sm">
+              <button
+                type="button"
+                onClick={setCloudMode}
+                className={cn(
+                  "inline-flex h-7 w-7 items-center justify-center rounded-full text-xs sm:h-7 sm:w-7",
+                  visualizationMode === 'cloud'
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750"
+                )}
+                aria-pressed={visualizationMode === 'cloud'}
+                aria-label="View as word cloud"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={setGridMode}
+                className={cn(
+                  "inline-flex h-7 w-7 items-center justify-center rounded-full text-xs sm:h-7 sm:w-7",
+                  visualizationMode === 'grid'
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750"
+                )}
+                aria-pressed={visualizationMode === 'grid'}
+                aria-label="View as grid"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                  <path fillRule="evenodd" d="M4.25 2A2.25 2.25 0 002 4.25v2.5A2.25 2.25 0 004.25 9h2.5A2.25 2.25 0 009 6.75v-2.5A2.25 2.25 0 006.75 2h-2.5zm0 9A2.25 2.25 0 002 13.25v2.5A2.25 2.25 0 004.25 18h2.5A2.25 2.25 0 009 15.75v-2.5A2.25 2.25 0 006.75 11h-2.5zm9-9A2.25 2.25 0 0011 4.25v2.5A2.25 2.25 0 0013.25 9h2.5A2.25 2.25 0 0018 6.75v-2.5A2.25 2.25 0 0015.75 2h-2.5zm0 9A2.25 2.25 0 0011 13.25v2.5A2.25 2.25 0 0013.25 18h2.5A2.25 2.25 0 0018 15.75v-2.5A2.25 2.25 0 0015.75 11h-2.5z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <FilterButton 
             isActive={activeFilter === null}
             onClick={clearFilter}
@@ -185,24 +221,6 @@ export default function SkillCloudView() {
               label={category.name}
             />
           ))}
-        </div>
-        
-        {/* Visualization toggle */}
-        <div
-          className="flex justify-center mb-8 sm:mb-10"
-        >
-          <div className="flex bg-white dark:bg-gray-800 p-1 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
-            <ToggleButton
-              isActive={visualizationMode === 'cloud'}
-              onClick={setCloudMode}
-              label="Word Cloud"
-            />
-            <ToggleButton
-              isActive={visualizationMode === 'grid'}
-              onClick={setGridMode}
-              label="Grid View"
-            />
-          </div>
         </div>
         
         {/* Visualization content with AnimatePresence for smooth transitions */}
@@ -264,28 +282,6 @@ const FilterButton: React.FC<FilterButtonProps> = ({ isActive, onClick, label })
   >
     {label}
   </motion.button>
-);
-
-// New ToggleButton component for visualization mode
-interface ToggleButtonProps {
-  isActive: boolean;
-  onClick: () => void;
-  label: string;
-}
-
-const ToggleButton: React.FC<ToggleButtonProps> = ({ isActive, onClick, label }) => (
-  <button 
-    onClick={onClick}
-    className={cn(
-      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
-      isActive 
-        ? "bg-blue-600 text-white shadow-sm" 
-        : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
-    )}
-    aria-pressed={isActive}
-  >
-    {label}
-  </button>
 );
 
 // Experience-based grid implementation
