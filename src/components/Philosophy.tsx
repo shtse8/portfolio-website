@@ -301,7 +301,7 @@ export default function Philosophy() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}
           >
-            philosophical<span className="text-blue-500 dark:text-blue-400"> approach</span>
+            philosophical<span className="text-blue-600 dark:text-blue-400"> approach</span>
           </motion.h2>
           
           <motion.p
@@ -366,9 +366,16 @@ export default function Philosophy() {
                     </p>
                     <button 
                       onClick={() => handlePrincipleClick(principle.id)}
-                      className="flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                      className={cn(
+                        "inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300",
+                        i % 2 === 0 ? "flex-row-reverse" : "flex-row"
+                      )}
                     >
-                      Explore deeper <FaArrowRight className="ml-2 w-3 h-3" />
+                      {i % 2 === 0 ? (
+                        <>Read more <FaArrowRight className="mr-2 w-3 h-3" /></>
+                      ) : (
+                        <>Read more <FaArrowRight className="ml-2 w-3 h-3" /></>
+                      )}
                     </button>
                   </div>
                 </motion.div>
@@ -401,7 +408,7 @@ export default function Philosophy() {
                 className={cn(
                   "px-5 py-2 rounded-full font-light text-sm transition-all",
                   activeCategory === category 
-                    ? "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 shadow-sm" 
+                    ? "bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-200 shadow-sm" 
                     : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
                 )}
                 whileHover={{ scale: 1.02 }}
@@ -513,7 +520,7 @@ export default function Philosophy() {
             <h3 className="text-2xl font-light text-gray-800 dark:text-gray-200 mb-3">
               Philosophical Synthesis
             </h3>
-            <div className="w-20 h-1 bg-blue-500/30 dark:bg-blue-500/20 mx-auto"></div>
+            <div className="w-20 h-1 bg-blue-600/30 dark:bg-blue-600/20 mx-auto"></div>
           </div>
           
           <p className="text-gray-700 dark:text-gray-300 text-lg font-light mb-6">

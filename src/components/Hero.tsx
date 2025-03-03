@@ -283,17 +283,8 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block relative">
-              <span className="relative z-10">{PERSONAL_INFO.firstName}</span>
-              <motion.span 
-                className="absolute -inset-1 -z-10 bg-blue-100/50 dark:bg-blue-900/20 rounded-[8px]"
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ delay: 0.8, duration: 0.8 }}
-              />
-            </span>
-            {' '}
-            <span className="inline-block ml-2 font-light text-gray-700 dark:text-gray-300">
+            <span className="font-normal text-blue-600 dark:text-blue-400">{PERSONAL_INFO.firstName}</span>{' '}
+            <span className="font-extralight text-gray-700 dark:text-gray-400">
               {PERSONAL_INFO.lastName}
             </span>
           </motion.h1>
