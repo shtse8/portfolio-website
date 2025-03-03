@@ -88,7 +88,7 @@ export default function SkillCloudView() {
     setMounted(true);
   }, []);
 
-  // Filter skills by category - memoized effect
+  // Filter skills by category
   useEffect(() => {
     if (!SKILLS || SKILLS.length === 0) return;
     
@@ -99,7 +99,7 @@ export default function SkillCloudView() {
     );
   }, [activeFilter]);
 
-  // Get the icon component for a skill - memoized function
+  // Get the icon component for a skill
   const getSkillIcon = useCallback((skillId: string) => {
     const skill = SKILLS.find(s => s.id === skillId);
     if (!skill) return <FaReact className="text-4xl" aria-hidden="true" />;
@@ -108,7 +108,7 @@ export default function SkillCloudView() {
            <FaReact className="text-4xl" aria-hidden="true" />;
   }, [iconComponents]);
 
-  // Handle skill click for modal display - memoized callback
+  // Handle skill click for modal display
   const handleShowProjects = useCallback((skillId: string) => {
     const currentIndex = filteredSkills.findIndex(skill => skill.id === skillId);
     
@@ -138,7 +138,7 @@ export default function SkillCloudView() {
     );
   }, [filteredSkills, open]);
 
-  // Mode toggle handlers - memoized callbacks
+  // Mode toggle handlers
   const setCloudMode = useCallback(() => setVisualizationMode('cloud'), []);
   const setGridMode = useCallback(() => setVisualizationMode('grid'), []);
   const clearFilter = useCallback(() => setActiveFilter(null), []);
@@ -151,7 +151,7 @@ export default function SkillCloudView() {
       className="relative overflow-hidden" 
       aria-labelledby="skills-visualization-heading"
     >
-      {/* Background pattern - subtle grid with radial gradient */}
+      {/* Background pattern */}
       <div 
         className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06] -z-10"
         aria-hidden="true"
@@ -229,20 +229,11 @@ export default function SkillCloudView() {
               transition={{ duration: 0.2 }}
               className="space-y-8"
             >
-              {activeFilter === null ? (
-                <SkillGridCategorized 
-                  skills={filteredSkills} 
-                  handleShowProjects={handleShowProjects}
-                  getSkillIcon={getSkillIcon}
-                  categories={SKILL_CATEGORIES}
-                />
-              ) : (
-                <SkillGridWithLoadMore 
-                  skills={filteredSkills} 
-                  handleShowProjects={handleShowProjects}
-                  getSkillIcon={getSkillIcon}
-                />
-              )}
+              <SkillGridByExperience 
+                skills={filteredSkills} 
+                handleShowProjects={handleShowProjects}
+                getSkillIcon={getSkillIcon}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -297,156 +288,99 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ isActive, onClick, label })
   </button>
 );
 
-// Grid view implementation with "Show More" functionality
-interface SkillGridWithLoadMoreProps {
+// Experience-based grid implementation
+interface SkillGridByExperienceProps {
   skills: TechSkill[];
   handleShowProjects: (skillId: string) => void;
   getSkillIcon: (skillId: string) => React.ReactNode;
 }
 
-const SkillGridWithLoadMore: React.FC<SkillGridWithLoadMoreProps> = ({ 
+const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
   skills, 
   handleShowProjects, 
   getSkillIcon 
 }) => {
-  const [visibleCount, setVisibleCount] = useState(8);
+  // Define experience tiers with clear labels
+  const experienceTiers = [
+    { name: "Expert (5+ years)", min: 5, max: 100, className: "bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800/30" },
+    { name: "Advanced (3-5 years)", min: 3, max: 5, className: "bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800/30" },
+    { name: "Intermediate (1-3 years)", min: 1, max: 3, className: "bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/30" },
+    { name: "Beginner (<1 year)", min: 0, max: 1, className: "bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700/30" }
+  ];
   
-  const showMore = useCallback(() => {
-    setVisibleCount(prev => Math.min(prev + 8, skills.length));
-  }, [skills.length]);
+  // Group skills by experience tier
+  const skillsByExperience = experienceTiers.map(tier => ({
+    ...tier,
+    skills: skills.filter(skill => 
+      skill.yearsOfExperience >= tier.min && 
+      skill.yearsOfExperience < tier.max
+    ).sort((a, b) => b.yearsOfExperience - a.yearsOfExperience)
+  }));
   
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {skills.slice(0, visibleCount).map((skill) => (
-          <div key={skill.id} className="transition-opacity duration-150">
-            <SkillCard 
-              skill={skill}
-              onClick={handleShowProjects}
-              getSkillIcon={getSkillIcon}
-            />
-          </div>
-        ))}
-      </div>
-      
-      {visibleCount < skills.length && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={showMore}
-            className="group flex items-center space-x-2 px-6 py-3 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow hover:bg-gray-50 dark:hover:bg-gray-750"
-            aria-label={`Show ${Math.min(8, skills.length - visibleCount)} more skills`}
-          >
-            <span>Show More</span>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4 transform transition-transform duration-200 group-hover:translate-y-1" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
-      )}
-
-      {visibleCount === skills.length && visibleCount > 8 && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={() => setVisibleCount(8)}
-            className="group flex items-center space-x-2 px-6 py-3 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow hover:bg-gray-50 dark:hover:bg-gray-750"
-            aria-label="Show fewer skills"
-          >
-            <span>Show Less</span>
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4 transform transition-transform duration-200 group-hover:-translate-y-1" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-            </svg>
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Categorized grid view implementation
-interface SkillGridCategorizedProps {
-  skills: TechSkill[];
-  handleShowProjects: (skillId: string) => void;
-  getSkillIcon: (skillId: string) => React.ReactNode;
-  categories: SkillCategory[];
-}
-
-const SkillGridCategorized: React.FC<SkillGridCategorizedProps> = ({
-  skills,
-  handleShowProjects,
-  getSkillIcon,
-  categories
-}) => {
-  // Track expanded categories
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
-
-  // Group skills by category
-  const skillsByCategory = useMemo(() => {
-    return categories.reduce((acc, category) => {
-      acc[category.id] = skills.filter(skill => skill.category === category.id);
-      return acc;
-    }, {} as Record<string, TechSkill[]>);
-  }, [skills, categories]);
-
-  // Toggle category expansion with immediate transition
-  const toggleCategory = useCallback((categoryId: string) => {
-    // Immediately update state without animations
-    setExpandedCategories(prev => ({
+  // State for expanded sections
+  const [visibleCounts, setVisibleCounts] = useState<Record<string, number>>({});
+  
+  // Initialize visible counts when skills change
+  useEffect(() => {
+    const initialCounts: Record<string, number> = {};
+    experienceTiers.forEach(tier => {
+      const tierSkills = skills.filter(skill => 
+        skill.yearsOfExperience >= tier.min && 
+        skill.yearsOfExperience < tier.max
+      );
+      initialCounts[tier.name] = Math.min(8, tierSkills.length);
+    });
+    setVisibleCounts(initialCounts);
+  }, [skills]);
+  
+  // Show more skills in a tier
+  const showMore = useCallback((tierName: string, totalCount: number) => {
+    setVisibleCounts(prev => ({
       ...prev,
-      [categoryId]: !prev[categoryId]
+      [tierName]: Math.min(prev[tierName] + 8, totalCount)
     }));
   }, []);
-
+  
+  // Show fewer skills in a tier
+  const showLess = useCallback((tierName: string) => {
+    setVisibleCounts(prev => ({
+      ...prev,
+      [tierName]: Math.min(8, prev[tierName])
+    }));
+  }, []);
+  
   return (
-    <div className="space-y-10">
-      {categories.map(category => {
-        const categorySkills = skillsByCategory[category.id] || [];
-        if (categorySkills.length === 0) return null;
+    <div className="space-y-12">
+      {skillsByExperience.map(tier => {
+        // Skip empty tiers
+        if (tier.skills.length === 0) return null;
         
-        const isExpanded = expandedCategories[category.id] || false;
-        const displayedSkills = isExpanded ? categorySkills : categorySkills.slice(0, 4);
+        const visibleSkills = tier.skills.slice(0, visibleCounts[tier.name] || 8);
+        const hasMore = tier.skills.length > (visibleCounts[tier.name] || 8);
+        const showingAll = visibleCounts[tier.name] === tier.skills.length;
         
         return (
-          <section 
-            key={category.id}
-            className="rounded-xl bg-gray-50 dark:bg-gray-800/50 p-6 overflow-hidden"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                {category.name}
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
-                  {categorySkills.length}
+          <div key={tier.name} className={`p-6 rounded-xl border ${tier.className}`}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 flex items-center">
+                {tier.name}
+                <span className="ml-3 text-sm font-normal text-gray-500 dark:text-gray-400">
+                  ({tier.skills.length} skills)
                 </span>
               </h3>
               
-              {categorySkills.length > 4 && (
+              {tier.skills.length > 8 && showingAll && (
                 <button
-                  onClick={() => toggleCategory(category.id)}
-                  className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-                  aria-expanded={isExpanded}
-                  aria-controls={`category-${category.id}-skills`}
+                  onClick={() => showLess(tier.name)}
+                  className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                 >
-                  {isExpanded ? 'Show Less' : 'Show All'}
+                  Show Less
                 </button>
               )}
             </div>
             
-            <div 
-              id={`category-${category.id}-skills`}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-            >
-              {displayedSkills.map((skill) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {visibleSkills.map(skill => (
                 <div key={skill.id} className="transition-opacity duration-150">
                   <SkillCard 
                     skill={skill}
@@ -457,20 +391,17 @@ const SkillGridCategorized: React.FC<SkillGridCategorizedProps> = ({
               ))}
             </div>
             
-            {categorySkills.length > 4 && !isExpanded && (
-              <div className="mt-4 flex justify-center">
-                <button 
-                  onClick={() => toggleCategory(category.id)}
-                  className="group flex items-center space-x-2 px-4 py-2 rounded-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-sm border border-gray-200 dark:border-gray-600 transition-all duration-200 hover:shadow"
-                  aria-expanded={isExpanded}
-                  aria-controls={`category-${category.id}-skills`}
+            {hasMore && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={() => showMore(tier.name, tier.skills.length)}
+                  className="group flex items-center space-x-2 px-5 py-2 rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-600 hover:shadow transition-all duration-200"
                 >
-                  <span>Show {categorySkills.length - 4} more</span>
+                  <span>Show {Math.min(8, tier.skills.length - visibleSkills.length)} more</span>
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
                     className="h-4 w-4 transform transition-transform duration-200 group-hover:translate-y-1" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
+                    fill="none" viewBox="0 0 24 24" 
                     stroke="currentColor"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -478,7 +409,7 @@ const SkillGridCategorized: React.FC<SkillGridCategorizedProps> = ({
                 </button>
               </div>
             )}
-          </section>
+          </div>
         );
       })}
     </div>
