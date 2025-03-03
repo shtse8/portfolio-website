@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaStackOverflow, FaLongArrowAltRight } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data';
@@ -27,14 +27,14 @@ export default function Header() {
   const headerBlur = useTransform(scrollY, [0, 50], [0, 8]);
   
   // Navigation links
-  const navLinks: NavLink[] = [
+  const navLinks: NavLink[] = useMemo(() => [
     { href: '#hero', label: 'Home' },
     { href: '#philosophy', label: 'Philosophy' },
     { href: '#tech-stack', label: 'Skills' },
     { href: '#experience', label: 'Experience' },
     { href: '#projects', label: 'Projects' },
     { href: '#contact', label: 'Contact' }
-  ];
+  ], []);
   
   // Set mounted state
   useEffect(() => {

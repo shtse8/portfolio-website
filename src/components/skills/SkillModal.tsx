@@ -145,7 +145,7 @@ export default function SkillModal({
       projects: getRelatedProjects(skillId),
       experiences: getRelatedExperiences(skillId)
     };
-  }, [skillId]);
+  }, [skillId, skill]);
 
   // Handle keyboard navigation
   useEffect(() => {

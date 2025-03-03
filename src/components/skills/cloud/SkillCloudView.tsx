@@ -395,12 +395,12 @@ const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
   getSkillIcon,
 }) => {
   // Define experience tiers with clear labels
-  const experienceTiers = [
+  const experienceTiers = useMemo(() => [
     { name: "Expert (5+ years)", min: 5, max: 100, className: "bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800/30" },
     { name: "Advanced (3-5 years)", min: 3, max: 5, className: "bg-blue-50 dark:bg-blue-900/20 border-blue-100 dark:border-blue-800/30" },
     { name: "Intermediate (1-3 years)", min: 1, max: 3, className: "bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/30" },
     { name: "Beginner (<1 year)", min: 0, max: 1, className: "bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700/30" }
-  ];
+  ], []);
   
   // Group skills by experience tier
   const skillsByExperience = experienceTiers.map(tier => ({
@@ -425,7 +425,7 @@ const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
       initialCounts[tier.name] = Math.min(8, tierSkills.length);
     });
     setVisibleCounts(initialCounts);
-  }, [skills]);
+  }, [skills, experienceTiers]);
 
   // Show more skills in a tier
   const showMore = useCallback((tierName: string, totalCount: number) => {

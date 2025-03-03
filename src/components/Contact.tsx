@@ -322,7 +322,7 @@ export default function Contact() {
             </h2>
             
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl leading-relaxed font-light">
-              Have a project in mind or want to explore how we could work together? I'm always open to discussing new opportunities and ideas.
+              Have a project in mind or want to explore how we could work together? I&apos;m always open to discussing new opportunities and ideas.
             </p>
           </motion.div>
         </div>

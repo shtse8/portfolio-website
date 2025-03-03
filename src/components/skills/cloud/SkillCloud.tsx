@@ -86,14 +86,57 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       const processedWords = SKILLS.map(skill => {
         const projectCount = getProjectCountForSkill(skill.id);
         
+        // Define these functions inside the useEffect
+        const getWordSizeInner = (count: number): number => {
+          const minSize = 14;
+          const maxSize = 62;
+          const minProjects = 0;
+          
+          if (!SKILLS || SKILLS.length === 0) return minSize;
+          
+          const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
+          
+          const scale = d3.scalePow()
+            .exponent(1.4)
+            .domain([minProjects, maxProjects])
+            .range([minSize, maxSize]);
+          
+          return scale(count);
+        };
+        
+        const getWeightValueInner = (count: number): number => {
+          if (!SKILLS || SKILLS.length === 0) return 400;
+          
+          const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
+          const weightScale = d3.scaleQuantize<number>()
+            .domain([0, maxProjects])
+            .range([400, 500, 600, 700]);
+          
+          return weightScale(count);
+        };
+        
+        const getOpacityByProjectCountInner = (count: number): number => {
+          const minProjects = 0;
+          
+          if (!SKILLS || SKILLS.length === 0) return 0.65;
+          
+          const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
+          
+          const opacityScale = d3.scaleLinear()
+            .domain([minProjects, maxProjects])
+            .range([0.65, 1.0]);
+          
+          return opacityScale(count);
+        };
+        
         return {
           text: skill.name,
-          size: getWordSize(projectCount),
+          size: getWordSizeInner(projectCount),
           id: skill.id,
           color: skill.color || '#3182CE',
           projectCount,
-          weight: getWeightValue(projectCount),
-          opacity: getOpacityByProjectCount(projectCount),
+          weight: getWeightValueInner(projectCount),
+          opacity: getOpacityByProjectCountInner(projectCount),
           category: skill.category,
           isActive: !activeCategory || skill.category === activeCategory,
           fontFamily: fonts[Math.floor(Math.random() * fonts.length)]
@@ -103,55 +146,6 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
       setWords(processedWords);
     }
   }, [activeCategory, fonts, getProjectCountForSkill, words.length]);
-
-  // Improved visual scaling functions
-  const getWordSize = useCallback((projectCount: number): number => {
-    const minSize = 14;
-    const maxSize = 62; // Slightly larger max size
-    const minProjects = 0;
-    
-    // Ensure we have skills to avoid errors
-    if (!SKILLS || SKILLS.length === 0) return minSize;
-    
-    const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
-    
-    // Improved power curve for more dramatic scaling
-    const scale = d3.scalePow()
-      .exponent(1.4) // Steeper curve for better visual hierarchy
-      .domain([minProjects, maxProjects])
-      .range([minSize, maxSize]);
-    
-    return scale(projectCount);
-  }, [getProjectCountForSkill]);
-
-  const getWeightValue = useCallback((projectCount: number): number => {
-    // Ensure we have skills to avoid errors
-    if (!SKILLS || SKILLS.length === 0) return 400;
-    
-    const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
-    // Scale from normal to bold based on project count
-    const weightScale = d3.scaleQuantize<number>()
-      .domain([0, maxProjects])
-      .range([400, 500, 600, 700]); // Normal to bold weights
-    
-    return weightScale(projectCount);
-  }, [getProjectCountForSkill]);
-
-  const getOpacityByProjectCount = useCallback((projectCount: number): number => {
-    const minProjects = 0;
-    
-    // Ensure we have skills to avoid errors
-    if (!SKILLS || SKILLS.length === 0) return 0.65;
-    
-    const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
-    
-    // Scale from 0.65 to 1.0 - slightly higher minimum opacity
-    const opacityScale = d3.scaleLinear()
-      .domain([minProjects, maxProjects])
-      .range([0.65, 1.0]);
-    
-    return opacityScale(projectCount);
-  }, [getProjectCountForSkill]);
 
   // Resize handler
   useEffect(() => {
