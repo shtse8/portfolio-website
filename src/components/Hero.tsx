@@ -64,42 +64,49 @@ const AnimatedShape = ({
 
 // Interactive grid background
 const GridBackground = () => (
-  <div className="absolute inset-0 overflow-hidden -z-10">
-    {/* Base background */}
-    <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-white dark:from-gray-950 dark:to-gray-900"></div>
+  <div className="absolute inset-0 overflow-hidden opacity-40 pointer-events-none">
+    <div className="absolute inset-0 grid grid-cols-6 md:grid-cols-12 gap-4">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="relative h-full">
+          <div className="absolute top-0 bottom-0 w-px left-0 bg-blue-500/10"></div>
+          <div className="absolute top-0 bottom-0 w-px right-0 bg-blue-500/10"></div>
+        </div>
+      ))}
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i + 'row'} className="absolute left-0 right-0 h-px" style={{ top: `${i * 8}%` }}>
+          <div className="absolute left-0 right-0 h-px bg-blue-500/10"></div>
+        </div>
+      ))}
+    </div>
     
-    {/* Animated grid pattern */}
-    <motion.div 
-      className="absolute inset-0"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 0.7 }}
-      transition={{ duration: 2 }}
-    >
-      <div className="h-full w-full 
-        bg-[linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.05)_1px,transparent_1px)] 
-        dark:bg-[linear-gradient(rgba(59,130,246,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.07)_1px,transparent_1px)]
-        bg-[size:72px_72px]">
-      </div>
-    </motion.div>
-    
-    {/* Accent shapes */}
+    {/* We'll reduce the number of shapes on mobile for better performance */}
     <AnimatedShape 
-      className="left-1/4 -top-24 bg-blue-400 dark:bg-blue-600" 
-      size="lg"
-      delay={0.5}
-    />
-    <AnimatedShape 
-      className="right-1/4 top-1/3 bg-indigo-300 dark:bg-indigo-600" 
+      className="bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-xl" 
       size="md"
-      delay={0}
       duration={25}
     />
     <AnimatedShape 
-      className="-left-12 bottom-1/4 bg-sky-300 dark:bg-sky-700" 
+      className="border border-blue-500/20 rounded-full" 
+      delay={2} 
+      duration={18}
       size="sm"
-      delay={1}
-      duration={15}
     />
+
+    {/* Only show these additional shapes on larger screens */}
+    <div className="hidden md:block">
+      <AnimatedShape 
+        className="bg-gradient-to-tr from-blue-400/10 to-blue-300/10 rounded-lg" 
+        delay={3} 
+        duration={28}
+        size="lg"
+      />
+      <AnimatedShape 
+        className="border-2 border-blue-400/10 rounded-lg" 
+        delay={1} 
+        duration={22}
+        size="md"
+      />
+    </div>
   </div>
 );
 
