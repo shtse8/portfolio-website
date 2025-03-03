@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SKILLS } from '@/data/portfolioData';
+import { SKILLS, TechSkill } from '@/data/portfolioData';
 import SkillModal from '../SkillModal';
 import SkillCard from '../SkillCard';
 import { useModalManager } from '@/hooks/useModalManager';
@@ -29,31 +29,6 @@ const SKILL_CATEGORIES: SkillCategory[] = [
   { id: 'blockchain', name: 'Blockchain' },
   { id: 'management', name: 'Leadership & Management' }
 ];
-
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      duration: 0.5,
-      ease: "easeOut"
-    }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
-};
 
 export default function SkillCloudView() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -193,12 +168,8 @@ export default function SkillCloudView() {
         </h3>
         
         {/* Category filter buttons */}
-        <motion.div 
+        <div 
           className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
         >
           <FilterButton 
             isActive={activeFilter === null}
@@ -214,15 +185,11 @@ export default function SkillCloudView() {
               label={category.name}
             />
           ))}
-        </motion.div>
+        </div>
         
         {/* Visualization toggle */}
-        <motion.div 
+        <div
           className="flex justify-center mb-8 sm:mb-10"
-          variants={itemVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
         >
           <div className="flex bg-white dark:bg-gray-800 p-1 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
             <ToggleButton
@@ -236,7 +203,7 @@ export default function SkillCloudView() {
               label="Grid View"
             />
           </div>
-        </motion.div>
+        </div>
         
         {/* Visualization content with AnimatePresence for smooth transitions */}
         <AnimatePresence mode="wait">
@@ -246,7 +213,7 @@ export default function SkillCloudView() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.2 }}
             >
               <SkillCloud 
                 onSkillClick={handleShowProjects}
@@ -256,20 +223,26 @@ export default function SkillCloudView() {
           ) : (
             <motion.div 
               key="grid-view"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-4"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-8"
             >
-              {filteredSkills.map((skill) => (
-                <SkillCard 
-                  key={skill.id}
-                  skill={skill}
-                  onClick={handleShowProjects}
+              {activeFilter === null ? (
+                <SkillGridCategorized 
+                  skills={filteredSkills} 
+                  handleShowProjects={handleShowProjects}
+                  getSkillIcon={getSkillIcon}
+                  categories={SKILL_CATEGORIES}
+                />
+              ) : (
+                <SkillGridWithLoadMore 
+                  skills={filteredSkills} 
+                  handleShowProjects={handleShowProjects}
                   getSkillIcon={getSkillIcon}
                 />
-              ))}
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -322,4 +295,192 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ isActive, onClick, label })
   >
     {label}
   </button>
-); 
+);
+
+// Grid view implementation with "Show More" functionality
+interface SkillGridWithLoadMoreProps {
+  skills: TechSkill[];
+  handleShowProjects: (skillId: string) => void;
+  getSkillIcon: (skillId: string) => React.ReactNode;
+}
+
+const SkillGridWithLoadMore: React.FC<SkillGridWithLoadMoreProps> = ({ 
+  skills, 
+  handleShowProjects, 
+  getSkillIcon 
+}) => {
+  const [visibleCount, setVisibleCount] = useState(8);
+  
+  const showMore = useCallback(() => {
+    setVisibleCount(prev => Math.min(prev + 8, skills.length));
+  }, [skills.length]);
+  
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {skills.slice(0, visibleCount).map((skill) => (
+          <div key={skill.id} className="transition-opacity duration-150">
+            <SkillCard 
+              skill={skill}
+              onClick={handleShowProjects}
+              getSkillIcon={getSkillIcon}
+            />
+          </div>
+        ))}
+      </div>
+      
+      {visibleCount < skills.length && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={showMore}
+            className="group flex items-center space-x-2 px-6 py-3 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow hover:bg-gray-50 dark:hover:bg-gray-750"
+            aria-label={`Show ${Math.min(8, skills.length - visibleCount)} more skills`}
+          >
+            <span>Show More</span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4 transform transition-transform duration-200 group-hover:translate-y-1" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {visibleCount === skills.length && visibleCount > 8 && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={() => setVisibleCount(8)}
+            className="group flex items-center space-x-2 px-6 py-3 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm border border-gray-200 dark:border-gray-700 transition-all duration-200 hover:shadow hover:bg-gray-50 dark:hover:bg-gray-750"
+            aria-label="Show fewer skills"
+          >
+            <span>Show Less</span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4 transform transition-transform duration-200 group-hover:-translate-y-1" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Categorized grid view implementation
+interface SkillGridCategorizedProps {
+  skills: TechSkill[];
+  handleShowProjects: (skillId: string) => void;
+  getSkillIcon: (skillId: string) => React.ReactNode;
+  categories: SkillCategory[];
+}
+
+const SkillGridCategorized: React.FC<SkillGridCategorizedProps> = ({
+  skills,
+  handleShowProjects,
+  getSkillIcon,
+  categories
+}) => {
+  // Track expanded categories
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  // Group skills by category
+  const skillsByCategory = useMemo(() => {
+    return categories.reduce((acc, category) => {
+      acc[category.id] = skills.filter(skill => skill.category === category.id);
+      return acc;
+    }, {} as Record<string, TechSkill[]>);
+  }, [skills, categories]);
+
+  // Toggle category expansion with immediate transition
+  const toggleCategory = useCallback((categoryId: string) => {
+    // Immediately update state without animations
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  }, []);
+
+  return (
+    <div className="space-y-10">
+      {categories.map(category => {
+        const categorySkills = skillsByCategory[category.id] || [];
+        if (categorySkills.length === 0) return null;
+        
+        const isExpanded = expandedCategories[category.id] || false;
+        const displayedSkills = isExpanded ? categorySkills : categorySkills.slice(0, 4);
+        
+        return (
+          <section 
+            key={category.id}
+            className="rounded-xl bg-gray-50 dark:bg-gray-800/50 p-6 overflow-hidden"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {category.name}
+                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300">
+                  {categorySkills.length}
+                </span>
+              </h3>
+              
+              {categorySkills.length > 4 && (
+                <button
+                  onClick={() => toggleCategory(category.id)}
+                  className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                  aria-expanded={isExpanded}
+                  aria-controls={`category-${category.id}-skills`}
+                >
+                  {isExpanded ? 'Show Less' : 'Show All'}
+                </button>
+              )}
+            </div>
+            
+            <div 
+              id={`category-${category.id}-skills`}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
+              {displayedSkills.map((skill) => (
+                <div key={skill.id} className="transition-opacity duration-150">
+                  <SkillCard 
+                    skill={skill}
+                    onClick={handleShowProjects}
+                    getSkillIcon={getSkillIcon}
+                  />
+                </div>
+              ))}
+            </div>
+            
+            {categorySkills.length > 4 && !isExpanded && (
+              <div className="mt-4 flex justify-center">
+                <button 
+                  onClick={() => toggleCategory(category.id)}
+                  className="group flex items-center space-x-2 px-4 py-2 rounded-full bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-sm border border-gray-200 dark:border-gray-600 transition-all duration-200 hover:shadow"
+                  aria-expanded={isExpanded}
+                  aria-controls={`category-${category.id}-skills`}
+                >
+                  <span>Show {categorySkills.length - 4} more</span>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-4 w-4 transform transition-transform duration-200 group-hover:translate-y-1" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </section>
+        );
+      })}
+    </div>
+  );
+}; 
