@@ -1,4 +1,4 @@
-import { SKILLS } from '@/data/portfolioData';
+import { SKILLS } from '@/data/skills';
 
 /**
  * Gets the skill name for a given skill ID

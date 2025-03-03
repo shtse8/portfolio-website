@@ -4,7 +4,9 @@ import { useEffect } from 'react';
 import Image from 'next/image';
 import { FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding, FaUsers, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link';
-import { Company, Project, Experience, PROJECTS, EXPERIENCES } from '@/data/portfolioData';
+import type { Company, Project, Experience } from '@/data/types';
+import { PROJECTS } from '@/data/projects';
+import { EXPERIENCES } from '@/data/experiences';
 import { motion } from 'framer-motion';
 
 type CompanyModalProps = {

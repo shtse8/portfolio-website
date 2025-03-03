@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding } from 'react-icons/fa';
-import { Experience, COMPANIES } from '../../data/portfolioData';
+import type { Experience } from '@/data/types';
+import { COMPANIES } from '@/data/companies';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
 

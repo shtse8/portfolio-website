@@ -3,7 +3,9 @@
 import Image from 'next/image';
 import { FaCalendarAlt, FaChevronDown, FaChevronUp, FaMapMarkerAlt, FaLink, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link';
-import { PROJECTS, COMPANIES, Project, Experience } from '@/data/portfolioData';
+import { PROJECTS } from '@/data/projects';
+import { COMPANIES } from '@/data/companies';
+import type { Project, Experience } from '@/data/types';
 import { parseMarkdownLinks } from '../projects/utils';
 import { getSkillNames } from '@/utils/skillHelpers';
 

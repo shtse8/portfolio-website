@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Project, COMPANIES } from '../../data/portfolioData';
+import type { Project } from '@/data/types';
+import { COMPANIES } from '@/data/companies';
 import { motion } from 'framer-motion';
 import { FaLink, FaGithub, FaBuilding } from 'react-icons/fa';
 import { getSkillNames } from '@/utils/skillHelpers';
@@ -116,7 +117,7 @@ export default function ProjectCard({
             )}
           </div>
           
-          {project.company && (
+          {project.company && COMPANIES[project.company] && (
             <button
               onClick={handleCompanyClick}
               className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs group"

@@ -9,7 +9,10 @@ import { FaProjectDiagram, FaBriefcase, FaExternalLinkAlt, FaGithub, FaReact, Fa
 import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum, SiSharp, SiNextdotjs, 
   SiNestjs, SiGooglechrome, SiGo, SiPytorch } from 'react-icons/si';
 import { motion } from 'framer-motion';
-import { SKILLS, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
+import { SKILLS } from '@/data/skills';
+import { PROJECTS } from '@/data/projects';
+import { EXPERIENCES } from '@/data/experiences';
+import type { Project, Experience } from '@/data/types';
 import { getSkillNames } from '@/utils/skillHelpers';
 import { cn } from '@/lib/utils';
 

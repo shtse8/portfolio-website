@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { Project, Experience, COMPANIES, EXPERIENCES } from '../../data/portfolioData';
+import type { Project, Experience } from '@/data/types';
+import { COMPANIES } from '@/data/companies';
+import { EXPERIENCES } from '@/data/experiences';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
 

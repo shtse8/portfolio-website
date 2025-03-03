@@ -1,20 +1,4 @@
-/**
- * Types for Philosophy principles data
- */
-export type PhilosophyPrinciple = {
-  id: string;
-  title: string;
-  shortDescription: string;
-  fullDescription: string;
-  icon: string; // Icon name from react-icons/fa
-  visualElement?: string; // Key name for visual element component
-  category: 'core' | 'design' | 'code' | 'approach'; // Indicates primary domain
-  keyPoints?: string[]; // Key aspects of the principle
-  colorScheme: {
-    bg: string; // Background color class name
-    text: string; // Text color class name
-  };
-};
+import { PhilosophyPrinciple } from './types';
 
 /**
  * Philosophy principles data
@@ -250,4 +234,4 @@ export const PHILOSOPHY_PRINCIPLES: PhilosophyPrinciple[] = [
       text: 'cyan-50'
     }
   }
-]; 
+] as const; 

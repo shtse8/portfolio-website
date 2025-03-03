@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
 import SkillCloudView from './skills/cloud/SkillCloudView';
-import { SKILLS } from '@/data/portfolioData';
+import { SKILLS } from '@/data/skills';
 
 export default function TechStack() {
   const [totalSkills, setTotalSkills] = useState(0);

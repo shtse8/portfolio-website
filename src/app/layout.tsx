@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { PERSONAL_INFO } from '@/data/portfolioData';
+import { PERSONAL_INFO } from '@/data/personal';
 import ScrollAnimationProvider from '@/components/ScrollAnimationProvider';
 import { ModalProvider } from '@/context/ModalContext';
 import ModalPortal from '@/components/shared/ModalPortal';

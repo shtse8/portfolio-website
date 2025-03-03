@@ -7,7 +7,7 @@ import {
   FaLinkedin, FaStackOverflow, FaArrowRight, FaRegLightbulb,
   FaLongArrowAltRight, FaRegCommentDots, FaUsers, FaRegClock
 } from 'react-icons/fa';
-import { PERSONAL_INFO } from '@/data/portfolioData';
+import { PERSONAL_INFO } from '@/data/personal';
 
 interface FormData {
   name: string;
@@ -318,16 +318,7 @@ export default function Contact() {
             </div>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-extralight mb-6 tracking-wide">
-              Let&apos;s start a 
-              <span className="relative ml-3">
-                <span className="relative z-10 text-blue-500 dark:text-blue-400">conversation</span>
-                <motion.span 
-                  className="absolute bottom-0 left-0 right-0 h-3 bg-blue-100/50 dark:bg-blue-900/30 -z-0"
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ duration: 0.8, delay: 0.5 }}
-                />
-              </span>
+              Let&apos;s discuss your project
             </h2>
             
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl leading-relaxed font-light">

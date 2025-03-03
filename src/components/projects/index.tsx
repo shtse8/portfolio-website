@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Project, Experience, COMPANIES, EXPERIENCES, PROJECTS, CATEGORIES } from '../../data/portfolioData';
+import type { Project, Experience } from '@/data/types';
+import { COMPANIES } from '@/data/companies';
+import { EXPERIENCES } from '@/data/experiences';
+import { PROJECTS, PROJECT_CATEGORIES } from '@/data/projects';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
 import ExperienceModal from '../experience/ExperienceModal';
@@ -14,7 +17,7 @@ import { getSkillNames } from '@/utils/skillHelpers';
 
 export default function FeaturedProjects() {
   const { openProject, openExperience, openCompany } = useModalManager();
-  const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [activeCategory, setActiveCategory] = useState<typeof PROJECT_CATEGORIES[number]>("All");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(PROJECTS);
   const [filteredExperiences, setFilteredExperiences] = useState<Experience[]>([]);
   
@@ -174,7 +177,7 @@ export default function FeaturedProjects() {
         
         {/* Categories Tabs */}
         <div className="flex flex-wrap justify-center mb-16 gap-3">
-          {CATEGORIES.map(category => (
+          {PROJECT_CATEGORIES.map(category => (
             <motion.button
               key={category}
               initial={{ opacity: 0 }}

@@ -2,7 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { PROJECTS, Project, EXPERIENCES, Experience, TechSkill } from '@/data/portfolioData';
+import { PROJECTS } from '@/data/projects';
+import { EXPERIENCES } from '@/data/experiences';
+import type { Project, Experience, TechSkill } from '@/data/types';
 import { cn } from '@/lib/utils';
 
 // Interfaces for component props

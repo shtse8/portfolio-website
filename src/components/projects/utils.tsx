@@ -1,4 +1,5 @@
-import { Project, Experience, EXPERIENCES } from '../../data/portfolioData';
+import type { Project, Experience } from '@/data/types';
+import { EXPERIENCES } from '@/data/experiences';
 import { ReactNode } from 'react';
 import Link from 'next/link';
 

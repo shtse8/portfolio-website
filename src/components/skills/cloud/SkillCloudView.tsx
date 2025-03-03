@@ -2,7 +2,10 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SKILLS, TechSkill, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
+import { SKILLS } from '@/data/skills';
+import { PROJECTS } from '@/data/projects';
+import { EXPERIENCES } from '@/data/experiences';
+import type { TechSkill, Project, Experience } from '@/data/types';
 import SkillModal from '../SkillModal';
 import SkillCard from '../SkillCard';
 import { useModalManager } from '@/hooks/useModalManager';
@@ -530,4 +533,4 @@ function getIconBgColor(textColor?: string): string | undefined {
   
   // Return a light background color based on the text color
   return `bg-${colorName}-50 dark:bg-${colorName}-900/20`;
-} 
+}

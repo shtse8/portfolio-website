@@ -29,7 +29,9 @@ export default function ModalPortal() {
       
       // Cleanup function
       return () => {
-        if (portalContainer && portalContainer.childNodes.length === 0) {
+        if (portalContainer && 
+            portalContainer.childNodes.length === 0 && 
+            document.body.contains(portalContainer)) {
           document.body.removeChild(portalContainer);
         }
       };

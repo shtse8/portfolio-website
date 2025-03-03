@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaExternalLinkAlt, FaGithub, FaShareAlt, FaTimes } from 'react-icons/fa';
-import { Project } from '@/data/portfolioData';
+import type { Project } from '@/data/types';
 import { getSkillNames } from '@/utils/skillHelpers';
 
 type PortalModalProps = {
