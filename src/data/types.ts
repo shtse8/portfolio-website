@@ -80,6 +80,9 @@ export type PersonalInfo = {
   contactFormSubjects: string[];
   portfolioUrl: string;
   company: string;
+  specialties?: string[];
+  tagline?: string;
+  roles?: string[];
 };
 
 export type PhilosophyPrinciple = {

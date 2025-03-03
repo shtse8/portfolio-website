@@ -3,8 +3,8 @@ import { PersonalInfo } from './types';
 export const PERSONAL_INFO: PersonalInfo = {
   firstName: "Kyle",
   lastName: "Tse",
-  title: "Backend Engineer & Game Developer",
-  shortBio: "Backend Engineer & Game Developer with 20+ years of experience in distributed systems, blockchain solutions, and AI-driven automation.",
+  title: "Full Stack Developer & Entrepreneur",
+  shortBio: "Full Stack Developer & Entrepreneur with extensive experience in web development, mobile game development, blockchain solutions, and AI integration. Skilled in game design, marketing, advertising, and operations with multiple successful apps and platforms reaching millions of downloads.",
   email: "hi@kylet.se",
   location: {
     base: "Hong Kong & UK",
@@ -23,5 +23,28 @@ export const PERSONAL_INFO: PersonalInfo = {
     "Other"
   ],
   portfolioUrl: "https://kylet.se",
-  company: "Soti Labs"
+  company: "",
+  specialties: [
+    "Full Stack Development",
+    "Mobile Game Development",
+    "Blockchain Solutions",
+    "AI & Quantitative Trading",
+    "System Architecture",
+    "Game Design",
+    "Digital Marketing",
+    "Ad Campaign Management",
+    "Social Media Management",
+    "Product Operations"
+  ],
+  tagline: "Building innovative digital experiences across platforms",
+  roles: [
+    "Full Stack Developer",
+    "Game Developer",
+    "Blockchain Engineer",
+    "Entrepreneur",
+    "System Architect",
+    "Game Designer",
+    "Digital Marketer",
+    "Product Manager"
+  ]
 } as const; 
