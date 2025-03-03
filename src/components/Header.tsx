@@ -29,10 +29,10 @@ export default function Header() {
   // Navigation links
   const navLinks: NavLink[] = useMemo(() => [
     { href: '#hero', label: 'Home' },
-    { href: '#philosophy', label: 'Philosophy' },
     { href: '#tech-stack', label: 'Skills' },
-    { href: '#experience', label: 'Experience' },
+    { href: '#philosophy', label: 'Philosophy' },
     { href: '#projects', label: 'Projects' },
+    { href: '#experience', label: 'Experience' },
     { href: '#contact', label: 'Contact' }
   ], []);
   
