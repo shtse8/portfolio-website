@@ -48,8 +48,8 @@ export const getProjectColor = (index: number): string => {
 
 // Find experience related to a project
 export const getExperienceForProject = (project: Project): Experience | null => {
-  if (!project.company) return null;
+  if (!project.related_experience_id) return null;
   
-  const relatedExperiences = EXPERIENCES.filter(exp => exp.company === project.company);
+  const relatedExperiences = EXPERIENCES.filter(exp => exp.company === project.related_experience_id);
   return relatedExperiences.length > 0 ? relatedExperiences[0] : null;
 }; 

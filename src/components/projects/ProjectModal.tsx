@@ -36,9 +36,9 @@ export default function ProjectModal({
       exp.projects?.includes(project.id)
     );
     
-    // If not found, fall back to company match
-    if (!relatedExperience && project.company) {
-      const companyExperiences = EXPERIENCES.filter(exp => exp.company === project.company);
+    // If not found, fall back to experience match
+    if (!relatedExperience && project.related_experience_id) {
+      const companyExperiences = EXPERIENCES.filter(exp => exp.company === project.related_experience_id);
       return companyExperiences.length > 0 ? companyExperiences[0] : null;
     }
     
@@ -157,14 +157,15 @@ export default function ProjectModal({
                   </div>
                 )}
                 
-                {project.company && (
+                {/* Company button */}
+                {project.related_experience_id && (
                   <button
-                    onClick={() => openCompanyModal(project.company as string)}
-                    className="flex items-center hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+                    className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    onClick={() => openCompanyModal(project.related_experience_id as string)}
                   >
-                    <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400" />
+                    <FaBuilding className="mr-2" />
                     <span className="underline-offset-4 hover:underline">
-                      {COMPANIES[project.company]?.name || project.company}
+                      {COMPANIES[project.related_experience_id]?.name || project.related_experience_id}
                     </span>
                   </button>
                 )}

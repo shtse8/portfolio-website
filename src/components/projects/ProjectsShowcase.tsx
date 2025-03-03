@@ -22,7 +22,7 @@ export default function ProjectsShowcase() {
   const { openProject, openCompany } = useModalManager();
   const [activeCategory, setActiveCategory] = useState<typeof PROJECT_CATEGORIES_FILTERED[number]>("All");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(PROJECTS);
-  const [activeProjectIndex, setActiveProjectIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [viewMode, setViewMode] = useState<'showcase' | 'grid'>('showcase');
   
@@ -30,7 +30,8 @@ export default function ProjectsShowcase() {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Stub function for openExperienceModal to satisfy ProjectModal props
-  const handleOpenExperience = (_index: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleOpenExperience = (index: number) => {
     // Redirect to the experiences section instead
     window.location.href = '/#experience';
   };
@@ -42,7 +43,7 @@ export default function ProjectsShowcase() {
     } else {
       setFilteredProjects(PROJECTS.filter(project => project.category === activeCategory));
     }
-    setActiveProjectIndex(0);
+    setCurrentIndex(0);
   }, [activeCategory]);
 
   // Handle project navigation
@@ -52,10 +53,10 @@ export default function ProjectsShowcase() {
     setIsTransitioning(true);
     
     const newIndex = direction === 'next'
-      ? (activeProjectIndex + 1) % filteredProjects.length
-      : (activeProjectIndex - 1 + filteredProjects.length) % filteredProjects.length;
+      ? (currentIndex + 1) % filteredProjects.length
+      : (currentIndex - 1 + filteredProjects.length) % filteredProjects.length;
     
-    setActiveProjectIndex(newIndex);
+    setCurrentIndex(newIndex);
     
     // Reset transition state after animation completes
     setTimeout(() => {
@@ -118,7 +119,7 @@ export default function ProjectsShowcase() {
   const renderShowcase = () => {
     if (filteredProjects.length === 0) return null;
     
-    const currentProject = filteredProjects[activeProjectIndex];
+    const currentProject = filteredProjects[currentIndex];
     
     return (
       <div className="relative w-full overflow-hidden rounded-xl h-[70vh] lg:h-[65vh]">
@@ -175,7 +176,7 @@ export default function ProjectsShowcase() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleOpenProject(activeProjectIndex);
+                    handleOpenProject(currentIndex);
                   }}
                   className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white py-2 px-5 rounded-full 
                            transition-all duration-300 border border-white/20 text-sm"
@@ -213,20 +214,19 @@ export default function ProjectsShowcase() {
                 </div>
               </div>
               
-              {currentProject.company && COMPANIES[currentProject.company] && (
-                <div className="pt-2">
-                  <button
-                    onClick={(e) => handleCompanyClick(e, currentProject.company)}
-                    className="flex items-center text-gray-300 hover:text-white group"
-                    aria-label={`View company: ${COMPANIES[currentProject.company].name}`}
-                    title={`View company: ${COMPANIES[currentProject.company].name}`}
-                  >
-                    <FaBuilding className="mr-2 text-gray-400" />
-                    <span className="group-hover:underline text-sm">
-                      {COMPANIES[currentProject.company].name}
-                    </span>
-                  </button>
-                </div>
+              {/* Company link */}
+              {currentProject.related_experience_id && COMPANIES[currentProject.related_experience_id] && (
+                <button
+                  className="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-sm group ml-auto"
+                  onClick={(e) => handleCompanyClick(e, currentProject.related_experience_id)}
+                  aria-label={`View company: ${COMPANIES[currentProject.related_experience_id].name}`}
+                  title={`View company: ${COMPANIES[currentProject.related_experience_id].name}`}
+                >
+                  <FaBuilding className="mr-1.5 text-gray-500 dark:text-gray-500" />
+                  <span className="group-hover:underline">
+                    {COMPANIES[currentProject.related_experience_id].name}
+                  </span>
+                </button>
               )}
             </motion.div>
           </div>
@@ -276,14 +276,14 @@ export default function ProjectsShowcase() {
                   key={index}
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (!isTransitioning && index !== activeProjectIndex) {
+                    if (!isTransitioning && index !== currentIndex) {
                       setIsTransitioning(true);
-                      setActiveProjectIndex(index);
+                      setCurrentIndex(index);
                       setTimeout(() => setIsTransitioning(false), 500);
                     }
                   }}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    activeProjectIndex === index 
+                    currentIndex === index 
                       ? 'bg-white scale-100' 
                       : 'bg-white/40 scale-75 hover:bg-white/60'
                   }`}

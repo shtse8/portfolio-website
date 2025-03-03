@@ -30,8 +30,8 @@ export default function ProjectCard({
   // Helper function for company click with null check
   const handleCompanyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (project.company) {
-      openCompanyModal(project.company);
+    if (project.related_experience_id) {
+      openCompanyModal(project.related_experience_id);
     }
   };
 
@@ -117,15 +117,15 @@ export default function ProjectCard({
             )}
           </div>
           
-          {project.company && COMPANIES[project.company] && (
+          {project.related_experience_id && COMPANIES[project.related_experience_id] && (
             <button
               onClick={handleCompanyClick}
               className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs group"
-              aria-label={`View company: ${COMPANIES[project.company].name}`}
-              title={`View company: ${COMPANIES[project.company].name}`}
+              aria-label={`View company: ${COMPANIES[project.related_experience_id].name}`}
+              title={`View company: ${COMPANIES[project.related_experience_id].name}`}
             >
               <FaBuilding className="mr-1.5 text-gray-500 dark:text-gray-500" />
-              <span className="group-hover:underline">{COMPANIES[project.company].name}</span>
+              <span className="group-hover:underline">{COMPANIES[project.related_experience_id].name}</span>
             </button>
           )}
         </div>

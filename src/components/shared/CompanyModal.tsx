@@ -23,7 +23,7 @@ export default function CompanyModal({
   openExperienceModal
 }: CompanyModalProps) {
   // Get related projects and experiences
-  const relatedProjects: Project[] = PROJECTS.filter(project => project.company === company.id);
+  const relatedProjects: Project[] = PROJECTS.filter(project => project.related_experience_id === company.id);
   const relatedExperiences: Experience[] = EXPERIENCES.filter(exp => exp.company === company.id);
   
   // Handle keyboard navigation

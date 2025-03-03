@@ -22,7 +22,9 @@ export const PROJECTS: Project[] = [
         skillTags: ['Mobile Games', 'iOS', 'Android', 'Unity', 'C#', 'MySQL', 'Percona'],
         liveUrl: 'https://cubeage.com',
         category: "Mobile Games",
-        company: "cubeage",
+        related_experience_id: "cubeage",
+        start_date: "2014-03-15",
+        end_date: undefined, // Still ongoing
         details: [
           'Founded and led Cubeage Limited, developing popular card and casino games',
           'Published 10+ games on Google Play and App Store with 100K+ installations',
@@ -45,7 +47,9 @@ export const PROJECTS: Project[] = [
         androidUrl: 'https://play.google.com/store/apps/details?id=com.gameflask.btthk',
         iosUrl: 'https://apps.apple.com/us/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A8-%E6%9C%80%E5%88%BA%E6%BF%80%E7%9A%84%E7%AD%96%E7%95%A5%E6%A3%8B%E7%89%8C%E9%81%8A%E6%88%B2/id1295634408',
         category: "Mobile Games",
-        company: "cubeage",
+        related_experience_id: "cubeage",
+        start_date: "2017-06-10",
+        end_date: "2020-09-22",
         details: [
           'Led development at Cubeage for this real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
           'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
@@ -66,7 +70,9 @@ export const PROJECTS: Project[] = [
         skillTags: ['React', 'Next.js', 'Responsive Design', 'SEO', 'Nakuz'],
         liveUrl: 'https://nakuz.com',
         category: "Web Apps",
-        company: "nakuz",
+        related_experience_id: "nakuz",
+        start_date: "2020-02-15",
+        end_date: "2020-05-30",
         details: [
           'Designed and developed the corporate website for Nakuz',
           'Built with modern technologies including React and Next.js',
@@ -88,7 +94,9 @@ export const PROJECTS: Project[] = [
         androidUrl: 'https://play.google.com/store/apps/details?id=com.crazycube.hkmahjongtycoon.app',
         iosUrl: 'https://apps.apple.com/us/app/%E9%A6%99%E6%B8%AF%E9%BA%BB%E5%B0%87%E5%A4%A7%E4%BA%A8-%E9%BA%BB%E9%9B%80%E4%BF%BE%E4%BD%A0%E7%8E%A9/id1478835027',
         category: "Mobile Games",
-        company: "cubeage",
+        related_experience_id: "cubeage",
+        start_date: "2018-11-05",
+        end_date: "2019-08-20",
         details: [
           'Led development at Cubeage for this popular 3D Mahjong game with over 100K downloads',
           'Created authentic Hong Kong Mahjong gameplay with multiple game modes including blood flow mode, classic four-player mode, and two-player mode',
@@ -111,7 +119,9 @@ export const PROJECTS: Project[] = [
         androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.showhand.app',
         iosUrl: 'https://apps.apple.com/us/app/fun-showhand-stud-poker/id1238318956',
         category: "Mobile Games",
-        company: "cubeage",
+        related_experience_id: "cubeage",
+        start_date: "2016-09-12",
+        end_date: "2017-05-18",
         details: [
           'Led development at Cubeage for this popular poker game available on both Android and iOS platforms',
           'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
@@ -133,7 +143,9 @@ export const PROJECTS: Project[] = [
         androidUrl: 'https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app',
         iosUrl: 'https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150',
         category: "Mobile Games",
-        company: "cubeage",
+        related_experience_id: "cubeage",
+        start_date: "2015-07-25",
+        end_date: "2016-04-10",
         details: [
           'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
           'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
@@ -155,7 +167,9 @@ export const PROJECTS: Project[] = [
         github: 'https://github.com/shtse8/anymud',
         liveUrl: 'https://anymud.com',
         category: "Web Apps",
-        company: null,
+        related_experience_id: null,
+        start_date: "2019-03-08",
+        end_date: "2020-01-15",
         details: [
           'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
           'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
@@ -175,7 +189,9 @@ export const PROJECTS: Project[] = [
         skills: ['databases', 'php', 'responsive-design', 'seo', 'facebook-integration'],
         skillTags: ['PHP', 'MySQL', 'Percona', 'Facebook Integration', 'Responsive Design', 'SEO'],
         category: "Web Apps",
-        company: null,
+        related_experience_id: null,
+        start_date: "2012-05-20",
+        end_date: "2013-11-30",
         details: [
           'Developed a publisher-focused article sharing platform with PHP and MySQL/Percona',
           'Created Facebook and mobile optimized versions to maximize user reach',
@@ -195,7 +211,9 @@ export const PROJECTS: Project[] = [
         skills: ['databases', 'php', 'nodejs', 'payment-integration'],
         skillTags: ['PHP', 'JavaScript', 'MySQL', 'Ubuntu', 'Game Distribution', 'Payment Integration'],
         category: "Web Apps",
-        company: "minimax",
+        related_experience_id: "minimax",
+        start_date: "2010-02-10",
+        end_date: "2014-08-15",
         details: [
           'Led development of Funimax, a well-known gaming platform with significant presence in Hong Kong',
           'Built with pure PHP and JavaScript, developing a custom template system for rapid game website deployment',
@@ -217,7 +235,9 @@ export const PROJECTS: Project[] = [
         skills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker'],
         skillTags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
         category: "Blockchain",
-        company: null,
+        related_experience_id: null,
+        start_date: "2018-04-15",
+        end_date: "2019-10-30",
         details: [
           'Designed and developed a hybrid Bancor-Orderbook model for cross-chain asset trading',
           'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
@@ -237,7 +257,9 @@ export const PROJECTS: Project[] = [
         skills: ['blockchain', 'nodejs', 'typescript'],
         skillTags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
         category: "Blockchain",
-        company: null,
+        related_experience_id: null,
+        start_date: "2017-11-10",
+        end_date: "2018-09-25",
         details: [
           'Built a platform enabling streamlined deployment of applications across multiple blockchains',
           'Pioneered real-time profit-sharing system for developers through smart contract automation',
@@ -248,22 +270,24 @@ export const PROJECTS: Project[] = [
       },
       {
         id: 'mining-pool',
-        title: 'Multi-Chain Mining Pool Platform',
-        description: 'Cross-chain mining pool system supporting EOS, ETH, and BTC with transparent profit sharing',
-        image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
+        title: 'Mining Pool Management System',
+        description: 'Comprehensive mining pool management system with advanced analytics',
+        image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool',
         images: [
-          'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool+Platform',
+          'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool',
         ],
-        skills: ['typescript', 'blockchain', 'kubernetes', 'nodejs', 'docker', 'vuejs'],
-        skillTags: ['TypeScript', 'Vue.js', 'Blockchain', 'Kubernetes', 'Smart Contracts', 'EOS'],
+        skills: ['blockchain', 'nodejs', 'typescript', 'databases'],
+        skillTags: ['Blockchain', 'Node.js', 'TypeScript', 'MySQL', 'Redis', 'Bitcoin', 'Ethereum'],
         category: "Blockchain",
-        company: null,
+        related_experience_id: null,
+        start_date: "2016-12-05",
+        end_date: "2017-08-20",
         details: [
-          'Engineered a cross-chain mining pool system supporting EOS, ETH, and BTC',
-          'Developed with TypeScript backend and Vue.js frontend deployed on Kubernetes',
-          'Implemented blockchain-specific smart contracts for transparent profit sharing',
-          'Created automated payout systems with full transaction verification',
-          'Built real-time dashboards for miners to track earnings and performance metrics'
+          'Developed a comprehensive mining pool management system for Bitcoin and Ethereum',
+          'Created real-time analytics dashboard for monitoring hashrate, worker status, and earnings',
+          'Implemented PPLNS (Pay Per Last N Shares) and PPS (Pay Per Share) payment systems',
+          'Built automated payout system with configurable thresholds and schedules',
+          'Designed worker management interface with email/SMS alerts for downtime'
         ]
       },
       {
@@ -279,7 +303,7 @@ export const PROJECTS: Project[] = [
         skillTags: ['Go', 'Python', 'TradingView', 'TigerTrade', 'Firebase', 'PyTorch', 'Telegram'],
         github: 'https://github.com/shtse8/TradingBot',
         category: "AI & ML",
-        company: null,
+        related_experience_id: null,
         details: [
           'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
           'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
@@ -300,7 +324,7 @@ export const PROJECTS: Project[] = [
         skillTags: ['TypeScript', 'Python', 'Bun', 'FFmpeg', 'Simhash'],
         github: 'https://github.com/shtse8/SotiMediaOrganizer',
         category: "Tools & Utilities",
-        company: null,
+        related_experience_id: null,
         details: [
           'Created a media deduplication tool with TypeScript, Python, and Bun',
           'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
@@ -322,13 +346,104 @@ export const PROJECTS: Project[] = [
         github: 'https://github.com/shtse8/google-photos-delete-tool',
         liveUrl: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb',
         category: "Tools & Utilities",
-        company: null,
+        related_experience_id: null,
         details: [
           'Developed a Chrome extension with 2,000+ users to efficiently manage and clean up Google Photos libraries',
           'Implemented intelligent batch processing with custom selectors for automated photo deletion',
           'Created smart scrolling logic to handle large photo libraries with 10,000+ images',
           'Built in robust error handling and progress tracking for operation reliability',
           'Earned 4.7/5 star rating on Chrome Web Store and 73+ stars on GitHub'
+        ]
+      },
+      {
+        id: 'portfolio-website',
+        title: 'Portfolio Website',
+        description: 'Modern portfolio website built with Next.js, TypeScript, and Tailwind CSS',
+        image: '/projects/portfolio.jpg',
+        images: [
+          '/projects/portfolio.jpg',
+        ],
+        skills: ['typescript', 'react', 'nextjs', 'tailwindcss', 'responsive-design'],
+        skillTags: ['TypeScript', 'React', 'Next.js', 'Tailwind CSS', 'Responsive Design'],
+        github: 'https://github.com/shtse8/portfolio',
+        liveUrl: 'https://shawntseng.com',
+        category: "Web Apps",
+        related_experience_id: null,
+        start_date: "2023-01-15",
+        end_date: "2023-03-10",
+        details: [
+          'Designed and developed a modern portfolio website using Next.js, TypeScript, and Tailwind CSS',
+          'Implemented responsive design for optimal viewing on all devices',
+          'Created custom animations and transitions for enhanced user experience',
+          'Optimized for performance, accessibility, and SEO',
+          'Integrated with GitHub API for automatic project updates'
+        ]
+      },
+      {
+        id: 'chrome-extension',
+        title: 'Productivity Chrome Extension',
+        description: 'Chrome extension for enhancing productivity with custom tools and integrations',
+        image: 'https://placehold.co/800x450/7ED321/FFFFFF?text=Chrome+Extension',
+        images: [
+          'https://placehold.co/800x450/7ED321/FFFFFF?text=Chrome+Extension',
+        ],
+        skills: ['typescript', 'react', 'chrome-extension', 'css'],
+        skillTags: ['TypeScript', 'React', 'Chrome Extension', 'CSS', 'Browser API'],
+        github: 'https://github.com/shtse8/chrome-extension',
+        category: "Web Apps",
+        related_experience_id: null,
+        start_date: "2021-08-05",
+        end_date: "2021-10-20",
+        details: [
+          'Developed a Chrome extension for enhancing productivity with custom tools and integrations',
+          'Built with TypeScript and React for a responsive and intuitive user interface',
+          'Implemented features including website blocker, pomodoro timer, and note-taking functionality',
+          'Created custom themes and styling options for personalization',
+          'Earned 4.7/5 star rating on Chrome Web Store and 73+ stars on GitHub'
+        ]
+      },
+      {
+        id: 'ai-content-generator',
+        title: 'AI Content Generator',
+        description: 'Advanced AI-powered content generation platform for marketers and publishers',
+        image: 'https://placehold.co/800x450/BD10E0/FFFFFF?text=AI+Content+Generator',
+        images: [
+          'https://placehold.co/800x450/BD10E0/FFFFFF?text=AI+Content+Generator',
+        ],
+        skills: ['ai-ml', 'python', 'typescript', 'react', 'nextjs'],
+        skillTags: ['AI/ML', 'Python', 'TypeScript', 'React', 'Next.js', 'GPT-3', 'NLP'],
+        category: "AI & ML",
+        related_experience_id: null,
+        start_date: "2021-03-10",
+        end_date: "2022-01-25",
+        details: [
+          'Built an AI-powered content generation platform using GPT-3 and custom fine-tuned models',
+          'Developed specialized content templates for different industries and content types',
+          'Created a user-friendly interface for content generation, editing, and management',
+          'Implemented content quality scoring system to ensure high-quality outputs',
+          'Integrated with popular CMS platforms for seamless content publishing'
+        ]
+      },
+      {
+        id: 'sentiment-analysis',
+        title: 'Social Media Sentiment Analysis',
+        description: 'Real-time sentiment analysis platform for social media monitoring',
+        image: 'https://placehold.co/800x450/9013FE/FFFFFF?text=Sentiment+Analysis',
+        images: [
+          'https://placehold.co/800x450/9013FE/FFFFFF?text=Sentiment+Analysis',
+        ],
+        skills: ['ai-ml', 'python', 'typescript', 'react', 'data-visualization'],
+        skillTags: ['AI/ML', 'Python', 'TypeScript', 'React', 'Data Visualization', 'NLP'],
+        category: "AI & ML",
+        related_experience_id: null,
+        start_date: "2020-06-15",
+        end_date: "2021-02-28",
+        details: [
+          'Developed a real-time sentiment analysis platform for monitoring social media mentions',
+          'Built custom NLP models for industry-specific sentiment analysis with 85%+ accuracy',
+          'Created interactive dashboards for tracking sentiment trends and brand perception',
+          'Implemented alert system for detecting sudden sentiment shifts or potential PR crises',
+          'Designed comprehensive reporting system with actionable insights and recommendations'
         ]
       }
 ] as const; 

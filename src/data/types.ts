@@ -12,12 +12,14 @@ export type Project = {
   androidUrl?: string;
   iosUrl?: string;
   category: string;
-  company: string | null;
+  related_experience_id: string | null;
   details: string[] | string;
   year?: string;
   teamSize?: string;
   duration?: string;
   role?: string;
+  start_date?: string;
+  end_date?: string;
   challenges?: {
     title: string;
     description: string;
