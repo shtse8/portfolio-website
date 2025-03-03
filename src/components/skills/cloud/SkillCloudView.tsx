@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SKILLS, TechSkill } from '@/data/portfolioData';
+import { SKILLS, TechSkill, PROJECTS, Project, EXPERIENCES, Experience } from '@/data/portfolioData';
 import SkillModal from '../SkillModal';
 import SkillCard from '../SkillCard';
 import { useModalManager } from '@/hooks/useModalManager';
@@ -291,10 +291,104 @@ interface SkillGridByExperienceProps {
   getSkillIcon: (skillId: string) => React.ReactNode;
 }
 
+// Compact skill card component for more efficient mobile display
+interface CompactSkillCardProps {
+  skill: TechSkill;
+  onClick: (skillId: string) => void;
+  getSkillIcon: (skillId: string) => React.ReactNode;
+}
+
+const CompactSkillCard: React.FC<CompactSkillCardProps> = ({ skill, onClick, getSkillIcon }) => {
+  // Determine if card is interactive based on having related projects/experiences
+  const relatedProjectCount = useMemo(() => {
+    const projects = PROJECTS.filter((project: Project) => project.skills.includes(skill.id));
+    const experiences = EXPERIENCES.filter((exp: Experience) => exp.skills.includes(skill.id));
+    return projects.length + experiences.length;
+  }, [skill.id]);
+  
+  const isInteractive = relatedProjectCount > 0;
+  
+  return (
+    <div
+      className={cn(
+        "group relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden",
+        "shadow-sm border border-gray-100 dark:border-gray-700",
+        "transition-all duration-200 h-full flex flex-col",
+        isInteractive && "hover:shadow-md hover:-translate-y-1 cursor-pointer"
+      )}
+      onClick={() => isInteractive && onClick(skill.id)}
+      role={isInteractive ? "button" : "article"}
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-label={`${skill.name}: ${skill.yearsOfExperience} years of experience`}
+      onKeyDown={(e) => {
+        if (isInteractive && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick(skill.id);
+        }
+      }}
+    >
+      {/* Colored accent top bar */}
+      <div 
+        className={cn("h-1 w-full", skill.bgColor || "bg-blue-500")} 
+        aria-hidden="true"
+      />
+      
+      <div className="p-3 sm:p-4 flex flex-col h-full">
+        {/* Icon and title in a more compact layout */}
+        <div className="flex items-center mb-2">
+          <div 
+            className={cn(
+              "flex-shrink-0 p-1.5 rounded-md mr-2 sm:mr-3",
+              skill.color || "text-blue-500 bg-blue-50 dark:bg-blue-900/20"
+            )} 
+            aria-hidden="true"
+          >
+            {getSkillIcon(skill.id)}
+          </div>
+          <h3 className="text-sm sm:text-base font-medium text-gray-900 dark:text-gray-100 truncate">
+            {skill.name}
+          </h3>
+        </div>
+        
+        {/* Experience level */}
+        <div className="mb-1.5">
+          <div className="flex items-center">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+              <div 
+                className={cn(
+                  "h-1 rounded-full",
+                  skill.bgColor || "bg-blue-500"
+                )}
+                style={{ width: `${Math.min(100, skill.yearsOfExperience * 10)}%` }}
+                aria-hidden="true"
+              />
+            </div>
+            <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+              {skill.yearsOfExperience}yr
+            </span>
+          </div>
+        </div>
+        
+        {/* Simplified footer for related items */}
+        {relatedProjectCount > 0 && (
+          <div className="mt-auto pt-2 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {relatedProjectCount} item{relatedProjectCount !== 1 && 's'}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-blue-500 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
-  skills, 
-  handleShowProjects, 
-  getSkillIcon 
+  skills,
+  handleShowProjects,
+  getSkillIcon,
 }) => {
   // Define experience tiers with clear labels
   const experienceTiers = [
@@ -328,7 +422,7 @@ const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
     });
     setVisibleCounts(initialCounts);
   }, [skills]);
-  
+
   // Show more skills in a tier
   const showMore = useCallback((tierName: string, totalCount: number) => {
     setVisibleCounts(prev => ({
@@ -344,7 +438,7 @@ const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
       [tierName]: Math.min(8, prev[tierName])
     }));
   }, []);
-  
+
   return (
     <div className="space-y-12">
       {skillsByExperience.map(tier => {
@@ -375,14 +469,24 @@ const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
               )}
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {visibleSkills.map(skill => (
                 <div key={skill.id} className="transition-opacity duration-150">
-                  <SkillCard 
-                    skill={skill}
-                    onClick={handleShowProjects}
-                    getSkillIcon={getSkillIcon}
-                  />
+                  {/* Use CompactSkillCard for mobile and SkillCard for larger screens */}
+                  <div className="block md:hidden">
+                    <CompactSkillCard
+                      skill={skill}
+                      onClick={handleShowProjects}
+                      getSkillIcon={getSkillIcon}
+                    />
+                  </div>
+                  <div className="hidden md:block">
+                    <SkillCard
+                      skill={skill}
+                      onClick={handleShowProjects}
+                      getSkillIcon={getSkillIcon}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
