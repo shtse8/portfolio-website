@@ -339,7 +339,8 @@ const CompactSkillCard: React.FC<CompactSkillCardProps> = ({ skill, onClick, get
           <div 
             className={cn(
               "flex-shrink-0 p-1.5 rounded-md mr-2 sm:mr-3",
-              skill.color || "text-blue-500 bg-blue-50 dark:bg-blue-900/20"
+              skill.color || "text-blue-500", 
+              getIconBgColor(skill.color) || "bg-blue-50 dark:bg-blue-900/20"
             )} 
             aria-hidden="true"
           >
@@ -514,4 +515,19 @@ const SkillGridByExperience: React.FC<SkillGridByExperienceProps> = ({
       })}
     </div>
   );
-}; 
+};
+
+// Helper function to get the corresponding background color for an icon based on text color
+function getIconBgColor(textColor?: string): string | undefined {
+  if (!textColor) return undefined;
+  
+  // Extract the color name and intensity
+  const matches = textColor.match(/text-([\w-]+)-(\d+)/);
+  if (!matches) return undefined;
+  
+  // We only need the color name from the match, intensity is not used
+  const colorName = matches[1];
+  
+  // Return a light background color based on the text color
+  return `bg-${colorName}-50 dark:bg-${colorName}-900/20`;
+} 
