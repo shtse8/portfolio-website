@@ -12,7 +12,7 @@ export default function TechStack() {
   const [expertise, setExpertise] = useState<{[key: string]: number}>({});
   const sectionRef = useRef<HTMLDivElement>(null);
   
-  // Set up scroll progress animation
+  // Set up scroll animations
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"]
@@ -21,8 +21,11 @@ export default function TechStack() {
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [0, 1, 1, 0]);
   const y = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [60, 0, 0, 60]);
 
+  // Calculate statistics from skills data
   useEffect(() => {
-    // Calculate statistics
+    if (!SKILLS || SKILLS.length === 0) return;
+    
+    // Calculate total skills
     setTotalSkills(SKILLS.length);
     
     // Get unique categories count
@@ -46,20 +49,63 @@ export default function TechStack() {
     setExpertise(expertiseByCategory);
   }, []);
 
-  // Calculate the top 3 categories by total years
+  // Get the top 3 categories by total years
   const topCategories = Object.entries(expertise)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 3)
     .map(([cat]) => cat);
 
+  // Animation variants
+  const fadeInVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (delay = 0) => ({
+      opacity: 1, 
+      y: 0,
+      transition: {
+        delay,
+        duration: 0.5,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    })
+  };
+
+  const lineVariants = {
+    hidden: { width: 0 },
+    visible: { 
+      width: 80, 
+      transition: { 
+        duration: 0.8, 
+        delay: 0.3 
+      } 
+    }
+  };
+
+  const statVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: (delay = 0) => ({
+      opacity: 1, 
+      scale: 1,
+      transition: {
+        delay,
+        duration: 0.4,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    })
+  };
+
   return (
-    <motion.div
+    <motion.section
+      id="tech-stack"
       ref={sectionRef}
-      className="w-full relative py-12 md:py-24 overflow-hidden"
+      className="w-full relative py-12 md:py-20 overflow-hidden"
       style={{ opacity, y }}
+      aria-labelledby="skills-heading"
     >
-      {/* Optional tech-themed background pattern */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-[0.03] pointer-events-none -z-10">
+      {/* Background pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.02] pointer-events-none -z-10"
+        aria-hidden="true"
+      >
         <div className="h-full w-full flex items-center justify-center">
           <svg width="100%" height="100%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -73,109 +119,105 @@ export default function TechStack() {
       </div>
       
       {/* Section header */}
-      <div className="container mx-auto mb-12">
+      <div className="container mx-auto mb-10">
         <motion.div 
           className="max-w-3xl mx-auto text-center px-4"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.7 }}
         >
           <motion.h2 
-            className="text-3xl md:text-4xl font-bold mb-6 tracking-tight"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            id="skills-heading"
+            className="text-2xl sm:text-3xl font-light mb-5 tracking-wide"
+            custom={0}
+            variants={fadeInVariants}
           >
-            Technical <span className="text-primary-600 dark:text-primary-400">Expertise</span>
+            Technical <span className="text-blue-600 dark:text-blue-400">Expertise</span>
           </motion.h2>
           
           <motion.p 
-            className="text-gray-600 dark:text-gray-400 mb-8 text-lg"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-gray-600 dark:text-gray-400 mb-6 text-base sm:text-lg font-light"
+            custom={0.1}
+            variants={fadeInVariants}
           >
             With expertise across {topCategories.join(', ')}, and {categories - 3} other domains, 
             I bring {experienceYears}+ years of technical experience to build robust, scalable solutions.
           </motion.p>
           
-          {/* Animated divider */}
+          {/* Divider */}
           <motion.div 
-            className="w-24 h-1 bg-primary-500 mx-auto rounded-full mb-12"
-            initial={{ width: 0 }}
-            whileInView={{ width: 96 }}
+            className="w-20 h-0.5 bg-blue-500 dark:bg-blue-400 mx-auto rounded-full mb-10"
+            variants={lineVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
           />
         </motion.div>
       </div>
 
       {/* Stats section */}
-      <div className="container mx-auto mb-16">
-        <div className="flex flex-wrap justify-center gap-8 md:gap-16 py-4">
+      <div className="container mx-auto mb-12">
+        <div className="flex flex-wrap justify-center gap-6 md:gap-12 py-4">
+          {/* Total Technologies */}
           <motion.div 
             className="text-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            custom={0.2}
+            variants={statVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
           >
             <motion.p 
-              className="text-4xl md:text-5xl font-bold text-primary-600 dark:text-primary-400"
-              initial={{ y: 20 }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-3xl sm:text-4xl font-light text-blue-600 dark:text-blue-400"
+              custom={0.25}
+              variants={fadeInVariants}
             >
               {totalSkills}+
             </motion.p>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2">Technologies</p>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2 font-light">Technologies</p>
           </motion.div>
           
+          {/* Skill Categories */}
           <motion.div 
             className="text-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            custom={0.3}
+            variants={statVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.4 }}
           >
             <motion.p 
-              className="text-4xl md:text-5xl font-bold text-primary-600 dark:text-primary-400"
-              initial={{ y: 20 }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              className="text-3xl sm:text-4xl font-light text-blue-600 dark:text-blue-400"
+              custom={0.35}
+              variants={fadeInVariants}
             >
               {categories}
             </motion.p>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2">Skill Categories</p>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2 font-light">Skill Categories</p>
           </motion.div>
           
+          {/* Years Experience */}
           <motion.div 
             className="text-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            custom={0.4}
+            variants={statVariants}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.5 }}
           >
             <motion.p 
-              className="text-4xl md:text-5xl font-bold text-primary-600 dark:text-primary-400"
-              initial={{ y: 20 }}
-              whileInView={{ y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+              className="text-3xl sm:text-4xl font-light text-blue-600 dark:text-blue-400"
+              custom={0.45}
+              variants={fadeInVariants}
             >
               {experienceYears}+
             </motion.p>
-            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2">Years Experience</p>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-2 font-light">Years Experience</p>
           </motion.div>
         </div>
       </div>
 
-      {/* Inner container with skill cloud visualization */}
+      {/* Skill cloud visualization */}
       <div className="container mx-auto">
         <SkillCloudView />
       </div>
@@ -187,7 +229,8 @@ export default function TechStack() {
           scaleY: scrollYProgress,
           transformOrigin: "top"
         }}
+        aria-hidden="true"
       />
-    </motion.div>
+    </motion.section>
   );
 } 

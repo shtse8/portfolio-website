@@ -7,11 +7,66 @@ import { PERSONAL_INFO } from '@/data';
 import ThemeSwitch from './ThemeSwitch';
 import { motion } from 'framer-motion';
 import FloatingNavBar from './FloatingNavBar';
+import { cn } from '@/lib/utils';
+
+// Types
+interface NavLink {
+  href: string;
+  label: string;
+}
+
+// Animation variants
+const fadeInVariants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 25
+    }
+  }
+};
+
+const staggerContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: {
+      delayChildren: 0.1,
+      staggerChildren: 0.07
+    }
+  }
+};
+
+const socialIconVariants = {
+  hidden: { opacity: 0, y: -5 },
+  visible: { 
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 25
+    }
+  }
+};
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
+  
+  // Navigation links
+  const navLinks: NavLink[] = [
+    { href: '#hero', label: 'Home' },
+    { href: '#philosophy', label: 'Philosophy' },
+    { href: '#tech-stack', label: 'Skills' },
+    { href: '#experience', label: 'Experience' },
+    { href: '#projects', label: 'Projects' },
+    { href: '#contact', label: 'Contact' }
+  ];
   
   // Set mounted state
   useEffect(() => {
@@ -59,78 +114,7 @@ export default function Header() {
         if (element) observer.unobserve(element);
       });
     };
-  }, [mounted]);
-  
-  const navLinks = [
-    { href: '#hero', label: 'Home' },
-    { href: '#philosophy', label: 'Philosophy' },
-    { href: '#tech-stack', label: 'Skills' },
-    { href: '#experience', label: 'Experience' },
-    { href: '#projects', label: 'Projects' },
-    { href: '#contact', label: 'Contact' }
-  ];
-  
-  // Animations
-  const logoVariants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25
-      }
-    }
-  };
-  
-  const navContainerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: {
-        delayChildren: 0.1,
-        staggerChildren: 0.07
-      }
-    }
-  };
-  
-  const navLinkVariants = {
-    hidden: { opacity: 0, y: -5 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25
-      }
-    }
-  };
-  
-  const socialVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: {
-        delay: 0.3,
-        staggerChildren: 0.07
-      }
-    }
-  };
-  
-  const iconVariants = {
-    hidden: { opacity: 0, y: -5 },
-    visible: { 
-      opacity: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 25
-      }
-    }
-  };
+  }, [mounted, navLinks]);
   
   // Function to check if a link is active
   const isActive = (href: string) => {
@@ -143,23 +127,28 @@ export default function Header() {
   return (
     <>
       <header 
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
+        className={cn(
+          "fixed top-0 left-0 right-0 z-40 transition-all duration-500",
           isScrolled 
-            ? 'py-3 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md shadow-sm' 
-            : 'py-5 bg-transparent'
-        }`}
+            ? "py-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm border-b border-gray-100/50 dark:border-gray-800/50" 
+            : "py-4 bg-transparent"
+        )}
       >
-        <div className="container mx-auto px-5 sm:px-8 max-w-6xl">
+        <div className="container mx-auto px-4 sm:px-6 max-w-6xl">
           <div className="flex justify-between items-center">
+            {/* Logo */}
             <motion.div
+              variants={fadeInVariants}
               initial="hidden"
               animate="visible"
-              variants={logoVariants}
               className="flex-shrink-0"
             >
               <Link 
                 href="#hero" 
-                className="group flex items-center transition-transform duration-300 hover:translate-x-0.5" 
+                className={cn(
+                  "group flex items-center",
+                  "transition-transform duration-300 hover:translate-x-0.5"
+                )}
                 aria-label="Go to home section"
               >
                 <span className="text-lg font-light tracking-wider">
@@ -171,40 +160,50 @@ export default function Header() {
             
             {/* Desktop Navigation */}
             <motion.nav 
-              className="hidden md:flex items-center space-x-7 lg:space-x-9"
+              className="hidden md:flex items-center space-x-6 lg:space-x-8"
+              variants={staggerContainerVariants}
               initial="hidden"
               animate="visible"
-              variants={navContainerVariants}
+              aria-label="Primary navigation"
             >
               {navLinks.map((link, index) => {
                 const active = isActive(link.href);
                 return (
                   <motion.div 
                     key={index} 
-                    variants={navLinkVariants}
+                    variants={fadeInVariants}
                     className="relative"
                   >
                     <Link 
                       href={link.href}
-                      className={`relative text-sm font-light tracking-wide py-1.5 px-2.5
-                                transition-all duration-300 rounded-md
-                                ${active 
-                                  ? 'text-blue-500 dark:text-blue-400' 
-                                  : 'text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'}`}
+                      className={cn(
+                        "relative text-sm font-light tracking-wide py-1.5 px-2.5",
+                        "transition-all duration-300 rounded-md",
+                        active 
+                          ? "text-blue-500 dark:text-blue-400" 
+                          : "text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400"
+                      )}
+                      aria-current={active ? "page" : undefined}
                     >
                       <span className="relative z-10">{link.label}</span>
                       
-                      {/* Animated underline indicator */}
+                      {/* Underline indicator */}
                       <span 
-                        className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-500 dark:bg-blue-400
-                                  transition-all duration-300 ease-out 
-                                  ${active ? 'opacity-100' : 'opacity-0'}`}
+                        className={cn(
+                          "absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-blue-500 dark:bg-blue-400",
+                          "transition-all duration-300 ease-out", 
+                          active ? "opacity-100" : "opacity-0"
+                        )}
+                        aria-hidden="true"
                       />
                       
-                      {/* Hover background effect */}
+                      {/* Hover background */}
                       <span 
-                        className={`absolute inset-0 rounded-md bg-blue-50 dark:bg-blue-900/20 transition-all duration-300
-                                  ${active ? 'opacity-10' : 'opacity-0 group-hover:opacity-10'}`}
+                        className={cn(
+                          "absolute inset-0 rounded-md bg-blue-50 dark:bg-blue-900/20 transition-all duration-300",
+                          active ? "opacity-10" : "opacity-0 group-hover:opacity-10"
+                        )}
+                        aria-hidden="true"
                       />
                     </Link>
                   </motion.div>
@@ -215,62 +214,39 @@ export default function Header() {
             <div className="flex items-center">
               {/* Social Links - Desktop Only */}
               <motion.div 
-                className="hidden md:flex items-center space-x-5 mr-6"
+                className="hidden md:flex items-center space-x-4 mr-5"
+                variants={staggerContainerVariants}
                 initial="hidden"
                 animate="visible"
-                variants={socialVariants}
               >
-                <motion.div 
-                  variants={iconVariants} 
-                  whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
-                  whileTap={{ scale: 0.92 }}
-                  className="relative"
-                >
-                  <Link 
-                    href={PERSONAL_INFO.social.github}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
-                    aria-label="GitHub"
+                {[
+                  { href: PERSONAL_INFO.social.github, icon: <FaGithub className="w-4 h-4" />, label: "GitHub Profile" },
+                  { href: PERSONAL_INFO.social.linkedin, icon: <FaLinkedin className="w-4 h-4" />, label: "LinkedIn Profile" },
+                  { href: PERSONAL_INFO.social.stackoverflow, icon: <FaStackOverflow className="w-4 h-4" />, label: "Stack Overflow Profile" }
+                ].map((social, index) => (
+                  <motion.div 
+                    key={index}
+                    variants={socialIconVariants} 
+                    whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
+                    whileTap={{ scale: 0.92 }}
                   >
-                    <FaGithub className="text-lg" />
-                    <span className="sr-only">GitHub Profile</span>
-                  </Link>
-                </motion.div>
-                <motion.div 
-                  variants={iconVariants} 
-                  whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
-                  whileTap={{ scale: 0.92 }}
-                  className="relative"
-                >
-                  <Link 
-                    href={PERSONAL_INFO.social.linkedin}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
-                    aria-label="LinkedIn"
-                  >
-                    <FaLinkedin className="text-lg" />
-                    <span className="sr-only">LinkedIn Profile</span>
-                  </Link>
-                </motion.div>
-                <motion.div 
-                  variants={iconVariants} 
-                  whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
-                  whileTap={{ scale: 0.92 }}
-                  className="relative"
-                >
-                  <Link 
-                    href={PERSONAL_INFO.social.stackoverflow}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="block p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors duration-300"
-                    aria-label="Stack Overflow"
-                  >
-                    <FaStackOverflow className="text-lg" />
-                    <span className="sr-only">Stack Overflow Profile</span>
-                  </Link>
-                </motion.div>
+                    <Link 
+                      href={social.href}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={cn(
+                        "flex items-center justify-center w-8 h-8 rounded-lg",
+                        "text-gray-500 dark:text-gray-400",
+                        "hover:text-blue-500 dark:hover:text-blue-400", 
+                        "hover:bg-white/70 dark:hover:bg-gray-800/40",
+                        "transition-all duration-200 border border-gray-100/30 dark:border-gray-800/30"
+                      )}
+                      aria-label={social.label}
+                    >
+                      {social.icon}
+                    </Link>
+                  </motion.div>
+                ))}
               </motion.div>
               
               {/* Theme Switch */}
@@ -282,7 +258,7 @@ export default function Header() {
                 <ThemeSwitch />
               </motion.div>
               
-              {/* Mobile - Social Media Icons (small screen only) */}
+              {/* Mobile Social Icon */}
               <motion.div
                 className="md:hidden flex items-center ml-3"
                 initial={{ opacity: 0 }}
@@ -293,10 +269,16 @@ export default function Header() {
                   href={PERSONAL_INFO.social.github}
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors p-1.5"
+                  className={cn(
+                    "flex items-center justify-center w-7 h-7 rounded-lg",
+                    "text-gray-500 dark:text-gray-400", 
+                    "hover:text-blue-500 dark:hover:text-blue-400",
+                    "hover:bg-white/70 dark:hover:bg-gray-800/40",
+                    "transition-all duration-200 border border-gray-100/30 dark:border-gray-800/30"
+                  )}
                   aria-label="GitHub"
                 >
-                  <FaGithub className="text-sm" />
+                  <FaGithub className="w-3.5 h-3.5" />
                 </Link>
               </motion.div>
             </div>

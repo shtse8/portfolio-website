@@ -5,6 +5,56 @@ import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaStackOverflow, FaEnvelope, FaArrowUp, FaMapMarkerAlt, FaHeart } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 15, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 24
+    }
+  }
+};
+
+const buttonVariants = {
+  initial: { opacity: 0, scale: 0.9 },
+  animate: { 
+    opacity: 1, 
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 20,
+      delay: 0.5
+    }
+  },
+  hover: { 
+    y: -4,
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.05)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 10
+    }
+  },
+  tap: { scale: 0.97 }
+};
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -21,156 +71,110 @@ export default function Footer() {
     });
   };
   
-  // Animation variants for smoother, more intentional animations
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { y: 15, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 24
-      }
-    }
-  };
-
-  const buttonVariants = {
-    initial: { opacity: 0, scale: 0.9 },
-    animate: { 
-      opacity: 1, 
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 20,
-        delay: 0.5
-      }
-    },
-    hover: { 
-      y: -4,
-      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10
-      }
-    },
-    tap: { scale: 0.97 }
-  };
-  
   if (!mounted) return null;
 
   return (
-    <footer className="relative bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 overflow-hidden pt-20 pb-16">
-      {/* Subtle decorative accents */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent opacity-50"></div>
-        <div className="absolute -top-32 -left-32 w-64 h-64 rounded-full bg-blue-100/20 dark:bg-blue-900/10 blur-3xl"></div>
-        <div className="absolute -bottom-32 -right-32 w-64 h-64 rounded-full bg-indigo-100/20 dark:bg-indigo-900/10 blur-3xl"></div>
+    <footer className="relative bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-950 overflow-hidden pt-16 pb-12">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-800 to-transparent opacity-40"></div>
+        <div className="absolute -top-32 -left-32 w-64 h-64 rounded-full bg-blue-100/10 dark:bg-blue-900/5 blur-3xl"></div>
+        <div className="absolute -bottom-32 -right-32 w-64 h-64 rounded-full bg-indigo-100/10 dark:bg-indigo-900/5 blur-3xl"></div>
       </div>
       
-      <div className="container mx-auto px-5 sm:px-6 relative z-10 max-w-5xl">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10 max-w-5xl">
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-14"
+          className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
         >
+          {/* About section */}
           <motion.div 
             className="md:col-span-5"
             variants={itemVariants}
           >
-            <div className="mb-6">
-              <h3 className="text-2xl font-light tracking-wide mb-2">
+            <div className="mb-5">
+              <h2 className="text-xl font-light tracking-wide mb-2">
                 <span className="text-blue-500 dark:text-blue-400">{PERSONAL_INFO.firstName}</span>
                 <span className="text-gray-700 dark:text-white ml-1">{PERSONAL_INFO.lastName}</span>
-              </h3>
+              </h2>
               <p className="text-base font-light text-gray-500 dark:text-gray-400 mb-3">{PERSONAL_INFO.title}</p>
             </div>
-            <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md leading-relaxed font-light">
+            <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md leading-relaxed font-light">
               {PERSONAL_INFO.shortBio}
             </p>
-            <div className="flex space-x-4 mb-8">
-              <motion.a
-                href={PERSONAL_INFO.social.github} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-full text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-800 transition-all"
-                aria-label="GitHub"
-                whileHover={{ y: -3, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaGithub className="w-5 h-5" />
-              </motion.a>
-              <motion.a 
-                href={PERSONAL_INFO.social.linkedin} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-full text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-800 transition-all"
-                aria-label="LinkedIn"
-                whileHover={{ y: -3, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaLinkedin className="w-5 h-5" />
-              </motion.a>
-              <motion.a 
-                href={PERSONAL_INFO.social.stackoverflow} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-full text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-800 transition-all"
-                aria-label="Stack Overflow"
-                whileHover={{ y: -3, scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaStackOverflow className="w-5 h-5" />
-              </motion.a>
+            <div className="flex space-x-3 mb-6">
+              {[
+                { href: PERSONAL_INFO.social.github, icon: <FaGithub className="w-4 h-4" />, label: "GitHub" },
+                { href: PERSONAL_INFO.social.linkedin, icon: <FaLinkedin className="w-4 h-4" />, label: "LinkedIn" },
+                { href: PERSONAL_INFO.social.stackoverflow, icon: <FaStackOverflow className="w-4 h-4" />, label: "Stack Overflow" }
+              ].map((social, index) => (
+                <motion.a
+                  key={index}
+                  href={social.href} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "flex items-center justify-center w-9 h-9 rounded-lg",
+                    "text-gray-400 hover:text-blue-500 dark:hover:text-blue-400", 
+                    "hover:bg-white dark:hover:bg-gray-800",
+                    "transition-all duration-200",
+                    "border border-gray-100/50 dark:border-gray-800/50"
+                  )}
+                  aria-label={social.label}
+                  whileHover={{ y: -3, scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {social.icon}
+                </motion.a>
+              ))}
             </div>
           </motion.div>
           
+          {/* Quick Links */}
           <motion.div 
             className="md:col-span-3"
             variants={itemVariants}
           >
-            <h3 className="text-base font-medium mb-6 text-gray-700 dark:text-gray-300">
+            <h3 className="text-base font-medium mb-5 text-gray-700 dark:text-gray-300">
               Quick Links
             </h3>
-            <ul className="space-y-3">
-              {['Home', 'Skills', 'Projects', 'Experience', 'Philosophy', 'Contact'].map((item, index) => (
+            <ul className="space-y-2.5">
+              {[
+                { label: 'Home', href: '#hero' },
+                { label: 'Skills', href: '#tech-stack' },
+                { label: 'Projects', href: '#projects' },
+                { label: 'Experience', href: '#experience' },
+                { label: 'Philosophy', href: '#philosophy' },
+                { label: 'Contact', href: '#contact' }
+              ].map((item, index) => (
                 <li key={index}>
                   <Link 
-                    href={`#${item.toLowerCase() === 'home' ? 'hero' : item.toLowerCase()}`} 
-                    className="text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 
-                               transition-all text-sm font-light py-1 inline-block
-                               border-b border-transparent hover:border-blue-500 dark:hover:border-blue-400"
+                    href={item.href} 
+                    className={cn(
+                      "text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400", 
+                      "transition-all text-sm font-light py-1 inline-block",
+                      "border-b border-transparent hover:border-blue-500 dark:hover:border-blue-400"
+                    )}
                   >
-                    {item}
+                    {item.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </motion.div>
           
+          {/* Contact */}
           <motion.div 
             className="md:col-span-4"
             variants={itemVariants}
           >
-            <h3 className="text-base font-medium mb-6 text-gray-700 dark:text-gray-300">
+            <h3 className="text-base font-medium mb-5 text-gray-700 dark:text-gray-300">
               Get In Touch
             </h3>
-            <div className="space-y-4 mb-8">
+            <div className="space-y-3 mb-6">
               <motion.a 
                 href={`mailto:${PERSONAL_INFO.email}`}
                 className="flex items-center group text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-all text-sm font-light"
@@ -192,11 +196,13 @@ export default function Footer() {
             </div>
             <motion.a 
               href="#contact" 
-              className="inline-flex items-center px-5 py-2.5 rounded-lg text-sm
-                        bg-blue-500/10 hover:bg-blue-500/15 dark:bg-blue-500/20 dark:hover:bg-blue-500/25
-                        text-blue-700 dark:text-blue-300
-                        border border-blue-200 dark:border-blue-700/40
-                        transition-all shadow-sm hover:shadow"
+              className={cn(
+                "inline-flex items-center px-4 py-2 rounded-lg text-sm",
+                "bg-blue-500/10 hover:bg-blue-500/15 dark:bg-blue-500/20 dark:hover:bg-blue-500/25",
+                "text-blue-700 dark:text-blue-300",
+                "border border-blue-200 dark:border-blue-700/40",
+                "transition-all shadow-sm hover:shadow"
+              )}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -205,8 +211,9 @@ export default function Footer() {
           </motion.div>
         </motion.div>
         
+        {/* Copyright */}
         <motion.div 
-          className="mt-16 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center"
+          className="mt-12 pt-5 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -218,20 +225,23 @@ export default function Footer() {
           
           <div className="text-gray-400 dark:text-gray-500 flex items-center text-xs font-light">
             <span>Built with</span> 
-            <FaHeart className="text-red-400 mx-1.5 text-[0.65rem]" />
+            <FaHeart className="text-red-400 mx-1.5 text-[0.65rem]" aria-hidden="true" />
             <span>using Next.js, TypeScript & Tailwind</span>
           </div>
         </motion.div>
       </div>
       
+      {/* Scroll to top button */}
       <motion.button 
         onClick={scrollToTop}
-        className="absolute right-6 bottom-6 p-3 rounded-full
-                  bg-white dark:bg-gray-800
-                  text-blue-500 dark:text-blue-400
-                  shadow-sm hover:shadow
-                  border border-gray-100 dark:border-gray-700
-                  transition-all"
+        className={cn(
+          "absolute right-6 bottom-6 p-3 rounded-lg",
+          "bg-white dark:bg-gray-800",
+          "text-blue-500 dark:text-blue-400",
+          "shadow-sm hover:shadow",
+          "border border-gray-100/50 dark:border-gray-700/50",
+          "transition-all"
+        )}
         aria-label="Scroll to top"
         variants={buttonVariants}
         initial="initial"

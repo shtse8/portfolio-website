@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { PROJECTS, Project, EXPERIENCES, Experience, TechSkill } from '@/data/portfolioData';
+import { cn } from '@/lib/utils';
 
 // Interfaces for component props
 interface SkillCardProps {
@@ -16,39 +17,19 @@ interface RelatedItemsProps {
 }
 
 // Animation variants with improved configuration
-const itemVariants = {
+const cardVariants = {
   hidden: { y: 20, opacity: 0 },
   visible: {
     y: 0,
     opacity: 1,
     transition: {
       type: "spring",
-      stiffness: 50,
+      stiffness: 40,
       damping: 15,
-      mass: 1.2,
-      duration: 0.7
+      mass: 1,
+      duration: 0.6
     }
   }
-};
-
-// Separate component for related items indicator
-const RelatedItemsIndicator: React.FC<RelatedItemsProps> = ({ count }) => {
-  if (count === 0) return null;
-  
-  return (
-    <div className="mt-auto pt-6 border-t border-gray-100 dark:border-gray-800/50">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-500 dark:text-gray-400 font-light">
-          {count} related {count === 1 ? 'item' : 'items'}
-        </span>
-        <div className="text-blue-500 dark:text-blue-400" aria-hidden="true">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 // Utility functions to get related data
@@ -58,6 +39,29 @@ const getRelatedProjects = (skillId: string): Project[] => {
 
 const getRelatedExperiences = (skillId: string): Experience[] => {
   return EXPERIENCES.filter(experience => experience.skills.includes(skillId));
+};
+
+// Separate component for related items indicator
+const RelatedItemsIndicator: React.FC<RelatedItemsProps> = ({ count }) => {
+  if (count === 0) return null;
+  
+  return (
+    <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
+      <div className="flex justify-between items-center">
+        <span className="text-sm text-gray-500 dark:text-gray-400 font-light">
+          {count} related {count === 1 ? 'item' : 'items'}
+        </span>
+        <div 
+          className="text-blue-500 dark:text-blue-400 transition-transform duration-200 group-hover:translate-x-1" 
+          aria-hidden="true"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // Main SkillCard component
@@ -76,41 +80,82 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, onClick, getSkillIcon }) =
   // Determine if card is interactive based on related items
   const isInteractive = relatedData.totalCount > 0;
   
-  // Memoize hover animation to prevent recreation on each render
-  const hoverAnimation = useMemo(() => {
-    if (!isInteractive) return {};
-    
-    return {
-      y: -3,
-      backgroundColor: "rgba(255, 255, 255, 0.9)"
-    };
-  }, [isInteractive]);
+  // Generate a proper aria-label for the card
+  const ariaLabel = useMemo(() => {
+    let label = `${skill.name}: ${skill.description}`;
+    if (isInteractive) {
+      label += `. ${relatedData.totalCount} related ${relatedData.totalCount === 1 ? 'item' : 'items'}. Click to view details.`;
+    }
+    return label;
+  }, [skill.name, skill.description, isInteractive, relatedData.totalCount]);
   
   return (
     <motion.div 
-      variants={itemVariants}
-      className={`group relative bg-gray-50 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl overflow-hidden 
-                transition-all duration-300 ${isInteractive ? 'cursor-pointer' : ''}`}
-      whileHover={hoverAnimation}
+      variants={cardVariants}
+      className={cn(
+        "group relative bg-white dark:bg-gray-800 rounded-lg overflow-hidden",
+        "shadow-sm border border-gray-100 dark:border-gray-700",
+        "transition-all duration-200 h-full flex flex-col",
+        isInteractive && "hover:shadow-md hover:-translate-y-1 cursor-pointer"
+      )}
+      whileHover={isInteractive ? { scale: 1.01 } : {}}
       onClick={() => isInteractive && onClick(skill.id)}
       role={isInteractive ? "button" : "article"}
       tabIndex={isInteractive ? 0 : undefined}
-      aria-label={`${skill.name}: ${skill.description}`}
+      aria-label={ariaLabel}
+      onKeyDown={(e) => {
+        if (isInteractive && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault();
+          onClick(skill.id);
+        }
+      }}
     >
-      {/* Colored accent */}
-      <div className={`h-0.5 w-full ${skill.bgColor}`} aria-hidden="true"></div>
+      {/* Colored accent top bar */}
+      <div 
+        className={cn("h-1 w-full", skill.bgColor || "bg-blue-500")} 
+        aria-hidden="true"
+      />
       
-      <div className="p-8">
+      <div className="p-6 flex flex-col h-full">
         {/* Icon and title */}
-        <div className="flex items-center mb-6">
-          <div className={`${skill.color} p-3 rounded-lg mr-5`} aria-hidden="true">
+        <div className="flex items-center mb-4">
+          <div 
+            className={cn(
+              "p-2 rounded-lg mr-4",
+              skill.color || "text-blue-500 bg-blue-50 dark:bg-blue-900/20"
+            )} 
+            aria-hidden="true"
+          >
             {getSkillIcon(skill.id)}
           </div>
-          <h3 className="text-xl font-light tracking-wide">{skill.name}</h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+            {skill.name}
+          </h3>
+        </div>
+        
+        {/* Experience level */}
+        <div className="mb-2">
+          <div className="flex items-center">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+              <div 
+                className={cn(
+                  "h-1.5 rounded-full",
+                  skill.bgColor || "bg-blue-500"
+                )}
+                style={{ width: `${Math.min(100, skill.yearsOfExperience * 10)}%` }}
+                aria-hidden="true"
+              />
+            </div>
+            <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
+              {skill.yearsOfExperience} {skill.yearsOfExperience === 1 ? 'year' : 'years'}
+            </span>
+          </div>
         </div>
         
         {/* Description */}
-        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-8">{skill.description}</p>
+        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
+          {skill.description}
+        </p>
         
         {/* Related items info */}
         <RelatedItemsIndicator count={relatedData.totalCount} />

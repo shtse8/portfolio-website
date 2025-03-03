@@ -173,105 +173,150 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   useEffect(() => {
     if (!svgRef.current || words.length === 0 || !isInView || animationComplete || cloudGenerated) return;
     
-    const svg = d3.select(svgRef.current);
+    // Show loading indicator first if needed
+    const svg = d3.select(svgRef.current)
+      .attr("shape-rendering", "geometricPrecision") // Improve render quality
+      .style("text-rendering", "optimizeLegibility"); // Improve text rendering
+    
     svg.selectAll("*").remove();
     
-    // Create a radial gradient background for the cloud
+    // Add SVG filter for better text readability if needed
     const defs = svg.append("defs");
-    const gradient = defs.append("radialGradient")
-      .attr("id", "cloud-background")
-      .attr("cx", "50%")
-      .attr("cy", "50%")
-      .attr("r", "50%");
-      
-    gradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", isDarkMode ? "#2d3748" : "#f3f4f6")
-      .attr("stop-opacity", 0.3);
-      
-    gradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", isDarkMode ? "#1a202c" : "#f9fafb")
-      .attr("stop-opacity", 0);
     
-    // Add subtle background
-    svg.append("circle")
-      .attr("cx", dimensions.width / 2)
-      .attr("cy", dimensions.height / 2)
-      .attr("r", Math.min(dimensions.width, dimensions.height) * 0.45)
-      .attr("fill", "url(#cloud-background)")
-      .attr("class", "cloud-background");
-
-    // Sort words by project count for better placement
-    const sortedWords = [...words].sort((a, b) => b.projectCount - a.projectCount);
-
+    // Add a subtle drop shadow filter for text
+    const filter = defs.append("filter")
+      .attr("id", "text-shadow")
+      .attr("x", "-20%")
+      .attr("y", "-20%")
+      .attr("width", "140%")
+      .attr("height", "140%");
+    
+    filter.append("feDropShadow")
+      .attr("dx", "0")
+      .attr("dy", "0")
+      .attr("stdDeviation", "1")
+      .attr("flood-opacity", "0.2")
+      .attr("flood-color", isDarkMode ? "#000" : "#333");
+    
+    // Use a more efficient layout computation with better defaults
     const layout = d3Cloud.default()
       .size([dimensions.width, dimensions.height])
-      .words(sortedWords as d3Cloud.Word[])
-      .padding(12) // Increased padding for better spacing
-      .rotate(() => 0)
+      .words(words as d3Cloud.Word[])
+      .padding(8) // Further reduced padding for denser layout
+      .rotate(() => 0) // No rotation for cleaner appearance and faster calculation
       .fontSize(d => (d as CloudWord).size)
       .fontWeight(d => (d as CloudWord).weight.toString())
       .spiral("archimedean")
+      .random(() => 0.5) // Make layout more deterministic
+      .timeInterval(1) // Minimize time intervals for faster calculation
       .on("end", drawCloud);
-
-    layout.start();
     
+    // Add background with requestAnimationFrame for better performance
+    requestAnimationFrame(() => {
+      // Create a radial gradient background for the cloud
+      const gradient = defs.append("radialGradient")
+        .attr("id", "cloud-background")
+        .attr("cx", "50%")
+        .attr("cy", "50%")
+        .attr("r", "50%")
+        .attr("fx", "50%")
+        .attr("fy", "50%");
+      
+      gradient.append("stop")
+        .attr("offset", "0%")
+        .attr("stop-color", isDarkMode ? "#1f2937" : "#f9fafb")
+        .attr("stop-opacity", 0.2);
+        
+      gradient.append("stop")
+        .attr("offset", "100%")
+        .attr("stop-color", isDarkMode ? "#111827" : "#f3f4f6")
+        .attr("stop-opacity", 0);
+      
+      // Start the layout computation immediately
+      layout.start();
+    });
+
+    // Precompute word positions for better performance
     function drawCloud(computedWords: d3Cloud.Word[]) {
       // Skip if no words or container unmounted
       if (computedWords.length === 0 || !svgRef.current) return;
       
       const typedWords = computedWords as (d3Cloud.Word & CloudWord)[];
       
-      // Enhance words with animation properties
-      const enhancedWords = typedWords.map(word => {
-        return {
-          ...word,
-          x: word.x,
-          y: word.y,
-          initialX: 0, // Start from center
-          initialY: 0, // Start from center
-          initialOpacity: 0
-        };
-      });
+      // Process all words in a batch for better performance
+      const enhancedWords = typedWords.map(word => ({
+        ...word,
+        x: word.x,
+        y: word.y,
+        initialX: word.x, // Start from final position for smoother appearance
+        initialY: word.y,
+        initialOpacity: 0
+      }));
       
       setWords(enhancedWords);
       
       const g = svg.append("g")
         .attr("transform", `translate(${dimensions.width / 2},${dimensions.height / 2})`);
       
-      // Add subtle connecting lines between words in the same category
+      // Only draw connections for words visible on screen
       if (enhancedWords.length > 0) {
         const categories = Array.from(new Set(enhancedWords.map(w => w.category)));
-        categories.forEach(category => {
-          const categoryWords = enhancedWords.filter(w => w.category === category);
-          if (categoryWords.length > 1) {
-            // Find central word for this category (largest)
-            const centralWord = categoryWords.reduce((max, word) => 
-              word.size > max.size ? word : max, categoryWords[0]);
-            
-            // Add subtle connecting lines to central word
-            categoryWords.forEach(word => {
-              if (word.id !== centralWord.id) {
-                g.append("line")
-                  .attr("x1", centralWord.x!)
-                  .attr("y1", centralWord.y!)
-                  .attr("x2", word.x!)
-                  .attr("y2", word.y!)
-                  .attr("stroke", isDarkMode ? "#4b5563" : "#e5e7eb")
-                  .attr("stroke-width", 0.5)
-                  .attr("stroke-opacity", 0.15)
-                  .attr("class", `connection ${word.category}`);
-              }
-            });
-          }
+        
+        // Only draw a minimal number of connections for better performance
+        const maxConnectionsPerCategory = Math.min(3, Math.floor(enhancedWords.length / categories.length / 3));
+        
+        // Draw connections with requestAnimationFrame
+        requestAnimationFrame(() => {
+          // Create a separate group for connections for better performance
+          const connectionGroup = g.append("g").attr("class", "connections");
+          
+          // Process all connections in a single batch
+          const allConnections: {source: CloudWord, target: CloudWord, category: string}[] = [];
+          
+          categories.forEach(category => {
+            const categoryWords = enhancedWords.filter(w => w.category === category);
+            if (categoryWords.length > 1) {
+              // Find central word for this category (largest)
+              const centralWord = categoryWords.reduce((max, word) => 
+                word.size > max.size ? word : max, categoryWords[0]);
+              
+              // Only connect to the largest words in each category
+              const connectedWords = categoryWords
+                .filter(w => w.id !== centralWord.id)
+                .sort((a, b) => b.size - a.size)
+                .slice(0, maxConnectionsPerCategory);
+              
+              // Collect connections rather than drawing immediately
+              connectedWords.forEach(word => {
+                allConnections.push({
+                  source: centralWord,
+                  target: word,
+                  category: word.category
+                });
+              });
+            }
+          });
+          
+          // Draw all connections at once
+          connectionGroup.selectAll("line")
+            .data(allConnections)
+            .enter()
+            .append("line")
+            .attr("x1", d => d.source.x!)
+            .attr("y1", d => d.source.y!)
+            .attr("x2", d => d.target.x!)
+            .attr("y2", d => d.target.y!)
+            .attr("stroke", isDarkMode ? "#4b5563" : "#e5e7eb")
+            .attr("stroke-width", 0.5)
+            .attr("stroke-opacity", 0.15)
+            .attr("class", d => `connection ${d.category}`);
         });
       }
       
+      // Process all words at once for better performance
       // Color mapping function
       const getWordColor = (colorStr: string) => {
         const color = colorStr.replace('text-', '');
-        // Enhanced color mapping with slightly richer colors
         const colorMap: Record<string, string> = {
           'blue-500': '#3b82f6',
           'blue-600': '#2563eb',
@@ -302,7 +347,7 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
         return colorMap[color] || (isDarkMode ? '#e5e7eb' : '#111827');
       };
       
-      // Add the text elements with enhanced styling
+      // Use a single selection for better performance
       g.selectAll("text")
         .data(enhancedWords)
         .enter()
@@ -315,95 +360,81 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
         .style("fill", d => getWordColor(d.color))
         .style("opacity", 0)
         .attr("text-anchor", "middle")
-        .attr("transform", d => `translate(${d.initialX},${d.initialY}) scale(0.1)`)
+        .attr("transform", d => `translate(${d.initialX},${d.initialY}) scale(0.8)`)
         .text(d => d.text)
         .attr("class", "skill-cloud-word")
         .style("cursor", "pointer")
-        // Add subtle letter-spacing for better readability
         .style("letter-spacing", "0.02em")
-        // Add subtle text shadow for depth
         .style("text-shadow", isDarkMode ? 
           "0 1px 2px rgba(0,0,0,0.2)" : 
           "0 1px 2px rgba(0,0,0,0.05)")
+        .attr("filter", "url(#text-shadow)")
         .on("click", (event, d) => {
           onSkillClick(d.id);
         })
-        // Refined hover effects
+        // Optimize hover effects
         .on("mouseover", function(event, d) {
           const currentWord = d as CloudWord;
           setHoveredWord(currentWord.id);
           
-          const wordX = currentWord.x!;
-          const wordY = currentWord.y!;
-          
-          // Highlight the hovered word
+          // Transition optimization
           d3.select(this)
+            .interrupt() // Stop any ongoing transitions
             .transition()
             .duration(180)
             .ease(d3.easeBackOut.overshoot(1.1))
-            .attr("transform", `translate(${wordX},${wordY}) scale(1.3)`)
+            .attr("transform", `translate(${currentWord.x},${currentWord.y}) scale(1.3)`)
             .style("opacity", 1)
-            .style("letter-spacing", "0.03em") // Slightly increase spacing on hover
             .style("z-index", 100);
           
-          // Highlight connection lines for this category
-          if (currentWord.category) {
-            g.selectAll(`line.${currentWord.category}`)
-              .transition()
-              .duration(180)
-              .attr("stroke-opacity", 0.4)
-              .attr("stroke-width", 1);
-          }
+          // Only highlight connections for this category
+          g.selectAll(`line.${currentWord.category}`)
+            .interrupt() // Stop any ongoing transitions
+            .transition()
+            .duration(180)
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1);
           
-          // Make ALL words move away with refined distance-based effect
+          // Optimize word displacement by only affecting closest words
+          const wordX = currentWord.x!;
+          const wordY = currentWord.y!;
+          const maxDistance = 300; // Reduce affected radius for better performance
+          
           svg.selectAll<SVGTextElement, CloudWord>("text").each(function(otherWord) {
             if (otherWord.id !== currentWord.id) {
               const otherX = otherWord.x!;
               const otherY = otherWord.y!;
               
-              // Calculate distance between words
+              // Calculate distance
               const dx = otherX - wordX;
               const dy = otherY - wordY;
               const distance = Math.sqrt(dx * dx + dy * dy);
               
-              // Create dynamic wave-like effect
-              const maxDistance = 450;
-              const maxMoveAmount = 55;
-              
-              // Improved curve for more natural displacement
-              const moveAmount = maxMoveAmount * Math.pow(1 - Math.min(distance / maxDistance, 1), 1.7);
-              
-              // Normalize direction vector
-              const totalDist = Math.sqrt(dx * dx + dy * dy);
-              const dirX = totalDist > 0 ? dx / totalDist : 0;
-              const dirY = totalDist > 0 ? dy / totalDist : 0;
-              
-              // Apply the movement with refined physics
-              d3.select(this)
-                .transition()
-                .duration(220)
-                .ease(d3.easeQuadOut)
-                .attr("transform", `translate(${otherX + dirX * moveAmount},${otherY + dirY * moveAmount}) scale(1)`)
-                .style("opacity", () => {
-                  const baseOpacity = otherWord.opacity;
-                  
-                  // Keep words in same category more visible
-                  if (otherWord.category === currentWord.category) {
-                    return baseOpacity * 0.8;
-                  }
-                  
-                  // Distant words fade more
-                  const opacityReduction = 0.2 + 0.2 * (1 - Math.min(distance / maxDistance, 1));
-                  return Math.max(0.4, baseOpacity - opacityReduction);
-                });
+              // Only affect closer words for better performance
+              if (distance < maxDistance) {
+                const moveAmount = 30 * Math.pow(1 - distance / maxDistance, 1.5);
+                const dirX = dx / (Math.abs(dx) + 0.1);
+                const dirY = dy / (Math.abs(dy) + 0.1);
+                
+                d3.select(this)
+                  .interrupt() // Stop any ongoing transitions
+                  .transition()
+                  .duration(180)
+                  .ease(d3.easeQuadOut)
+                  .attr("transform", `translate(${otherX + dirX * moveAmount},${otherY + dirY * moveAmount}) scale(1)`)
+                  .style("opacity", otherWord.category === currentWord.category ? 
+                    Math.max(0.6, otherWord.opacity * 0.8) : 
+                    Math.max(0.4, otherWord.opacity * 0.6));
+              }
             }
           });
         })
         .on("mouseout", function() {
           setHoveredWord(null);
           
-          // Reset all elements
+          // Reset all elements with a single selection for better performance
           svg.selectAll<SVGTextElement, CloudWord>("text")
+            .interrupt() // Stop any ongoing transitions
             .transition()
             .duration(160)
             .ease(d3.easeQuadIn)
@@ -416,19 +447,21 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
               }
               return word.opacity;
             })
-            .style("letter-spacing", "0.02em")
             .style("z-index", 1);
           
           // Reset connection lines
           g.selectAll("line")
+            .interrupt() // Stop any ongoing transitions
             .transition()
             .duration(160)
             .attr("stroke-opacity", 0.15)
             .attr("stroke-width", 0.5);
         });
-        
-      // Start entry animations
-      animateWordsEntry(svg, enhancedWords);
+      
+      // Start entry animations with requestAnimationFrame for smoother performance
+      requestAnimationFrame(() => {
+        animateWordsEntry(svg, enhancedWords);
+      });
       
       // Mark cloud as generated
       setCloudGenerated(true);
@@ -439,58 +472,60 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   const animateWordsEntry = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, words: CloudWord[]) => {
     if (!svg || !words.length) return;
     
-    // Group words by importance for staggered animation
-    const primaryWords = words.filter(w => w.size > 45);
-    const secondaryWords = words.filter(w => w.size > 30 && w.size <= 45);
-    const tertiaryWords = words.filter(w => w.size > 20 && w.size <= 30);
-    const quaternaryWords = words.filter(w => w.size <= 20);
+    // Sort words by size for more uniform animation
+    const sortedWords = [...words].sort((a, b) => b.size - a.size);
     
-    // First wave - the largest words (immediate impact)
-    primaryWords.forEach(word => {
-      svg.select(`text[data-id="${word.id}"]`)
-        .transition()
-        .delay(0)
-        .duration(650)
-        .ease(d3.easeElasticOut.amplitude(0.9).period(0.3))
-        .style("opacity", word.opacity)
-        .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
+    // Divide words into just two groups for simpler, faster animation
+    const primaryWords = sortedWords.slice(0, Math.ceil(sortedWords.length * 0.3)); // Top 30%
+    const secondaryWords = sortedWords.slice(Math.ceil(sortedWords.length * 0.3));
+    
+    // Pre-calculate positions and transformations for better performance
+    const allWordElements = sortedWords.map(word => ({
+      element: svg.select(`text[data-id="${word.id}"]`),
+      word: word
+    }));
+
+    // Batch animations for better performance and smoother appearance
+    
+    // First add all words with opacity 0 to prevent layout shifts
+    allWordElements.forEach(({ element, word }) => {
+      element
+        .style("opacity", 0)
+        .attr("transform", `translate(${word.x},${word.y}) scale(0.6)`)
+        .style("will-change", "transform, opacity"); // Add GPU acceleration hint
     });
     
-    // Second wave - medium-large words
-    secondaryWords.forEach((word, i) => {
-      svg.select(`text[data-id="${word.id}"]`)
-        .transition()
-        .delay(40 + (i % 4) * 25)
-        .duration(700)
-        .ease(d3.easeElasticOut.amplitude(0.8).period(0.3))
-        .style("opacity", word.opacity)
-        .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
+    // Use requestAnimationFrame for smoother performance
+    requestAnimationFrame(() => {
+      // Animate primary words (larger/more important) first with minimal delays
+      primaryWords.forEach((word, i) => {
+        svg.select(`text[data-id="${word.id}"]`)
+          .transition()
+          .delay(i < 5 ? i * 10 : 50 + Math.min(i * 2, 30)) // Drastically reduced delays
+          .duration(300) // Shorter duration
+          .ease(d3.easeBackOut.overshoot(1.2)) // More dynamic easing
+          .style("opacity", word.opacity)
+          .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
+      });
+      
+      // Animate all secondary words almost simultaneously with a short initial delay
+      secondaryWords.forEach((word, i) => {
+        svg.select(`text[data-id="${word.id}"]`)
+          .transition()
+          .delay(80 + Math.min(i * 1.5, 100)) // Very short delays, capped at 100ms
+          .duration(250) // Very short duration
+          .ease(d3.easeCubicOut) // Smoother easing
+          .style("opacity", word.opacity)
+          .attr("transform", `translate(${word.x},${word.y}) scale(1)`)
+          .on("end", function() {
+            // Remove will-change after animation to free up GPU resources
+            d3.select(this).style("will-change", "auto");
+          });
+      });
     });
     
-    // Third wave - medium-small words
-    tertiaryWords.forEach((word, i) => {
-      svg.select(`text[data-id="${word.id}"]`)
-        .transition()
-        .delay(80 + (i % 6) * 20)
-        .duration(700)
-        .ease(d3.easeElasticOut.amplitude(0.8).period(0.35))
-        .style("opacity", word.opacity)
-        .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
-    });
-    
-    // Fourth wave - smallest words
-    quaternaryWords.forEach((word, i) => {
-      svg.select(`text[data-id="${word.id}"]`)
-        .transition()
-        .delay(120 + (i % 8) * 15)
-        .duration(750)
-        .ease(d3.easeElasticOut.amplitude(0.7).period(0.4))
-        .style("opacity", word.opacity)
-        .attr("transform", `translate(${word.x},${word.y}) scale(1)`);
-    });
-    
-    // Mark animation as complete after reasonable time
-    const totalDuration = 850;
+    // Mark animation as complete after a much shorter time
+    const totalDuration = 350; // Dramatically reduced
     setTimeout(() => {
       setAnimationComplete(true);
     }, totalDuration);

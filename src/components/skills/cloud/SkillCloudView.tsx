@@ -12,9 +12,15 @@ import { FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, FaGamepad, F
   FaCreditCard, FaImages, FaVideo, FaFingerprint, FaBolt, FaMoneyBillWave, FaTelegram } from 'react-icons/fa';
 import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum, SiSharp, SiNextdotjs, 
   SiNestjs, SiGooglechrome, SiGo, SiPytorch } from 'react-icons/si';
+import { cn } from '@/lib/utils';
 
-// Define skill category data
-const SKILL_CATEGORIES = [
+// Define skill category data with improved typing
+interface SkillCategory {
+  id: string;
+  name: string;
+}
+
+const SKILL_CATEGORIES: SkillCategory[] = [
   { id: 'frontend', name: 'Frontend' },
   { id: 'backend', name: 'Backend' },
   { id: 'devops', name: 'DevOps' },
@@ -33,6 +39,18 @@ const containerVariants = {
       staggerChildren: 0.05,
       duration: 0.5,
       ease: "easeOut"
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.22, 1, 0.36, 1]
     }
   }
 };
@@ -97,6 +115,8 @@ export default function SkillCloudView() {
 
   // Filter skills by category - memoized effect
   useEffect(() => {
+    if (!SKILLS || SKILLS.length === 0) return;
+    
     setFilteredSkills(
       activeFilter 
         ? SKILLS.filter(skill => skill.category === activeFilter)
@@ -107,9 +127,10 @@ export default function SkillCloudView() {
   // Get the icon component for a skill - memoized function
   const getSkillIcon = useCallback((skillId: string) => {
     const skill = SKILLS.find(s => s.id === skillId);
-    if (!skill) return <FaReact className="text-4xl" />;
+    if (!skill) return <FaReact className="text-4xl" aria-hidden="true" />;
 
-    return iconComponents[skill.icon as keyof typeof iconComponents] || <FaReact className="text-4xl" />;
+    return iconComponents[skill.icon as keyof typeof iconComponents] || 
+           <FaReact className="text-4xl" aria-hidden="true" />;
   }, [iconComponents]);
 
   // Handle skill click for modal display - memoized callback
@@ -151,20 +172,33 @@ export default function SkillCloudView() {
   if (!mounted) return null;
   
   return (
-    <section className="relative overflow-hidden">
-      {/* Background pattern - kept independent from parent for component isolation */}
-      <div className="absolute inset-0 opacity-5 dark:opacity-10 -z-10">
+    <section 
+      className="relative overflow-hidden" 
+      aria-labelledby="skills-visualization-heading"
+    >
+      {/* Background pattern - subtle grid with radial gradient */}
+      <div 
+        className="absolute inset-0 opacity-[0.03] dark:opacity-[0.06] -z-10"
+        aria-hidden="true"
+      >
         <div className="absolute h-full w-full bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]"></div>
       </div>
       
-      <div className="container mx-auto max-w-7xl">
+      <div className="container mx-auto max-w-7xl px-4">
+        <h3 
+          id="skills-visualization-heading" 
+          className="sr-only"
+        >
+          Skills Visualization
+        </h3>
+        
         {/* Category filter buttons */}
         <motion.div 
-          className="flex flex-wrap justify-center gap-3 mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
         >
           <FilterButton 
             isActive={activeFilter === null}
@@ -184,33 +218,23 @@ export default function SkillCloudView() {
         
         {/* Visualization toggle */}
         <motion.div 
-          className="flex justify-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          className="flex justify-center mb-8 sm:mb-10"
+          variants={itemVariants}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
         >
-          <div className="flex bg-white dark:bg-gray-800 p-1 rounded-full border border-gray-200 dark:border-gray-700">
-            <button 
+          <div className="flex bg-white dark:bg-gray-800 p-1 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm">
+            <ToggleButton
+              isActive={visualizationMode === 'cloud'}
               onClick={setCloudMode}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                visualizationMode === 'cloud' 
-                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-sm' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
-              }`}
-            >
-              Word Cloud
-            </button>
-            <button 
+              label="Word Cloud"
+            />
+            <ToggleButton
+              isActive={visualizationMode === 'grid'}
               onClick={setGridMode}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                visualizationMode === 'grid' 
-                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-sm' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
-              }`}
-            >
-              Grid View
-            </button>
+              label="Grid View"
+            />
           </div>
         </motion.div>
         
@@ -222,7 +246,7 @@ export default function SkillCloudView() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4 }}
             >
               <SkillCloud 
                 onSkillClick={handleShowProjects}
@@ -232,7 +256,7 @@ export default function SkillCloudView() {
           ) : (
             <motion.div 
               key="grid-view"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-4"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 pt-4"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -254,7 +278,7 @@ export default function SkillCloudView() {
   );
 }
 
-// Extracted FilterButton component for reusability
+// Extracted FilterButton component with improved types
 interface FilterButtonProps {
   isActive: boolean;
   onClick: () => void;
@@ -264,14 +288,38 @@ interface FilterButtonProps {
 const FilterButton: React.FC<FilterButtonProps> = ({ isActive, onClick, label }) => (
   <motion.button 
     onClick={onClick} 
-    className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 shadow-sm ${
+    className={cn(
+      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm",
       isActive 
-        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-primary-500/20' 
-        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700'
-    }`}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
+        ? "bg-blue-600 text-white shadow-blue-500/10" 
+        : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700"
+    )}
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.97 }}
+    aria-pressed={isActive}
   >
     {label}
   </motion.button>
+);
+
+// New ToggleButton component for visualization mode
+interface ToggleButtonProps {
+  isActive: boolean;
+  onClick: () => void;
+  label: string;
+}
+
+const ToggleButton: React.FC<ToggleButtonProps> = ({ isActive, onClick, label }) => (
+  <button 
+    onClick={onClick}
+    className={cn(
+      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+      isActive 
+        ? "bg-blue-600 text-white shadow-sm" 
+        : "text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white"
+    )}
+    aria-pressed={isActive}
+  >
+    {label}
+  </button>
 ); 
