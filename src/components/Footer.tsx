@@ -33,9 +33,26 @@ const FooterSection = ({
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const [mounted, setMounted] = useState(false);
+  const [isButtonVisible, setIsButtonVisible] = useState(false);
   
   useEffect(() => {
     setMounted(true);
+    
+    const toggleButtonVisibility = () => {
+      // Show button when page is scrolled 300px
+      if (window.scrollY > 300) {
+        setIsButtonVisible(true);
+      } else {
+        setIsButtonVisible(false);
+      }
+    };
+    
+    window.addEventListener('scroll', toggleButtonVisibility);
+    toggleButtonVisibility(); // Initial check
+    
+    return () => {
+      window.removeEventListener('scroll', toggleButtonVisibility);
+    };
   }, []);
   
   const scrollToTop = () => {
@@ -279,27 +296,30 @@ export default function Footer() {
       </div>
       
       {/* Scroll to top button */}
-      <motion.button 
-        onClick={scrollToTop}
-        className={cn(
-          "fixed right-6 bottom-6 p-3 rounded-full",
-          "bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm",
-          "text-blue-500 dark:text-blue-400",
-          "shadow-sm hover:shadow",
-          "border border-gray-100/50 dark:border-gray-700/50",
-          "transition-all z-30"
-        )}
-        aria-label="Scroll to top"
-        initial={{ opacity: 0, scale: 0.8, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        whileHover={{ 
-          y: -5,
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)"
-        }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <FaArrowUp className="w-4 h-4" />
-      </motion.button>
+      {isButtonVisible && (
+        <motion.button 
+          onClick={scrollToTop}
+          className={cn(
+            "fixed right-6 bottom-6 p-3 rounded-full",
+            "bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm",
+            "text-blue-500 dark:text-blue-400",
+            "shadow-sm hover:shadow",
+            "border border-gray-100/50 dark:border-gray-700/50",
+            "transition-all z-30",
+            "hidden md:flex"
+          )}
+          aria-label="Scroll to top"
+          initial={{ opacity: 0, scale: 0.8, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          whileHover={{ 
+            y: -5,
+            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)"
+          }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaArrowUp className="w-4 h-4" />
+        </motion.button>
+      )}
     </footer>
   );
 } 
