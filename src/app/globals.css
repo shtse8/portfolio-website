@@ -217,3 +217,14 @@ body {
 .stagger-item:nth-child(8) { animation-delay: 0.45s; }
 .stagger-item:nth-child(9) { animation-delay: 0.5s; }
 .stagger-item:nth-child(10) { animation-delay: 0.55s; }
+
+/* ======== CUSTOM UTILITIES ======== */
+/* Hide scrollbar but allow scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}

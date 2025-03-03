@@ -1,3 +1,3 @@
-import FeaturedProjects from './projects';
+import ProjectsShowcase from './projects/ProjectsShowcase';
 
-export default FeaturedProjects; 
+export default ProjectsShowcase; 
