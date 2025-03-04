@@ -258,11 +258,11 @@ export const SKILLS: TechSkill[] = [
         id: 'seo',
         name: 'SEO',
         description: 'Search engine optimization for improved visibility',
-        yearsOfExperience: 5,
-        color: 'text-green-700',
-        bgColor: 'bg-green-700/90 dark:bg-green-700/80',
+        yearsOfExperience: 10,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
         category: 'marketing',
-        keywords: ['SEO', 'Search Engine Optimization', 'Keywords'],
+        keywords: ['SEO', 'Search Engine Optimization', 'Web Marketing'],
         icon: 'FaSearchDollar'
       },
       {
@@ -273,25 +273,25 @@ export const SKILLS: TechSkill[] = [
         color: 'text-black',
         bgColor: 'bg-black/90 dark:bg-gray-800/80',
         category: 'frontend',
-        keywords: ['Next.js', 'React', 'SSR', 'Static Site'],
+        keywords: ['Next.js', 'React', 'SSR', 'Static Site Generation'],
         icon: 'SiNextdotjs'
       },
       {
         id: 'vuejs',
         name: 'Vue.js',
-        description: 'Progressive JavaScript framework',
+        description: 'Progressive JavaScript framework for UIs',
         yearsOfExperience: 5,
-        color: 'text-green-500',
-        bgColor: 'bg-green-500/90 dark:bg-green-500/80',
+        color: 'text-green-600',
+        bgColor: 'bg-green-600/90 dark:bg-green-600/80',
         category: 'frontend',
-        keywords: ['Vue.js', 'Vue', 'JavaScript Framework'],
+        keywords: ['Vue.js', 'JavaScript Framework', 'Frontend'],
         icon: 'FaVuejs'
       },
       {
         id: 'nestjs',
         name: 'Nest.js',
         description: 'Progressive Node.js framework for building server-side applications',
-        yearsOfExperience: 3,
+        yearsOfExperience: 4,
         color: 'text-red-600',
         bgColor: 'bg-red-600/90 dark:bg-red-600/80',
         category: 'backend',
@@ -302,22 +302,22 @@ export const SKILLS: TechSkill[] = [
         id: 'php',
         name: 'PHP',
         description: 'Server-side scripting language for web development',
-        yearsOfExperience: 10,
+        yearsOfExperience: 12,
         color: 'text-indigo-600',
         bgColor: 'bg-indigo-600/90 dark:bg-indigo-600/80',
         category: 'backend',
-        keywords: ['PHP', 'Web Development', 'Server-side'],
+        keywords: ['PHP', 'Backend', 'Web Development'],
         icon: 'FaPhp'
       },
       {
         id: 'facebook-integration',
         name: 'Facebook Integration',
-        description: 'Integrating applications with Facebook platform',
-        yearsOfExperience: 6,
+        description: 'Implementing Facebook APIs and social features',
+        yearsOfExperience: 7,
         color: 'text-blue-700',
         bgColor: 'bg-blue-700/90 dark:bg-blue-700/80',
         category: 'social',
-        keywords: ['Facebook', 'Social Media', 'API Integration'],
+        keywords: ['Facebook', 'Social Media', 'API Integration', 'Authentication'],
         icon: 'FaFacebook'
       },
       {
@@ -328,40 +328,40 @@ export const SKILLS: TechSkill[] = [
         color: 'text-green-800',
         bgColor: 'bg-green-800/90 dark:bg-green-800/80',
         category: 'backend',
-        keywords: ['Payments', 'E-commerce', 'Stripe', 'PayPal'],
+        keywords: ['Payments', 'E-commerce', 'Stripe', 'PayPal', 'Payment Processing'],
         icon: 'FaCreditCard'
       },
       {
         id: 'chrome-extension',
         name: 'Chrome Extensions',
         description: 'Building browser extensions for Chrome',
-        yearsOfExperience: 3,
+        yearsOfExperience: 4,
         color: 'text-blue-600',
         bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
         category: 'frontend',
-        keywords: ['Chrome Extension', 'Browser Extension', 'JavaScript'],
+        keywords: ['Chrome Extension', 'Browser Extension', 'JavaScript', 'Browser API'],
         icon: 'SiGooglechrome'
       },
       {
         id: 'google-photos-api',
         name: 'Google Photos API',
         description: 'Working with Google Photos API for image management',
-        yearsOfExperience: 2,
+        yearsOfExperience: 3,
         color: 'text-red-500',
         bgColor: 'bg-red-500/90 dark:bg-red-500/80',
         category: 'api',
-        keywords: ['Google Photos', 'API', 'Photo Management'],
+        keywords: ['Google Photos', 'API', 'Photo Management', 'Image Management', 'Cloud Storage'],
         icon: 'FaImages'
       },
       {
         id: 'ffmpeg',
         name: 'FFmpeg',
-        description: 'Audio and video processing solution',
+        description: 'Audio and video processing toolkit',
         yearsOfExperience: 4,
         color: 'text-green-700',
         bgColor: 'bg-green-700/90 dark:bg-green-700/80',
         category: 'tools',
-        keywords: ['FFmpeg', 'Video Processing', 'Audio Processing'],
+        keywords: ['FFmpeg', 'Video Processing', 'Audio Processing', 'Media'],
         icon: 'FaVideo'
       },
       {
@@ -372,7 +372,7 @@ export const SKILLS: TechSkill[] = [
         color: 'text-purple-600',
         bgColor: 'bg-purple-600/90 dark:bg-purple-600/80',
         category: 'algorithms',
-        keywords: ['Simhash', 'Duplicate Detection', 'Algorithms'],
+        keywords: ['Simhash', 'Duplicate Detection', 'Algorithms', 'Near-Duplicate Detection'],
         icon: 'FaFingerprint'
       },
       {
@@ -380,10 +380,10 @@ export const SKILLS: TechSkill[] = [
         name: 'Bun',
         description: 'Fast JavaScript runtime and toolkit',
         yearsOfExperience: 1,
-        color: 'text-pink-500',
-        bgColor: 'bg-pink-500/90 dark:bg-pink-500/80',
+        color: 'text-pink-600',
+        bgColor: 'bg-pink-600/90 dark:bg-pink-600/80',
         category: 'tools',
-        keywords: ['Bun', 'JavaScript Runtime', 'Node.js Alternative'],
+        keywords: ['Bun', 'JavaScript Runtime', 'Node.js Alternative', 'Web Development'],
         icon: 'FaBolt'
       },
       {
@@ -391,43 +391,43 @@ export const SKILLS: TechSkill[] = [
         name: 'Go',
         description: 'High-performance systems programming language',
         yearsOfExperience: 3,
-        color: 'text-blue-500',
-        bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+        color: 'text-teal-500',
+        bgColor: 'bg-teal-500/90 dark:bg-teal-500/80',
         category: 'backend',
-        keywords: ['Go', 'Golang', 'Systems Programming'],
+        keywords: ['Go', 'Golang', 'Systems Programming', 'Backend'],
         icon: 'SiGo'
       },
       {
         id: 'tradingview',
         name: 'TradingView',
-        description: 'Financial charting and analysis platform',
-        yearsOfExperience: 2,
-        color: 'text-green-600',
-        bgColor: 'bg-green-600/90 dark:bg-green-600/80',
-        category: 'trading',
-        keywords: ['TradingView', 'Trading', 'Financial Analysis'],
+        description: 'Technical analysis tools and charting library',
+        yearsOfExperience: 3,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+        category: 'finance',
+        keywords: ['TradingView', 'Trading', 'Financial Analysis', 'Technical Analysis', 'Charts'],
         icon: 'FaChartLine'
       },
       {
         id: 'tigertrade',
         name: 'TigerTrade',
-        description: 'Brokerage API integration for automated trading',
+        description: 'Global investing platform integration',
         yearsOfExperience: 2,
         color: 'text-orange-500',
         bgColor: 'bg-orange-500/90 dark:bg-orange-500/80',
-        category: 'trading',
-        keywords: ['TigerTrade', 'Trading API', 'Brokerage'],
+        category: 'finance',
+        keywords: ['TigerTrade', 'Trading API', 'Brokerage', 'Investing', 'Finance'],
         icon: 'FaMoneyBillWave'
       },
       {
         id: 'pytorch',
         name: 'PyTorch',
-        description: 'Deep learning framework for machine learning',
+        description: 'Deep learning framework for AI research and applications',
         yearsOfExperience: 3,
         color: 'text-red-600',
         bgColor: 'bg-red-600/90 dark:bg-red-600/80',
         category: 'ai',
-        keywords: ['PyTorch', 'Deep Learning', 'ML', 'AI'],
+        keywords: ['PyTorch', 'Deep Learning', 'ML', 'AI', 'Neural Networks'],
         icon: 'SiPytorch'
       },
       {
@@ -438,18 +438,18 @@ export const SKILLS: TechSkill[] = [
         color: 'text-blue-500',
         bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
         category: 'api',
-        keywords: ['Telegram', 'Bot', 'Messaging API'],
+        keywords: ['Telegram', 'Bot', 'Messaging API', 'Messaging'],
         icon: 'FaTelegram'
       },
       {
         id: 'html',
         name: 'HTML',
         description: 'Semantic markup and accessibility best practices',
-        yearsOfExperience: 10,
+        yearsOfExperience: 12,
         color: 'text-orange-600',
         bgColor: 'bg-orange-600/90 dark:bg-orange-600/80',
         category: 'frontend',
-        keywords: ['HTML', 'HTML5', 'Semantic HTML'],
+        keywords: ['HTML', 'HTML5', 'Semantic HTML', 'Markup', 'Web Development'],
         icon: 'FaHtml5'
       },
       {
@@ -457,21 +457,21 @@ export const SKILLS: TechSkill[] = [
         name: 'CSS',
         description: 'Responsive layouts and modern styling techniques',
         yearsOfExperience: 10,
-        color: 'text-blue-500',
-        bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
         category: 'frontend',
-        keywords: ['CSS', 'CSS3', 'Responsive Design'],
+        keywords: ['CSS', 'CSS3', 'Responsive Design', 'Styles', 'Web Design'],
         icon: 'FaCss3Alt'
       },
       {
         id: 'javascript',
         name: 'JavaScript',
         description: 'Core language for dynamic web functionality',
-        yearsOfExperience: 10,
+        yearsOfExperience: 12,
         color: 'text-yellow-500',
         bgColor: 'bg-yellow-500/90 dark:bg-yellow-500/80',
         category: 'frontend',
-        keywords: ['JavaScript', 'ES6+', 'Vanilla JS'],
+        keywords: ['JavaScript', 'ES6+', 'Vanilla JS', 'Web Development'],
         icon: 'SiJavascript'
       },
       {
@@ -488,24 +488,13 @@ export const SKILLS: TechSkill[] = [
       {
         id: 'flash',
         name: 'Flash',
-        description: 'Legacy interactive content creation',
-        yearsOfExperience: 3,
+        description: 'Legacy multimedia platform for web applications and games',
+        yearsOfExperience: 5,
         color: 'text-red-600',
         bgColor: 'bg-red-600/90 dark:bg-red-600/80',
         category: 'legacy',
         keywords: ['Flash', 'ActionScript', 'Animation'],
         icon: 'SiAdobe'
-      },
-      {
-        id: 'facebook-api',
-        name: 'Facebook API',
-        description: 'Social platform integration and app development',
-        yearsOfExperience: 4,
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
-        category: 'api',
-        keywords: ['Facebook API', 'Social Integration', 'FB Apps'],
-        icon: 'FaFacebook'
       },
       {
         id: 'ad-mediation',
@@ -541,28 +530,6 @@ export const SKILLS: TechSkill[] = [
         icon: 'FaBolt'
       },
       {
-        id: 'bun',
-        name: 'Bun',
-        description: 'All-in-one JavaScript runtime and toolkit',
-        yearsOfExperience: 1,
-        color: 'text-pink-600',
-        bgColor: 'bg-pink-600/90 dark:bg-pink-600/80',
-        category: 'frontend',
-        keywords: ['Bun', 'JavaScript Runtime', 'Web Development'],
-        icon: 'FaBolt'
-      },
-      {
-        id: 'chrome-extension',
-        name: 'Chrome Extensions',
-        description: 'Building browser extensions for Google Chrome',
-        yearsOfExperience: 4,
-        color: 'text-blue-500',
-        bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
-        category: 'frontend',
-        keywords: ['Chrome Extension', 'Browser API', 'Extension Development'],
-        icon: 'SiGooglechrome'
-      },
-      {
         id: 'corona-sdk',
         name: 'Corona SDK',
         description: 'Cross-platform mobile development framework',
@@ -574,17 +541,6 @@ export const SKILLS: TechSkill[] = [
         icon: 'FaMobileAlt'
       },
       {
-        id: 'css',
-        name: 'CSS',
-        description: 'Styling and layout for web applications',
-        yearsOfExperience: 10,
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
-        category: 'frontend',
-        keywords: ['CSS', 'Styles', 'Web Design', 'Responsive'],
-        icon: 'FaFileCode'
-      },
-      {
         id: 'discuz',
         name: 'Discuz!',
         description: 'Open source forum software platform',
@@ -594,50 +550,6 @@ export const SKILLS: TechSkill[] = [
         category: 'backend',
         keywords: ['Discuz!', 'Forum', 'CMS', 'Community'],
         icon: 'FaUsers'
-      },
-      {
-        id: 'ffmpeg',
-        name: 'FFmpeg',
-        description: 'Audio and video processing toolkit',
-        yearsOfExperience: 4,
-        color: 'text-green-700',
-        bgColor: 'bg-green-700/90 dark:bg-green-700/80',
-        category: 'backend',
-        keywords: ['FFmpeg', 'Video Processing', 'Audio Processing', 'Media'],
-        icon: 'FaVideo'
-      },
-      {
-        id: 'flash',
-        name: 'Flash',
-        description: 'Legacy multimedia platform for web applications and games',
-        yearsOfExperience: 5,
-        color: 'text-red-600',
-        bgColor: 'bg-red-600/90 dark:bg-red-600/80',
-        category: 'frontend',
-        keywords: ['Flash', 'ActionScript', 'Animation'],
-        icon: 'FaPlay'
-      },
-      {
-        id: 'facebook-integration',
-        name: 'Facebook Integration',
-        description: 'Implementing Facebook APIs and social features',
-        yearsOfExperience: 7,
-        color: 'text-blue-800',
-        bgColor: 'bg-blue-800/90 dark:bg-blue-800/80',
-        category: 'frontend',
-        keywords: ['Facebook Integration', 'Facebook API', 'Social Media', 'Authentication'],
-        icon: 'FaFacebook'
-      },
-      {
-        id: 'facebook-api',
-        name: 'Facebook API',
-        description: 'Building applications with Facebook platform integration',
-        yearsOfExperience: 7,
-        color: 'text-blue-700',
-        bgColor: 'bg-blue-700/90 dark:bg-blue-700/80',
-        category: 'frontend',
-        keywords: ['Facebook API', 'Facebook Apps', 'Social Integration'],
-        icon: 'FaFacebook'
       },
       {
         id: 'game-distribution',
@@ -662,17 +574,6 @@ export const SKILLS: TechSkill[] = [
         icon: 'FaMoneyBillWave'
       },
       {
-        id: 'google-photos-api',
-        name: 'Google Photos API',
-        description: 'Integration with Google Photos service',
-        yearsOfExperience: 3,
-        color: 'text-red-500',
-        bgColor: 'bg-red-500/90 dark:bg-red-500/80',
-        category: 'api',
-        keywords: ['Google Photos API', 'Image Management', 'Cloud Storage'],
-        icon: 'FaImages'
-      },
-      {
         id: 'gpt',
         name: 'GPT',
         description: 'Generative Pre-trained Transformer models for advanced NLP',
@@ -682,17 +583,6 @@ export const SKILLS: TechSkill[] = [
         category: 'ai',
         keywords: ['GPT-3', 'GPT', 'LLM', 'Natural Language Processing'],
         icon: 'FaRobot'
-      },
-      {
-        id: 'html',
-        name: 'HTML',
-        description: 'Structure and content for web applications',
-        yearsOfExperience: 12,
-        color: 'text-orange-600',
-        bgColor: 'bg-orange-600/90 dark:bg-orange-600/80',
-        category: 'frontend',
-        keywords: ['HTML', 'Markup', 'Web Development'],
-        icon: 'FaFileCode'
       },
       {
         id: 'iap',
@@ -706,17 +596,6 @@ export const SKILLS: TechSkill[] = [
         icon: 'FaCreditCard'
       },
       {
-        id: 'javascript',
-        name: 'JavaScript',
-        description: 'Client-side and server-side programming',
-        yearsOfExperience: 12,
-        color: 'text-yellow-500',
-        bgColor: 'bg-yellow-500/90 dark:bg-yellow-500/80',
-        category: 'frontend',
-        keywords: ['JavaScript', 'ES6', 'Web Development'],
-        icon: 'FaFileCode'
-      },
-      {
         id: 'mobile-web',
         name: 'Mobile Web',
         description: 'Optimizing web experiences for mobile devices',
@@ -728,28 +607,6 @@ export const SKILLS: TechSkill[] = [
         icon: 'FaMobileAlt'
       },
       {
-        id: 'nestjs',
-        name: 'NestJS',
-        description: 'Progressive Node.js framework for server-side applications',
-        yearsOfExperience: 4,
-        color: 'text-red-600',
-        bgColor: 'bg-red-600/90 dark:bg-red-600/80',
-        category: 'backend',
-        keywords: ['NestJS', 'Node.js', 'TypeScript', 'Backend'],
-        icon: 'SiNestjs'
-      },
-      {
-        id: 'nextjs',
-        name: 'Next.js',
-        description: 'React framework for production-grade applications',
-        yearsOfExperience: 4,
-        color: 'text-gray-800',
-        bgColor: 'bg-gray-800/90 dark:bg-gray-800/80',
-        category: 'frontend',
-        keywords: ['Next.js', 'React', 'SSR', 'Static Site Generation'],
-        icon: 'SiNextdotjs'
-      },
-      {
         id: 'nlp',
         name: 'NLP',
         description: 'Natural Language Processing for text analysis and generation',
@@ -759,39 +616,6 @@ export const SKILLS: TechSkill[] = [
         category: 'ai',
         keywords: ['NLP', 'Natural Language Processing', 'Text Analysis'],
         icon: 'FaRobot'
-      },
-      {
-        id: 'payment-integration',
-        name: 'Payment Integration',
-        description: 'Implementing secure payment processing systems',
-        yearsOfExperience: 6,
-        color: 'text-green-700',
-        bgColor: 'bg-green-700/90 dark:bg-green-700/80',
-        category: 'backend',
-        keywords: ['Payment Integration', 'Payment Processing', 'E-commerce'],
-        icon: 'FaCreditCard'
-      },
-      {
-        id: 'php',
-        name: 'PHP',
-        description: 'Server-side scripting language for web development',
-        yearsOfExperience: 12,
-        color: 'text-indigo-600',
-        bgColor: 'bg-indigo-600/90 dark:bg-indigo-600/80',
-        category: 'backend',
-        keywords: ['PHP', 'Backend', 'Web Development'],
-        icon: 'FaPhp'
-      },
-      {
-        id: 'pytorch',
-        name: 'PyTorch',
-        description: 'Deep learning framework for AI research and applications',
-        yearsOfExperience: 3,
-        color: 'text-red-600',
-        bgColor: 'bg-red-600/90 dark:bg-red-600/80',
-        category: 'ai',
-        keywords: ['PyTorch', 'Deep Learning', 'Machine Learning', 'Neural Networks'],
-        icon: 'SiPytorch'
       },
       {
         id: 'redis',
@@ -816,28 +640,6 @@ export const SKILLS: TechSkill[] = [
         icon: 'FaRss'
       },
       {
-        id: 'seo',
-        name: 'SEO',
-        description: 'Search engine optimization for better visibility',
-        yearsOfExperience: 10,
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
-        category: 'marketing',
-        keywords: ['SEO', 'Search Engine Optimization', 'Web Marketing'],
-        icon: 'FaSearch'
-      },
-      {
-        id: 'simhash',
-        name: 'Simhash',
-        description: 'Probabilistic algorithm for near-duplicate detection',
-        yearsOfExperience: 3,
-        color: 'text-purple-500',
-        bgColor: 'bg-purple-500/90 dark:bg-purple-500/80',
-        category: 'algorithm',
-        keywords: ['Simhash', 'Near-Duplicate Detection', 'Algorithms'],
-        icon: 'FaFingerprint'
-      },
-      {
         id: 'tailwindcss',
         name: 'Tailwind CSS',
         description: 'Utility-first CSS framework for rapid UI development',
@@ -849,39 +651,6 @@ export const SKILLS: TechSkill[] = [
         icon: 'FaFileCode'
       },
       {
-        id: 'telegram',
-        name: 'Telegram',
-        description: 'Building bots and integrations for the Telegram platform',
-        yearsOfExperience: 3,
-        color: 'text-blue-500',
-        bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
-        category: 'messaging',
-        keywords: ['Telegram', 'Bots', 'Messaging'],
-        icon: 'FaTelegram'
-      },
-      {
-        id: 'tigertrade',
-        name: 'TigerTrade',
-        description: 'Global investing platform integration',
-        yearsOfExperience: 2,
-        color: 'text-yellow-600',
-        bgColor: 'bg-yellow-600/90 dark:bg-yellow-600/80',
-        category: 'finance',
-        keywords: ['TigerTrade', 'Trading', 'Investing', 'Finance'],
-        icon: 'FaChartLine'
-      },
-      {
-        id: 'tradingview',
-        name: 'TradingView',
-        description: 'Technical analysis tools and charting library',
-        yearsOfExperience: 3,
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
-        category: 'finance',
-        keywords: ['TradingView', 'Technical Analysis', 'Charts', 'Trading'],
-        icon: 'FaChartLine'
-      },
-      {
         id: 'ubuntu',
         name: 'Ubuntu',
         description: 'Linux-based operating system for servers and desktops',
@@ -891,28 +660,6 @@ export const SKILLS: TechSkill[] = [
         category: 'devops',
         keywords: ['Ubuntu', 'Linux', 'Server', 'Operating System'],
         icon: 'FaServer'
-      },
-      {
-        id: 'vuejs',
-        name: 'Vue.js',
-        description: 'Progressive JavaScript framework for UIs',
-        yearsOfExperience: 4,
-        color: 'text-green-600',
-        bgColor: 'bg-green-600/90 dark:bg-green-600/80',
-        category: 'frontend',
-        keywords: ['Vue.js', 'JavaScript Framework', 'Frontend'],
-        icon: 'FaVuejs'
-      },
-      {
-        id: 'go',
-        name: 'Go',
-        description: 'Efficient programming language for concurrent systems',
-        yearsOfExperience: 3,
-        color: 'text-teal-500',
-        bgColor: 'bg-teal-500/90 dark:bg-teal-500/80',
-        category: 'backend',
-        keywords: ['Go', 'Golang', 'Backend'],
-        icon: 'SiGo'
       },
       {
         id: 'data-visualization',
