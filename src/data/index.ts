@@ -19,14 +19,14 @@ import { Project } from './types';
  */
 export function getProjectDisplayUrl(project: Project): string | undefined {
   if (!project.urls) {
-    // Fallback to legacy fields
-    return project.liveUrl || project.github || project.androidUrl || project.iosUrl;
+    // No URLs available
+    return undefined;
   }
   
-  const { web, timemachine, github, android, ios } = project.urls;
+  const { website, timemachine, repository, googlePlay, appStore } = project.urls;
   
-  // Use web URL if available, then timemachine, then other URLs
-  return web || timemachine || github || android || ios || undefined;
+  // Use website URL if available, then timemachine, then other URLs
+  return website || timemachine || repository || googlePlay || appStore || undefined;
 }
 
 /**
@@ -67,9 +67,9 @@ export function formatProjectPeriod(project: Project): string {
  * Get all media links for a project
  */
 export function getProjectMediaLinks(project: Project): Array<{name: string, url: string, description?: string}> {
-  if (!project.urls?.media) {
+  if (!project.urls?.other) {
     return [];
   }
   
-  return project.urls.media;
+  return project.urls.other.filter(link => link.type === 'video' || link.type === 'social');
 } 
