@@ -671,6 +671,50 @@ export const SKILLS: TechSkill[] = [
         category: 'frontend',
         keywords: ['Data Visualization', 'Charts', 'Dashboards', 'D3.js'],
         icon: 'FaChartLine'
+      },
+      {
+        id: 'cocos2d',
+        name: 'Cocos2d',
+        description: 'Open-source framework for building 2D games and apps',
+        yearsOfExperience: 4,
+        color: 'text-blue-500',
+        bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+        category: 'game',
+        keywords: ['Cocos2d', 'Game Development', 'Mobile Games', '2D Games'],
+        icon: 'FaGamepad'
+      },
+      {
+        id: 'google-admob',
+        name: 'Google AdMob',
+        description: 'Mobile advertising platform for app monetization',
+        yearsOfExperience: 7,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+        category: 'monetization',
+        keywords: ['Google AdMob', 'Mobile Ads', 'Monetization', 'In-App Advertising'],
+        icon: 'FaAd'
+      },
+      {
+        id: 'appodeal',
+        name: 'Appodeal',
+        description: 'Ad mediation platform for mobile app monetization',
+        yearsOfExperience: 5,
+        color: 'text-green-500',
+        bgColor: 'bg-green-500/90 dark:bg-green-500/80',
+        category: 'monetization',
+        keywords: ['Appodeal', 'Ad Mediation', 'Mobile Monetization', 'Mobile Ads'],
+        icon: 'FaMoneyBillWave'
+      },
+      {
+        id: 'lua',
+        name: 'Lua',
+        description: 'Lightweight scripting language for game development',
+        yearsOfExperience: 5,
+        color: 'text-blue-800',
+        bgColor: 'bg-blue-800/90 dark:bg-blue-800/80',
+        category: 'game',
+        keywords: ['Lua', 'Scripting', 'Game Development', 'Corona SDK'],
+        icon: 'FaCode'
       }
 ] as const;
 
