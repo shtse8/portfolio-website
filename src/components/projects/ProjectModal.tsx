@@ -8,12 +8,13 @@ import { COMPANIES } from '@/data/companies';
 import { EXPERIENCES } from '@/data/experiences';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
+import ProjectImage from '@/components/shared/ProjectImage';
 
 type ProjectModalProps = {
   project: Project;
-  openExperienceModal: (index: number) => void;
+  openExperienceModal: (experienceIndex: number) => void;
   openCompanyModal: (companyId: string) => void;
-  parseMarkdownLinks: (text: string) => React.ReactNode;
+  parseMarkdownLinks: (text: string) => React.ReactElement;
   closeModal?: () => void;
   nextProject?: () => void;
   prevProject?: () => void;
@@ -27,8 +28,8 @@ export default function ProjectModal({
 }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
-  // Get images from project (handle both legacy and new data structures)
-  const projectGallery = project.gallery || project.images || (Array.isArray(project.image) ? project.image : [project.image]);
+  // Get images from project using the new structure
+  const projectImages = project.images || [];
   
   const getExperienceForProject = (): Experience | null => {
     // First check if there's an experience that lists this project
@@ -46,14 +47,14 @@ export default function ProjectModal({
   };
 
   const nextImage = () => {
-    if (projectGallery.length > 0) {
-      setActiveImageIndex((activeImageIndex + 1) % projectGallery.length);
+    if (projectImages.length > 0) {
+      setActiveImageIndex((activeImageIndex + 1) % projectImages.length);
     }
   };
 
   const prevImage = () => {
-    if (projectGallery.length > 0) {
-      setActiveImageIndex((activeImageIndex - 1 + projectGallery.length) % projectGallery.length);
+    if (projectImages.length > 0) {
+      setActiveImageIndex((activeImageIndex - 1 + projectImages.length) % projectImages.length);
     }
   };
   
@@ -63,8 +64,9 @@ export default function ProjectModal({
       <div className="relative aspect-video bg-gray-50 dark:bg-gray-800/30 rounded-2xl overflow-hidden">
         {/* Main image */}
         <div className="relative w-full h-full">
-          <Image
-            src={projectGallery[activeImageIndex]}
+          <ProjectImage
+            src={projectImages}
+            index={activeImageIndex}
             alt={`${project.title} - Image ${activeImageIndex + 1}`}
             fill
             style={{ objectFit: 'cover' }}
@@ -73,7 +75,7 @@ export default function ProjectModal({
         </div>
         
         {/* Image navigation controls */}
-        {projectGallery.length > 1 && (
+        {projectImages.length > 1 && (
           <>
             <motion.button 
               className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/60 dark:bg-gray-800/70 p-3 rounded-full text-gray-800 dark:text-white z-10"
@@ -97,7 +99,7 @@ export default function ProjectModal({
             
             {/* Image dots indicator */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {projectGallery.map((_, idx: number) => (
+              {projectImages.map((_, idx: number) => (
                 <button 
                   key={idx} 
                   onClick={() => setActiveImageIndex(idx)}
@@ -124,11 +126,12 @@ export default function ProjectModal({
           <div className="flex flex-col md:flex-row md:items-start gap-8">
             <div className="w-full md:w-auto flex-shrink-0">
               <div className="w-full md:w-28 h-28 relative overflow-hidden rounded-xl shadow-sm">
-                <Image
-                  src={project.image}
+                <ProjectImage
+                  src={project.images}
                   alt={project.title}
                   fill
                   className="object-cover"
+                  index={0}
                 />
               </div>
             </div>
@@ -150,10 +153,13 @@ export default function ProjectModal({
               </div>
               
               <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
-                {project.year && (
+                {project.start_date && (
                   <div className="flex items-center">
                     <FaCalendarAlt className="mr-2 text-blue-500 dark:text-blue-400" />
-                    <span>{project.year}</span>
+                    <span>
+                      {new Date(project.start_date).getFullYear()}
+                      {project.end_date && ` - ${new Date(project.end_date).getFullYear()}`}
+                    </span>
                   </div>
                 )}
                 
@@ -269,7 +275,7 @@ export default function ProjectModal({
           {/* Sidebar */}
           <div className="lg:col-span-2 order-1 lg:order-2">
             {/* Project Gallery */}
-            {projectGallery.length > 0 && (
+            {projectImages.length > 0 && (
               <div className="mb-10">
                 {renderImageGallery()}
               </div>

@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { FaGithub, FaLink, FaBuilding, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 import { PROJECTS, PROJECT_CATEGORIES } from '@/data/projects';
 import { COMPANIES } from '@/data/companies';
@@ -12,6 +11,7 @@ import ProjectModal from './ProjectModal';
 import CompanyModal from '../shared/CompanyModal';
 import { parseMarkdownLinks } from './utils';
 import { getSkillNames } from '@/utils/skillHelpers';
+import ProjectImage from '@/components/shared/ProjectImage';
 
 // Filter out the "Professional Experience" category since we'll use a separate section
 const PROJECT_CATEGORIES_FILTERED = PROJECT_CATEGORIES.filter(
@@ -126,8 +126,8 @@ export default function ProjectsShowcase() {
         {/* Background image with blur and overlay */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40 z-10"></div>
-          <Image 
-            src={currentProject.image}
+          <ProjectImage 
+            src={currentProject.images}
             alt={currentProject.title}
             fill
             className="object-cover blur-sm scale-105 opacity-80"
@@ -241,8 +241,8 @@ export default function ProjectsShowcase() {
               transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
               className="relative w-full h-full max-h-[450px] overflow-hidden rounded-lg shadow-2xl"
             >
-              <Image 
-                src={currentProject.image}
+              <ProjectImage 
+                src={currentProject.images}
                 alt={currentProject.title}
                 fill
                 className="object-cover"
@@ -342,8 +342,8 @@ export default function ProjectsShowcase() {
             
             {/* Project image */}
             <div className="absolute inset-0 z-0">
-              <Image 
-                src={project.image}
+              <ProjectImage 
+                src={project.images}
                 alt={project.title}
                 fill
                 className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"

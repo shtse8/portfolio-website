@@ -8,6 +8,7 @@ import type { Company, Project, Experience } from '@/data/types';
 import { PROJECTS } from '@/data/projects';
 import { EXPERIENCES } from '@/data/experiences';
 import { motion } from 'framer-motion';
+import ProjectImage from '@/components/shared/ProjectImage';
 
 type CompanyModalProps = {
   company: Company;
@@ -200,11 +201,12 @@ export default function CompanyModal({
                       whileHover={{ x: 2 }}
                     >
                       <div className="relative w-24 h-24 flex-shrink-0">
-                        <Image
-                          src={project.image}
+                        <ProjectImage
+                          src={project.images}
                           alt={project.title}
                           fill
                           style={{ objectFit: 'cover' }}
+                          index={0}
                         />
                       </div>
                       <div className="flex-1 p-5">

@@ -1,8 +1,10 @@
-import Image from 'next/image';
+"use client";
+
 import { motion } from 'framer-motion';
 import { FaExternalLinkAlt, FaGithub, FaShareAlt, FaTimes } from 'react-icons/fa';
 import type { Project } from '@/data/types';
 import { getSkillNames } from '@/utils/skillHelpers';
+import ProjectImage from '@/components/shared/ProjectImage';
 
 type PortalModalProps = {
   project: Project;
@@ -16,8 +18,8 @@ export default function PortalModal({ project, onClose }: PortalModalProps) {
     >
       {/* Header with preview image */}
       <div className="h-[300px] relative w-full">
-        <Image
-          src={project.image}
+        <ProjectImage
+          src={project.images}
           alt={project.title}
           fill
           className="object-cover"

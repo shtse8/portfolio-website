@@ -38,9 +38,8 @@ export const PROJECTS: Project[] = [
         id: 'big2-tycoon',
         title: 'Big2 Tycoon',
         description: 'Multiplayer competitive card game with character progression and arena tournaments',
-        image: '/projects/big2_tycoon.jpg',
         images: [
-          '/projects/big2_tycoon.jpg',
+          '/projects/big2_tycoon.jpg'
         ],
         skills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java', 'socket-io', 'protobuf', 'elo-rating'],
         skillTags: ['Unity3D', 'TypeScript', 'Socket.IO', 'Protobuf', 'Multiplayer', 'ELO Rating', 'Cubeage'],
@@ -60,49 +59,50 @@ export const PROJECTS: Project[] = [
       },
       {
         id: 'nakuz',
-        title: 'Nakuz Website',
-        description: 'Professional corporate website for business solutions',
-        image: '/projects/nakuz.jpg',
+        title: 'Nakuz.com Gaming Portal',
+        description: 'Hong Kong\'s #1 gaming information website with over 500,000 registered users and 3,000+ concurrent online users, achieving top 10 Alexa ranking in Hong Kong',
         images: [
-          '/projects/nakuz.jpg',
+          '/projects/nakuz.jpg'
         ],
-        skills: ['react', 'typescript', 'nextjs', 'responsive-design', 'seo'],
-        skillTags: ['React', 'Next.js', 'Responsive Design', 'SEO', 'Nakuz'],
-        liveUrl: 'https://nakuz.com',
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'react', 'typescript', 'nextjs', 'responsive-design'],
+        skillTags: ['PHP', 'MySQL', 'Discuz!', 'Ubuntu', 'HTML', 'JavaScript', 'CSS', 'Mobile Web', 'RSS', 'AJAX', 'SEO', 'Google AdSense', 'React', 'Next.js', 'Responsive Design'],
         category: "Web Apps",
         related_experience_id: "nakuz",
-        start_date: "2020-02-15",
-        end_date: "2020-05-30",
+        start_date: "2005-01-01",
+        end_date: undefined,
+        urls: {
+          web: "https://nakuz.com/"
+        },
         details: [
-          'Designed and developed the corporate website for Nakuz',
-          'Built with modern technologies including React and Next.js',
+          'Developed and maintained Hong Kong\'s #1 gaming information website since 2005',
+          'Built a thriving online community with over 500,000 registered users and 3,000+ concurrent online users',
+          'Achieved top 10 Alexa ranking among all Hong Kong websites',
+          'Optimized server infrastructure for high-traffic and concurrent user load',
+          'Redesigned in 2020 with modern technologies including React and Next.js',
           'Implemented responsive design for optimal viewing on all devices',
-          'Integrated SEO best practices to improve visibility and organic traffic',
-          'Created an intuitive user interface with streamlined navigation'
+          'Integrated advertising systems including Google AdSense',
+          'Applied advanced SEO techniques to achieve high search engine visibility'
         ]
       },
       {
-        id: 'mahjong',
+        id: 'mahjong-tycoon',
         title: 'Hong Kong Mahjong Tycoon',
-        description: '3D Mahjong game with multiple game modes and engaging gameplay',
-        image: '/projects/hkmj.jpeg',
-        images: [
-          '/projects/hkmj.jpeg',
-        ],
-        skills: ['unity3d', 'gamedev', 'team-leadership', 'csharp', 'ios', 'android'],
-        skillTags: ['Unity', 'C#', 'Mobile Game', '3D Graphics', 'Multiplayer', 'Cubeage'],
-        androidUrl: 'https://play.google.com/store/apps/details?id=com.crazycube.hkmahjongtycoon.app',
-        iosUrl: 'https://apps.apple.com/us/app/%E9%A6%99%E6%B8%AF%E9%BA%BB%E5%B0%87%E5%A4%A7%E4%BA%A8-%E9%BA%BB%E9%9B%80%E4%BF%BE%E4%BD%A0%E7%8E%A9/id1478835027',
+        description: 'Multiplayer Hong Kong-style Mahjong game with character progression',
+        images: ['/projects/mahjong_tycoon.jpg'],
+        skills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java', 'socket-io', 'protobuf'],
+        skillTags: ['Unity3D', 'TypeScript', 'Socket.IO', 'Protobuf', 'Multiplayer', 'Backend Infrastructure', 'Cubeage'],
+        androidUrl: 'https://play.google.com/store/apps/details?id=com.gameflask.hkmahjong',
+        iosUrl: 'https://apps.apple.com/us/app/%E9%BA%BB%E9%9B%80%E5%A4%A7%E4%BA%A8-%E7%B6%93%E5%85%B8%E9%A6%99%E6%B8%AF%E9%BA%BB%E9%9B%80%E9%81%8A%E6%88%B2/id1440037233',
         category: "Mobile Games",
         related_experience_id: "cubeage",
-        start_date: "2018-11-05",
-        end_date: "2019-08-20",
+        start_date: "2018-05-01",
+        end_date: "2019-11-15",
         details: [
-          'Led development at Cubeage for this popular 3D Mahjong game with over 100K downloads',
-          'Created authentic Hong Kong Mahjong gameplay with multiple game modes including blood flow mode, classic four-player mode, and two-player mode',
-          'Implemented real-time multiplayer functionality with low latency and leaderboard system',
-          'Designed engaging UI/UX with unique 3D Mahjong world, pet system, and character customization',
-          'Achieved 4.2-star rating with 3,280+ reviews on Google Play and strong user retention'
+          'Led development for this multiplayer Mahjong game at Cubeage using Unity3D',
+          'Built a distributed backend infrastructure with TypeScript, Socket.IO, and Protobuf',
+          'Implemented Hong Kong-style Mahjong rules and gameplay mechanics',
+          'Created AI opponents with multiple difficulty levels using behavior trees',
+          'Developed a character progression system with unlockable items and achievements'
         ]
       },
       {
@@ -182,10 +182,8 @@ export const PROJECTS: Project[] = [
         id: 'novelfeed',
         title: 'NovelFeed',
         description: 'Publisher-focused article sharing platform with enhanced social integration',
-        image: 'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
-        images: [
-          'https://placehold.co/800x450/D0021B/FFFFFF?text=NovelFeed',
-        ],
+        image: null,
+        images: null,
         skills: ['databases', 'php', 'responsive-design', 'seo', 'facebook-integration'],
         skillTags: ['PHP', 'MySQL', 'Percona', 'Facebook Integration', 'Responsive Design', 'SEO'],
         category: "Web Apps",
@@ -228,10 +226,8 @@ export const PROJECTS: Project[] = [
         id: 'dex',
         title: 'Decentralized Exchange',
         description: 'A hybrid DEX platform combining Bancor-Orderbook models for cross-chain trading',
-        image: 'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
-        images: [
-          'https://placehold.co/800x450/50E3C2/FFFFFF?text=DEX+Platform',
-        ],
+        image: null,
+        images: null,
         skills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker'],
         skillTags: ['TypeScript', 'Blockchain', 'Kubernetes', 'Microservices', 'EOS', 'Ethereum'],
         category: "Blockchain",
@@ -250,10 +246,8 @@ export const PROJECTS: Project[] = [
         id: 'blockchain-app-center',
         title: 'Blockchain App Center',
         description: 'Multi-chain application deployment platform with real-time profit sharing',
-        image: 'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
-        images: [
-          'https://placehold.co/800x450/4A90E2/FFFFFF?text=Blockchain+App+Center',
-        ],
+        image: null,
+        images: null,
         skills: ['blockchain', 'nodejs', 'typescript'],
         skillTags: ['Blockchain', 'Smart Contracts', 'Multi-Chain', 'EOS', 'Ethereum', 'Bitcoin'],
         category: "Blockchain",
@@ -272,10 +266,8 @@ export const PROJECTS: Project[] = [
         id: 'mining-pool',
         title: 'Mining Pool Management System',
         description: 'Comprehensive mining pool management system with advanced analytics',
-        image: 'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool',
-        images: [
-          'https://placehold.co/800x450/F5A623/FFFFFF?text=Mining+Pool',
-        ],
+        image: null,
+        images: null,
         skills: ['blockchain', 'nodejs', 'typescript', 'databases'],
         skillTags: ['Blockchain', 'Node.js', 'TypeScript', 'MySQL', 'Redis', 'Bitcoin', 'Ethereum'],
         category: "Blockchain",
@@ -383,10 +375,8 @@ export const PROJECTS: Project[] = [
         id: 'chrome-extension',
         title: 'Productivity Chrome Extension',
         description: 'Chrome extension for enhancing productivity with custom tools and integrations',
-        image: 'https://placehold.co/800x450/7ED321/FFFFFF?text=Chrome+Extension',
-        images: [
-          'https://placehold.co/800x450/7ED321/FFFFFF?text=Chrome+Extension',
-        ],
+        image: null,
+        images: null,
         skills: ['typescript', 'react', 'chrome-extension', 'css'],
         skillTags: ['TypeScript', 'React', 'Chrome Extension', 'CSS', 'Browser API'],
         github: 'https://github.com/shtse8/chrome-extension',
@@ -406,10 +396,8 @@ export const PROJECTS: Project[] = [
         id: 'ai-content-generator',
         title: 'AI Content Generator',
         description: 'Advanced AI-powered content generation platform for marketers and publishers',
-        image: 'https://placehold.co/800x450/BD10E0/FFFFFF?text=AI+Content+Generator',
-        images: [
-          'https://placehold.co/800x450/BD10E0/FFFFFF?text=AI+Content+Generator',
-        ],
+        image: null,
+        images: null,
         skills: ['ai-ml', 'python', 'typescript', 'react', 'nextjs'],
         skillTags: ['AI/ML', 'Python', 'TypeScript', 'React', 'Next.js', 'GPT-3', 'NLP'],
         category: "AI & ML",
@@ -428,10 +416,8 @@ export const PROJECTS: Project[] = [
         id: 'sentiment-analysis',
         title: 'Social Media Sentiment Analysis',
         description: 'Real-time sentiment analysis platform for social media monitoring',
-        image: 'https://placehold.co/800x450/9013FE/FFFFFF?text=Sentiment+Analysis',
-        images: [
-          'https://placehold.co/800x450/9013FE/FFFFFF?text=Sentiment+Analysis',
-        ],
+        image: null,
+        images: null,
         skills: ['ai-ml', 'python', 'typescript', 'react', 'data-visualization'],
         skillTags: ['AI/ML', 'Python', 'TypeScript', 'React', 'Data Visualization', 'NLP'],
         category: "AI & ML",
@@ -444,6 +430,116 @@ export const PROJECTS: Project[] = [
           'Created interactive dashboards for tracking sentiment trends and brand perception',
           'Implemented alert system for detecting sudden sentiment shifts or potential PR crises',
           'Designed comprehensive reporting system with actionable insights and recommendations'
+        ]
+      },
+      // Historical projects
+      {
+        id: 'sky-c',
+        title: 'Sky-C Gaming Community',
+        description: 'Hong Kong\'s #1 gaming IP exchange network and discussion forum with over 200,000 registered users and 1,000+ concurrent online users',
+        image: null,
+        images: null,
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo'],
+        skillTags: ['PHP', 'MySQL', 'Discuz!', 'Ubuntu', 'HTML', 'JavaScript', 'CSS', 'RSS', 'AJAX', 'SEO'],
+        category: "Web Development",
+        related_experience_id: null,
+        start_date: "2001-01-01",
+        end_date: "2005-12-31",
+        urls: {
+          web: "http://sky-c.com/",
+          timemachine: "https://web.archive.org/web/20241211084528/http://sky-c.com/"
+        },
+        details: [
+          'Created Hong Kong\'s #1 gaming IP exchange network and discussion forum platform',
+          'Built and managed a community with over 200,000 registered users and 1,000+ concurrent online users',
+          'Implemented forum functionality using Discuz! with custom modifications',
+          'Optimized server infrastructure on Ubuntu for high concurrent user load',
+          'Developed custom themes and UI components with HTML, CSS, and JavaScript',
+          'Integrated RSS feeds and implemented AJAX for improved user experience',
+          'Applied SEO techniques to achieve high visibility in search engines'
+        ]
+      },
+      {
+        id: 'a-graders',
+        title: 'A-Graders',
+        description: 'Hong Kong private tutoring matching platform connecting tutors and students',
+        image: null,
+        images: null,
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo'],
+        skillTags: ['PHP', 'MySQL', 'Ubuntu', 'HTML', 'CSS', 'JavaScript', 'SEO', 'Google AdSense'],
+        category: "Web Development",
+        related_experience_id: null,
+        start_date: "2008-01-01",
+        end_date: "2009-12-31",
+        urls: {
+          web: "http://www.agraders.com/",
+          timemachine: "https://web.archive.org/web/20241211084528/https://agraders.com/"
+        },
+        details: [
+          'Designed and developed a private tutoring matching platform for the Hong Kong market',
+          'Created a user-friendly interface for tutors and students to find compatible matches',
+          'Implemented secure profile creation and matching algorithms',
+          'Developed search functionality with filtering by subject, level, and location',
+          'Integrated messaging system for direct communication between parties',
+          'Optimized for search engines to increase organic traffic',
+          'Implemented monetization through Google AdSense'
+        ]
+      },
+      {
+        id: 'hyperfds',
+        title: 'Hyperfds',
+        description: 'Hong Kong blogger and social media portal platform for networking and community building',
+        image: null,
+        images: null,
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo'],
+        skillTags: ['PHP', 'MySQL', 'Ubuntu', 'HTML', 'JavaScript', 'CSS', 'Vanilla JS', 'Mobile Web', 'SEO', 'Google AdSense'],
+        category: "Web Development",
+        related_experience_id: null,
+        start_date: "2008-01-01",
+        end_date: "2009-12-31",
+        urls: {
+          web: "http://hyperfds.com/",
+          timemachine: "https://web.archive.org/web/20080813211308/http://hyperfds.com/"
+        },
+        details: [
+          'Created a social networking and blogging platform for Hong Kong users',
+          'Designed and implemented user profiles, friendship connections, and content sharing features',
+          'Built custom blogging functionality with rich text editing',
+          'Developed mobile-responsive design for cross-device compatibility',
+          'Implemented social features including comments, likes, and sharing',
+          'Optimized for search engines to increase organic traffic',
+          'Integrated monetization through Google AdSense'
+        ]
+      },
+      {
+        id: 'ipet',
+        title: 'iPet',
+        description: 'Facebook virtual pet game with raising and fighting mechanics',
+        image: null,
+        images: null,
+        skills: ['flash', 'php', 'mysql', 'facebook-api'],
+        skillTags: ['Flash', 'PHP', 'MySQL', 'Ubuntu', 'Facebook Apps', 'SEO', 'Google AdSense'],
+        category: "Game Development",
+        related_experience_id: "minimax",
+        start_date: "2010-01-01",
+        end_date: "2011-12-31",
+        urls: {
+          media: [
+            {
+              name: "Gamezebo Review",
+              url: "https://www.gamezebo.com/reviews/ipet-review/",
+              description: "Review of iPet on Gamezebo"
+            }
+          ]
+        },
+        details: [
+          'Developed a virtual pet game for the Facebook platform',
+          'Implemented pet raising and fighting mechanics',
+          'Created pet customization and decoration options',
+          'Integrated with Facebook API for social features and virality',
+          'Designed game economy and monetization systems',
+          'Developed backend systems on Ubuntu with PHP and MySQL',
+          'Featured in game review publications including Gamezebo'
         ]
       }
 ] as const; 

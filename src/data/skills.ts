@@ -257,13 +257,13 @@ export const SKILLS: TechSkill[] = [
       {
         id: 'seo',
         name: 'SEO',
-        description: 'Search engine optimization techniques',
-        yearsOfExperience: 6,
-        color: 'text-green-600',
-        bgColor: 'bg-green-600/90 dark:bg-green-600/80',
+        description: 'Search engine optimization for improved visibility',
+        yearsOfExperience: 5,
+        color: 'text-green-700',
+        bgColor: 'bg-green-700/90 dark:bg-green-700/80',
         category: 'marketing',
-        keywords: ['SEO', 'Search Engine Optimization', 'Analytics'],
-        icon: 'FaSearch'
+        keywords: ['SEO', 'Search Engine Optimization', 'Keywords'],
+        icon: 'FaSearchDollar'
       },
       {
         id: 'nextjs',
@@ -440,6 +440,72 @@ export const SKILLS: TechSkill[] = [
         category: 'api',
         keywords: ['Telegram', 'Bot', 'Messaging API'],
         icon: 'FaTelegram'
+      },
+      {
+        id: 'html',
+        name: 'HTML',
+        description: 'Semantic markup and accessibility best practices',
+        yearsOfExperience: 10,
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-600/90 dark:bg-orange-600/80',
+        category: 'frontend',
+        keywords: ['HTML', 'HTML5', 'Semantic HTML'],
+        icon: 'FaHtml5'
+      },
+      {
+        id: 'css',
+        name: 'CSS',
+        description: 'Responsive layouts and modern styling techniques',
+        yearsOfExperience: 10,
+        color: 'text-blue-500',
+        bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+        category: 'frontend',
+        keywords: ['CSS', 'CSS3', 'Responsive Design'],
+        icon: 'FaCss3Alt'
+      },
+      {
+        id: 'javascript',
+        name: 'JavaScript',
+        description: 'Core language for dynamic web functionality',
+        yearsOfExperience: 10,
+        color: 'text-yellow-500',
+        bgColor: 'bg-yellow-500/90 dark:bg-yellow-500/80',
+        category: 'frontend',
+        keywords: ['JavaScript', 'ES6+', 'Vanilla JS'],
+        icon: 'SiJavascript'
+      },
+      {
+        id: 'mysql',
+        name: 'MySQL',
+        description: 'Relational database design and optimization',
+        yearsOfExperience: 8,
+        color: 'text-blue-700',
+        bgColor: 'bg-blue-700/90 dark:bg-blue-700/80',
+        category: 'database',
+        keywords: ['MySQL', 'SQL', 'Database'],
+        icon: 'SiMysql'
+      },
+      {
+        id: 'flash',
+        name: 'Flash',
+        description: 'Legacy interactive content creation',
+        yearsOfExperience: 3,
+        color: 'text-red-600',
+        bgColor: 'bg-red-600/90 dark:bg-red-600/80',
+        category: 'legacy',
+        keywords: ['Flash', 'ActionScript', 'Animation'],
+        icon: 'SiAdobe'
+      },
+      {
+        id: 'facebook-api',
+        name: 'Facebook API',
+        description: 'Social platform integration and app development',
+        yearsOfExperience: 4,
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+        category: 'api',
+        keywords: ['Facebook API', 'Social Integration', 'FB Apps'],
+        icon: 'FaFacebook'
       }
 ] as const;
 

@@ -8,3 +8,68 @@ export * from './experiences';
 export * from './skills';
 export * from './personal';
 export * from './philosophy'; 
+
+// Helper functions
+import { Project } from './types';
+
+/**
+ * Get the display URL for a project
+ * Returns the web URL if available, the time machine URL as a fallback,
+ * and finally any other available URL
+ */
+export function getProjectDisplayUrl(project: Project): string | undefined {
+  if (!project.urls) {
+    // Fallback to legacy fields
+    return project.liveUrl || project.github || project.androidUrl || project.iosUrl;
+  }
+  
+  const { web, timemachine, github, android, ios } = project.urls;
+  
+  // Use web URL if available, then timemachine, then other URLs
+  return web || timemachine || github || android || ios || undefined;
+}
+
+/**
+ * Get the TimeMachine URL for a project if available
+ */
+export function getProjectTimeMachineUrl(project: Project): string | undefined {
+  return project.urls?.timemachine;
+}
+
+/**
+ * Format a project's year or period display
+ * @param project The project to format the period for
+ * @returns Formatted string like "2001-2005" or "2005-Present"
+ */
+export function formatProjectPeriod(project: Project): string {
+  if (!project.start_date) {
+    return ""; // Return empty string if no start date
+  }
+  
+  // Extract years from ISO dates or use the whole string if not in ISO format
+  const startYear = project.start_date.substring(0, 4);
+  
+  if (!project.end_date) {
+    return `${startYear}-Present`;
+  }
+  
+  const endYear = project.end_date.substring(0, 4);
+  
+  // If same year, just return one year
+  if (startYear === endYear) {
+    return startYear;
+  }
+  
+  return `${startYear}-${endYear}`;
+}
+
+/**
+ * Get all media links for a project
+ */
+export function getProjectMediaLinks(project: Project): Array<{name: string, url: string, description?: string}> {
+  if (!project.urls?.media) {
+    return [];
+  }
+  
+  return project.urls.media;
+} 

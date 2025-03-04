@@ -15,6 +15,7 @@ import { EXPERIENCES } from '@/data/experiences';
 import type { Project, Experience } from '@/data/types';
 import { getSkillNames } from '@/utils/skillHelpers';
 import { cn } from '@/lib/utils';
+import ProjectImage from '@/components/shared/ProjectImage';
 
 interface SkillModalProps {
   skillId: string;
@@ -316,12 +317,13 @@ export default function SkillModal({
                   whileHover={{ y: -2, transition: { duration: 0.2 } }}
                 >
                   <div className="relative h-40 bg-gray-100 dark:bg-gray-800">
-                    <Image
-                      src={project.image}
+                    <ProjectImage
+                      src={project.images}
                       alt={project.title}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      index={0}
                     />
                   </div>
                   <div className="p-4 sm:p-5">

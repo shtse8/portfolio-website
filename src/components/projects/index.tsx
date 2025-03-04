@@ -10,19 +10,16 @@ import ProjectModal from './ProjectModal';
 import ExperienceModal from '../experience/ExperienceModal';
 import CompanyModal from '../shared/CompanyModal';
 import { parseMarkdownLinks } from './utils';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useModalManager } from '@/hooks/useModalManager';
 import { getSkillNames } from '@/utils/skillHelpers';
+import ProjectImage from '@/components/shared/ProjectImage';
 
 export default function FeaturedProjects() {
   const { openProject, openExperience, openCompany } = useModalManager();
   const [activeCategory, setActiveCategory] = useState<typeof PROJECT_CATEGORIES[number]>("All");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(PROJECTS);
   const [filteredExperiences, setFilteredExperiences] = useState<Experience[]>([]);
-  
-  // Image error tracking
-  const [imageError, setImageError] = useState<Record<string, boolean>>({});
   
   // Filter projects and experiences
   useEffect(() => {
@@ -39,10 +36,6 @@ export default function FeaturedProjects() {
     }
   }, [activeCategory]);
   
-  const handleImageError = (projectId: string) => {
-    setImageError(prev => ({ ...prev, [projectId]: true }));
-  };
-
   const handleOpenProject = (index: number) => {
     const project = filteredProjects[index];
     
@@ -211,8 +204,6 @@ export default function FeaturedProjects() {
                   index={index}
                   openProjectModal={handleOpenProject}
                   openCompanyModal={handleOpenCompany}
-                  handleImageError={handleImageError}
-                  imageError={imageError}
                 />
               </motion.div>
             ))}
@@ -249,7 +240,7 @@ export default function FeaturedProjects() {
                               className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 group transition-colors"
                             >
                               <span className="w-6 h-6 mr-2 relative overflow-hidden rounded">
-                                <Image 
+                                <ProjectImage 
                                   src={COMPANIES[experience.company].logo} 
                                   alt={COMPANIES[experience.company].name}
                                   fill

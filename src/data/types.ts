@@ -2,19 +2,12 @@ export type Project = {
   id: string;
   title: string;
   description: string;
-  image: string;
-  images?: string[];
-  gallery?: string[];
+  images: string[] | null;
   skills: string[];
   skillTags?: string[];
-  github?: string;
-  liveUrl?: string;
-  androidUrl?: string;
-  iosUrl?: string;
   category: string;
   related_experience_id: string | null;
   details: string[] | string;
-  year?: string;
   teamSize?: string;
   duration?: string;
   role?: string;
@@ -24,6 +17,23 @@ export type Project = {
     title: string;
     description: string;
   }[];
+  urls?: {
+    web?: string;
+    timemachine?: string;
+    github?: string;
+    android?: string;
+    ios?: string;
+    media?: Array<{
+      name: string;
+      url: string;
+      description?: string;
+    }>;
+  };
+  // Legacy fields that will be deprecated once migration is complete
+  github?: string;
+  liveUrl?: string;
+  androidUrl?: string;
+  iosUrl?: string;
 };
 
 export type Company = {

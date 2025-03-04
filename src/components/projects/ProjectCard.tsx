@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
 import type { Project } from '@/data/types';
 import { COMPANIES } from '@/data/companies';
 import { motion } from 'framer-motion';
 import { FaLink, FaGithub, FaBuilding } from 'react-icons/fa';
 import { getSkillNames } from '@/utils/skillHelpers';
+import ProjectImage from '@/components/shared/ProjectImage';
 
 type ProjectCardProps = {
   project: Project;
   index: number;
   openProjectModal: (index: number) => void;
   openCompanyModal: (companyId: string) => void;
-  handleImageError: (projectId: string) => void;
-  imageError: Record<string, boolean>;
 };
 
 export default function ProjectCard({
@@ -22,8 +20,6 @@ export default function ProjectCard({
   index,
   openProjectModal,
   openCompanyModal,
-  handleImageError,
-  imageError
 }: ProjectCardProps) {
   const [hovered, setHovered] = useState(false);
   
@@ -54,14 +50,13 @@ export default function ProjectCard({
             </span>
           </div>
         )}
-        <Image
-          src={imageError[project.id] ? 'https://placehold.co/600x400/222222/FFFFFF?text=No+Image' : project.image}
+        <ProjectImage
+          src={project.images}
           alt={project.title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           style={{ objectFit: 'cover' }}
           className={`transition-transform duration-700 ease-out ${hovered ? 'scale-105' : 'scale-100'}`}
-          onError={() => handleImageError(project.id)}
         />
       </div>
       
