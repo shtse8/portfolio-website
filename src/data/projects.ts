@@ -64,7 +64,7 @@ export const PROJECTS: Project[] = [
         start_date: "2005-01-01",
         end_date: undefined,
         urls: {
-          web: "https://nakuz.com/"
+          website: "https://nakuz.com/"
         },
         details: [
           'Developed and maintained Hong Kong\'s #1 gaming information website since 2005',
@@ -108,32 +108,61 @@ export const PROJECTS: Project[] = [
         related_experience_id: "cubeage",
         start_date: "2016-09-12",
         end_date: "2017-05-18",
+        urls: {
+          other: [
+            {
+              name: "Appszoom Review Video",
+              url: "https://www.youtube.com/watch?v=Hl-YcZ9Hh8U",
+              description: "Video review of Fun Showhand on Appszoom",
+              type: "review"
+            }
+          ]
+        },
         details: [
           'Led development at Cubeage for this popular poker game available on both Android and iOS platforms',
           'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
           'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
           'Designed offline gameplay with online social features including friend system and cloud save',
-          'Featured in [Appszoom review videos](https://www.youtube.com/watch?v=Hl-YcZ9Hh8U) with positive feedback'
+          'Featured in Appszoom review videos with positive feedback'
         ]
       },
       {
         id: 'fmj',
         title: 'Fun Mahjong 16 Tiles',
-        description: 'Popular Taiwanese Mahjong game with over 1 million downloads featuring offline gameplay with online features',
+        description: 'Popular Taiwanese Mahjong game with over 1 million downloads featuring a unique offline gameplay experience with 16-tile Mahjong rules',
         images: [
-          '/projects/fmj.jpeg',
+          '/projects/fmj/1.jpg',
+          '/projects/fmj/2.jpg',
+          '/projects/fmj/3.jpg',
         ],
-        skills: ['unity3d', 'gamedev', 'java', 'databases', 'csharp', 'ios', 'android', 'ai-ml', 'corona-sdk', 'mobile-games'],
+        skills: ['corona-sdk', 'gamedev', 'mysql', 'php', 'ubuntu', 'google-admob', 'appodeal', 'onesignal', 'android', 'ios', 'ai-ml', 'mobile-games'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
-        start_date: "2015-07-25",
-        end_date: "2016-04-10",
+        start_date: "2013-01-01",
+        end_date: undefined, // Still being maintained
+        urls: {
+          googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app",
+          appStore: "https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150",
+          wikipedia: "https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5",
+          other: [
+            {
+              name: "Featured in Book",
+              url: "https://books.google.com.tw/books?id=7klBCgAAQBAJ&pg=SA9-PA7&lpg=SA9-PA7&dq=%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5&source=bl&ots=LGOh5j3AZH&sig=ieX2Zvp2Wac8F2EvcZaAw5snZUA&hl=zh-TW&sa=X&ved=0ahUKEwib4qryvfTKAhXDGpQKHZFABmo4KBDoAQgfMAE#v=onepage&q=%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5&f=false",
+              description: "Recommended app in published book",
+              type: "resource"
+            }
+          ]
+        },
         details: [
-          'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads, featured on [Wikipedia](https://zh.wikipedia.org/wiki/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5)',
-          'Created a unique offline gameplay experience with online social features including friend system and cloud save functionality',
-          'Implemented highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
-          'Designed a simple, intuitive interface focused on gameplay rather than excessive visual effects',
-          'Integrated Appodeal for monetization while maintaining a non-intrusive gaming experience'
+          'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads',
+          'Created a unique offline gameplay experience with 144-tile Mahjong ruleset and distinctive gameplay where only discarded tiles are visible',
+          'Implemented a level-based and wind-based (4-round) system with automatic dice rolling and the flexibility to exit anytime',
+          'Developed highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
+          'Designed a simple, clean interface focused on gameplay rather than excessive visual effects',
+          'Implemented online features including leaderboards, friend system, and cloud save functionality',
+          'Integrated Appodeal and Google AdMob for monetization while maintaining a non-intrusive gaming experience',
+          'Game received critical acclaim for offering single-player offline experience that eliminates common pain points of online Mahjong games',
+          'Featured in recommended apps publications and recognized in Wikipedia'
         ]
       },
       {
@@ -396,7 +425,7 @@ export const PROJECTS: Project[] = [
         start_date: "2001-01-01",
         end_date: "2005-12-31",
         urls: {
-          web: "http://sky-c.com/",
+          website: "http://sky-c.com/",
           timemachine: "https://web.archive.org/web/20241211084528/http://sky-c.com/"
         },
         details: [
@@ -420,7 +449,7 @@ export const PROJECTS: Project[] = [
         start_date: "2008-01-01",
         end_date: "2009-12-31",
         urls: {
-          web: "http://www.agraders.com/",
+          website: "http://www.agraders.com/",
           timemachine: "https://web.archive.org/web/20241211084528/https://agraders.com/"
         },
         details: [
@@ -444,7 +473,7 @@ export const PROJECTS: Project[] = [
         start_date: "2008-01-01",
         end_date: "2009-12-31",
         urls: {
-          web: "http://hyperfds.com/",
+          website: "http://hyperfds.com/",
           timemachine: "https://web.archive.org/web/20080813211308/http://hyperfds.com/"
         },
         details: [
@@ -472,11 +501,12 @@ export const PROJECTS: Project[] = [
         start_date: "2010-01-01",
         end_date: "2011-12-31",
         urls: {
-          media: [
+          other: [
             {
               name: "Gamezebo Review",
               url: "https://www.gamezebo.com/reviews/ipet-review/",
-              description: "Review of iPet on Gamezebo"
+              description: "Review of iPet on Gamezebo",
+              type: "review"
             }
           ]
         },

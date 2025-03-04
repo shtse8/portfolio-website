@@ -17,15 +17,22 @@ export type Project = {
     description: string;
   }[];
   urls?: {
-    web?: string;
-    timemachine?: string;
-    github?: string;
-    android?: string;
-    ios?: string;
-    media?: Array<{
+    // Specific known platforms
+    wikipedia?: string;
+    appStore?: string;  // Replacing ios
+    googlePlay?: string;  // Replacing android
+    website?: string;  // Replacing web
+    repository?: string;  // Replacing github
+    documentation?: string;
+    demo?: string;
+    timemachine?: string;  // For Internet Archive links
+    
+    // For everything else
+    other?: Array<{
       name: string;
       url: string;
       description?: string;
+      type?: 'review' | 'article' | 'video' | 'social' | 'award' | 'resource' | 'tool' | 'misc';
     }>;
   };
   // Legacy fields that will be deprecated once migration is complete

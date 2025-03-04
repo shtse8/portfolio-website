@@ -2,13 +2,15 @@
 
 import { useState, ReactNode } from 'react';
 import Image from 'next/image';
-import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight, 
+  FaGooglePlay, FaApple, FaWikipediaW, FaLink, FaFileAlt, FaVideo, FaNewspaper, FaBook } from 'react-icons/fa';
 import type { Project, Experience } from '@/data/types';
 import { COMPANIES } from '@/data/companies';
 import { EXPERIENCES } from '@/data/experiences';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
 import ProjectImage from '@/components/shared/ProjectImage';
+import { useRouter } from 'next/navigation';
 
 type ProjectModalProps = {
   project: Project;
@@ -25,11 +27,38 @@ export default function ProjectModal({
   openExperienceModal,
   openCompanyModal,
   parseMarkdownLinks,
+  closeModal
 }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const router = useRouter();
   
   // Get images from project using the new structure
   const projectImages = project.images || [];
+  
+  // Function to handle skill tag clicks
+  const handleSkillClick = (skillId: string) => {
+    // Close the current modal if a close function is provided
+    if (closeModal) {
+      closeModal();
+    }
+    
+    // Navigate to projects page with skill filter
+    router.push(`/projects?skill=${skillId}`);
+  };
+  
+  // Function to get the appropriate icon for a media item based on its type
+  const getMediaTypeIcon = (type?: string) => {
+    switch(type) {
+      case 'review': return <FaNewspaper className="text-indigo-500" />;
+      case 'article': return <FaNewspaper className="text-blue-500" />;
+      case 'video': return <FaVideo className="text-red-500" />;
+      case 'social': return <FaLink className="text-blue-400" />;
+      case 'award': return <FaFileAlt className="text-yellow-500" />;
+      case 'resource': return <FaBook className="text-green-500" />;
+      case 'tool': return <FaLink className="text-gray-500" />;
+      default: return <FaLink className="text-gray-500" />;
+    }
+  };
   
   const getExperienceForProject = (): Experience | null => {
     // First check if there's an experience that lists this project
@@ -142,13 +171,15 @@ export default function ProjectModal({
               
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-8">
-                {project.skills && project.skills.length > 0 && getSkillNames(project.skills).map((skillName, index) => (
-                  <span 
+                {project.skills && project.skills.length > 0 && project.skills.map((skillId, index) => (
+                  <button 
                     key={index} 
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs"
+                    onClick={() => handleSkillClick(skillId)}
+                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs
+                    hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
                   >
-                    {skillName}
-                  </span>
+                    {getSkillNames([skillId])[0]}
+                  </button>
                 ))}
               </div>
               
@@ -282,34 +313,162 @@ export default function ProjectModal({
             )}
             
             {/* Project Links */}
-            {(project.liveUrl || project.github) && (
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Project Links</h3>
+              <div className="flex flex-col gap-3">
+                {/* Modern url structure links */}
+                {project.urls?.website && (
+                  <a
+                    href={project.urls.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    <FaExternalLinkAlt />
+                    <span>View Website</span>
+                  </a>
+                )}
+                
+                {project.urls?.repository && (
+                  <a
+                    href={project.urls.repository}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    <FaGithub />
+                    <span>View Repository</span>
+                  </a>
+                )}
+                
+                {project.urls?.googlePlay && (
+                  <a
+                    href={project.urls.googlePlay}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <FaGooglePlay />
+                    <span>Google Play Store</span>
+                  </a>
+                )}
+                
+                {project.urls?.appStore && (
+                  <a
+                    href={project.urls.appStore}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors"
+                  >
+                    <FaApple />
+                    <span>App Store</span>
+                  </a>
+                )}
+                
+                {project.urls?.demo && (
+                  <a
+                    href={project.urls.demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                  >
+                    <FaExternalLinkAlt />
+                    <span>View Demo</span>
+                  </a>
+                )}
+                
+                {project.urls?.documentation && (
+                  <a
+                    href={project.urls.documentation}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+                  >
+                    <FaFileAlt />
+                    <span>Documentation</span>
+                  </a>
+                )}
+                
+                {project.urls?.wikipedia && (
+                  <a
+                    href={project.urls.wikipedia}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    <FaWikipediaW />
+                    <span>Wikipedia</span>
+                  </a>
+                )}
+                
+                {/* Legacy url structure fallbacks */}
+                {!project.urls?.website && project.liveUrl && (
+                  <a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    <FaExternalLinkAlt />
+                    <span>View Live Project</span>
+                  </a>
+                )}
+                
+                {!project.urls?.repository && project.github && (
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    <FaGithub />
+                    <span>View on GitHub</span>
+                  </a>
+                )}
+              </div>
+            </div>
+            
+            {/* Other References Section */}
+            {project.urls?.other && project.urls.other.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Project Links</h3>
-                <div className="flex flex-col gap-3">
-                  {project.liveUrl && (
+                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">References & Media</h3>
+                <div className="space-y-3">
+                  {project.urls.other.map((item, index) => (
                     <a
-                      href={project.liveUrl}
+                      key={index}
+                      href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
-                      <FaExternalLinkAlt />
-                      <span>View Live Project</span>
+                      <div className="mt-1 flex-shrink-0">
+                        {getMediaTypeIcon(item.type)}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-1">{item.name}</h4>
+                        {item.description && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
+                        )}
+                      </div>
                     </a>
-                  )}
-                  
-                  {project.github && (
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                    >
-                      <FaGithub />
-                      <span>View on GitHub</span>
-                    </a>
-                  )}
+                  ))}
                 </div>
+              </div>
+            )}
+            
+            {/* Internet Archive link if available */}
+            {project.urls?.timemachine && (
+              <div className="mb-8">
+                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Internet Archive</h3>
+                <a
+                  href={project.urls.timemachine}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-100 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                >
+                  <FaLink />
+                  <span>View on Wayback Machine</span>
+                </a>
               </div>
             )}
             
@@ -317,13 +476,15 @@ export default function ProjectModal({
             <div className="mb-8">
               <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Technologies Used</h3>
               <div className="flex flex-wrap gap-2">
-                {project.skills && project.skills.length > 0 && getSkillNames(project.skills).map((tech, index) => (
-                  <span
+                {project.skills && project.skills.length > 0 && project.skills.map((skillId, index) => (
+                  <button
                     key={index}
-                    className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg text-sm"
+                    onClick={() => handleSkillClick(skillId)}
+                    className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg text-sm
+                    hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
                   >
-                    {tech}
-                  </span>
+                    {getSkillNames([skillId])[0]}
+                  </button>
                 ))}
               </div>
             </div>
