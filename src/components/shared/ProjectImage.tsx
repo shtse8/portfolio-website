@@ -70,7 +70,7 @@ export default function ProjectImage({
     // Update image source when src prop or index changes
     setImgSrc(getImageSrc());
     setHasError(false);
-  }, [src, index]);
+  }, [src, index, getImageSrc]);
 
   const handleError = () => {
     setImgSrc(null);

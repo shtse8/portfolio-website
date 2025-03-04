@@ -8,9 +8,6 @@ import { COMPANIES } from '@/data/companies';
 import type { Project, Experience } from '@/data/types';
 import { parseMarkdownLinks } from '../projects/utils';
 import { getSkillNames } from '@/utils/skillHelpers';
-import { motion } from 'framer-motion';
-import { FaBuilding, FaCaretRight, FaCaretDown } from 'react-icons/fa';
-import { calculateExperienceDuration } from '@/utils/dateHelpers';
 import ProjectImage from '@/components/shared/ProjectImage';
 
 type ExperienceCardProps = {
