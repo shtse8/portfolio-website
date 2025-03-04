@@ -4,7 +4,6 @@ export type Project = {
   description: string;
   images: string[] | null;
   skills: string[];
-  skillTags?: string[];
   category: string;
   related_experience_id: string | null;
   details: string[] | string;
