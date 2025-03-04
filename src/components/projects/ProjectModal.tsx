@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import Image from 'next/image';
 import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import type { Project, Experience } from '@/data/types';
@@ -14,7 +14,7 @@ type ProjectModalProps = {
   project: Project;
   openExperienceModal: (experienceIndex: number) => void;
   openCompanyModal: (companyId: string) => void;
-  parseMarkdownLinks: (text: string) => React.ReactElement;
+  parseMarkdownLinks: (text: string) => ReactNode;
   closeModal?: () => void;
   nextProject?: () => void;
   prevProject?: () => void;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import type { ImageProps } from 'next/image';
 import { cn } from '@/lib/utils';
@@ -55,13 +55,13 @@ export default function ProjectImage({
   ...props
 }: ProjectImageProps) {
   // Get the actual image source from string or array
-  const getImageSrc = () => {
+  const getImageSrc = useCallback(() => {
     if (!src) return null;
     if (Array.isArray(src)) {
       return src.length > 0 ? src[index] : null;
     }
     return src;
-  };
+  }, [src, index]);
 
   const [imgSrc, setImgSrc] = useState<string | null>(getImageSrc());
   const [hasError, setHasError] = useState(false);
@@ -70,7 +70,7 @@ export default function ProjectImage({
     // Update image source when src prop or index changes
     setImgSrc(getImageSrc());
     setHasError(false);
-  }, [src, index, getImageSrc]);
+  }, [getImageSrc]);
 
   const handleError = () => {
     setImgSrc(null);
