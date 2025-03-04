@@ -44,12 +44,13 @@ export type Experience = {
   period: string;
   location: string;
   description: string;
-  image: string;
   logo: string;
   skills: string[];
   liveUrl?: string;
   details: string[];
   projects?: string[];
+  keyAchievements?: string[];
+  impactStatements?: Array<{ value: string; label: string }>;
 };
 
 export type TechSkill = {

@@ -229,7 +229,7 @@ export default function ExperienceSection() {
                             onClick={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
                           >
                             <Image 
-                              src={experience.image} 
+                              src={experience.logo} 
                               alt={experience.title}
                               fill
                               className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
@@ -274,7 +274,7 @@ export default function ExperienceSection() {
                             onClick={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
                           >
                             <Image 
-                              src={experience.image} 
+                              src={experience.logo} 
                               alt={experience.title}
                               fill
                               className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
@@ -297,7 +297,7 @@ export default function ExperienceSection() {
                           onClick={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
                         >
                           <Image 
-                            src={experience.image} 
+                            src={experience.logo} 
                             alt={experience.title}
                             fill
                             className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"

@@ -1,3 +1,3 @@
-import ExperienceSection from './experience';
+import ExperiencesTimeline from './experience/ExperiencesTimeline';
 
-export default ExperienceSection; 
+export default ExperiencesTimeline; 

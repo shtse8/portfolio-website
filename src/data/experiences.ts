@@ -8,7 +8,6 @@ export const EXPERIENCES: Experience[] = [
     period: '2014 - Present',
     location: 'Hong Kong',
     description: 'Founded and led a mobile gaming company specializing in card and casino games with millions of downloads',
-    image: '/projects/cubeage.jpg',
     logo: '/companys/cubeage.jpeg',
     skills: ['unity3d', 'gamedev', 'databases', 'team-leadership', 'business-growth', 'csharp', 'ios', 'android', 'java'],
     liveUrl: 'https://cubeage.com',
@@ -20,6 +19,16 @@ export const EXPERIENCES: Experience[] = [
       'Built and managed cross-functional teams for game development and operations',
       'Utilized MySQL and Percona for high-performance game data storage and analytics',
       'Related Projects: See [Hong Kong Mahjong Tycoon](#mahjong), [Fun Mahjong 16 Tiles](#fmj), [Fun Showhand](#fun-showhand), and [Big2 Tycoon](#big2-tycoon) in this portfolio'
+    ],
+    keyAchievements: [
+      'Reached 1M+ downloads across multiple game titles',
+      'Sustained 4.2+ average user ratings',
+      'Built profitable gaming ecosystem'
+    ],
+    impactStatements: [
+      { value: '10+', label: 'Games Published' },
+      { value: '1M+', label: 'Downloads' },
+      { value: '4.2★', label: 'Average Rating' }
     ]
   },
   {
@@ -29,7 +38,6 @@ export const EXPERIENCES: Experience[] = [
     period: '2010 - 2014',
     location: 'Hong Kong',
     description: 'Led development at a gaming platform company focusing on game operations and agency distribution in Hong Kong',
-    image: '/companys/minimax.jpeg',
     logo: '/companys/minimax.jpeg',
     skills: ['databases', 'team-leadership', 'business-growth', 'php', 'nodejs', 'payment-integration'],
     details: [
@@ -39,6 +47,16 @@ export const EXPERIENCES: Experience[] = [
       'Implemented payment systems integration for physical and digital purchases',
       'Designed systems to manage game inventory, distribution, and analytics',
       'Built user management and loyalty systems to improve customer retention'
+    ],
+    keyAchievements: [
+      'Established major distribution network',
+      'Integrated multiple payment systems', 
+      'Implemented robust inventory management'
+    ],
+    impactStatements: [
+      { value: '50+', label: 'Distribution Partners' },
+      { value: '5+', label: 'Payment Methods' },
+      { value: '100%', label: 'Uptime SLA' }
     ]
   },
   {
@@ -48,7 +66,6 @@ export const EXPERIENCES: Experience[] = [
     period: '2006 - Present',
     location: 'Hong Kong',
     description: 'Designed and developed professional corporate website and business solutions',
-    image: '/companys/nakuz.jpeg',
     logo: '/companys/nakuz.jpeg',
     skills: ['react', 'typescript', 'team-leadership', 'nextjs', 'responsive-design', 'seo', 'business-growth'],
     liveUrl: 'https://nakuz.com',
@@ -58,6 +75,16 @@ export const EXPERIENCES: Experience[] = [
       'Implemented responsive design for optimal viewing on all devices',
       'Integrated SEO best practices to improve visibility and organic traffic',
       'Created an intuitive user interface with streamlined navigation'
+    ],
+    keyAchievements: [
+      'Achieved top search rankings for target keywords',
+      'Created responsive modern web experience',
+      'Established brand identity across digital touchpoints'
+    ],
+    impactStatements: [
+      { value: 'Top 3', label: 'Search Ranking' },
+      { value: '100%', label: 'Mobile Optimized' },
+      { value: '5 sec', label: 'Load Time' }
     ]
   }
 ] as const; 
