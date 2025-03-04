@@ -461,7 +461,11 @@ export const PROJECTS: Project[] = [
         id: 'ipet',
         title: 'iPet',
         description: 'Facebook virtual pet game with raising and fighting mechanics',
-        images: null,
+        images: [
+          '/projects/ipet/games-4049-ipet01.webp',
+          '/projects/ipet/games-4049-ipet02.webp',
+          '/projects/ipet/games-4049-ipet03.webp'
+        ],
         skills: ['flash', 'php', 'mysql', 'facebook-api', 'ubuntu', 'google-adsense'],
         category: "Game Development",
         related_experience_id: "minimax",
