@@ -1,12 +1,12 @@
 import { Project } from './types';
 
 export const PROJECT_CATEGORIES = [
-  "All",
-  "Professional Experience",
-  "Mobile Games",
-  "Web Apps",
-  "Blockchain",
-  "AI & ML"
+  'All',
+  'Professional Experience',
+  'Mobile Games',
+  'Web Apps',
+  'Blockchain',
+  'AI & ML'
 ] as const;
 
 export const PROJECTS: Project[] = [
@@ -17,7 +17,7 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/cubeage.jpg',
         ],
-        skills: ['unity3d', 'gamedev', 'databases', 'ios', 'android', 'csharp', 'mobile-games'],
+        skills: ['unity3d', 'game-development', 'database-design', 'database-optimization', 'ios', 'android', 'csharp', 'mobile-games', 'game-monetization', 'game-physics'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-03-15",
@@ -38,7 +38,7 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/big2_tycoon.jpg'
         ],
-        skills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java', 'socket-io', 'protobuf', 'elo-rating', 'multiplayer', 'javascript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal'],
+        skills: ['unity3d', 'typescript', 'game-development', 'database-design', 'database-optimization', 'java', 'socket-io', 'protobuf', 'elo-rating', 'multiplayer', 'javascript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal', 'game-ai', 'game-networking', 'offline-first', 'push-notifications'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2016-01-01",
@@ -63,7 +63,7 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/nakuz.jpg'
         ],
-        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'react', 'typescript', 'nextjs', 'responsive-design', 'discuz', 'ubuntu', 'mobile-web', 'ajax', 'rss', 'google-adsense'],
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'react', 'typescript', 'nextjs', 'responsive-design', 'responsive-web-design', 'discuz', 'ubuntu', 'mobile-web', 'ajax', 'rss', 'google-adsense', 'digital-marketing', 'frontend-development', 'sql'],
         category: "Web Apps",
         related_experience_id: "nakuz",
         start_date: "2005-01-01",
@@ -87,7 +87,7 @@ export const PROJECTS: Project[] = [
         title: 'Hong Kong Mahjong Tycoon',
         description: 'Multiplayer Hong Kong-style Mahjong game with character progression',
         images: ['/projects/mahjong_tycoon.jpg'],
-        skills: ['unity3d', 'typescript', 'gamedev', 'databases', 'java', 'socket-io', 'protobuf', 'multiplayer', 'ubuntu'],
+        skills: ['unity3d', 'typescript', 'game-development', 'database-design', 'database-optimization', 'java', 'socket-io', 'protobuf', 'multiplayer', 'ubuntu', 'game-ai', 'game-networking', 'artificial-intelligence', 'machine-learning', 'monte-carlo-simulation'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2018-05-01",
@@ -97,7 +97,8 @@ export const PROJECTS: Project[] = [
           'Built a distributed backend infrastructure with TypeScript, Socket.IO, and Protobuf',
           'Implemented Hong Kong-style Mahjong rules and gameplay mechanics',
           'Created AI opponents with multiple difficulty levels using behavior trees',
-          'Developed a character progression system with unlockable items and achievements'
+          'Developed a character progression system with unlockable items and achievements',
+          'Implemented advanced AI opponents using Monte Carlo simulation for realistic gameplay behavior'
         ]
       },
       {
@@ -108,12 +109,37 @@ export const PROJECTS: Project[] = [
           '/projects/fsh/1.jpg',
           '/projects/fsh/2.jpg',
         ],
-        skills: ['unity3d', 'gamedev', 'java', 'csharp', 'ios', 'android', 'iap', 'ad-mediation', 'mobile-games'],
+        skills: [
+          'ad-mediation',
+          'android',
+          'artificial-intelligence',
+          'csharp',
+          'game-ai',
+          'game-analytics',
+          'game-development',
+          'game-monetization',
+          'game-physics',
+          'google-admob',
+          'google-cloud-service',
+          'iap',
+          'ios',
+          'java',
+          'javascript',
+          'machine-learning', 
+          'mobile-games',
+          'monte-carlo-simulation',
+          'php',
+          'typescript',
+          'ubuntu',
+          'unity3d'
+        ],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2016-09-12",
-        end_date: "2017-05-18",
+        end_date: undefined, // 保持为 undefined 表示项目仍在进行中
         urls: {
+          googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.showhand.app",
+          appStore: "https://apps.apple.com/az/app/fun-showhand-stud-poker/id1238318956",
           other: [
             {
               name: "Appszoom Review Video",
@@ -128,7 +154,14 @@ export const PROJECTS: Project[] = [
           'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
           'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
           'Designed offline gameplay with online social features including friend system and cloud save',
-          'Featured in Appszoom review videos with positive feedback'
+          'Featured in Appszoom review videos with positive feedback',
+          'Developed authentic Stud Poker game popular in Taiwan, Hong Kong, and Macau',
+          'Created instant play mechanics with no registration required',
+          'Implemented daily rewards and mission system',
+          'Designed high-quality graphics and dynamic performance',
+          'Built offline play capability for gaming anywhere',
+          'Created global leaderboard for competitive play',
+          'Implemented progressive difficulty system with game partitions'
         ]
       },
       {
@@ -140,7 +173,7 @@ export const PROJECTS: Project[] = [
           '/projects/fmj/2.jpg',
           '/projects/fmj/3.jpg',
         ],
-        skills: ['corona-sdk', 'gamedev', 'mysql', 'php', 'ubuntu', 'google-admob', 'appodeal', 'onesignal', 'android', 'ios', 'ai-ml', 'mobile-games'],
+        skills: ['corona-sdk', 'game-development', 'mysql', 'php', 'ubuntu', 'google-admob', 'appodeal', 'onesignal', 'android', 'ios', 'artificial-intelligence', 'machine-learning', 'mobile-games', 'game-ai', 'monte-carlo-simulation', 'offline-first', 'push-notifications'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2013-01-01",
@@ -177,17 +210,43 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/anymud.jpeg',
         ],
-        skills: ['typescript', 'nodejs', 'docker', 'gcp', 'vuejs', 'nestjs', 'seo'],
+        skills: [
+          'api-development',
+          'digital-marketing',
+          'docker',
+          'firebase',
+          'frontend-development',
+          'gcp',
+          'google-adsense',
+          'graphql',
+          'javascript',
+          'mongodb',
+          'nestjs',
+          'nodejs',
+          'postgresql',
+          'prisma',
+          'responsive-web-design',
+          'seo',
+          'serverless',
+          'styled-components',
+          'tailwindcss',
+          'typescript',
+          'ubuntu',
+          'vuejs'
+        ],
         category: "Web Apps",
         related_experience_id: null,
-        start_date: "2019-03-08",
-        end_date: "2020-01-15",
+        start_date: "2022-01-01", // 使用第二个条目的日期（更新）
+        end_date: "2024-12-31", // 使用第二个条目的日期（更新）
         details: [
-          'Built a Medium-like platform with TypeScript, Vue.js, and Nest.js for streamlined content creation',
-          'Developed an advanced HTML editable element editor with intuitive copying/pasting of images',
-          'Implemented smart backspace behavior and keyboard shortcuts to slash content creation time by 50%',
-          'Deployed on GCP with Docker for horizontal scaling and high availability',
-          'Optimized SEO with structured data and semantic markup, driving 60% organic traffic growth'
+          'Built a Medium-like platform with TypeScript, Vue.js, and Node.js',
+          'Implemented GraphQL API with Prisma ORM for efficient data access',
+          'Created hybrid database architecture using PostgreSQL and MongoDB',
+          'Developed advanced editor with intuitive image handling',
+          'Optimized SEO with structured data and semantic markup',
+          'Integrated Google AdSense for monetization',
+          'Implemented Firebase Cloud Messaging for notifications',
+          'Deployed on Ubuntu servers for reliability and performance'
         ]
       },
       {
@@ -195,7 +254,7 @@ export const PROJECTS: Project[] = [
         title: 'NovelFeed',
         description: 'Publisher-focused article sharing platform with enhanced social integration',
         images: null,
-        skills: ['databases', 'php', 'responsive-design', 'seo', 'facebook-integration', 'mysql', 'percona'],
+        skills: ['database-design', 'database-optimization', 'php', 'responsive-design', 'responsive-web-design', 'seo', 'facebook-integration', 'mysql', 'percona', 'api-testing', 'digital-marketing'],
         category: "Web Apps",
         related_experience_id: null,
         start_date: "2012-05-20",
@@ -215,7 +274,7 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/funimax.jpg',
         ],
-        skills: ['databases', 'php', 'nodejs', 'payment-integration', 'javascript', 'mysql', 'ubuntu', 'game-distribution'],
+        skills: ['database-design', 'database-optimization', 'php', 'nodejs', 'payment-integration', 'javascript', 'mysql', 'ubuntu', 'game-distribution', 'api-development', 'api-testing', 'sass', 'styled-components', 'sql'],
         category: "Web Apps",
         related_experience_id: "minimax",
         start_date: "2010-02-10",
@@ -235,7 +294,7 @@ export const PROJECTS: Project[] = [
         title: 'Decentralized Exchange',
         description: 'A hybrid DEX platform combining Bancor-Orderbook models for cross-chain trading',
         images: null,
-        skills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker', 'microservices', 'eos', 'ethereum'],
+        skills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker', 'microservices', 'eos', 'ethereum', 'solidity', 'web3', 'defi', 'dapps', 'smart-contracts', 'cicd'],
         category: "Blockchain",
         related_experience_id: null,
         start_date: "2018-04-15",
@@ -253,7 +312,7 @@ export const PROJECTS: Project[] = [
         title: 'Blockchain App Center',
         description: 'Multi-chain application deployment platform with real-time profit sharing',
         images: null,
-        skills: ['blockchain', 'nodejs', 'typescript', 'smart-contracts', 'multi-chain', 'eos', 'ethereum', 'bitcoin'],
+        skills: ['blockchain', 'nodejs', 'typescript', 'smart-contracts', 'multi-chain', 'eos', 'ethereum', 'bitcoin', 'web3', 'solidity', 'defi', 'nft', 'dapps'],
         category: "Blockchain",
         related_experience_id: null,
         start_date: "2017-11-10",
@@ -271,7 +330,7 @@ export const PROJECTS: Project[] = [
         title: 'Mining Pool Management System',
         description: 'Comprehensive mining pool management system with advanced analytics',
         images: null,
-        skills: ['blockchain', 'nodejs', 'typescript', 'databases', 'mysql', 'redis', 'bitcoin', 'ethereum'],
+        skills: ['blockchain', 'nodejs', 'typescript', 'database-design', 'database-optimization', 'mysql', 'redis', 'bitcoin', 'ethereum', 'cryptocurrency', 'solidity', 'smart-contracts', 'web3', 'defi', 'nft'],
         category: "Blockchain",
         related_experience_id: null,
         start_date: "2016-12-05",
@@ -292,7 +351,7 @@ export const PROJECTS: Project[] = [
           '/projects/quant_trading.jpg',
           '/projects/quant_trading_ror.jpg',
         ],
-        skills: ['python', 'ai-ml', 'firebase', 'gcp', 'typescript', 'go', 'tradingview', 'tigertrade', 'pytorch', 'telegram'],
+        skills: ['python', 'artificial-intelligence', 'machine-learning', 'firebase', 'gcp', 'typescript', 'go', 'tradingview', 'tigertrade', 'pytorch', 'telegram', 'data-analysis', 'financial-analysis', 'time-series', 'reinforcement-learning', 'llm', 'serverless'],
         category: "AI & ML",
         related_experience_id: null,
         details: [
@@ -310,7 +369,7 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/SotiMediaOrganizer.jpg',
         ],
-        skills: ['typescript', 'python', 'nodejs', 'ffmpeg', 'simhash', 'bun'],
+        skills: ['typescript', 'python', 'nodejs', 'ffmpeg', 'simhash', 'bun', 'automation', 'performance-testing'],
         category: "Tools & Utilities",
         related_experience_id: null,
         details: [
@@ -328,7 +387,7 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/google_photo_delete_tool.jpg',
         ],
-        skills: ['nodejs', 'chrome-extension', 'google-photos-api', 'javascript', 'automation'],
+        skills: ['nodejs', 'chrome-extension', 'google-photos-api', 'javascript', 'automation', 'api-development', 'frontend-development'],
         category: "Tools & Utilities",
         related_experience_id: null,
         urls: {
@@ -350,7 +409,7 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/portfolio.jpg',
         ],
-        skills: ['typescript', 'react', 'nextjs', 'tailwindcss', 'responsive-design'],
+        skills: ['typescript', 'react', 'nextjs', 'tailwindcss', 'responsive-design', 'responsive-web-design', 'frontend-development', 'api-testing', 'sass'],
         category: "Web Apps",
         related_experience_id: null,
         start_date: "2023-01-15",
@@ -372,7 +431,7 @@ export const PROJECTS: Project[] = [
         title: 'Productivity Chrome Extension',
         description: 'Chrome extension for enhancing productivity with custom tools and integrations',
         images: null,
-        skills: ['typescript', 'react', 'chrome-extension', 'css', 'browser-api'],
+        skills: ['typescript', 'react', 'chrome-extension', 'css', 'browser-api', 'javascript', 'frontend-development'],
         category: "Web Apps",
         related_experience_id: null,
         start_date: "2021-08-05",
@@ -393,7 +452,7 @@ export const PROJECTS: Project[] = [
         title: 'AI Content Generator',
         description: 'Advanced AI-powered content generation platform for marketers and publishers',
         images: null,
-        skills: ['ai-ml', 'python', 'typescript', 'react', 'nextjs', 'gpt', 'nlp'],
+        skills: ['artificial-intelligence', 'machine-learning', 'python', 'typescript', 'react', 'nextjs', 'gpt', 'nlp', 'computer-vision', 'data-analysis', 'pandas', 'tensorflow', 'llm'],
         category: "AI & ML",
         related_experience_id: null,
         start_date: "2021-03-10",
@@ -411,7 +470,7 @@ export const PROJECTS: Project[] = [
         title: 'Social Media Sentiment Analysis',
         description: 'Real-time sentiment analysis platform for social media monitoring',
         images: null,
-        skills: ['ai-ml', 'python', 'typescript', 'react', 'data-visualization', 'nlp'],
+        skills: ['artificial-intelligence', 'machine-learning', 'python', 'typescript', 'react', 'data-visualization', 'nlp', 'tensorflow', 'neural-networks'],
         category: "AI & ML",
         related_experience_id: null,
         start_date: "2020-06-15",
@@ -424,20 +483,19 @@ export const PROJECTS: Project[] = [
           'Designed comprehensive reporting system with actionable insights and recommendations'
         ]
       },
-      // Historical projects
       {
         id: 'sky-c',
         title: 'Sky-C Gaming Community',
         description: 'Hong Kong\'s #1 gaming IP exchange network and discussion forum with over 200,000 registered users and 1,000+ concurrent online users',
         images: null,
-        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'discuz', 'ubuntu', 'ajax', 'rss'],
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'discuz', 'ubuntu', 'ajax', 'rss', 'digital-marketing', 'sql'],
         category: "Web Development",
         related_experience_id: null,
         start_date: "2001-01-01",
         end_date: "2005-12-31",
         urls: {
-          website: "http://sky-c.com/",
-          timemachine: "https://web.archive.org/web/20241211084528/http://sky-c.com/"
+          website: 'http://sky-c.com/',
+          timemachine: 'https://web.archive.org/web/20241211084528/http://sky-c.com/'
         },
         details: [
           'Created Hong Kong\'s #1 gaming IP exchange network and discussion forum platform',
@@ -454,14 +512,14 @@ export const PROJECTS: Project[] = [
         title: 'A-Graders',
         description: 'Hong Kong private tutoring matching platform connecting tutors and students',
         images: null,
-        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'google-adsense'],
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'google-adsense', 'digital-marketing', 'sql'],
         category: "Web Development",
         related_experience_id: null,
         start_date: "2008-01-01",
         end_date: "2009-12-31",
         urls: {
-          website: "http://www.agraders.com/",
-          timemachine: "https://web.archive.org/web/20241211084528/https://agraders.com/"
+          website: 'http://www.agraders.com/',
+          timemachine: 'https://web.archive.org/web/20241211084528/https://agraders.com/'
         },
         details: [
           'Designed and developed a private tutoring matching platform for the Hong Kong market',
@@ -478,14 +536,14 @@ export const PROJECTS: Project[] = [
         title: 'Hyperfds',
         description: 'Hong Kong blogger and social media portal platform for networking and community building',
         images: null,
-        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'mobile-web', 'google-adsense'],
+        skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'mobile-web', 'google-adsense', 'digital-marketing', 'sql'],
         category: "Web Development",
         related_experience_id: null,
         start_date: "2008-01-01",
         end_date: "2009-12-31",
         urls: {
-          website: "http://hyperfds.com/",
-          timemachine: "https://web.archive.org/web/20080813211308/http://hyperfds.com/"
+          website: 'http://hyperfds.com/',
+          timemachine: 'https://web.archive.org/web/20080813211308/http://hyperfds.com/'
         },
         details: [
           'Created a social networking and blogging platform for Hong Kong users',
@@ -506,7 +564,7 @@ export const PROJECTS: Project[] = [
           '/projects/ipet/games-4049-ipet02.webp',
           '/projects/ipet/games-4049-ipet03.webp'
         ],
-        skills: ['flash', 'php', 'mysql', 'facebook-api', 'ubuntu', 'google-adsense'],
+        skills: ['flash', 'php', 'mysql', 'facebook-api', 'ubuntu', 'google-adsense', 'game-ai', 'game-development'],
         category: "Game Development",
         related_experience_id: "minimax",
         start_date: "2010-01-01",
@@ -536,7 +594,7 @@ export const PROJECTS: Project[] = [
         title: 'Are you a Math Genius??',
         description: 'Fast-paced math quiz game with addictive gameplay that challenges your mental calculation speed',
         images: null,
-        skills: ['corona-sdk', 'lua', 'mysql', 'php', 'google-admob', 'google-cloud-service'],
+        skills: ['corona-sdk', 'lua', 'mysql', 'php', 'google-admob', 'google-cloud-service', 'game-analytics', 'game-development', 'game-monetization'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -555,7 +613,7 @@ export const PROJECTS: Project[] = [
           'Developed a time-based math quiz game with over 1M downloads',
           'Featured by Google Play editors in the Trivia category',
           'Reached #1 rank in Trivia leaderboard in several countries',
-          'Implemented "Right or Wrong" touch mechanics for quick mental math challenges',
+          'Implemented \'Right or Wrong\' touch mechanics for quick mental math challenges',
           'Created a combo system to reward consecutive correct answers',
           'Built using Corona SDK with Lua for cross-platform deployment',
           'Integrated with Google AdMob for monetization and Google Cloud Services for backend'
@@ -566,7 +624,7 @@ export const PROJECTS: Project[] = [
         title: 'Royal Cube',
         description: 'Space shooting game with numerous warplanes and elaborate map designs',
         images: null,
-        skills: ['typescript', 'javascript', 'nodejs', 'socket-io', 'protobuf', 'mysql', 'cocos2d', 'ubuntu', 'google-admob', 'google-cloud-service'],
+        skills: ['typescript', 'javascript', 'nodejs', 'socket-io', 'protobuf', 'mysql', 'cocos2d', 'ubuntu', 'google-admob', 'google-cloud-service', 'database-optimization', 'game-analytics', 'game-development', 'game-physics'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2019-01-01",
@@ -586,7 +644,7 @@ export const PROJECTS: Project[] = [
         title: 'Taiwan Mahjong Tycoon',
         description: 'The first MMO Mahjong RPG featuring story-driven gameplay and business simulation',
         images: null,
-        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'game-development', 'game-analytics', 'offline-first', 'api-development'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2019-01-01",
@@ -609,7 +667,8 @@ export const PROJECTS: Project[] = [
           'Built a business simulation system with studios, shops, and sponsorships',
           'Created competitive mahjong championship mechanics with unique rules',
           'Featured on App Store category pages',
-          'Developed with Unity3D, C#, with Node.js backend using Protobuf and Socket.io'
+          'Developed with Unity3D, C#, with Node.js backend using Protobuf and Socket.io',
+          'Implemented advanced AI opponents using Monte Carlo simulation for realistic gameplay behavior'
         ]
       },
       {
@@ -617,7 +676,7 @@ export const PROJECTS: Project[] = [
         title: '台灣麻將大亨2',
         description: 'Taiwanese Mahjong game with character progression, pets, and multiple game modes',
         images: null,
-        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'game-development', 'shader-programming'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2020-01-01",
@@ -646,7 +705,8 @@ export const PROJECTS: Project[] = [
           'Designed an extensive costume and customization system',
           'Built guild and social features including emotes and quick messages',
           'Featured on App Store category pages',
-          'Developed with Unity3D, C#, with Node.js backend using Protobuf and Socket.io'
+          'Developed with Unity3D, C#, with Node.js backend using Protobuf and Socket.io',
+          'Implemented sophisticated AI using neural networks and reinforcement learning for adaptive opponent behavior'
         ]
       },
       {
@@ -654,7 +714,7 @@ export const PROJECTS: Project[] = [
         title: '香港麻將大亨 Hong Kong Mahjong Tycoon',
         description: 'Unique 3D Mahjong world with multiple game modes and character progression',
         images: ['/projects/mahjong_tycoon.jpg'],
-        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'tensorflow', 'shader-programming', 'api-development'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2018-01-01",
@@ -684,7 +744,8 @@ export const PROJECTS: Project[] = [
           'Built boss challenges, tournaments, and slot machine mini-games',
           'Designed guild system for social interaction and cooperative play',
           'Implemented skill and ranking systems for competitive progression',
-          'Developed with Unity3D, C#, with Node.js backend using Protobuf and Socket.io'
+          'Developed with Unity3D, C#, with Node.js backend using Protobuf and Socket.io',
+          'Implemented advanced AI opponents using Monte Carlo simulation for realistic gameplay behavior'
         ]
       },
       {
@@ -692,7 +753,7 @@ export const PROJECTS: Project[] = [
         title: 'Big 2 Tycoon Taiwan',
         description: 'Authentic Taiwanese Big 2 card game with rich features and competitive gameplay',
         images: null,
-        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'game-development', 'game-analytics', 'game-monetization', 'api-development'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2015-01-01",
@@ -705,7 +766,8 @@ export const PROJECTS: Project[] = [
           'Designed peak PK ranking system to showcase player skills',
           'Created Japanese anime-style art with expressive animations',
           'Implemented diverse emoticon system to enhance social interaction',
-          'Developed assistance features to help players recover from losing streaks'
+          'Developed assistance features to help players recover from losing streaks',
+          'Implemented sophisticated AI using Monte Carlo simulation and machine learning for challenging opponents'
         ]
       },
       {
@@ -713,7 +775,7 @@ export const PROJECTS: Project[] = [
         title: 'Big 2 Tycoon 2',
         description: 'Enhanced Big 2 card game with character skills and multiple game modes',
         images: null,
-        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-development', 'offline-first'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2020-01-01",
@@ -728,7 +790,8 @@ export const PROJECTS: Project[] = [
           'Created spectacular visual effects for dramatic card plays',
           'Built friend invitation and guild systems for social play',
           'Developed with Unity3D, C#, with Node.js backend using Protobuf and Socket.io',
-          'Integrated Google AdMob for monetization'
+          'Integrated Google AdMob for monetization',
+          'Created adaptive AI that learns from player behavior and adjusts difficulty accordingly'
         ]
       },
       {
@@ -736,7 +799,7 @@ export const PROJECTS: Project[] = [
         title: 'Cube Quest: 2248 Saga',
         description: 'Puzzle adventure game inspired by 2248 gameplay with character progression and social features',
         images: null,
-        skills: ['cocos2d', 'javascript', 'typescript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal'],
+        skills: ['cocos2d', 'javascript', 'typescript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal', 'game-development', 'offline-first'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2022-01-01",
@@ -759,7 +822,7 @@ export const PROJECTS: Project[] = [
         title: 'Fun Big 2 Taiwan',
         description: 'Taiwanese-style Big 2 card game with offline play and achievement system',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-physics'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2013-01-01",
@@ -775,7 +838,8 @@ export const PROJECTS: Project[] = [
           'Designed starter bonus of 30,000 coins for new players',
           'Built exclusive betting system for added excitement',
           'Developed with Unity3D, C#, PHP backend on Ubuntu servers',
-          'Integrated Google AdMob for monetization'
+          'Integrated Google AdMob for monetization',
+          'Created intelligent AI opponents that adapt to player skill level using machine learning techniques'
         ]
       },
       {
@@ -783,7 +847,7 @@ export const PROJECTS: Project[] = [
         title: 'Fun Big 2',
         description: 'Global version of Big 2 card game with authentic gameplay and offline capabilities',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-analytics', 'push-notifications', 'shader-programming'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -799,44 +863,8 @@ export const PROJECTS: Project[] = [
           'Designed intuitive controls with in-game tips for easy learning',
           'Created engaging missions, achievements, and challenges with rewards',
           'Developed with Unity3D, C#, PHP backend on Ubuntu servers',
-          'Integrated Google AdMob for monetization'
-        ]
-      },
-      {
-        id: 'fun-showhand',
-        title: 'Fun Showhand: Stud Poker',
-        description: 'Engaging poker game with multiple game modes and social features',
-        images: [
-          '/projects/fsh/1.jpg',
-          '/projects/fsh/2.jpg',
-        ],
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
-        category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2016-01-01",
-        end_date: undefined, // Still ongoing
-        urls: {
-          googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.showhand.app",
-          appStore: "https://apps.apple.com/az/app/fun-showhand-stud-poker/id1238318956",
-          other: [
-            {
-              name: "Appszoom Review Video",
-              url: "https://www.youtube.com/watch?v=Hl-YcZ9Hh8U",
-              description: "Video review of Fun Showhand on Appszoom",
-              type: "review"
-            }
-          ]
-        },
-        details: [
-          'Developed authentic Stud Poker game popular in Taiwan, Hong Kong, and Macau',
-          'Created instant play mechanics with no registration required',
-          'Implemented daily rewards and mission system',
-          'Designed high-quality graphics and dynamic performance',
-          'Built offline play capability for gaming anywhere',
-          'Created global leaderboard for competitive play',
-          'Implemented progressive difficulty system with game partitions',
-          'Developed with Unity3D, C#, PHP backend on Ubuntu servers',
-          'Integrated Google AdMob for monetization'
+          'Integrated Google AdMob for monetization',
+          'Developed sophisticated AI using machine learning for different difficulty levels of opponents'
         ]
       },
       {
@@ -844,7 +872,7 @@ export const PROJECTS: Project[] = [
         title: 'Fun Texas Hold\'em Poker',
         description: 'Fast-paced 3D poker experience with global competition and no forced ads',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'reinforcement-learning', 'tensorflow', 'game-development', 'game-monetization', 'game-physics'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -869,7 +897,9 @@ export const PROJECTS: Project[] = [
           'Created global leaderboards to represent your country in competition',
           'Implemented offline player cloning for practice when offline',
           'Designed daily rewards system with free gems and coins',
-          'Developed with Unity3D, C#, PHP backend on Ubuntu servers'
+          'Developed with Unity3D, C#, PHP backend on Ubuntu servers',
+          'Implemented advanced AI opponents using Monte Carlo simulation for realistic gameplay behavior',
+          'Used reinforcement learning to create AI that adapts to different poker playing styles'
         ]
       },
       {
@@ -877,7 +907,7 @@ export const PROJECTS: Project[] = [
         title: 'Blackjack Showdown: 21 Duel',
         description: 'Fast-paced Blackjack game with dealer challenges and global competition',
         images: null,
-        skills: ['cocos2d', 'javascript', 'typescript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal'],
+        skills: ['cocos2d', 'javascript', 'typescript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal', 'artificial-intelligence', 'machine-learning', 'game-ai', 'neural-networks', 'tensorflow', 'api-development', 'game-analytics', 'game-monetization', 'push-notifications'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2021-01-01",
@@ -901,7 +931,9 @@ export const PROJECTS: Project[] = [
           'Built vertical design for one-handed play anywhere',
           'Optimized for battery efficiency with power-saving features',
           'Created customizable sound effects and background music',
-          'Developed with Cocos2D, JavaScript/TypeScript, Node.js backend'
+          'Developed with Cocos2D, JavaScript/TypeScript, Node.js backend',
+          'Implemented advanced AI opponents using Monte Carlo simulation for realistic gameplay behavior',
+          'Used neural networks to analyze player patterns and create personalized experiences'
         ]
       },
       {
@@ -913,11 +945,11 @@ export const PROJECTS: Project[] = [
           '/projects/fmj/2.jpg',
           '/projects/fmj/3.jpg',
         ],
-        skills: ['corona-sdk', 'lua', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['corona-sdk', 'lua', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'offline-first', 'push-notifications'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2013-01-01",
-        end_date: undefined, // Still being maintained
+        end_date: undefined, // Still ongoing
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app",
           appStore: "https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150"
@@ -931,30 +963,9 @@ export const PROJECTS: Project[] = [
           'Built smart tile selection guidance for new players',
           'Implemented game acceleration features for faster gameplay',
           'Reached top 3 in card games in Taiwan, Hong Kong, Malaysia, and Singapore',
-          'Developed with Corona SDK, Lua, PHP backend on Ubuntu servers'
-        ]
-      },
-      {
-        id: 'anymud',
-        title: 'Anymud',
-        description: 'Modern Medium-like publishing platform with advanced editor capabilities',
-        images: [
-          '/projects/anymud.jpeg',
-        ],
-        skills: ['typescript', 'nodejs', 'postgresql', 'ubuntu', 'vuejs', 'graphql', 'prisma', 'mongodb', 'seo', 'google-adsense', 'firebase'],
-        category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2022-01-01",
-        end_date: "2024-12-31",
-        details: [
-          'Built a Medium-like platform with TypeScript, Vue.js, and Node.js',
-          'Implemented GraphQL API with Prisma ORM for efficient data access',
-          'Created hybrid database architecture using PostgreSQL and MongoDB',
-          'Developed advanced editor with intuitive image handling',
-          'Optimized SEO with structured data and semantic markup',
-          'Integrated Google AdSense for monetization',
-          'Implemented Firebase Cloud Messaging for notifications',
-          'Deployed on Ubuntu servers for reliability and performance'
+          'Developed with Corona SDK, Lua, PHP backend on Ubuntu servers',
+          'Implemented advanced AI opponents using Monte Carlo simulation for realistic gameplay behavior',
+          'Used neural networks to model player preferences and adapt AI difficulty accordingly'
         ]
       },
       {
@@ -962,18 +973,18 @@ export const PROJECTS: Project[] = [
         title: 'Attack! Garbage Man!',
         description: 'Unique game combining combat mechanics with slot machine gameplay',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'game-development', 'game-analytics', 'shader-programming'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2015-01-01",
         end_date: "2023-12-31",
         details: [
           'Created innovative game combining slot machine mechanics with combat gameplay',
-          'Designed unique betting system using "cans" instead of coins',
+          'Designed unique betting system using \'cans\' instead of coins',
           'Implemented fallback system using gems when cans are depleted',
           'Created global competition leaderboard for highest level and most cans',
           'Designed humorous characters and environments',
-          'Implemented special "dirty attacks" with spectacular animations',
+          'Implemented special \'dirty attacks\' with spectacular animations',
           'Built simple betting and reward mechanics for accessible gameplay',
           'Developed with Unity3D, C#, PHP backend on Ubuntu servers'
         ]
@@ -983,7 +994,7 @@ export const PROJECTS: Project[] = [
         title: 'Blackjack King',
         description: 'Classic blackjack card game with competitive gameplay and streamlined interface',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'tensorflow', 'game-development', 'game-physics', 'shader-programming'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2015-01-01",
@@ -996,7 +1007,9 @@ export const PROJECTS: Project[] = [
           'Built achievement system to track player milestones',
           'Integrated leaderboards for competitive play',
           'Developed with Unity3D, C#, PHP backend on Ubuntu servers',
-          'Integrated Google AdMob for monetization'
+          'Integrated Google AdMob for monetization',
+          'Implemented advanced AI opponents using Monte Carlo simulation for realistic gameplay behavior',
+          'Used neural networks and reinforcement learning to create a dealer AI that adapts to player strategy'
         ]
       },
       {
@@ -1004,7 +1017,7 @@ export const PROJECTS: Project[] = [
         title: 'Math Magus',
         description: 'Innovative math puzzle game with unique gameplay and kawaii artwork',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'game-ai', 'game-monetization', 'shader-programming'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -1026,7 +1039,7 @@ export const PROJECTS: Project[] = [
         title: 'Run! Garbage Man!',
         description: 'Endless runner game with humorous garbage theme and obstacle avoidance',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'game-development', 'game-monetization', 'offline-first', 'push-notifications', 'shader-programming'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -1047,7 +1060,7 @@ export const PROJECTS: Project[] = [
         title: '小農尬土豪 (The Landlord)',
         description: 'Popular Chinese card game based on the Fight the Landlord (斗地主) gameplay',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-development', 'offline-first'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -1061,7 +1074,8 @@ export const PROJECTS: Project[] = [
           'Built achievement, ranking, and title systems for progression',
           'Created instant matching system for quick gameplay sessions',
           'Implemented streamlined login system requiring no registration',
-          'Developed with Unity3D, C#, PHP backend on Ubuntu servers'
+          'Developed with Unity3D, C#, PHP backend on Ubuntu servers',
+          'Created adaptive AI that analyzes player strategies and counters accordingly'
         ]
       },
       {
@@ -1069,7 +1083,7 @@ export const PROJECTS: Project[] = [
         title: '老二來找碴 (Looking For Fault)',
         description: 'Spot the difference game set in an art museum with mystery storyline',
         images: null,
-        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'push-notifications', 'shader-programming', 'game-development'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -1090,7 +1104,7 @@ export const PROJECTS: Project[] = [
         title: 'Ｑ麻將16張',
         description: 'Q-style Mahjong game featuring cat-themed visuals and fast gameplay',
         images: null,
-        skills: ['corona-sdk', 'lua', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript'],
+        skills: ['corona-sdk', 'lua', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'tensorflow', 'offline-first'],
         category: "Mobile Games",
         related_experience_id: "cubeage",
         start_date: "2014-01-01",
@@ -1103,7 +1117,8 @@ export const PROJECTS: Project[] = [
           'Created comprehensive achievement, mission, and title systems',
           'Implemented smart guidance for moves like eat, pong, kong, and win',
           'Designed free-to-play model with daily coin rewards',
-          'Developed with Corona SDK, Lua, PHP backend on Ubuntu servers'
+          'Developed with Corona SDK, Lua, PHP backend on Ubuntu servers',
+          'Built intelligent AI with advanced pattern recognition for realistic opponent behavior'
         ]
-      },
-] as const; 
+      }
+] as const;
