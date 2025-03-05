@@ -35,7 +35,7 @@ export const EXPERIENCES: Experience[] = [
     id: 'minimax',
     title: 'Founder and Lead Developer',
     company: 'minimax',
-    period: '2010 - 2014',
+    period: '2010 - 2016',
     location: 'Hong Kong / Taiwan / China',
     description: 'Led one of Hong Kong\'s top social gaming companies with over 10M monthly active users across multiple platforms',
     logo: '/companys/minimax.jpeg',
