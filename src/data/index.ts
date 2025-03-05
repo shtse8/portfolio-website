@@ -5,7 +5,7 @@ export * from './types';
 export { PROJECTS, PROJECT_CATEGORIES } from './projects';
 export * from './companies';
 export * from './experiences';
-export * from './skills';
+export { getSkills, SKILLS_BASE, clearSkillsCache } from './skills';
 export * from './personal';
 export * from './philosophy'; 
 

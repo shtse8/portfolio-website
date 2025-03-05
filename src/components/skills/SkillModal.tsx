@@ -2,20 +2,20 @@
 
 import React, { useEffect, useMemo } from 'react';
 import Image from 'next/image';
-import { FaProjectDiagram, FaBriefcase, FaExternalLinkAlt, FaGithub, FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, 
+import { FaProjectDiagram, FaBriefcase, FaGithub, FaReact, FaNodeJs, FaPython, FaJava, FaDocker, FaDatabase, 
   FaGamepad, FaRobot, FaUsers, FaChartLine, FaNetworkWired, FaFileCode, FaSortAmountUp, FaApple, FaAndroid, 
   FaMobileAlt, FaSearch, FaVuejs, FaPhp, FaFacebook, FaCreditCard, FaImages, FaVideo, FaFingerprint, FaBolt, 
-  FaMoneyBillWave, FaTelegram, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+  FaMoneyBillWave, FaTelegram, FaChevronLeft, FaChevronRight, FaGlobe } from 'react-icons/fa';
 import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEthereum, SiSharp, SiNextdotjs, 
   SiNestjs, SiGooglechrome, SiGo, SiPytorch } from 'react-icons/si';
 import { motion } from 'framer-motion';
-import { SKILLS } from '@/data/skills';
 import { PROJECTS } from '@/data/projects';
 import { EXPERIENCES } from '@/data/experiences';
 import type { Project, Experience } from '@/data/types';
 import { getSkillNames } from '@/utils/skillHelpers';
 import { cn } from '@/lib/utils';
 import ProjectImage from '@/components/shared/ProjectImage';
+import { getSkills } from '@/data/skills';
 
 interface SkillModalProps {
   skillId: string;
@@ -135,8 +135,8 @@ export default function SkillModal({
   nextSkill,
   prevSkill,
 }: SkillModalProps) {
-  // Find the skill data
-  const skill = SKILLS.find(s => s.id === skillId);
+  const skills = getSkills();
+  const skill = skills.find(s => s.id === skillId);
   
   // Get related data - memoize for performance
   const relatedData = useMemo(() => {
@@ -349,26 +349,26 @@ export default function SkillModal({
                       )}
                     </div>
                     <div className="flex gap-2">
-                      {project.liveUrl && (
+                      {project.urls?.website && (
                         <a
-                          href={project.liveUrl}
+                          href={project.urls.website}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-full transition-colors"
-                          onClick={(e) => e.stopPropagation()}
                         >
-                          <FaExternalLinkAlt size={10} aria-hidden="true" /> Live Demo
+                          <FaGlobe className="text-white" />
+                          Live Demo
                         </a>
                       )}
-                      {project.github && (
+                      {project.urls?.repository && (
                         <a
-                          href={project.github}
+                          href={project.urls.repository}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-xs flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white rounded-full transition-colors"
-                          onClick={(e) => e.stopPropagation()}
                         >
-                          <FaGithub size={10} aria-hidden="true" /> GitHub
+                          <FaGithub className="text-white" />
+                          GitHub
                         </a>
                       )}
                     </div>

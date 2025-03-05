@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import * as d3 from 'd3';
 import * as d3Cloud from 'd3-cloud';
-import { SKILLS, PROJECTS } from '@/data';
+import { PROJECTS } from '@/data';
+import { getSkills } from '@/data/skills';
 import { motion, useInView } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
@@ -82,8 +83,8 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
   // Process skills data for cloud visualization
   useEffect(() => {
     // Only generate word cloud once when component mounts
-    if (words.length === 0 && SKILLS && SKILLS.length > 0) {
-      const processedWords = SKILLS.map(skill => {
+    if (words.length === 0 && getSkills() && getSkills().length > 0) {
+      const processedWords = getSkills().map(skill => {
         const projectCount = getProjectCountForSkill(skill.id);
         
         // Define these functions inside the useEffect
@@ -92,9 +93,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
           const maxSize = 62;
           const minProjects = 0;
           
-          if (!SKILLS || SKILLS.length === 0) return minSize;
+          if (!getSkills() || getSkills().length === 0) return minSize;
           
-          const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
+          const maxProjects = Math.max(...getSkills().map(s => getProjectCountForSkill(s.id)));
           
           const scale = d3.scalePow()
             .exponent(1.4)
@@ -105,9 +106,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
         };
         
         const getWeightValueInner = (count: number): number => {
-          if (!SKILLS || SKILLS.length === 0) return 400;
+          if (!getSkills() || getSkills().length === 0) return 400;
           
-          const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
+          const maxProjects = Math.max(...getSkills().map(s => getProjectCountForSkill(s.id)));
           const weightScale = d3.scaleQuantize<number>()
             .domain([0, maxProjects])
             .range([400, 500, 600, 700]);
@@ -118,9 +119,9 @@ const SkillCloud: React.FC<SkillCloudProps> = ({ onSkillClick, activeCategory })
         const getOpacityByProjectCountInner = (count: number): number => {
           const minProjects = 0;
           
-          if (!SKILLS || SKILLS.length === 0) return 0.65;
+          if (!getSkills() || getSkills().length === 0) return 0.65;
           
-          const maxProjects = Math.max(...SKILLS.map(s => getProjectCountForSkill(s.id)));
+          const maxProjects = Math.max(...getSkills().map(s => getProjectCountForSkill(s.id)));
           
           const opacityScale = d3.scaleLinear()
             .domain([minProjects, maxProjects])

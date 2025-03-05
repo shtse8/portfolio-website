@@ -3,14 +3,15 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
 import SkillCloudView from './skills/cloud/SkillCloudView';
-import { SKILLS } from '@/data/skills';
+import { getSkills } from '@/data/skills';
 
 export default function TechStack() {
   const [totalSkills, setTotalSkills] = useState(0);
-  const [experienceYears, setExperienceYears] = useState(0);
   const [categories, setCategories] = useState(0);
+  const [experienceYears, setExperienceYears] = useState(0);
   const [expertise, setExpertise] = useState<{[key: string]: number}>({});
   const sectionRef = useRef<HTMLDivElement>(null);
+  const skills = getSkills();
   
   // Set up scroll animations
   const { scrollYProgress } = useScroll({
@@ -23,22 +24,22 @@ export default function TechStack() {
 
   // Calculate statistics from skills data
   useEffect(() => {
-    if (!SKILLS || SKILLS.length === 0) return;
+    if (!skills || skills.length === 0) return;
     
     // Calculate total skills
-    setTotalSkills(SKILLS.length);
+    setTotalSkills(skills.length);
     
     // Get unique categories count
-    const uniqueCategories = new Set(SKILLS.map(skill => skill.category));
+    const uniqueCategories = new Set(skills.map(skill => skill.category));
     setCategories(uniqueCategories.size);
     
     // Find max years of experience
-    const maxYears = Math.max(...SKILLS.map(skill => skill.yearsOfExperience));
+    const maxYears = Math.max(...skills.map(skill => skill.yearsOfExperience));
     setExperienceYears(maxYears);
     
     // Calculate expertise by category
     const expertiseByCategory: {[key: string]: number} = {};
-    SKILLS.forEach(skill => {
+    skills.forEach(skill => {
       if (!expertiseByCategory[skill.category]) {
         expertiseByCategory[skill.category] = 0;
       }

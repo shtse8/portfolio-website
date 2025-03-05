@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SKILLS } from '@/data/skills';
+import { getSkills } from '@/data/skills';
 import { PROJECTS } from '@/data/projects';
 import { EXPERIENCES } from '@/data/experiences';
 import type { TechSkill, Project, Experience } from '@/data/types';
@@ -35,7 +35,7 @@ const SKILL_CATEGORIES: SkillCategory[] = [
 
 export default function SkillCloudView() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  const [filteredSkills, setFilteredSkills] = useState(SKILLS);
+  const [filteredSkills, setFilteredSkills] = useState(getSkills());
   const [mounted, setMounted] = useState(false);
   const [visualizationMode, setVisualizationMode] = useState<'grid' | 'cloud'>('cloud');
   const { open } = useModalManager();
@@ -93,18 +93,18 @@ export default function SkillCloudView() {
 
   // Filter skills by category
   useEffect(() => {
-    if (!SKILLS || SKILLS.length === 0) return;
+    if (!getSkills() || getSkills().length === 0) return;
     
     setFilteredSkills(
       activeFilter 
-        ? SKILLS.filter(skill => skill.category === activeFilter)
-        : SKILLS
+        ? getSkills().filter(skill => skill.category === activeFilter)
+        : getSkills()
     );
   }, [activeFilter]);
 
   // Get the icon component for a skill
   const getSkillIcon = useCallback((skillId: string) => {
-    const skill = SKILLS.find(s => s.id === skillId);
+    const skill = getSkills().find(s => s.id === skillId);
     if (!skill) return <FaReact className="text-4xl" aria-hidden="true" />;
 
     return iconComponents[skill.icon as keyof typeof iconComponents] || 

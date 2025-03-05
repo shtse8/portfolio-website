@@ -1,29 +1,28 @@
-import { SKILLS } from '@/data/skills';
+import { getSkills } from '@/data/skills';
 
 /**
- * Gets the skill name for a given skill ID
- * @param skillId The ID of the skill to look up
- * @returns The name of the skill or the ID if not found
+ * Gets the name of a skill from its ID
  */
 export function getSkillName(skillId: string): string {
-  const skill = SKILLS.find(s => s.id === skillId);
+  const skill = getSkills().find(s => s.id === skillId);
   return skill ? skill.name : skillId;
 }
 
 /**
- * Gets the full skill object for a given skill ID
- * @param skillId The ID of the skill to look up
- * @returns The skill object or undefined if not found
+ * Gets skill data by ID
  */
 export function getSkillById(skillId: string) {
-  return SKILLS.find(s => s.id === skillId);
+  const skills = getSkills();
+  return skills.find(s => s.id === skillId);
 }
 
 /**
- * Gets an array of skill names from an array of skill IDs
- * @param skillIds Array of skill IDs to look up
- * @returns Array of corresponding skill names
+ * Gets the names of skills from their IDs
  */
 export function getSkillNames(skillIds: string[]): string[] {
-  return skillIds.map(id => getSkillName(id));
+  const skills = getSkills();
+  return skillIds.map(id => {
+    const skill = skills.find(s => s.id === id);
+    return skill ? skill.name : id;
+  });
 } 
