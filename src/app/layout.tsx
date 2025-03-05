@@ -48,10 +48,10 @@ export const metadata: Metadata = {
     siteName: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} Portfolio`,
     images: [
       {
-        url: `${PERSONAL_INFO.portfolioUrl}/og-image.png`,
+        url: `${PERSONAL_INFO.portfolioUrl}/og-image.svg`,
         width: 1200,
         height: 630,
-        alt: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`
+        alt: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}'s Portfolio`
       }
     ],
   },
@@ -59,8 +59,22 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer`,
     description: "Professional portfolio showcasing full-stack development expertise and innovative projects.",
-    images: [`${PERSONAL_INFO.portfolioUrl}/og-image.png`],
+    creator: "@kyletse",
+    images: [{
+      url: `${PERSONAL_INFO.portfolioUrl}/og-image.svg`,
+      width: 1200,
+      height: 630,
+      alt: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}'s Portfolio`
+    }],
   },
+  alternates: {
+    canonical: PERSONAL_INFO.portfolioUrl,
+    languages: {
+      'en-US': `${PERSONAL_INFO.portfolioUrl}/en`,
+      'zh-HK': `${PERSONAL_INFO.portfolioUrl}/zh`
+    },
+  },
+  metadataBase: new URL(PERSONAL_INFO.portfolioUrl),
 };
 
 export default function RootLayout({
@@ -71,6 +85,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/og-icon-temp.svg" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
