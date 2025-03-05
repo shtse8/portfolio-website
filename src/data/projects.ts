@@ -7,7 +7,8 @@ export const PROJECT_CATEGORIES = [
   'Web Apps',
   'Blockchain',
   'AI & ML',
-  'Tools & Utilities'
+  'Tools & Utilities',
+  'Open Source'
 ] as const;
 
 export const PROJECTS: Project[] = [
@@ -1123,6 +1124,132 @@ export const PROJECTS: Project[] = [
           'Designed free-to-play model with daily coin rewards',
           'Developed with Corona SDK, Lua, PHP backend on Ubuntu servers',
           'Built intelligent AI with advanced pattern recognition for realistic opponent behavior'
+        ]
+      },
+      {
+        id: 'xserver',
+        title: 'xServer',
+        description: 'A Dart-based web server framework that leverages source generation for automatic handler registration, making it easier to manage and expand your web server\'s endpoints',
+        images: [
+          '/projects/xserver.jpg',
+        ],
+        skills: ['dart', 'framework', 'server', 'web-development', 'code-generation', 'api', 'type-safety', 'async', 'source-generation', 'client-generation', 'rest-api'],
+        category: "Open Source",
+        related_experience_id: null,
+        urls: {
+          repository: "https://github.com/shtse8/xserver"
+        },
+        start_date: "2024-07-28", 
+        end_date: undefined, // Still ongoing
+        details: [
+          'Created a web server framework with automatic handler registration via annotations',
+          'Implemented flexible response handling for Future<T>, Stream<T>, and synchronous returns',
+          'Built type-safe parameter handling for queries, headers, body, and path parameters',
+          'Developed automatic client code generation for API consumption',
+          'Implemented async context management for request handling with zoned contexts',
+          'Designed intuitive annotation system (@Get, @Post, @All) for HTTP method mapping',
+          'Enabled custom serialization for JSON and various response types'
+        ]
+      },
+      {
+        id: 'dart-firebase-admin',
+        title: 'Dart Firebase Admin SDK',
+        description: 'A Firebase Admin SDK for Dart enabling server-side Firebase operations with authentication, messaging, and Firestore support',
+        images: [
+          '/projects/firebase-admin.jpg',
+        ],
+        skills: ['dart', 'firebase', 'admin-sdk', 'cloud', 'authentication', 'messaging', 'firestore', 'server-side', 'cloud-messaging'],
+        category: "Open Source",
+        related_experience_id: null,
+        urls: {
+          repository: "https://github.com/shtse8/dart_firebase_admin"
+        },
+        start_date: "2024-07-14",
+        end_date: undefined, // Still ongoing
+        details: [
+          'Forked and contributed to the Firebase Admin SDK for Dart',
+          'Implemented authentication features including token verification, user management, and session cookies',
+          'Added Firebase Cloud Messaging support for sending notifications to devices and topics',
+          'Developed comprehensive Firestore integration with collection/document operations',
+          'Implemented query filtering, sorting, and pagination for Firestore collections',
+          'Created support for multiple authentication methods including service accounts and environment credentials',
+          'Designed for server-side use in Dart and Flutter applications'
+        ]
+      },
+      {
+        id: 'xdash',
+        title: 'xDash',
+        description: 'A lean TypeScript utility library designed for simplicity and performance with modular, tree-shakable tools and strong typing',
+        images: [
+          '/projects/xdash.jpg',
+        ],
+        skills: ['typescript', 'utilities', 'extensions', 'helper-functions', 'type-safety', 'tree-shaking', 'performance', 'modular-design', 'type-guards'],
+        category: "Open Source",
+        related_experience_id: null,
+        urls: {
+          repository: "https://github.com/shtse8/xdash",
+          documentation: "https://xdash.vercel.app/"
+        },
+        start_date: "2024-03-14",
+        end_date: undefined, // Still ongoing
+        details: [
+          'Created a lean TypeScript utility library focused on simplicity and performance',
+          'Developed a modular, tree-shakable architecture to minimize bundle size',
+          'Implemented strong typing and type guards to enhance code quality and safety',
+          'Built comprehensive set of type predicates (isStr, isNum, etc.) for safe type checking',
+          'Optimized for modern JavaScript environments with full ESM support',
+          'Designed with focus on efficiency and code clarity without adding bloat',
+          'Created detailed documentation with examples and API references'
+        ]
+      },
+      {
+        id: 'soti-ads',
+        title: 'SotiAds',
+        description: 'Advanced tool that automates AdMob ad unit creation and mediation management, optimizing ad revenue with multiple eCPM floors and Firebase Remote Config',
+        images: [
+          '/projects/soti-ads.jpg',
+        ],
+        skills: ['mobile', 'advertising', 'admob', 'firebase', 'remote-config', 'revenue-optimization', 'mediation', 'ad-monetization', 'ecpm-strategy', 'yield-optimization'],
+        category: "Open Source",
+        related_experience_id: null,
+        urls: {
+          repository: "https://github.com/shtse8/SotiAds"
+        },
+        start_date: "2024-03-16",
+        end_date: undefined, // Still ongoing
+        details: [
+          'Developed a system to automate AdMob ad unit creation and management',
+          'Implemented sophisticated multi-tiered eCPM floor strategies to boost ad revenue by 15-25%',
+          'Created intelligent mediation group management with optimized waterfall configurations',
+          'Integrated with Firebase Remote Config for dynamic ad strategy updates',
+          'Built support for multiple ad formats (Interstitial, Rewarded, Banner)',
+          'Designed for compatibility with both Node.js and Bun runtimes',
+          'Implemented advanced loading strategies for maximizing high-value impressions'
+        ]
+      },
+      {
+        id: 'soti-schema',
+        title: 'SotiSchema',
+        description: 'A powerful tool for generating schemas from Dart data classes, enabling seamless integration with AI models and data validation systems',
+        images: [
+          '/projects/soti-schema.jpg',
+        ],
+        skills: ['dart', 'schema', 'validation', 'ai-integration', 'code-generation', 'type-safety', 'data-modeling', 'json-schema', 'freezed', 'json-serializable'],
+        category: "Open Source",
+        related_experience_id: null,
+        urls: {
+          repository: "https://github.com/shtse8/SotiSchema"
+        },
+        start_date: "2024-08-15",
+        end_date: undefined, // Still ongoing
+        details: [
+          'Created a tool for automatic schema generation from Dart data classes',
+          'Developed seamless integration capabilities with AI models like ChatGPT and Claude',
+          'Implemented comprehensive data validation systems for type safety',
+          'Built support for freezed and json_serializable libraries',
+          'Created flexible annotation system for customizing schema output',
+          'Designed with developer experience in mind for easy integration',
+          'Enabled LangChain integration for structured AI response parsing'
         ]
       }
 ] as const;
