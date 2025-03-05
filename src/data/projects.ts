@@ -6,7 +6,8 @@ export const PROJECT_CATEGORIES = [
   'Mobile Games',
   'Web Apps',
   'Blockchain',
-  'AI & ML'
+  'AI & ML',
+  'Tools & Utilities'
 ] as const;
 
 export const PROJECTS: Project[] = [
@@ -492,7 +493,7 @@ export const PROJECTS: Project[] = [
         description: 'Hong Kong\'s #1 gaming IP exchange network and discussion forum with over 200,000 registered users and 1,000+ concurrent online users',
         images: null,
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'discuz', 'ubuntu', 'ajax', 'rss', 'digital-marketing', 'sql'],
-        category: "Web Development",
+        category: "Web Apps",
         related_experience_id: null,
         start_date: "2001-01-01",
         end_date: "2005-12-31",
@@ -516,7 +517,7 @@ export const PROJECTS: Project[] = [
         description: 'Hong Kong private tutoring matching platform connecting tutors and students',
         images: null,
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'google-adsense', 'digital-marketing', 'sql'],
-        category: "Web Development",
+        category: "Web Apps",
         related_experience_id: null,
         start_date: "2008-01-01",
         end_date: "2009-12-31",
@@ -540,7 +541,7 @@ export const PROJECTS: Project[] = [
         description: 'Hong Kong blogger and social media portal platform for networking and community building',
         images: null,
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'mobile-web', 'google-adsense', 'digital-marketing', 'sql'],
-        category: "Web Development",
+        category: "Web Apps",
         related_experience_id: null,
         start_date: "2008-01-01",
         end_date: "2009-12-31",
@@ -567,8 +568,8 @@ export const PROJECTS: Project[] = [
           '/projects/ipet/games-4049-ipet02.webp',
           '/projects/ipet/games-4049-ipet03.webp'
         ],
-        skills: ['flash', 'php', 'mysql', 'facebook-api', 'ubuntu', 'google-adsense', 'game-ai', 'game-development'],
-        category: "Game Development",
+        skills: ['flash', 'php', 'mysql', 'facebook-api', 'ubuntu', 'google-admob', 'game-ai', 'game-development'],
+        category: "Mobile Games",
         related_experience_id: "minimax",
         start_date: "2010-01-01",
         end_date: "2011-12-31",
