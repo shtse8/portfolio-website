@@ -4,31 +4,31 @@ export const EXPERIENCES: Experience[] = [
   {
     id: 'cubeage',
     title: 'Founder and Lead Developer',
-    company: 'cubeage',
-    period: '2014 - Present',
-    location: 'Hong Kong',
-    description: 'Founded and led a mobile gaming company specializing in card and casino games with millions of downloads',
+    company: 'cubeage', 
+    period: '2014 - 2024',
+    location: 'Hong Kong / China',
+    description: 'Founded and led a mobile game development and publishing company with over 10M total installs globally',
     logo: '/companys/cubeage.jpeg',
-    skills: ['unity3d', 'gamedev', 'databases', 'team-leadership', 'business-growth', 'csharp', 'ios', 'android', 'java'],
+    skills: ['unity3d', 'cocos2d', 'flutter', 'corona-sdk', 'gamedev', 'databases', 'team-leadership', 'business-growth', 'ios', 'android'],
     liveUrl: 'https://cubeage.com',
     details: [
-      'Founded and led Cubeage Limited, developing popular card and casino games',
-      'Published 10+ games on Google Play and App Store with 100K+ installations',
-      'Developed flagship titles including Hong Kong Mahjong Tycoon (4.2★, 3,280+ reviews), Fun Mahjong 16 Tiles (1M+ downloads), Fun Showhand, and Big2 Tycoon',
-      'Implemented innovative game mechanics and monetization strategies resulting in 4.2+ average ratings',
-      'Built and managed cross-functional teams for game development and operations',
-      'Utilized MySQL and Percona for high-performance game data storage and analytics',
-      'Related Projects: See [Hong Kong Mahjong Tycoon](#mahjong), [Fun Mahjong 16 Tiles](#fmj), [Fun Showhand](#fun-showhand), and [Big2 Tycoon](#big2-tycoon) in this portfolio'
+      'Founded and led Cubeage Limited, developing and operating mobile games across multiple genres',
+      'Achieved over 10 million total installs across global markets including China, Hong Kong, Taiwan and Southeast Asia',
+      'Built games using various frameworks including Unity3D, Cocos2d, Corona SDK and Flutter to optimize for different platforms and requirements',
+      'Implemented comprehensive backend infrastructure to support large-scale multiplayer games',
+      'Established development teams across Hong Kong and China offices',
+      'Created successful monetization strategies through IAP, ads and subscription models',
+      'Managed full game lifecycle from concept to live operations and updates'
     ],
     keyAchievements: [
-      'Reached 1M+ downloads across multiple game titles',
-      'Sustained 4.2+ average user ratings',
-      'Built profitable gaming ecosystem'
+      'Reached 10M+ global downloads',
+      'Successfully launched in multiple markets',
+      'Built scalable multi-region infrastructure'
     ],
     impactStatements: [
-      { value: '10+', label: 'Games Published' },
-      { value: '1M+', label: 'Downloads' },
-      { value: '4.2★', label: 'Average Rating' }
+      { value: '10M+', label: 'Global Downloads' },
+      { value: '4', label: 'Game Frameworks' },
+      { value: '2', label: 'Regional Offices' }
     ]
   },
   {
@@ -36,55 +36,59 @@ export const EXPERIENCES: Experience[] = [
     title: 'Founder and Lead Developer',
     company: 'minimax',
     period: '2010 - 2014',
-    location: 'Hong Kong',
-    description: 'Led development at a gaming platform company focusing on game operations and agency distribution in Hong Kong',
+    location: 'Hong Kong / Taiwan / China',
+    description: 'Led one of Hong Kong\'s top social gaming companies with over 10M monthly active users across multiple platforms',
     logo: '/companys/minimax.jpeg',
-    skills: ['databases', 'team-leadership', 'business-growth', 'php', 'nodejs', 'payment-integration'],
+    skills: ['databases', 'team-leadership', 'business-growth', 'php', 'nodejs', 'payment-integration', 'social-gaming', 'game-operations', 'facebook-platform'],
     details: [
-      'Led development at MiniMax Game Entertainment Limited, a gaming platform company in Hong Kong',
-      'Managed Funimax platform, a well-known game distribution service with physical game cards',
-      'Oversaw game operations, distribution, and agency relationships',
-      'Implemented payment systems integration for physical and digital purchases',
-      'Designed systems to manage game inventory, distribution, and analytics',
-      'Built user management and loyalty systems to improve customer retention'
+      'Led development at MiniMax Game Entertainment Limited, a leading social gaming company with offices in Hong Kong, Taiwan and China',
+      'Built and operated over 30 concurrent social games and apps on Facebook platform',
+      'Achieved over 10 million monthly active users (MAU) across portfolio of social games',
+      'Established as one of the top Facebook game developers in Hong Kong and Taiwan markets',
+      'Managed Funimax platform, a major game distribution service with extensive retail network',
+      'Oversaw multi-region game operations, distribution partnerships and agency relationships',
+      'Implemented comprehensive payment and analytics systems across physical and digital channels',
+      'Built scalable infrastructure to support millions of daily active users'
     ],
     keyAchievements: [
-      'Established major distribution network',
-      'Integrated multiple payment systems', 
-      'Implemented robust inventory management'
+      'Reached 10M+ monthly active users',
+      'Operated 30+ concurrent games',
+      'Top Facebook game developer in HK'
     ],
     impactStatements: [
-      { value: '50+', label: 'Distribution Partners' },
-      { value: '5+', label: 'Payment Methods' },
-      { value: '100%', label: 'Uptime SLA' }
+      { value: '10M+', label: 'Monthly Active Users' },
+      { value: '30+', label: 'Active Games' },
+      { value: '3', label: 'Regional Offices' }
     ]
   },
   {
     id: 'nakuz',
     title: 'Founder and Lead Developer',
     company: 'nakuz',
-    period: '2006 - Present',
+    period: '2006 - 2024',
     location: 'Hong Kong',
-    description: 'Designed and developed professional corporate website and business solutions',
+    description: 'Hong Kong\'s #1 gaming media and community platform with over 500,000 registered users',
     logo: '/companys/nakuz.jpeg',
-    skills: ['react', 'typescript', 'team-leadership', 'nextjs', 'responsive-design', 'seo', 'business-growth'],
+    skills: ['php', 'mysql', 'ubuntu', 'discuz', 'seo', 'community-management', 'digital-media', 'content-strategy'],
     liveUrl: 'https://nakuz.com',
     details: [
-      'Designed and developed the corporate website for Nakuz.com Limited',
-      'Built with modern technologies including React and Next.js',
-      'Implemented responsive design for optimal viewing on all devices',
-      'Integrated SEO best practices to improve visibility and organic traffic',
-      'Created an intuitive user interface with streamlined navigation'
+      'Built and maintained Hong Kong\'s leading gaming information platform powered by Discuz!, PHP, MySQL and Ubuntu',
+      'Grew to over 500,000 registered users and 3,000+ concurrent online users',
+      'Established as the official discussion platform for 100+ game publishers and developers',
+      'Achieved top rankings in Hong Kong gaming media with significant industry influence',
+      'Created comprehensive game guides, news coverage and community features',
+      'Optimized infrastructure and performance for high-traffic loads',
+      'Built strong partnerships with major gaming companies across Asia'
     ],
     keyAchievements: [
-      'Achieved top search rankings for target keywords',
-      'Created responsive modern web experience',
-      'Established brand identity across digital touchpoints'
+      '#1 Gaming Platform in Hong Kong',
+      '100+ Official Game Partnerships',
+      'Industry-Leading Community'
     ],
     impactStatements: [
-      { value: 'Top 3', label: 'Search Ranking' },
-      { value: '100%', label: 'Mobile Optimized' },
-      { value: '5 sec', label: 'Load Time' }
+      { value: '500K+', label: 'Registered Users' },
+      { value: '3000+', label: 'Concurrent Users' },
+      { value: '100+', label: 'Game Partners' }
     ]
   }
 ] as const; 
