@@ -12,23 +12,23 @@ export const PROJECT_CATEGORIES = [
 export const PROJECTS: Project[] = [
     {
         id: 'cubeage',
-        title: 'Cubeage Limited',
-        description: 'Mobile gaming company specializing in card and casino games with millions of downloads',
+        title: 'Cubeage.com',
+        description: 'Official website and game portal for Cubeage Limited with user management and payment systems',
         images: [
           '/projects/cubeage.jpg',
         ],
-        skills: ['unity3d', 'game-development', 'database-design', 'database-optimization', 'ios', 'android', 'csharp', 'mobile-games', 'game-monetization', 'game-physics'],
-        category: "Mobile Games",
-        related_experience_id: "cubeage",
+        skills: ['vue', 'mysql', 'ubuntu', 'responsive-design', 'seo', 'typescript', 'payment-integration', 'user-management', 'frontend-development', 'mobile-web'],
+        category: "Web Apps",
+        related_experience_id: "cubeage", 
         start_date: "2014-03-15",
         end_date: undefined, // Still ongoing
         details: [
-          'Founded and led Cubeage Limited, developing popular card and casino games',
-          'Published 10+ games on Google Play and App Store with 100K+ installations',
-          'Developed flagship titles including Hong Kong Mahjong Tycoon (4.2★, 3,280+ reviews), Fun Mahjong 16 Tiles (1M+ downloads), Fun Showhand, and Big2 Tycoon',
-          'Implemented innovative game mechanics and monetization strategies resulting in 4.2+ average ratings',
-          'Built and managed cross-functional teams for game development and operations',
-          'Utilized MySQL and Percona for high-performance game data storage and analytics'
+          'Developed official game portal using Vue.js and TypeScript',
+          'Implemented comprehensive user management system with authentication and profiles',
+          'Integrated multiple payment gateways for in-game purchases',
+          'Built responsive mobile-first design for optimal cross-device experience',
+          'Optimized SEO to improve visibility and organic traffic',
+          'Deployed and maintained on Ubuntu servers with MySQL database'
         ]
       },
       {
@@ -409,21 +409,24 @@ export const PROJECTS: Project[] = [
         images: [
           '/projects/portfolio.jpg',
         ],
-        skills: ['typescript', 'react', 'nextjs', 'tailwindcss', 'responsive-design', 'responsive-web-design', 'frontend-development', 'api-testing', 'sass'],
+        skills: ['typescript', 'react', 'nextjs', 'tailwindcss', 'responsive-design', 'responsive-web-design', 'frontend-development', 'api-testing', 'sass', 'framer-motion', 'animation', 'serverless', 'github-actions', 'ci-cd', 'cloudflare-pages', 'bun'],
         category: "Web Apps",
         related_experience_id: null,
-        start_date: "2023-01-15",
-        end_date: "2023-03-10",
+        start_date: "2024-03-01",
+        end_date: undefined,
         urls: {
           repository: 'https://github.com/shtse8/portfolio',
-          website: 'https://shawntseng.com'
+          website: 'https://kylet.se'
         },
         details: [
           'Designed and developed a modern portfolio website using Next.js, TypeScript, and Tailwind CSS',
           'Implemented responsive design for optimal viewing on all devices',
-          'Created custom animations and transitions for enhanced user experience',
+          'Created custom animations and transitions using Framer Motion for enhanced user experience',
+          'Built serverless architecture and deployed on Cloudflare Pages for optimal performance',
+          'Set up automated CI/CD pipeline using GitHub Actions and Bun for efficient deployment',
           'Optimized for performance, accessibility, and SEO',
-          'Integrated with GitHub API for automatic project updates'
+          'Integrated with GitHub API for automatic project updates',
+          'Built custom interactive components and smooth page transitions'
         ]
       },
       {
