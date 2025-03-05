@@ -1224,5 +1224,27 @@ export const PROJECTS: Project[] = [
           'Designed revenue sharing model through Google AdSense integration',
           'Deployed and maintained on Ubuntu servers with MySQL database'
         ]
+      },
+      {
+        id: 'happy-coin-pusher',
+        title: '開心推金幣',
+        description: '3D coin pusher game with web-based interface and virtual currency system',
+        images: [
+          '/projects/happy-coin-pusher/1.jpg',
+        ],
+        skills: ['unity3d', 'web3', 'php', 'mysql', 'ubuntu', 'game-development', 'blockchain', '3d-modeling', 'animation', 'virtual-currency', 'web-game'],
+        category: "Mobile Games",
+        related_experience_id: "minimax",
+        start_date: "2011-01-01",
+        end_date: "2014-12-31",
+        details: [
+          'Developed a 3D coin pusher game at Minimax using Unity 3D with realistic physics',
+          'Implemented Web3 integration for virtual currency and transactions',
+          'Built backend systems with PHP and MySQL for user management and transaction processing',
+          'Deployed and maintained on Ubuntu servers for optimal performance',
+          'Created engaging gameplay mechanics with realistic physics simulation',
+          'Designed virtual currency system with secure blockchain integration',
+          'Implemented user progression and reward systems to increase retention'
+        ]
       }
 ] as const;
