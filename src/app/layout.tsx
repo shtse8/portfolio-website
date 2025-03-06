@@ -5,6 +5,7 @@ import { PERSONAL_INFO } from '@/data/personal';
 import ScrollAnimationProvider from '@/components/ScrollAnimationProvider';
 import { ModalProvider } from '@/context/ModalContext';
 import ModalPortal from '@/components/shared/ModalPortal';
+import { NavigationProvider } from '@/context/NavigationContext';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -73,6 +74,14 @@ export const metadata: Metadata = {
       'en-US': `${PERSONAL_INFO.portfolioUrl}/en`,
       'zh-HK': `${PERSONAL_INFO.portfolioUrl}/zh`
     },
+    types: {
+      // Define alternate URLs for different sections
+      'tech-stack': `${PERSONAL_INFO.portfolioUrl}/tech-stack`,
+      'philosophy': `${PERSONAL_INFO.portfolioUrl}/philosophy`,
+      'projects': `${PERSONAL_INFO.portfolioUrl}/projects`,
+      'experience': `${PERSONAL_INFO.portfolioUrl}/experience`,
+      'contact': `${PERSONAL_INFO.portfolioUrl}/contact`,
+    }
   },
   metadataBase: new URL(PERSONAL_INFO.portfolioUrl),
 };
@@ -119,14 +128,78 @@ export default function RootLayout({
             })
           }}
         />
+        
+        {/* WebSite schema with SiteNavigationElement for structured navigation data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Portfolio`,
+              "url": PERSONAL_INFO.portfolioUrl,
+              "description": "Professional portfolio showcasing full-stack development expertise, leadership experience, and innovative projects.",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": `${PERSONAL_INFO.portfolioUrl}/search?q={search_term_string}`,
+                "query-input": "required name=search_term_string"
+              },
+              "author": {
+                "@type": "Person",
+                "name": `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`,
+                "url": PERSONAL_INFO.portfolioUrl
+              },
+              "hasPart": [
+                {
+                  "@type": "WebPage",
+                  "name": "Home",
+                  "url": PERSONAL_INFO.portfolioUrl,
+                  "description": "Homepage featuring an introduction to Kyle Tse"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Skills",
+                  "url": `${PERSONAL_INFO.portfolioUrl}/tech-stack`,
+                  "description": "Technical skills and expertise"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Philosophy",
+                  "url": `${PERSONAL_INFO.portfolioUrl}/philosophy`,
+                  "description": "Development philosophy and approach"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Projects",
+                  "url": `${PERSONAL_INFO.portfolioUrl}/projects`,
+                  "description": "Featured projects and case studies"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Experience",
+                  "url": `${PERSONAL_INFO.portfolioUrl}/experience`,
+                  "description": "Professional experience and work history"
+                },
+                {
+                  "@type": "WebPage",
+                  "name": "Contact",
+                  "url": `${PERSONAL_INFO.portfolioUrl}/contact`,
+                  "description": "Contact information and form"
+                }
+              ]
+            })
+          }}
+        />
         {/* Client-side theme initialization - simplified version */}
         <script dangerouslySetInnerHTML={{ __html: clientThemeScript }} />
       </head>
       <body className={`${inter.className} scroll-smooth`}>
         <ModalProvider>
-          <ScrollAnimationProvider>
-            {children}
-          </ScrollAnimationProvider>
+          <NavigationProvider sections={['hero', 'tech-stack', 'philosophy', 'projects', 'experience', 'contact']}>
+            <ScrollAnimationProvider>
+              {children}
+            </ScrollAnimationProvider>
+          </NavigationProvider>
           <ModalPortal />
         </ModalProvider>
       </body>

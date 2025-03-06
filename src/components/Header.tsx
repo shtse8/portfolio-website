@@ -8,10 +8,11 @@ import ThemeSwitch from './ThemeSwitch';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import FloatingNavBar from './FloatingNavBar';
 import { cn } from '@/lib/utils';
+import DeepLink from './DeepLink';
 
 // Types
 interface NavLink {
-  href: string;
+  to: string;
   label: string;
 }
 
@@ -28,12 +29,12 @@ export default function Header() {
   
   // Navigation links
   const navLinks: NavLink[] = useMemo(() => [
-    { href: '#hero', label: 'Home' },
-    { href: '#tech-stack', label: 'Skills' },
-    { href: '#philosophy', label: 'Philosophy' },
-    { href: '#projects', label: 'Projects' },
-    { href: '#experience', label: 'Experience' },
-    { href: '#contact', label: 'Contact' }
+    { to: 'hero', label: 'Home' },
+    { to: 'tech-stack', label: 'Skills' },
+    { to: 'philosophy', label: 'Philosophy' },
+    { to: 'projects', label: 'Projects' },
+    { to: 'experience', label: 'Experience' },
+    { to: 'contact', label: 'Contact' }
   ], []);
   
   // Set mounted state
@@ -53,7 +54,7 @@ export default function Header() {
   
   // Track active section based on scroll
   useEffect(() => {
-    const sections = navLinks.map(link => link.href.replace('#', ''));
+    const sections = navLinks.map(link => link.to);
     
     const observerOptions = {
       root: null,
@@ -85,8 +86,8 @@ export default function Header() {
   }, [mounted, navLinks]);
   
   // Function to check if a link is active
-  const isActive = useCallback((href: string) => {
-    return activeSection === href.replace('#', '');
+  const isActive = useCallback((to: string) => {
+    return activeSection === to;
   }, [activeSection]);
   
   // Close mobile menu when a link is clicked
@@ -149,8 +150,8 @@ export default function Header() {
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="flex-shrink-0"
             >
-              <Link 
-                href="#hero" 
+              <DeepLink 
+                to="hero"
                 className="group flex items-center transition-transform duration-300 hover:translate-x-0.5"
                 aria-label="Go to home section"
               >
@@ -170,7 +171,7 @@ export default function Header() {
                     transition={{ duration: 0.3 }}
                   />
                 </span>
-              </Link>
+              </DeepLink>
             </motion.div>
             
             {/* Desktop Navigation */}
@@ -187,7 +188,7 @@ export default function Header() {
               aria-label="Primary navigation"
             >
               {navLinks.map((link, index) => {
-                const active = isActive(link.href);
+                const active = isActive(link.to);
                 return (
                   <motion.div 
                     key={index} 
@@ -196,8 +197,8 @@ export default function Header() {
                     transition={{ duration: 0.3, delay: 0.1 + (index * 0.07) }}
                     className="relative"
                   >
-                    <Link 
-                      href={link.href}
+                    <DeepLink 
+                      to={link.to}
                       className={cn(
                         "relative text-sm font-light tracking-wide py-2 px-3",
                         "transition-all duration-300 rounded-md",
@@ -205,7 +206,7 @@ export default function Header() {
                           ? "text-blue-500 dark:text-blue-400" 
                           : "text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400"
                       )}
-                      aria-current={active ? "page" : undefined}
+                      activeClassName="text-blue-500 dark:text-blue-400"
                     >
                       <span className="relative z-10">{link.label}</span>
                       
@@ -234,7 +235,7 @@ export default function Header() {
                         exit={{ width: "0%" }}
                         aria-hidden="true"
                       />
-                    </Link>
+                    </DeepLink>
                   </motion.div>
                 );
               })}
@@ -349,7 +350,7 @@ export default function Header() {
                 
                 <nav className="space-y-1">
                   {navLinks.map((link, index) => {
-                    const active = isActive(link.href);
+                    const active = isActive(link.to);
                     return (
                       <motion.div
                         key={index}
@@ -357,8 +358,8 @@ export default function Header() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 + (index * 0.05) }}
                       >
-                        <Link 
-                          href={link.href}
+                        <DeepLink 
+                          to={link.to}
                           onClick={handleLinkClick}
                           className={cn(
                             "flex items-center px-4 py-3 rounded-lg transition-all duration-200",
@@ -366,13 +367,13 @@ export default function Header() {
                               ? "bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400" 
                               : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                           )}
-                          aria-current={active ? "page" : undefined}
+                          activeClassName="bg-blue-50 dark:bg-blue-900/20 text-blue-500 dark:text-blue-400"
                         >
                           <span className="text-sm font-light">{link.label}</span>
                           {active && (
                             <FaLongArrowAltRight className="ml-auto text-blue-500 dark:text-blue-400" />
                           )}
-                        </Link>
+                        </DeepLink>
                       </motion.div>
                     );
                   })}

@@ -14,7 +14,7 @@
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
     "d3-cloud": "^1.2.7",
-    "framer-motion": "^12.4.7",
+    "framer-motion": "^12.4.10",
     "i18next": "^24.2.2",
     "next": "15.1.7",
     "next-i18next": "^15.4.2",
@@ -26,17 +26,18 @@
     "react-simple-typewriter": "^5.0.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
-    "tailwindcss-animated": "^2.0.0"
+    "tailwindcss-animated": "^2.0.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@eslint/eslintrc": "^3.3.0",
+    "@types/node": "^20.17.23",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.21.0",
     "eslint-config-next": "15.1.7",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.2"
   }
 }

@@ -228,3 +228,17 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
+
+/* Add focus styling for active sections */
+.section-focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5); /* Blue outline with reduced opacity */
+  outline-offset: -2px;
+  transition: outline 0.3s ease-in-out;
+  scroll-margin-top: 80px; /* Add some margin at the top when scrolling */
+}
+
+/* General scroll behavior improvement */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Global scroll padding */
+}

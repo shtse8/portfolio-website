@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope, FaLightbulb } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useNavigationStore } from '@/context/NavigationContext';
 
 interface Section {
   id: string;
@@ -12,9 +13,12 @@ interface Section {
 }
 
 export default function FloatingNavBar() {
-  const [activeSection, setActiveSection] = useState<string>('');
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [mounted, setMounted] = useState<boolean>(false);
+  
+  // Use Zustand store directly for better performance
+  const activeSection = useNavigationStore(state => state.activeSection);
+  const navigateToSection = useNavigationStore(state => state.navigateToSection);
 
   // Define navigation sections
   const sections = useMemo<Section[]>(() => [
@@ -26,7 +30,7 @@ export default function FloatingNavBar() {
     { id: 'contact', label: 'Contact', icon: <FaEnvelope className="w-3.5 h-3.5" /> },
   ], []);
 
-  // Initialize and handle scroll events
+  // Initialize and handle visibility based on scroll
   useEffect(() => {
     setMounted(true);
     
@@ -37,41 +41,6 @@ export default function FloatingNavBar() {
       } else {
         setIsVisible(false);
       }
-      
-      // Determine which section is currently in view
-      const sectionElements = sections.map(section => {
-        const element = document.getElementById(section.id);
-        if (!element) return null;
-        
-        const rect = element.getBoundingClientRect();
-        return {
-          id: section.id,
-          top: rect.top,
-          bottom: rect.bottom,
-          height: rect.height
-        };
-      }).filter(Boolean);
-      
-      // The section where most of it is in the viewport is the active one
-      let currentSection = '';
-      let maxVisibleHeight = 0;
-      
-      sectionElements.forEach(section => {
-        if (!section) return;
-        
-        const visibleTop = Math.max(0, section.top);
-        const visibleBottom = Math.min(window.innerHeight, section.bottom);
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-        
-        if (visibleHeight > maxVisibleHeight) {
-          maxVisibleHeight = visibleHeight;
-          currentSection = section.id;
-        }
-      });
-      
-      if (currentSection) {
-        setActiveSection(currentSection);
-      }
     };
     
     window.addEventListener('scroll', handleScroll);
@@ -80,14 +49,11 @@ export default function FloatingNavBar() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [sections]);
+  }, []);
   
-  // Handle navigation click
+  // Handle navigation click using Zustand store
   const handleNavClick = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigateToSection(sectionId);
   };
 
   // Don't render anything on the server to prevent hydration issues
@@ -96,25 +62,27 @@ export default function FloatingNavBar() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <div className="fixed bottom-6 inset-x-0 flex justify-center items-center z-40 pointer-events-none md:hidden">
-          <motion.nav
-            className={cn(
-              "inline-flex bg-white/90 dark:bg-gray-900/90 backdrop-blur-md",
-              "py-2.5 px-3.5 rounded-lg shadow-md",
-              "border border-gray-100/50 dark:border-gray-800/50",
-              "pointer-events-auto"
-            )}
-            initial={{ y: 20, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 20, opacity: 0, scale: 0.95 }}
-            transition={{ 
-              type: "spring", 
-              stiffness: 300, 
-              damping: 25, 
-              mass: 0.8 
-            }}
-            aria-label="Mobile navigation"
-          >
+        <motion.nav
+          className={cn(
+            "fixed bottom-6 inset-x-0 flex justify-center items-center z-40 pointer-events-none md:hidden"
+          )}
+          initial={{ y: 20, opacity: 0, scale: 0.95 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 20, opacity: 0, scale: 0.95 }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 300, 
+            damping: 25, 
+            mass: 0.8 
+          }}
+          aria-label="Mobile navigation"
+        >
+          <div className={cn(
+            "inline-flex bg-white/90 dark:bg-gray-900/90 backdrop-blur-md",
+            "py-2.5 px-3.5 rounded-lg shadow-md",
+            "border border-gray-100/50 dark:border-gray-800/50",
+            "pointer-events-auto"
+          )}>
             {sections.map((section) => {
               const isActive = activeSection === section.id;
               return (
@@ -144,7 +112,7 @@ export default function FloatingNavBar() {
                   {/* Animated background for active section */}
                   {isActive && (
                     <motion.div
-                      className="absolute inset-0 bg-blue-500 dark:bg-blue-500 rounded-md"
+                      className="absolute inset-0 rounded-md bg-blue-500 dark:bg-blue-500"
                       layoutId="activeBackground"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -164,8 +132,8 @@ export default function FloatingNavBar() {
                 </motion.button>
               );
             })}
-          </motion.nav>
-        </div>
+          </div>
+        </motion.nav>
       )}
     </AnimatePresence>
   );

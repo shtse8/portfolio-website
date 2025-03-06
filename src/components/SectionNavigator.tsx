@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope } from 'react-icons/fa';
+import { useNavigationStore } from '@/context/NavigationContext';
 
 interface Section {
   id: string;
@@ -10,59 +11,31 @@ interface Section {
 }
 
 export default function SectionNavigator() {
-  const [activeSection, setActiveSection] = useState<string>('');
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [mounted, setMounted] = useState<boolean>(false);
+  
+  // Use Zustand store directly for better performance
+  const activeSection = useNavigationStore(state => state.activeSection);
+  const navigateToSection = useNavigationStore(state => state.navigateToSection);
 
   const sections = useMemo<Section[]>(() => [
     { id: 'hero', label: 'Home', icon: <FaHome className="text-lg" /> },
-    { id: 'tech', label: 'Skills', icon: <FaCode className="text-lg" /> },
+    { id: 'tech-stack', label: 'Skills', icon: <FaCode className="text-lg" /> },
     { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="text-lg" /> },
     { id: 'experience', label: 'Experience', icon: <FaBriefcase className="text-lg" /> },
     { id: 'contact', label: 'Contact', icon: <FaEnvelope className="text-lg" /> },
   ], []);
 
+  // Initialize component with visibility check
   useEffect(() => {
+    setMounted(true);
+    
     const handleScroll = () => {
       // Show navigator after scrolling past hero section
       if (window.scrollY > window.innerHeight * 0.5) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
-      }
-      
-      // Determine which section is currently in view
-      const sectionElements = sections.map(section => {
-        const element = document.getElementById(section.id);
-        if (!element) return null;
-        
-        const rect = element.getBoundingClientRect();
-        return {
-          id: section.id,
-          top: rect.top,
-          bottom: rect.bottom,
-          height: rect.height
-        };
-      }).filter(Boolean);
-      
-      // The section where most of it is in the viewport is the active one
-      let currentSection = '';
-      let maxVisibleHeight = 0;
-      
-      sectionElements.forEach(section => {
-        if (!section) return;
-        
-        const visibleTop = Math.max(0, section.top);
-        const visibleBottom = Math.min(window.innerHeight, section.bottom);
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-        
-        if (visibleHeight > maxVisibleHeight) {
-          maxVisibleHeight = visibleHeight;
-          currentSection = section.id;
-        }
-      });
-      
-      if (currentSection) {
-        setActiveSection(currentSection);
       }
     };
     
@@ -72,16 +45,14 @@ export default function SectionNavigator() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [sections]);
+  }, []);
   
+  // Handle navigation click using Zustand store
   const handleNavClick = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigateToSection(sectionId);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || !mounted) return null;
 
   return (
     <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-40">
