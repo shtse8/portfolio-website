@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next';
 import { PERSONAL_INFO } from '@/data/personal';
 
+export const dynamic = "force-static";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} Portfolio`,

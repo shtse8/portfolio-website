@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import SkillModal from '@/components/skills/SkillModal';
 import { PROJECTS } from '@/data/projects';
@@ -26,10 +26,16 @@ interface ModalClientProps {
 export default function ModalClient({ modalType, modalId, sectionId }: ModalClientProps) {
   const router = useRouter();
   
-  // Handle modal close - navigate back to the main page with section scroll
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
+    // Remove the modal query param and navigate back to the section
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    
+    params.delete('modal');
+    params.delete('id');
+    
     router.push(`/#${sectionId}`);
-  };
+  }, [router, sectionId]);
   
   // Add keyboard event listeners to handle Escape key
   useEffect(() => {
@@ -45,7 +51,7 @@ export default function ModalClient({ modalType, modalId, sectionId }: ModalClie
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [router, sectionId]);
+  }, [router, sectionId, handleClose]);
 
   // Prevent scrolling of the main content when modal is open
   useEffect(() => {

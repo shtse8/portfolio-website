@@ -38,8 +38,8 @@ export default function TechStack() {
     setExperienceYears(maxYears);
     
     // Calculate expertise by category
-    const expertiseByCategory: {[key: string]: number} = {};
-    skills.forEach(skill => {
+    const expertiseByCategory: Record<string, number> = {};
+    skills.forEach((skill) => {
       if (!expertiseByCategory[skill.category]) {
         expertiseByCategory[skill.category] = 0;
       }
@@ -48,7 +48,7 @@ export default function TechStack() {
     });
     
     setExpertise(expertiseByCategory);
-  }, []);
+  }, [skills]);
 
   // Get the top 3 categories by total years
   const topCategories = Object.entries(expertise)
