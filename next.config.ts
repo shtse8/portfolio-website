@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Ensure trailing slashes for consistent routing
+  trailingSlash: true,
 };
 
 export default nextConfig;

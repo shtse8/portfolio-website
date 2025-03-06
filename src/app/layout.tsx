@@ -85,7 +85,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/og-icon-temp.svg" />
+        <link rel="icon" href="/og-icon-temp.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/icons/icon-512x512.svg" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.svg" />
+        <link rel="manifest" href="/manifest.json" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
