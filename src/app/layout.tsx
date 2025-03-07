@@ -195,7 +195,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} scroll-smooth`}>
         <ModalProvider>
-          <NavigationProvider sections={['hero', 'tech-stack', 'philosophy', 'projects', 'experience', 'contact']}>
+          <NavigationProvider>
             <ScrollAnimationProvider>
               {children}
             </ScrollAnimationProvider>
