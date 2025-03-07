@@ -11,7 +11,8 @@ export function generateStaticParams() {
 }
 
 // This is a special Next.js metadata function for static exports
-export function generateMetadata({ params }: { params: { section: string[] } }) {
+export async function generateMetadata(props: { params: Promise<{ section: string[] }> }) {
+  const params = await props.params;
   const section = params.section[0];
   
   // Validate the section
@@ -34,8 +35,9 @@ export function generateMetadata({ params }: { params: { section: string[] } }) 
   };
 }
 
-export default function SectionPage({ params }: { params: { section: string[] } }) {
+export default async function SectionPage(props: { params: Promise<{ section: string[] }> }) {
   // Get section from URL
+  const params = await props.params;
   const section = params.section[0];
   
   // Validate if this is a known section
