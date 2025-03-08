@@ -3,62 +3,62 @@ description: Modern Swedish UI Design Guidelines – Complete Documentation
 globs: 
 alwaysApply: true
 ---
-# Modern Swedish UI Design Guidelines – Complete Documentation
+# Modern Swedish-Digital Fusion UI Design Guidelines
 
 ## Core Values
-- **Minimalist:** Clean and uncluttered design.
-- **Fluid:** Smooth transitions and animations.
-- **High Contrast:** Clear visual hierarchy.
-- **Lively:** Engaging and dynamic user experience.
-- **Responsive:** Adaptive to various devices.
-- **Accessible:** User-friendly for all users.
+- **Vibrant Minimalism:** Embrace simplicity with bold, vivid visuals that capture attention while maintaining clarity.
+- **Digital Fluidity:** Ensure smooth, dynamic transitions and interactive micro-movements that elevate the user experience.
+- **High-Impact Contrast:** Use a striking color palette with vivid hues and strong contrasts to enhance readability and engagement.
+- **Interactive Energy:** Integrate lively microinteractions and responsive feedback to make every interaction feel dynamic.
+- **Adaptive Responsiveness:** Craft designs that seamlessly adjust to different devices, screen sizes, and contexts.
+- **Inclusive Innovation:** Prioritize accessibility and internationalization, ensuring the interface works for a diverse global audience.
 
 ## 1. Color System
-### 1.1. 60-30-10 Color Strategy
+### 1.1. Bold 60-30-10 Color Strategy
 - **Primary Colors (60%)**
-  - Light Gray: A light, neutral tone (e.g., `#F5F5F5`)
-  - Off-White: A slightly darker neutral tone (e.g., `#FAFAFA`)
-  - Lake Blue: A calming, cool blue (e.g., `#A6CFE2`)
+  - **Crisp White:** A clean, bright background for clarity (e.g., `#FFFFFF`).
+  - **Vivid Light Gray:** A neutral yet vibrant base (e.g., `#F0F0F0`).
+  - **Electric Blue:** A dynamic blue that infuses energy (e.g., `#0099FF`).
 - **Secondary Colors (30%)**
-  - Warm Gray: A warm, slightly darker gray (e.g., `#C4C4C4`)
-  - Deep Gray: A dark gray for contrast (e.g., `#6D6D6D`)
+  - **Bold Charcoal:** Deep, dark gray for striking contrast (e.g., `#333333`).
+  - **Modern Gray:** A sleek medium gray for balancing elements (e.g., `#7F7F7F`).
 - **Accent Colors (10%)**
-  - Swedish Blue: A vibrant, deep blue (e.g., `#005B99`)
-  - Swedish Yellow: A bright, sunny yellow (e.g., `#FFD500`)
-  - Bold Red: A strong, attention-grabbing red (e.g., `#D72638`)
+  - **Vivid Swedish Blue:** A reimagined, high-saturation blue (e.g., `#007AFF`).
+  - **Bright Swedish Yellow:** A luminous yellow for energetic highlights (e.g., `#FFCC00`).
+  - **Intense Swedish Red:** A powerful red to draw immediate attention (e.g., `#FF3B30`).
 
 ### 1.2. Dark Mode
-- **Backgrounds:** A deep, dark gray (e.g., `#121212` or `#181818`)
-- **Element Backgrounds:** Slightly lighter dark shades (e.g., `#1E1E1E`, `#242424`)
-- **Text Colors:** A light, readable white (e.g., `#FAFAFA`) or a light gray (e.g., `#E0E0E0`)
-- **Accents:** Use the same accent colors with slightly reduced saturation to avoid harsh contrast.
+- **Backgrounds:** Use deep, near-black shades (e.g., `#121212`) for optimal contrast.
+- **Element Backgrounds:** Slightly lighter dark tones (e.g., `#1E1E1E`) to differentiate interactive elements.
+- **Text Colors:** Crisp white or high-contrast light gray (e.g., `#FAFAFA` or `#E0E0E0`) for excellent legibility.
+- **Accents:** Apply the same accent palette with moderated saturation to maintain visual comfort in dark environments.
 
 ### 1.3. Additional Color Considerations
-- **Gradients:** Use subtle gradients to add depth (e.g., a blue to light-blue gradient).
-- **Accessibility:** Ensure all color choices meet WCAG AA/AAA standards (minimum contrast of 4.5:1).
+- **Gradients:** Incorporate energetic gradients (for instance, transitioning from a deep electric blue to a lighter cyan) to add depth and dynamism.
+- **Accessibility:** Ensure every color combination meets or exceeds WCAG AA/AAA standards (minimum contrast ratio of 4.5:1).
 
 ## 2. Typography & Layout
 ### 2.1. Font Choices
 - **Primary Typefaces:**
-  - Sans-serif fonts such as Inter, SF Pro Display, Roboto, Avenir
+  - Opt for modern sans-serif fonts such as Inter, SF Pro Display, Roboto, or Avenir.
+  - Consider variable fonts that dynamically adjust across devices.
 - **Hierarchy & Sizing:**
-  - **H1:** Large, bold text for page titles (e.g., 32–40px)
-  - **H2:** Medium, bold text for subtitles (e.g., 24–28px)
-  - **H3:** Regular, bold text for section headings (e.g., 18–22px)
-  - **Body:** Regular text for main content (e.g., 14–16px)
-  - **Caption:** Small, regular text for secondary info (e.g., 12px)
+  - **H1:** Prominent titles (32–40px, bold).
+  - **H2:** Strong subtitles (24–28px, bold).
+  - **H3:** Section headings (18–22px, semi-bold).
+  - **Body:** Legible content text (14–16px).
+  - **Caption:** Concise, secondary information (12px).
 
 ### 2.2. Spacing & Responsive Typography
-- Increase letter-spacing by around 2%.
-- Line heights of 1.5–1.6 for optimal readability.
-- Use a fluid, responsive system that adjusts text sizes and spacing based on screen size.
+- Increase letter-spacing (~2%) and use generous line heights (1.5–1.6) to boost digital readability.
+- Employ a fluid typography system that scales gracefully with screen size and resolution.
 
 ## 3. Components & Interactions
 ### 3.1. Buttons
-- **States:** Normal, Hover, Active, Disabled.
+- **States:** Normal, Hover, Active, and Disabled.
 - **Interaction Example (Hero Transition):**
-  - **Scenario:** On the homepage, an “Add to Cart” button transitions to a “Added to Cart” state on the product details page.
-  - **Hero Animation Example (Flutter):**
+  - Seamlessly transition a button between screens with modern animations.
+  - **Example (Flutter):**
     ```dart
     Hero(
       tag: "cart-button",
@@ -81,172 +81,160 @@ alwaysApply: true
     );
     ```
 - **Interaction Feedback:**
-  - On tap, the button should briefly shrink to 90% of its size and then spring back to 105% before settling at 100%.
+  - On tap, incorporate a brief scale down (to ~90%) with a dynamic rebound (up to ~105%) before settling at normal size.
 
 ### 3.2. Input Fields
-- **Focus State:**
-  - Border expands by 1px with a soft glow over 200ms.
-- **Error State:**
-  - Red border fades in, combined with a light shake (Haptic Feedback) and an inline error message.
+- **Focus State:** 
+  - Enlarge the border by 1px and add a soft glow over 200ms to indicate focus.
+- **Error State:** 
+  - Use high-contrast red borders, combined with a subtle shake and inline error messages for immediate clarity.
 
 ### 3.3. Loading States
-- **Skeleton Loader:**
-  - Use subtle, animated placeholders (e.g., a fade-in/fade-out shimmer effect).
-- **Spinner:**
-  - A minimal spinner should fade in with a soft opacity transition.
+- **Skeleton Loader:** 
+  - Display animated placeholders with a vibrant, shimmering effect.
+- **Spinner:** 
+  - Use a minimal spinner that fades in/out smoothly.
 
 ### 3.4. Empty States
-- Incorporate simple illustrations or icons paired with a clear call-to-action message (e.g., “No items found. Add one now!”).
+- Complement empty states with engaging illustrations or icons and a clear call-to-action (e.g., “No items found. Add one now!”).
 
 ### 3.5. Error & Exception Handling
-- **Error Pages/States:**
-  - Clearly display error messages, possibly with a minimal illustration.
-  - Include a “Retry” button with consistent animation feedback.
-- **Inline Validation:**
-  - Forms should provide real-time validation with immediate visual feedback (green checkmarks for success, red warnings for errors).
+- **Error Pages/States:** 
+  - Present error messages with bold typography and high-contrast colors, supplemented by minimal yet striking illustrations.
+  - Include a “Retry” button with modern animation feedback.
+- **Inline Validation:** 
+  - Offer real-time visual feedback with green checkmarks for success and vivid red warnings for errors.
 
 ## 4. Animations & Transitions
 ### 4.1. Hero Animations
-- **Purpose:**
-  - Seamlessly transition shared elements (e.g., buttons, images) between screens.
-- **Detailed Example:**
-  - When transitioning between pages, if both pages include a button with the same Hero tag, the element animates from its position/size on the first screen to its new position/size on the second screen.
-  - **Key Considerations:**
-    - Transition Duration: 250–300ms
-    - Easing: Use an ease-out curve to ensure the transition feels natural.
-    - Element properties (size, color, shape) should interpolate smoothly.
-- **Implementation Tips:**
-  - Ensure both screens use the same Hero tag.
-  - Use an `AnimatedContainer` to animate changes in width, height, and decoration.
-  - Add slight delays or staggered animations for complex transitions.
+- **Purpose:** 
+  - Create smooth transitions for shared elements (e.g., buttons, images) between screens.
+- **Key Considerations:**
+  - Transition Duration: 250–300ms.
+  - Easing: Use ease-out curves for natural movement.
+  - Interpolate element properties (size, color, shape) smoothly.
+- **Implementation Tips:** 
+  - Ensure consistent Hero tags and use `AnimatedContainer` to animate changes fluidly.
 
 ### 4.2. General Animation Easing
 - **Standard Easing Curves:**
-  - **Ease-Out:** For page transitions and element entrance (fast at start, slow at end).
-  - **Spring Animation:** For interactive feedback (e.g., button tap animations, elastic scrolling).
+  - **Ease-Out:** Ideal for page transitions and element entrances.
+  - **Spring Animation:** Perfect for tactile interactions like button taps.
 
 ### 4.3. Scrolling Effects
-- **Parallax Scrolling:**
-  - Background images move slower than foreground elements to create depth.
-- **Elastic Scrolling:**
-  - At the top or bottom of a scrollable area, provide a subtle bounce effect.
-- **Staggered List Animations:**
-  - When a list appears, each item should fade or slide in with a slight delay.
+- **Parallax Scrolling:** 
+  - Create depth with backgrounds moving slower than foreground content.
+- **Elastic Scrolling:** 
+  - Provide a subtle bounce effect at the boundaries of scrollable areas.
+- **Staggered List Animations:** 
+  - Animate list items sequentially with slight delays for a dynamic feel.
 
 ## 5. Notifications & Alerts
 ### 5.1. Toasts & Snackbars
-- **Design:**
-  - Minimal, bottom-of-screen overlays with a fade in/out animation.
-- **Animation Details:**
-  - Fade in within 200ms and fade out over 300ms.
-- **Usage:**
-  - For transient messages like “Item added” or “Action completed.”
+- **Design:** 
+  - Use vibrant, unobtrusive overlays positioned at the bottom of the screen with smooth fade transitions.
+- **Animation Details:** 
+  - Fade in (around 200ms) and fade out (approximately 300ms).
+- **Usage:** 
+  - Ideal for transient messages such as “Item added” or “Action completed.”
 
 ### 5.2. Modal Dialogs
-- **Usage:**
-  - For confirmation actions, critical warnings.
-- **Animation:**
-  - Use a scale or fade transition for appearance.
+- **Usage:** 
+  - Utilize for confirmations and critical alerts.
+- **Animation:** 
+  - Implement scale or fade transitions to maintain user focus.
 
 ## 6. Forms & Validation
 ### 6.1. Form Layout
-- Use clear, ample spacing for inputs, labels, and error messages.
-- Group related fields and use visual dividers.
+- Employ generous spacing, clear labels, and logical grouping of related fields.
+- Use modern dividers to create distinct, clean sections.
 
 ### 6.2. Validation Feedback
-- **Real-Time Validation:**
-  - Validate as the user types.
-  - Use color changes and icons with a gentle fade-in effect.
-- **Error Message Example:**
-  - Provide clear, concise error messages.
+- **Real-Time Validation:** 
+  - Provide immediate, high-contrast feedback as users type.
+- **Error Messages:** 
+  - Use concise, clear messages paired with dynamic icons to guide user corrections.
 
 ## 7. Localization & Internationalization
-- **Dynamic Sizing:**
-  - Design UI elements to automatically adjust width based on text length in different languages.
-- **Formats:**
-  - Use ISO-compliant formats for dates, currency, and numbers.
-- **Considerations:**
-  - Test with languages that use longer words or characters to ensure UI consistency.
+- **Dynamic Sizing:** 
+  - Design UI elements that automatically adjust width based on language-specific text lengths.
+- **Formats:** 
+  - Use ISO-compliant standards for dates, currencies, and numbers.
+- **Considerations:** 
+  - Test with languages that have varying word lengths to ensure consistent UI integrity.
 
 ## 8. Responsive Design
 ### 8.1. Layout Adjustments
-- **Mobile:**
-  - Focus on bottom navigation and large, thumb-friendly buttons.
-- **Tablet:**
-  - Increase spacing to avoid accidental taps.
-- **Desktop:**
-  - Use a maximum content width with generous whitespace.
+- **Mobile:** 
+  - Prioritize bottom navigation and large, touch-friendly buttons with high contrast.
+- **Tablet:** 
+  - Increase spacing to avoid accidental taps and maintain clarity.
+- **Desktop:** 
+  - Utilize generous whitespace and define maximum content widths for a clean layout.
 
 ### 8.2. Grid System
-- Use a grid system for consistency across devices.
-- Maintain consistent margins and gutters.
+- Adopt a flexible grid system to ensure consistent margins and gutters across all devices.
 
 ## 9. Accessibility
-- **Color Contrast:**
-  - Ensure text/background contrast meets WCAG AA or AAA standards.
-- **Screen Reader Support:**
-  - All interactive elements must have clear labels.
-- **Dynamic Text:**
-  - Allow users to adjust text size without breaking layout.
-- **High Contrast Mode:**
-  - Offer a toggle for a high contrast UI variant.
+- **Color Contrast:** 
+  - Prioritize high-contrast color schemes to meet/exceed WCAG AA/AAA standards.
+- **Screen Reader Support:** 
+  - Ensure every interactive element has clear, descriptive labels.
+- **Dynamic Text:** 
+  - Allow users to adjust text sizes without breaking the layout.
+- **High Contrast Mode:** 
+  - Provide an optional mode for enhanced readability in challenging lighting conditions.
 
 ## 10. Audio & Haptic Feedback
 ### 10.1. Audio Feedback
-- **Subtle Sound Effects:**
-  - Button clicks: a soft sound.
-  - Successful actions: a gentle chime.
-  - Error notifications: a muted warning tone.
-- **Guidelines:**
-  - Ensure sounds are unobtrusive and volume-controlled by the system.
+- **Subtle Sound Effects:** 
+  - Integrate soft, digital sound cues (e.g., for clicks and confirmations) that complement visual cues without distracting.
+- **Guidelines:** 
+  - Ensure audio feedback is unobtrusive and volume-controlled by the system.
 
 ### 10.2. Haptic Feedback
-- **Implementation:**
-  - Light vibration on button taps.
-  - Slightly stronger vibration on error feedback.
-- **Purpose:**
-  - Enhance the tactile feel of interactions without overwhelming the user.
+- **Implementation:** 
+  - Use nuanced haptic responses to enhance the sense of touch during digital interactions.
+- **Purpose:** 
+  - Provide a tactile dimension that reinforces action confirmations and error alerts.
 
 ## 11. Gestural Interactions
-- **Swipe-to-Dismiss:**
-  - Items can be swiped away with a gentle fade-out and slide animation.
-- **Drag & Drop:**
-  - Provide subtle haptic and visual feedback when dragging elements.
-- **Double-Tap:**
-  - For actions like “like” or “favorite,” use a quick scale animation.
+- **Swipe-to-Dismiss:** 
+  - Implement responsive swipe gestures with fade and slide-out animations.
+- **Drag & Drop:** 
+  - Offer real-time haptic and visual cues when dragging elements.
+- **Double-Tap:** 
+  - Apply dynamic scaling animations for actions like “like” or “favorite.”
 
 ## 12. Material & Texture
-- **Incorporating Subtle Textures:**
-  - Use faint wood grain or fabric patterns as background overlays.
-- **Avoid Over-Flattening:**
-  - Combine flat design with subtle shadows and textures.
+- **Digital Textures:** 
+  - Incorporate subtle, modern textures or dynamic gradients that add depth without sacrificing clarity.
+- **Depth and Dimension:** 
+  - Combine flat design principles with selective shadows and digital overlays for a layered, engaging aesthetic.
 
 ## 13. UI Documentation & Style Guide
-- **Document Assets:**
-  - Create a comprehensive style guide including:
-    - Color palettes, typography, component dimensions, spacing rules, and animation parameters.
-- **Examples & Assets:**
-  - Provide animated GIFs or short video clips demonstrating key animations.
-- **Version Control:**
-  - Maintain a living document to update the guidelines as new patterns emerge.
+- **Document Assets:** 
+  - Maintain a living style guide that includes updated color palettes, typography, component dimensions, spacing rules, and animation parameters.
+- **Design Tokens:** 
+  - Utilize design tokens for consistency and efficient handoff between design and development teams.
+- **Version Control:** 
+  - Regularly update documentation to reflect evolving digital trends and technologies.
 
 ## 14. Microinteractions & Overall “Aliveness”
-- **Every UI Element Must Feel Alive:**
-  - Incorporate subtle animations such as:
-    - Icons that rotate or pulse on tap.
-    - List items that gently shift on selection.
-- **Consistency:**
-  - All interactions should share consistent timing and easing parameters.
+- **Engaging Details:** 
+  - Infuse every interaction with subtle animations and feedback to create a vibrant, “alive” interface.
+- **Consistency:** 
+  - Use uniform timing, easing, and visual cues across all microinteractions.
+- **User-Centric Approach:** 
+  - Focus on intuitive interactions that enhance digital engagement and overall usability.
 
 ## 15. Final Notes & Summary
-This complete documentation covers every aspect required for designing a Modern Swedish UI that is:
-- **Minimal yet Rich:**
-  - Clean interfaces with subtle textures and ample whitespace.
-- **Lively & Interactive:**
-  - Every component features thoughtful animations that give the interface a “living” feel.
-- **User-Centric:**
-  - Accessibility, localization, and responsive design ensure the UI works for everyone on any device.
-- **Consistent & Documented:**
-  - A comprehensive style guide supports consistent implementation and seamless handoff between designers and developers.
+This updated guideline fuses the timeless Swedish design philosophy—with its emphasis on balance, clarity, and functional simplicity—with cutting-edge digital trends that champion vibrancy, high contrast, and dynamic interactivity. The result is a design framework that is:
+- **Vibrant yet Minimal:** Clean, uncluttered interfaces enhanced by vivid, high-impact visuals.
+- **Fluid & Interactive:** Seamless transitions and responsive microinteractions that create an engaging user experience.
+- **Adaptive & Inclusive:** Flexible designs tailored for a variety of devices and user needs.
+- **Documented & Consistent:** A comprehensive, living style guide that ensures design and development alignment.
 
-By adhering to these guidelines, designers will be able to create interfaces that are modern, elegant, and intuitively interactive—embodying the spirit of Swedish minimalism with an added layer of dynamism and user engagement.
+By embracing these guidelines, teams can create modern digital products that are not only visually striking and highly interactive but also maintain the essence of Swedish design—elegant simplicity with an added layer of modern digital dynamism.
+
+---
