@@ -1,90 +1,140 @@
-Design Document: Integrated Design Style for UI and Game Design
-1. Overview
-This document outlines a versatile design style that combines the strengths of Flat design, Material Design, Glassmorphism, and Fluid design, while integrating Swedish design principles focused on functionality and minimalism, excluding their traditional color schemes. The style is designed for general user interfaces (UI) and is adaptable for game design, where it incorporates gamification elements inspired by Brawl Stars to enhance vibrancy and create a rich, engaging atmosphere. The document addresses specific aspects including dark mode, hero transitions, loading states, and more, ensuring a comprehensive guide for designers and developers.
+---
+description: Design Document: Integrated Design Style for UI and Game Design
+globs: 
+alwaysApply: true
+---
+# General Style Design Document
 
-2. Core Design Principles
-The design style is built on the following principles, blending the advantages of multiple design philosophies:
+## Introduction
+This design style combines the strengths of Flat design, Material Design, Glassmorphism, and Fluid design, infused with Swedish design principles focused on functionality and simplicity (excluding their traditional color schemes). It is crafted to be versatile for general applications and adaptable for game design, where it incorporates vibrant, bold colors and gamification elements similar to *Brawl Stars* to create an immersive and engaging atmosphere. The document outlines core principles, visual guidelines, and specific aspects to ensure usability, aesthetics, and adaptability.
 
-Simplicity and Minimalism: Inspired by Flat design and Swedish design, the interface prioritizes a clean, uncluttered look, focusing on essential elements to enhance usability.
-Depth and Hierarchy: Drawing from Material Design, subtle shadows and layers are used to create depth and establish clear visual relationships between elements.
-Modern Aesthetics: Glassmorphism is applied selectively (e.g., for overlays or modals) with frosted glass effects, adding a contemporary and sophisticated touch.
-Responsiveness: Fluid design ensures the interface adapts seamlessly to various screen sizes and orientations using flexible grids and layouts.
-Functionality: Aligning with Swedish design, every element serves a practical purpose, enhancing the user experience without unnecessary ornamentation.
-Vibrancy in Gaming: For game design, bold, vibrant colors and playful, cartoony graphics inspired by Brawl Stars create an energetic and immersive atmosphere.
-3. Color and Typography
-3.1 Color Scheme
-General UI: Use a modern, versatile palette with a primary color (e.g., a deep blue or teal) and complementary accent colors (e.g., warm oranges or greens). Avoid traditional Swedish pastel or neutral tones, focusing instead on readability and aesthetic harmony.
-Game Design: Adopt a high-contrast, saturated color scheme (e.g., bright reds, yellows, and blues) inspired by Brawl Stars. Emphasize bold hues to create a lively, dynamic feel that enhances the gaming experience.
-3.2 Typography
-General UI: Select a clean, sans-serif font family (e.g., Roboto or Open Sans) that ensures legibility in both light and dark modes. Maintain a hierarchy with varying weights and sizes.
-Game Design: Use playful, rounded fonts (e.g., Comic Sans or custom hand-drawn styles) for headings or thematic elements, paired with a legible body font for clarity.
-4. Specific Design Aspects
-The design style addresses the following required aspects:
+---
 
-4.1 Dark Mode
-Offer a dark theme with a dark background (e.g., #1A1A1A) and lighter text (e.g., #FFFFFF or #E0E0E0).
-Ensure sufficient contrast (WCAG 2.1 AA compliant) for readability and accessibility.
-4.2 Hero Transitions
-Implement smooth transitions between screens, focusing on a "hero" element (e.g., a button or image) that persists and animates across states to maintain continuity.
-4.3 Loading States
-Use skeleton screens or animated placeholders (e.g., pulsing gray bars) to indicate loading content.
-In games, incorporate thematic animations (e.g., spinning coins or characters) tied to the game’s aesthetic.
-4.4 Empty States
-Design friendly, informative empty states (e.g., "No tasks yet—add one to get started!") with a call-to-action button.
-For games, use engaging illustrations or mini-challenges (e.g., "Defeat a monster to unlock this section!").
-4.5 Error Exception Handling
-Provide clear, actionable error messages (e.g., "Connection failed. Retry?") with visual cues like red text or warning icons.
-In games, soften errors with humor or context (e.g., "Oops, the dragon ate your data! Try again?").
-4.6 Animations and Transitions
-Use subtle animations (e.g., fade-ins or scale effects) to provide feedback and enhance responsiveness.
-In games, employ exaggerated, playful animations (e.g., bouncing rewards or exploding effects).
-4.7 Scrolling Effects
-Incorporate smooth scrolling with optional parallax effects to add depth, ensuring performance remains optimal across devices.
-4.8 Notifications and Alerts
-Design non-intrusive notifications (e.g., slide-in banners) with clear dismiss options.
-In games, use bold, attention-grabbing alerts (e.g., pop-ups with confetti for achievements).
-4.9 Forms and Validation Feedback
-Use clear labels and placeholders in forms, with immediate validation feedback (e.g., green checkmarks for success, red outlines for errors).
-4.10 Localization and Internationalization
-Design layouts flexible for varying text lengths and directions (e.g., LTR and RTL).
-Use culturally neutral icons and imagery adaptable to global audiences.
-4.11 Responsive Design
-Employ a flexible grid system and media queries to ensure consistency across mobile, tablet, and desktop devices.
-4.12 Accessibility
-Adhere to WCAG guidelines (e.g., 4.5:1 contrast ratio, scalable text).
-Include alt text for images and ensure keyboard navigation support.
-4.13 Audio and Haptic Feedback
-Add subtle sound effects (e.g., clicks) and vibrations for key interactions, with toggle options for accessibility.
-In games, use thematic audio (e.g., coin chimes) and stronger haptic cues for rewards.
-4.14 Gestural Interactions
-Support intuitive gestures (e.g., swipes to navigate, pinches to zoom) with visual hints (e.g., arrows or tooltips).
-4.15 Microinteractions
-Design small animations (e.g., button hover effects or toggle switches) to provide feedback.
-In games, make microinteractions dynamic (e.g., sparkling badges or wobbling icons).
-4.16 Overall Liveliness
-Combine animations, vibrant colors, and interactivity to create an engaging experience.
-In games, amplify this with bold visuals and constant feedback to maintain immersion.
-5. Gamification Elements (Game Design Adaptation)
-When adapting this style for game design, incorporate the following elements inspired by Brawl Stars:
+## Core Principles
+The style is built on the following foundational principles:
 
-Reward Systems: Offer points, badges, or unlockable items for completing tasks or challenges.
-Progression Indicators: Display progress bars or level-up animations to show advancement.
-Social Features: Include leaderboards, achievement sharing, or team-based challenges.
-Interactive Elements: Add mini-games or draggable objects (e.g., sorting tasks in a productivity game).
-Vibrant Graphics: Use bold, cartoony visuals (e.g., exaggerated characters or glowing effects) to create a rich atmosphere.
-6. Implementation Guidelines
-Consistency: Maintain uniformity in spacing, typography, and element styles across platforms.
-Testing: Validate designs on multiple devices and with diverse users to ensure usability and accessibility.
-Iteration: Incorporate user feedback to refine the design, balancing aesthetics with functionality.
-7. Example Application
-General UI: Task Manager App
-Layout: Flat design with a clean grid, subtle Material Design shadows on task cards, and Glassmorphism for modals (e.g., task details).
-Dark Mode: Dark background with white text and orange accents.
-Transitions: Smooth hero transitions when opening a task.
-Loading: Skeleton screens for task lists.
-Forms: Real-time validation with green/red indicators.
-Game Design: Gamified Task Manager
-Visuals: Vibrant colors (e.g., bright purple background, yellow task icons) and cartoony graphics (e.g., animated avatars).
-Gamification: Earn points for tasks, unlock badges, and view a leaderboard.
-Animations: Tasks explode into confetti when completed, with celebratory sound effects.
-Interactivity: Drag tasks into a "done" zone for bonus points.
+- **Simplicity and Minimalism**:  
+  Inspired by Flat design and Swedish design, the style emphasizes clean layouts, uncluttered interfaces, and functional elements that prioritize usability.
+
+- **Depth and Visual Hierarchy**:  
+  Drawing from Material Design and Glassmorphism, subtle shadows, layers, and translucent effects add depth and clarity without compromising simplicity.
+
+- **Adaptability and Fluidity**:  
+  From Fluid design, the style ensures seamless responsiveness across devices and screen sizes, with smooth transitions and dynamic layouts.
+
+- **Vibrancy for Games**:  
+  When applied to game design, the style amplifies color saturation, contrast, and playful animations, integrating gamification elements to enhance engagement.
+
+---
+
+## Visual Guidelines
+
+### Color Palette
+- **Base Colors**:  
+  - General: Neutral grays (#EDEDED for light mode backgrounds, #333333 for dark mode) or off-whites with dark gray (#4A4A4A) or black (#000000) text for contrast.  
+  - Games: Same base but with higher contrast and optional gradients for liveliness.
+
+- **Accent Colors**:  
+  - General: Muted blues (#4A90E2), greens (#2ECC71), or purples (#9B59B6) to add visual interest without overpowering.  
+  - Games: Saturated versions (e.g., #1A73E8, #27AE60, #8E44AD) for a bold, vibrant look.
+
+- **Dark Mode**:  
+  Inverted scheme with dark backgrounds and light text, ensuring accent colors maintain visibility and contrast.
+
+### Typography
+- Use clean, sans-serif fonts (e.g., Roboto, Open Sans) for readability and elegance, reflecting Swedish design’s focus on functionality.
+- Establish hierarchy with size (e.g., 24px for headings, 16px for body), weight (e.g., bold for emphasis), and color (e.g., accent colors for links).
+
+### Icons
+- Simple, recognizable shapes aligned with Flat design.
+- Optional subtle shadows or 3D effects from Material Design for depth, especially in game contexts.
+
+### Layout
+- Grid-based system for consistency and alignment.
+- Flexible components (e.g., cards, buttons) that scale across devices, ensuring responsiveness.
+
+---
+
+## Components
+
+### Buttons
+- **General**: Flat rectangles with clean typography; optional Glassmorphism effects (slight blur, translucency) for depth; subtle ripple or lift effect on interaction (Material Design-inspired).  
+- **Games**: Exaggerated shapes (e.g., rounded edges, slight bounce), vibrant colors, and playful animations (e.g., scale-up on hover).
+
+### Cards
+- **General**: Minimal with subtle shadows or frosted glass effects for hierarchy.  
+- **Games**: Vibrant backgrounds or borders, with dynamic hover effects.
+
+### Modals
+- Frosted glass backgrounds (Glassmorphism) with smooth slide-in transitions; clear calls-to-action.
+
+---
+
+## Interactions
+
+### Animations and Transitions
+- **General**: Smooth, purposeful animations (e.g., 300ms ease-in-out) for feedback and guidance.  
+- **Games**: More dynamic and exaggerated (e.g., bouncing, pulsing) to enhance excitement.
+
+### Hero Transitions
+- Seamless animations connecting interface sections (e.g., a list item expanding into a detail view) to guide user focus.
+
+### Microinteractions
+- Small, delightful effects (e.g., a heart icon filling up when liked, a button pulsing on click) to enhance engagement.
+
+### Gestural Interactions
+- Intuitive swipe, pinch, and tap gestures on touch devices, with visual cues (e.g., subtle glows) to indicate interactivity.
+
+---
+
+## Gamification (Game Design Variant)
+When adapted for games, the style incorporates elements inspired by *Brawl Stars*:
+- **Visuals**: Bold, saturated colors; cartoonish, exaggerated designs for characters and UI elements.  
+- **Gamification Elements**:  
+  - Progress bars with animated fill effects.  
+  - Achievement badges that pop up with celebratory animations and sound effects.  
+  - Reward notifications with vibrant visuals (e.g., glowing coins or chests).  
+- **Atmosphere**: High contrast and rich color schemes create an immersive, energetic feel.
+
+---
+
+## Specific Aspects
+
+### Dark Mode
+- Fully supported with a dark background (#333333), light text (#FFFFFF), and adjusted accent colors for contrast (WCAG 2.1 compliant).
+
+### Loading States
+- Skeleton screens or custom loaders (e.g., spinning frosted glass circles) that align with the style’s aesthetic while indicating progress.
+
+### Empty States
+- Friendly illustrations or icons with encouraging messages (e.g., “Start your journey!”), reflecting the playful game-inspired tone.
+
+### Error Exception Handling
+- Clear, actionable error messages (e.g., “Oops! Try again?”) with subtle icons or illustrations to soften impact.
+
+### Scrolling Effects
+- Parallax backgrounds, sticky headers, or infinite scrolling with “load more” indicators for depth and interactivity.
+
+### Notifications and Alerts
+- Subtle animations (e.g., fade-in, bounce) for badges or toast messages; noticeable but non-intrusive.
+
+### Forms and Validation Feedback
+- Clear labels and placeholders; instant validation (e.g., green check for success, red outline for errors) using color and icons.
+
+### Localization and Internationalization
+- Flexible text areas for varying lengths; culturally neutral icons and visuals to support multiple languages.
+
+### Responsive Design
+- Fluid layouts with media queries (e.g., `min-width: 768px` for tablets) and scalable components for seamless adaptation.
+
+### Accessibility
+- High contrast ratios (e.g., 4.5:1 for text); keyboard navigation support; ARIA labels for screen readers.
+
+### Audio and Haptic Feedback
+- **General**: Subtle clicks or tones for key actions.  
+- **Games**: Rich sound effects (e.g., coin clinks, victory chimes) and vibrations for immersion.
+
+---
+
+## Conclusion
+This design style offers a modern, functional, and engaging experience that balances simplicity, depth, and adaptability. For general applications, it prioritizes usability and clarity; for games, it amplifies vibrancy and interactivity with gamification elements inspired by *Brawl Stars*. By addressing all specified aspects—dark mode to microinteractions—it ensures versatility across contexts while maintaining a cohesive aesthetic.

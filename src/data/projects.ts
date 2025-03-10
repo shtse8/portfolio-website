@@ -49,7 +49,7 @@ export const PROJECTS: Project[] = [
           appStore: "https://apps.apple.com/az/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A8-%E6%9C%80%E5%88%BA%E6%BF%80%E7%9A%84%E7%AD%96%E7%95%A5%E6%A3%8B%E7%89%8C%E9%81%8A%E6%88%B2/id1295634408"
         },
         details: [
-          'Led development at Cubeage for this real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
+          'Developed this real-time multiplayer card game with Unity3D featuring unique characters and treasure systems',
           'Implemented a sophisticated ELO rating system for fair matchmaking, ensuring players find opponents of similar skill levels',
           'Built a distributed backend architecture using TypeScript, Socket.IO, and Protobuf on Ubuntu servers',
           'Created arena cups offering prestige, exclusive skins, coins, and gems as rewards',
@@ -139,7 +139,7 @@ export const PROJECTS: Project[] = [
           ]
         },
         details: [
-          'Led development at Cubeage for this popular poker game available on both Android and iOS platforms',
+          'Developed this popular poker game available on both Android and iOS platforms',
           'Implemented in-app purchases and ad mediation with Appodeal, AdMob, and Facebook Ads',
           'Created highly realistic AI opponents using Monte Carlo simulation for authentic gameplay',
           'Designed offline gameplay with online social features including friend system and cloud save',
@@ -181,7 +181,7 @@ export const PROJECTS: Project[] = [
           ]
         },
         details: [
-          'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads',
+          'Developed this popular Taiwanese Mahjong game with over 1 million downloads',
           'Created a unique offline gameplay experience with 144-tile Mahjong ruleset and distinctive gameplay where only discarded tiles are visible',
           'Implemented a level-based and wind-based (4-round) system with automatic dice rolling and the flexibility to exit anytime',
           'Developed highly realistic AI opponents using Monte Carlo simulation, providing an authentic gameplay experience',
@@ -269,7 +269,7 @@ export const PROJECTS: Project[] = [
         start_date: "2010-02-10",
         end_date: "2014-08-15",
         details: [
-          'Led development of Funimax, a well-known gaming platform with significant presence in Hong Kong',
+          'Developed Funimax, a well-known gaming platform with significant presence in Hong Kong',
           'Built with pure PHP and JavaScript, developing a custom template system for rapid game website deployment',
           'Created a platform that simultaneously operated 30+ games at its peak',
           'Implemented physical game card system with secure validation and redemption',
@@ -969,7 +969,7 @@ export const PROJECTS: Project[] = [
           appStore: "https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150"
         },
         details: [
-          'Led development at Cubeage for this popular Taiwanese Mahjong game with over 1 million downloads',
+          'Developed this popular Taiwanese Mahjong game with over 1 million downloads',
           'Created a unique offline gameplay experience with 16-tile Mahjong ruleset',
           'Implemented intuitive operation and responsive controls',
           'Designed achievement and mission systems to track progress',

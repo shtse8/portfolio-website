@@ -34,9 +34,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer & Founder`,
+  title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer`,
   description: "Professional portfolio showcasing full-stack development expertise, leadership experience, and innovative projects across web, mobile, and blockchain technologies.",
-  keywords: "full stack developer, web development, react, typescript, nodejs, blockchain, founder, tech lead",
+  keywords: "full stack developer, web development, react, typescript, nodejs, blockchain, tech lead",
   authors: [{ name: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}` }],
   robots: "index, follow",
   creator: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`,
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: PERSONAL_INFO.portfolioUrl,
-    title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer & Founder`,
+    title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer`,
     description: "Professional portfolio showcasing full-stack development expertise, leadership experience, and innovative projects.",
     siteName: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} Portfolio`,
     images: [
@@ -106,7 +106,7 @@ export default function RootLayout({
               "@type": "Person",
               "name": `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`,
               "url": PERSONAL_INFO.portfolioUrl,
-              "jobTitle": "Full Stack Developer & Founder",
+              "jobTitle": "Full Stack Developer",
               "sameAs": [
                 PERSONAL_INFO.social.github,
                 PERSONAL_INFO.social.linkedin,

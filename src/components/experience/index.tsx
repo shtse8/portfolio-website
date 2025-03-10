@@ -134,7 +134,7 @@ export default function ExperienceSection() {
             Professional <span className="font-medium text-blue-500 dark:text-blue-400">Experience</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Over 20 years of experience building innovative solutions and managing teams. Full stack expertise across multiple industries with strong leadership and marketing skills.
+            Over 20 years of experience building innovative solutions. Full stack expertise across multiple industries with strong technical and development skills.
           </p>
         </motion.div>
         

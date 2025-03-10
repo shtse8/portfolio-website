@@ -3,8 +3,8 @@ import { PersonalInfo } from './types';
 export const PERSONAL_INFO: PersonalInfo = {
   firstName: "Kyle",
   lastName: "Tse",
-  title: "Full Stack Developer & Entrepreneur",
-  shortBio: "Full Stack Developer & Entrepreneur with extensive experience in web development, mobile game development, blockchain solutions, and AI integration. Skilled in game design, marketing, advertising, and operations with multiple successful apps and platforms reaching millions of downloads.",
+  title: "Full Stack Developer",
+  shortBio: "Full Stack Developer with extensive experience in web development, mobile game development, blockchain solutions, and AI integration. Skilled in game design, marketing, advertising, and operations with multiple successful apps and platforms reaching millions of downloads.",
   email: "hi@kylet.se",
   location: {
     base: "Hong Kong & UK",
@@ -41,7 +41,6 @@ export const PERSONAL_INFO: PersonalInfo = {
     "Full Stack Developer",
     "Game Developer",
     "Blockchain Engineer",
-    "Entrepreneur",
     "System Architect",
     "Game Designer",
     "Digital Marketer",
