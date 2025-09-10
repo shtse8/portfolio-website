@@ -1,10 +1,10 @@
+import { SECTION_IDS, URL_SECTION_IDS } from '@/config/sections';
+
 /**
- * Application-wide constants
+ * Application-wide constants (derived from centralized config)
  * This file can be imported by both client and server components
  */
 
-// List of all valid sections in the application
-export const VALID_SECTIONS = ['hero', 'tech-stack', 'philosophy', 'projects', 'experience', 'contact'];
-
-// List of valid sections for URLs (excluding hero, which is the home page)
-export const VALID_URL_SECTIONS = VALID_SECTIONS.filter(section => section !== 'hero'); 
+// Keep backwards-compatible named exports derived from centralized config (widened to string[] for TS compatibility)
+export const VALID_SECTIONS: string[] = [...SECTION_IDS];
+export const VALID_URL_SECTIONS: string[] = [...URL_SECTION_IDS];

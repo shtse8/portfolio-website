@@ -182,7 +182,6 @@ const CommandLineText = ({ texts }: { texts: string[] }) => {
 };
 
 export default function Hero() {
-  const [mounted, setMounted] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   
   // Text options for command line display
@@ -244,10 +243,6 @@ export default function Hero() {
   ], []);
   
   // Initialization
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
   // Smooth scroll function
   const scrollToNextSection = useCallback(() => {
     const nextSection = document.getElementById('tech-stack');
@@ -255,8 +250,6 @@ export default function Hero() {
       nextSection.scrollIntoView({ behavior: 'smooth' });
     }
   }, []);
-  
-  if (!mounted) return null;
   
   return (
     <section 

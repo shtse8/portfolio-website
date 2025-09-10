@@ -5,6 +5,7 @@ import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope, FaLightbulb 
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useNavigationStore } from '@/context/NavigationContext';
+import { SECTIONS } from '@/config/sections';
 
 interface Section {
   id: string;
@@ -20,34 +21,55 @@ export default function FloatingNavBar() {
   const activeSection = useNavigationStore(state => state.activeSection);
   const navigateToSection = useNavigationStore(state => state.navigateToSection);
 
-  // Define navigation sections
-  const sections = useMemo<Section[]>(() => [
-    { id: 'hero', label: 'Home', icon: <FaHome className="w-3.5 h-3.5" /> },
-    { id: 'tech-stack', label: 'Skills', icon: <FaCode className="w-3.5 h-3.5" /> },
-    { id: 'philosophy', label: 'Philosophy', icon: <FaLightbulb className="w-3.5 h-3.5" /> },
-    { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="w-3.5 h-3.5" /> },
-    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="w-3.5 h-3.5" /> },
-    { id: 'contact', label: 'Contact', icon: <FaEnvelope className="w-3.5 h-3.5" /> },
-  ], []);
+  // Define icons mapping and build sections from central config
+  function getIconForSection(id: string) {
+    switch (id) {
+      case 'hero': return <FaHome className="w-3.5 h-3.5" />;
+      case 'tech-stack': return <FaCode className="w-3.5 h-3.5" />;
+      case 'philosophy': return <FaLightbulb className="w-3.5 h-3.5" />;
+      case 'projects': return <FaProjectDiagram className="w-3.5 h-3.5" />;
+      case 'experience': return <FaBriefcase className="w-3.5 h-3.5" />;
+      case 'contact': return <FaEnvelope className="w-3.5 h-3.5" />;
+      default: return null;
+    }
+  }
+  const sections = useMemo<Section[]>(() => SECTIONS.map(s => ({
+    id: s.id,
+    label: s.label,
+    icon: getIconForSection(s.id),
+  })), []);
 
-  // Initialize and handle visibility based on scroll
+  // Initialize and handle visibility based on scroll (container-aware)
   useEffect(() => {
     setMounted(true);
-    
+
+    const container = document.getElementById('main-content');
+
+    const getScrollTop = () =>
+      container instanceof HTMLElement ? container.scrollTop : window.scrollY;
+
+    const getViewportHeight = () =>
+      container instanceof HTMLElement ? container.clientHeight : window.innerHeight;
+
     const handleScroll = () => {
-      // Show navbar after scrolling past hero section with a small buffer
-      if (window.scrollY > window.innerHeight * 0.6) {
+      const scrollTop = getScrollTop();
+      const viewport = getViewportHeight();
+      // Show navbar after scrolling past ~60% of the viewport
+      if (scrollTop > viewport * 0.6) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
       }
     };
-    
-    window.addEventListener('scroll', handleScroll);
+
+    const target: HTMLElement | Window =
+      container instanceof HTMLElement ? container : window;
+
+    target.addEventListener('scroll', handleScroll);
     handleScroll(); // Initial check
-    
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      target.removeEventListener('scroll', handleScroll);
     };
   }, []);
   

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
-import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope } from 'react-icons/fa';
+import { FaHome, FaCode, FaBriefcase, FaProjectDiagram, FaEnvelope, FaLightbulb } from 'react-icons/fa';
 import { useNavigationStore } from '@/context/NavigationContext';
+import { SECTIONS } from '@/config/sections';
 
 interface Section {
   id: string;
@@ -18,32 +19,55 @@ export default function SectionNavigator() {
   const activeSection = useNavigationStore(state => state.activeSection);
   const navigateToSection = useNavigationStore(state => state.navigateToSection);
 
-  const sections = useMemo<Section[]>(() => [
-    { id: 'hero', label: 'Home', icon: <FaHome className="text-lg" /> },
-    { id: 'tech-stack', label: 'Skills', icon: <FaCode className="text-lg" /> },
-    { id: 'projects', label: 'Projects', icon: <FaProjectDiagram className="text-lg" /> },
-    { id: 'experience', label: 'Experience', icon: <FaBriefcase className="text-lg" /> },
-    { id: 'contact', label: 'Contact', icon: <FaEnvelope className="text-lg" /> },
-  ], []);
+  // Define icons mapping and build sections from central config
+  function getIconForSection(id: string) {
+    switch (id) {
+      case 'hero': return <FaHome className="text-lg" />;
+      case 'tech-stack': return <FaCode className="text-lg" />;
+      case 'philosophy': return <FaLightbulb className="text-lg" />;
+      case 'projects': return <FaProjectDiagram className="text-lg" />;
+      case 'experience': return <FaBriefcase className="text-lg" />;
+      case 'contact': return <FaEnvelope className="text-lg" />;
+      default: return null;
+    }
+  }
+  const sections = useMemo<Section[]>(() => SECTIONS.map(s => ({
+    id: s.id,
+    label: s.label,
+    icon: getIconForSection(s.id),
+  })), []);
 
-  // Initialize component with visibility check
+  // Initialize component with visibility check (container-aware)
   useEffect(() => {
     setMounted(true);
-    
+
+    const container = document.getElementById('main-content');
+
+    const getScrollTop = () =>
+      container instanceof HTMLElement ? container.scrollTop : window.scrollY;
+
+    const getViewportHeight = () =>
+      container instanceof HTMLElement ? container.clientHeight : window.innerHeight;
+
     const handleScroll = () => {
-      // Show navigator after scrolling past hero section
-      if (window.scrollY > window.innerHeight * 0.5) {
+      // Show navigator after scrolling past ~50% of the viewport
+      const scrollTop = getScrollTop();
+      const viewport = getViewportHeight();
+      if (scrollTop > viewport * 0.5) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
       }
     };
-    
-    window.addEventListener('scroll', handleScroll);
+
+    const target: HTMLElement | Window =
+      container instanceof HTMLElement ? container : window;
+
+    target.addEventListener('scroll', handleScroll);
     handleScroll(); // Initial check
-    
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      target.removeEventListener('scroll', handleScroll);
     };
   }, []);
   

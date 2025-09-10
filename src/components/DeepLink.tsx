@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, ReactNode, useRef } from 'react';
+import { useCallback, ReactNode, useRef, AnchorHTMLAttributes } from 'react';
 import { useNavigationStore } from '@/context/NavigationContext';
 
-interface DeepLinkProps {
+type DeepLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'> & {
   to: string; // section ID
   children: ReactNode;
   className?: string;
   activeClassName?: string;
   onClick?: () => void;
-}
+};
 
 /**
  * DeepLink component provides section-specific links for one-page navigation
@@ -21,6 +21,7 @@ export default function DeepLink({
   className = '',
   activeClassName = '',
   onClick,
+  ...rest
 }: DeepLinkProps) {
   const linkRef = useRef<HTMLAnchorElement>(null);
   
@@ -49,8 +50,9 @@ export default function DeepLink({
       className={`${className} ${isActive ? activeClassName : ''}`}
       onClick={handleClick}
       aria-current={isActive ? 'page' : undefined}
+      {...rest}
     >
       {children}
     </a>
   );
-} 
+}

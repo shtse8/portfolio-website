@@ -96,8 +96,9 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
     
     console.log('Setting up intersection observer for sections:', sections);
     
+    const rootEl = document.getElementById('main-content');
     const observerOptions = {
-      root: null,
+      root: rootEl || null,
       rootMargin: '0px',
       threshold: 0.5
     };

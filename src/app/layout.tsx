@@ -6,6 +6,7 @@ import ScrollAnimationProvider from '@/components/ScrollAnimationProvider';
 import { ModalProvider } from '@/context/ModalContext';
 import ModalPortal from '@/components/shared/ModalPortal';
 import { NavigationProvider } from '@/context/NavigationContext';
+import AppShell from '@/components/layout/AppShell';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -193,11 +194,13 @@ export default function RootLayout({
         {/* Client-side theme initialization - simplified version */}
         <script dangerouslySetInnerHTML={{ __html: clientThemeScript }} />
       </head>
-      <body className={`${inter.className} scroll-smooth`}>
+      <body className={`${inter.className} scroll-smooth overflow-hidden`}>
         <ModalProvider>
           <NavigationProvider>
             <ScrollAnimationProvider>
-              {children}
+              <AppShell>
+                {children}
+              </AppShell>
             </ScrollAnimationProvider>
           </NavigationProvider>
           <ModalPortal />

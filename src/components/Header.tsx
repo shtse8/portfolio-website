@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaStackOverflow, FaLongArrowAltRight } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data';
 import ThemeSwitch from './ThemeSwitch';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import FloatingNavBar from './FloatingNavBar';
 import { cn } from '@/lib/utils';
 import DeepLink from './DeepLink';
+import { SECTIONS } from '@/config/sections';
 
 // Types
 interface NavLink {
@@ -21,43 +22,55 @@ export default function Header() {
   const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const solidRef = useRef(false);
   
-  // Use scroll progress for visual effects
-  const { scrollY } = useScroll();
-  const headerOpacity = useTransform(scrollY, [0, 50], [0, 1]);
-  const headerBlur = useTransform(scrollY, [0, 50], [0, 8]);
+  // Header visual effects are handled via classes and isScrolled state (container-aware)
   
   // Navigation links
-  const navLinks: NavLink[] = useMemo(() => [
-    { to: 'hero', label: 'Home' },
-    { to: 'tech-stack', label: 'Skills' },
-    { to: 'philosophy', label: 'Philosophy' },
-    { to: 'projects', label: 'Projects' },
-    { to: 'experience', label: 'Experience' },
-    { to: 'contact', label: 'Contact' }
-  ], []);
+  const navLinks: NavLink[] = useMemo(
+    () => SECTIONS.map(s => ({ to: s.id, label: s.label })),
+    []
+  );
   
   // Set mounted state
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  // Handle scroll effect
+  // Handle scroll effect (container-aware for AppShell) with hysteresis to avoid flicker
   useEffect(() => {
+    const container = document.getElementById('main-content');
+
+    const getScrollTop = () =>
+      container instanceof HTMLElement ? container.scrollTop : window.scrollY;
+
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const y = getScrollTop();
+      if (!solidRef.current && y > 64) {
+        solidRef.current = true;
+        setIsScrolled(true);
+      } else if (solidRef.current && y < 8) {
+        solidRef.current = false;
+        setIsScrolled(false);
+      }
     };
-    
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    const target: HTMLElement | Window =
+      container instanceof HTMLElement ? container : window;
+
+    target.addEventListener('scroll', handleScroll);
+    // Run once to set initial state and prevent first-frame artifacts
+    handleScroll();
+    return () => target.removeEventListener('scroll', handleScroll);
   }, []);
   
   // Track active section based on scroll
   useEffect(() => {
     const sections = navLinks.map(link => link.to);
     
+    const container = document.getElementById('main-content');
     const observerOptions = {
-      root: null,
+      root: container instanceof HTMLElement ? container : null,
       rootMargin: '-20% 0px -80% 0px',
       threshold: 0
     };
@@ -100,47 +113,26 @@ export default function Header() {
   
   return (
     <>
-      <motion.header 
+      <motion.header
         className="fixed top-0 left-0 right-0 z-40 transition-all duration-500"
-        style={{ 
-          opacity: headerOpacity,
-          backdropFilter: `blur(${headerBlur}px)`,
-        }}
       >
         {/* Background elements */}
-        <div className={cn(
-          "absolute inset-0 transition-all duration-500 z-[-1]",
-          isScrolled 
-            ? "bg-white/80 dark:bg-gray-900/80 border-b border-gray-100/50 dark:border-gray-800/50 shadow-sm" 
-            : "bg-transparent"
-        )} />
+        <div
+          className={cn(
+            "absolute inset-0 pointer-events-none z-0 will-change-[opacity] transition-opacity duration-200 transform-gpu",
+            isScrolled
+              ? "opacity-100 backdrop-blur-md bg-white/70 dark:bg-gray-900/60"
+              : "opacity-0"
+          )}
+        />
         
-        {/* Subtle pattern - only visible when scrolled */}
-        {isScrolled && (
-          <div className="absolute inset-0 z-[-1] opacity-[0.015] dark:opacity-[0.03] pointer-events-none">
-            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
-            </svg>
-          </div>
-        )}
+        {/* Decorative pattern intentionally omitted to prevent edge flicker */}
+        {null}
         
-        {/* Accent decorative elements */}
-        <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none z-[-1]">
-          <div className={cn(
-            "absolute -right-24 top-0 w-96 h-20 bg-blue-400/5 rounded-full blur-3xl transform rotate-12 transition-opacity duration-500",
-            isScrolled ? "opacity-100" : "opacity-0"
-          )} />
-        </div>
         
         {/* Main header content */}
         <div className={cn(
-          "container mx-auto px-4 sm:px-6 max-w-6xl transition-all duration-300",
-          isScrolled ? "py-3" : "py-5"
+          "container mx-auto px-4 sm:px-6 max-w-6xl transition-colors duration-300 py-4"
         )}>
           <div className="flex justify-between items-center">
             {/* Logo with animation */}

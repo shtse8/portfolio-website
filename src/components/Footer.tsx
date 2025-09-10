@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaStackOverflow, FaEnvelope, FaArrowUp, FaMapMarkerAlt, FaHeart, FaCode, FaLayerGroup, FaBriefcase } from 'react-icons/fa';
 import { PERSONAL_INFO } from '@/data';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import DeepLink from './DeepLink';
+import { SECTIONS } from '@/config/sections';
 
 // Footer section component
 const FooterSection = ({ 
@@ -180,31 +181,26 @@ export default function Footer() {
           {/* Quick Links */}
           <FooterSection title="Navigation">
             <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5">
-              {[
-                { label: 'Home', href: '#hero' },
-                { label: 'Skills', href: '#tech-stack' },
-                { label: 'Projects', href: '#projects' },
-                { label: 'Experience', href: '#experience' },
-                { label: 'Philosophy', href: '#philosophy' },
-                { label: 'Contact', href: '#contact' }
-              ].map((item, index) => (
-                <li key={index}>
-                  <Link 
-                    href={item.href} 
+              {SECTIONS.map((item) => (
+                <li key={item.id}>
+                  <DeepLink
+                    to={item.id}
                     className={cn(
-                      "text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400", 
+                      "text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400",
                       "transition-all text-sm font-light py-1 inline-flex items-center",
                       "relative overflow-hidden group"
                     )}
+                    activeClassName="text-blue-500 dark:text-blue-400"
                   >
                     <span className="relative z-10">{item.label}</span>
-                    <motion.span 
+                    <motion.span
                       className="absolute bottom-0 left-0 h-[1px] bg-blue-500 dark:bg-blue-400 w-full transform origin-left"
                       initial={{ scaleX: 0 }}
                       whileHover={{ scaleX: 1 }}
                       transition={{ duration: 0.3 }}
+                      aria-hidden="true"
                     />
-                  </Link>
+                  </DeepLink>
                 </li>
               ))}
             </ul>
@@ -238,19 +234,22 @@ export default function Footer() {
               </motion.div>
             </div>
             
-            <motion.a 
-              href="#contact" 
-              className={cn(
-                "inline-flex items-center px-5 py-2.5 rounded-full text-sm",
-                "bg-gradient-to-r from-blue-500/90 to-blue-600/90 hover:from-blue-400/90 hover:to-blue-500/90",
-                "text-white shadow-sm hover:shadow",
-                "transition-all"
-              )}
+            <motion.div
               whileHover={{ y: -2, boxShadow: "0 4px 8px rgba(59, 130, 246, 0.25)" }}
               whileTap={{ scale: 0.98 }}
             >
-              Send a message
-            </motion.a>
+              <DeepLink
+                to="contact"
+                className={cn(
+                  "inline-flex items-center px-5 py-2.5 rounded-full text-sm",
+                  "bg-gradient-to-r from-blue-500/90 to-blue-600/90 hover:from-blue-400/90 hover:to-blue-500/90",
+                  "text-white shadow-sm hover:shadow",
+                  "transition-all"
+                )}
+              >
+                Send a message
+              </DeepLink>
+            </motion.div>
           </FooterSection>
         </div>
         
