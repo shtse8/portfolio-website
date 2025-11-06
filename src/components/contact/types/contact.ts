@@ -1,3 +1,5 @@
+import { IconType } from 'react-icons';
+
 export interface FormData {
   name: string;
   email: string;
@@ -14,9 +16,10 @@ export interface ContactBenefit {
 }
 
 export interface ContactChannel {
-  icon: React.ReactNode;
+  icon: IconType;
   label: string;
   value: string;
   href?: string;
+  color: string;
   external?: boolean;
 }
