@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useCallback } from 'react';
-import { useModal, ModalOptions } from '@/context/ModalContext';
+import { useModal, ModalOptions } from '@/stores/modalStore';
 
 // Define generic prop types for each modal type
 type ProjectModalProps = {

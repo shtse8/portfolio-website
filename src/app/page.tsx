@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { useNavigationStore } from '@/context/NavigationContext';
 
 const Hero = dynamic(() => import('@/components/Hero'), { suspense: true });
@@ -83,44 +84,56 @@ export default function Home({ initialSection }: HomeProps) {
       
       {/* Hero section */}
       <div id="hero" className="min-h-[95vh] w-full flex items-center justify-center scroll-mt-20">
-        <Suspense fallback={<div className="w-full h-screen flex items-center justify-center"><LoadingSpinner /></div>}>
-          <Hero />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="w-full h-screen flex items-center justify-center"><LoadingSpinner /></div>}>
+            <Hero />
+          </Suspense>
+        </ErrorBoundary>
       </div>
-      
+
       {/* Technical skills section */}
       <div id="tech-stack" className="py-40 scroll-mt-20">
-        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
-          <TechStack />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
+            <TechStack />
+          </Suspense>
+        </ErrorBoundary>
       </div>
-      
+
       {/* Philosophy section */}
       <div id="philosophy" className="py-40 bg-gray-50 dark:bg-gray-900/20 scroll-mt-20">
-        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
-          <Philosophy />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
+            <Philosophy />
+          </Suspense>
+        </ErrorBoundary>
       </div>
-      
+
       {/* Projects section */}
       <div id="projects" className="py-40 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
-        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
-          <FeaturedProjects />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
+            <FeaturedProjects />
+          </Suspense>
+        </ErrorBoundary>
       </div>
-      
+
       {/* Experience section */}
       <div id="experience" className="py-40 bg-white dark:bg-gray-900/10 scroll-mt-20">
-        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
-          <Experience />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
+            <Experience />
+          </Suspense>
+        </ErrorBoundary>
       </div>
-      
+
       {/* Contact section */}
       <div id="contact" className="py-40 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
-        <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
-          <Contact />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>}>
+            <Contact />
+          </Suspense>
+        </ErrorBoundary>
       </div>
       
       {/* Footer */}

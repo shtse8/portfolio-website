@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import { useModal } from '@/context/ModalContext';
+import { useModal } from '@/stores/modalStore';
 
 export default function ModalPortal() {
   const portalRef = useRef<HTMLDivElement | null>(null);

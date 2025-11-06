@@ -3,12 +3,14 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { PERSONAL_INFO } from '@/data/personal';
 import ScrollAnimationProvider from '@/components/ScrollAnimationProvider';
-import { ModalProvider } from '@/context/ModalContext';
 import ModalPortal from '@/components/shared/ModalPortal';
 import { NavigationProvider } from '@/context/NavigationContext';
 import AppShell from '@/components/layout/AppShell';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+});
 
 // Client-side theme initialization script - simplified to reduce hydration issues
 const clientThemeScript = `
@@ -195,16 +197,14 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: clientThemeScript }} />
       </head>
       <body className={`${inter.className} scroll-smooth overflow-hidden`}>
-        <ModalProvider>
-          <NavigationProvider>
-            <ScrollAnimationProvider>
-              <AppShell>
-                {children}
-              </AppShell>
-            </ScrollAnimationProvider>
-          </NavigationProvider>
-          <ModalPortal />
-        </ModalProvider>
+        <NavigationProvider>
+          <ScrollAnimationProvider>
+            <AppShell>
+              {children}
+            </AppShell>
+          </ScrollAnimationProvider>
+        </NavigationProvider>
+        <ModalPortal />
       </body>
     </html>
   );
