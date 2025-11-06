@@ -10,6 +10,7 @@ import FloatingNavBar from './FloatingNavBar';
 import { cn } from '@/lib/utils';
 import DeepLink from './DeepLink';
 import { SECTIONS } from '@/config/sections';
+import { useNavigationStore } from '@/context/NavigationContext';
 
 // Types
 interface NavLink {
@@ -20,7 +21,6 @@ interface NavLink {
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [activeSection, setActiveSection] = useState('hero');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const solidRef = useRef(false);
   
@@ -64,40 +64,9 @@ export default function Header() {
     return () => target.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Track active section based on scroll
-  useEffect(() => {
-    const sections = navLinks.map(link => link.to);
-    
-    const container = document.getElementById('main-content');
-    const observerOptions = {
-      root: container instanceof HTMLElement ? container : null,
-      rootMargin: '-20% 0px -80% 0px',
-      threshold: 0
-    };
-    
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
-        }
-      });
-    };
-    
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    
-    sections.forEach(section => {
-      const element = document.getElementById(section);
-      if (element) observer.observe(element);
-    });
-    
-    return () => {
-      sections.forEach(section => {
-        const element = document.getElementById(section);
-        if (element) observer.unobserve(element);
-      });
-    };
-  }, [mounted, navLinks]);
-  
+  // Get active section from navigation store
+  const activeSection = useNavigationStore(state => state.activeSection);
+
   // Function to check if a link is active
   const isActive = useCallback((to: string) => {
     return activeSection === to;
