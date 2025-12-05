@@ -1740,21 +1740,6 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
     icon: 'SiFlutter'
   },
   {
-    id: 'webassembly',
-    name: 'WebAssembly',
-    description: 'Binary instruction format for high-performance web applications',
-    color: 'text-purple-700',
-    bgColor: 'bg-purple-700/90 dark:bg-purple-700/80',
-    category: 'frontend',
-    keywords: [
-      'WebAssembly',
-      'WASM',
-      'Performance',
-      'Low-level'
-    ],
-    icon: 'SiWebassembly'
-  },
-  {
     id: 'virtual-dom',
     name: 'Virtual DOM',
     description: 'Efficient DOM manipulation through virtual representation',
