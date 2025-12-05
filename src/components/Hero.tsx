@@ -75,7 +75,7 @@ const SocialButton = ({
     transition={{ 
       delay: 0.3 + delay, 
       duration: 0.3,
-      type: "spring",
+      type: "spring" as const,
       stiffness: 300,
       damping: 15
     }}

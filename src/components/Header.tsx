@@ -217,7 +217,7 @@ export default function Header() {
                 ].map((social, index) => (
                   <motion.div 
                     key={index}
-                    whileHover={{ y: -3, transition: { type: "spring", stiffness: 300 } }} 
+                    whileHover={{ y: -3, transition: { type: "spring" as const, stiffness: 300 } }} 
                     whileTap={{ scale: 0.92 }}
                   >
                     <Link 
@@ -293,7 +293,7 @@ export default function Header() {
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              transition={{ type: "spring" as const, damping: 25, stiffness: 300 }}
             >
               <div className="p-5 flex flex-col h-full">
                 <div className="flex justify-between items-center mb-8">

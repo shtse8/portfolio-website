@@ -75,30 +75,30 @@ export default function ModalPortal() {
 
   const containerVariants = {
     hidden: (direction: 'next' | 'prev' | null) => ({
-      opacity: 0, 
+      opacity: 0,
       x: direction === 'next' ? 75 : direction === 'prev' ? -75 : 0,
       y: !direction ? 15 : 0,
       scale: 0.96,
       rotateY: direction === 'next' ? 3 : direction === 'prev' ? -3 : 0,
     }),
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       y: 0,
       scale: 1,
       rotateY: 0,
-      transition: { 
-        type: "spring",
+      transition: {
+        type: "spring" as const,
         damping: 22,
         stiffness: 250,
         mass: 0.6,
         duration: 0.5
       }
     },
-    exit: { 
+    exit: {
       opacity: 0,
       scale: 0.96,
-      transition: { duration: 0.25 } 
+      transition: { duration: 0.25 }
     }
   };
 

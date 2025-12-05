@@ -92,7 +92,7 @@ export default function FloatingNavBar() {
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 20, opacity: 0, scale: 0.95 }}
           transition={{ 
-            type: "spring", 
+            type: "spring" as const, 
             stiffness: 300, 
             damping: 25, 
             mass: 0.8 
@@ -124,7 +124,7 @@ export default function FloatingNavBar() {
                   whileHover={{ 
                     y: -2,
                     transition: { 
-                      type: "spring", 
+                      type: "spring" as const, 
                       stiffness: 400, 
                       damping: 12 
                     } 
@@ -139,7 +139,7 @@ export default function FloatingNavBar() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ 
-                        type: "spring", 
+                        type: "spring" as const, 
                         stiffness: 300, 
                         damping: 20 
                       }}

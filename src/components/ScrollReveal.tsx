@@ -58,14 +58,14 @@ export default function ScrollReveal({
     
     return {
       hidden: initial,
-      visible: { 
-        x: 0, 
-        y: 0, 
+      visible: {
+        x: 0,
+        y: 0,
         opacity: 1,
         transition: {
           duration,
           delay,
-          ease: [0.25, 0.1, 0.25, 1], // Cubic bezier for a smooth easing
+          ease: [0.25, 0.1, 0.25, 1] as const,
           staggerChildren,
           staggerDirection: staggerDirection === 'reverse' ? -1 : 1,
         }

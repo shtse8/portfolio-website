@@ -148,7 +148,7 @@ function PhilosophyModal({ principle }: PhilosophyModalProps) {
           <motion.div 
             initial={{ rotate: -5, scale: 0.9 }}
             animate={{ rotate: 0, scale: 1 }}
-            transition={{ type: "spring", stiffness: 200 }}
+            transition={{ type: "spring" as const, stiffness: 200 }}
             className={cn("mr-4 p-3 rounded-full", getTextColorClass(principle.colorScheme.text))}
           >
             <div className="bg-white/10 p-3 rounded-full">

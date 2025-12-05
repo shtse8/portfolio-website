@@ -26,43 +26,43 @@ interface SkillModalProps {
 
 // Animation variants for smooth transitions
 const contentVariants = {
-  hidden: { 
-    opacity: 0, 
-    y: 10 
+  hidden: {
+    opacity: 0,
+    y: 10
   },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { 
+    transition: {
       duration: 0.3,
-      ease: [0.22, 1, 0.36, 1],
+      ease: [0.22, 1, 0.36, 1] as const,
       staggerChildren: 0.06
     }
   },
-  exit: { 
+  exit: {
     opacity: 0,
     scale: 0.98,
-    transition: { 
+    transition: {
       duration: 0.15,
-      ease: "easeInOut" 
+      ease: "easeInOut" as const
     }
   }
 };
 
 const itemVariants = {
-  hidden: { 
-    opacity: 0, 
+  hidden: {
+    opacity: 0,
     y: 15
   },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
-    transition: { 
+    transition: {
       duration: 0.25,
-      ease: [0.22, 1, 0.36, 1]
+      ease: [0.22, 1, 0.36, 1] as const
     }
   },
-  exit: { 
+  exit: {
     opacity: 0,
     transition: { duration: 0.1 }
   }

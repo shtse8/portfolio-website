@@ -60,36 +60,36 @@ export default function TechStack() {
   const fadeInVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (delay = 0) => ({
-      opacity: 1, 
+      opacity: 1,
       y: 0,
       transition: {
         delay,
         duration: 0.5,
-        ease: [0.22, 1, 0.36, 1]
+        ease: [0.22, 1, 0.36, 1] as const
       }
     })
   };
 
   const lineVariants = {
     hidden: { width: 0 },
-    visible: { 
-      width: 80, 
-      transition: { 
-        duration: 0.8, 
-        delay: 0.3 
-      } 
+    visible: {
+      width: 80,
+      transition: {
+        duration: 0.8,
+        delay: 0.3
+      }
     }
   };
 
   const statVariants = {
     hidden: { opacity: 0, scale: 0.9 },
     visible: (delay = 0) => ({
-      opacity: 1, 
+      opacity: 1,
       scale: 1,
       transition: {
         delay,
         duration: 0.4,
-        ease: [0.22, 1, 0.36, 1]
+        ease: [0.22, 1, 0.36, 1] as const
       }
     })
   };
