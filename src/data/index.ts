@@ -6,7 +6,7 @@ export { PROJECTS, PROJECT_CATEGORIES } from './projects';
 export * from './companies';
 export * from './experiences';
 export { getSkills, SKILLS_BASE, clearSkillsCache } from './skills';
-export * from './personal';
+export { PERSONAL_INFO, GITHUB_STATS } from './personal';
 export * from './philosophy'; 
 
 // Helper functions

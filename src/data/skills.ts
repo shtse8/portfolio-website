@@ -1692,6 +1692,472 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'PostgreSQL'
     ],
     icon: 'FaDatabase'
+  },
+  {
+    id: 'mcp',
+    name: 'MCP',
+    description: 'Model Context Protocol for AI tool integration and extensibility',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-600/90 dark:bg-purple-600/80',
+    category: 'ai',
+    keywords: [
+      'MCP',
+      'Model Context Protocol',
+      'AI Integration',
+      'Claude',
+      'Tool Integration'
+    ],
+    icon: 'FaPlug'
+  },
+  {
+    id: 'dart',
+    name: 'Dart',
+    description: 'Client-optimized language for fast apps on any platform',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+    category: 'frontend',
+    keywords: [
+      'Dart',
+      'Flutter',
+      'Cross-platform',
+      'Mobile Development'
+    ],
+    icon: 'SiDart'
+  },
+  {
+    id: 'flutter',
+    name: 'Flutter',
+    description: 'UI toolkit for building natively compiled applications',
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-400/90 dark:bg-blue-400/80',
+    category: 'mobile',
+    keywords: [
+      'Flutter',
+      'Dart',
+      'Cross-platform',
+      'Mobile UI'
+    ],
+    icon: 'SiFlutter'
+  },
+  {
+    id: 'webassembly',
+    name: 'WebAssembly',
+    description: 'Binary instruction format for high-performance web applications',
+    color: 'text-purple-700',
+    bgColor: 'bg-purple-700/90 dark:bg-purple-700/80',
+    category: 'frontend',
+    keywords: [
+      'WebAssembly',
+      'WASM',
+      'Performance',
+      'Low-level'
+    ],
+    icon: 'SiWebassembly'
+  },
+  {
+    id: 'virtual-dom',
+    name: 'Virtual DOM',
+    description: 'Efficient DOM manipulation through virtual representation',
+    color: 'text-green-600',
+    bgColor: 'bg-green-600/90 dark:bg-green-600/80',
+    category: 'frontend',
+    keywords: [
+      'Virtual DOM',
+      'React',
+      'Diffing',
+      'Rendering'
+    ],
+    icon: 'FaCode'
+  },
+  {
+    id: 'code-generation',
+    name: 'Code Generation',
+    description: 'Automated source code generation from schemas and templates',
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-600/90 dark:bg-indigo-600/80',
+    category: 'tools',
+    keywords: [
+      'Code Generation',
+      'Codegen',
+      'Templates',
+      'Automation'
+    ],
+    icon: 'FaCogs'
+  },
+  {
+    id: 'json-schema',
+    name: 'JSON Schema',
+    description: 'Vocabulary for annotating and validating JSON documents',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-600/90 dark:bg-orange-600/80',
+    category: 'backend',
+    keywords: [
+      'JSON Schema',
+      'Validation',
+      'API',
+      'Data Models'
+    ],
+    icon: 'FaFileCode'
+  },
+  {
+    id: 'openapi',
+    name: 'OpenAPI',
+    description: 'Standard specification for RESTful APIs',
+    color: 'text-green-700',
+    bgColor: 'bg-green-700/90 dark:bg-green-700/80',
+    category: 'backend',
+    keywords: [
+      'OpenAPI',
+      'Swagger',
+      'REST',
+      'API Documentation'
+    ],
+    icon: 'FaFileCode'
+  },
+  {
+    id: 'ast-parsing',
+    name: 'AST Parsing',
+    description: 'Abstract Syntax Tree analysis for code understanding',
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-600/90 dark:bg-teal-600/80',
+    category: 'tools',
+    keywords: [
+      'AST',
+      'Parsing',
+      'Code Analysis',
+      'Compilers'
+    ],
+    icon: 'FaProjectDiagram'
+  },
+  {
+    id: 'semantic-search',
+    name: 'Semantic Search',
+    description: 'AI-powered search understanding meaning and context',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+    category: 'ai',
+    keywords: [
+      'Semantic Search',
+      'NLP',
+      'Embeddings',
+      'Vector Search'
+    ],
+    icon: 'FaSearch'
+  },
+  {
+    id: 'vector-embeddings',
+    name: 'Vector Embeddings',
+    description: 'Dense vector representations for semantic similarity',
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/90 dark:bg-purple-500/80',
+    category: 'ai',
+    keywords: [
+      'Embeddings',
+      'Vectors',
+      'Similarity',
+      'ML'
+    ],
+    icon: 'FaVectorSquare'
+  },
+  {
+    id: 'state-management',
+    name: 'State Management',
+    description: 'Managing application state in frontend frameworks',
+    color: 'text-indigo-500',
+    bgColor: 'bg-indigo-500/90 dark:bg-indigo-500/80',
+    category: 'frontend',
+    keywords: [
+      'State Management',
+      'Redux',
+      'Zustand',
+      'MobX'
+    ],
+    icon: 'FaDatabase'
+  },
+  {
+    id: 'immutable-data',
+    name: 'Immutable Data',
+    description: 'Data structures that cannot be modified after creation',
+    color: 'text-cyan-600',
+    bgColor: 'bg-cyan-600/90 dark:bg-cyan-600/80',
+    category: 'frontend',
+    keywords: [
+      'Immutable',
+      'Immer',
+      'Functional',
+      'State'
+    ],
+    icon: 'FaLock'
+  },
+  {
+    id: 'json-patch',
+    name: 'JSON Patch',
+    description: 'Format for describing changes to JSON documents',
+    color: 'text-yellow-700',
+    bgColor: 'bg-yellow-700/90 dark:bg-yellow-700/80',
+    category: 'backend',
+    keywords: [
+      'JSON Patch',
+      'RFC 6902',
+      'Delta',
+      'Updates'
+    ],
+    icon: 'FaFileCode'
+  },
+  {
+    id: 'tree-shaking',
+    name: 'Tree Shaking',
+    description: 'Dead code elimination for smaller bundle sizes',
+    color: 'text-green-600',
+    bgColor: 'bg-green-600/90 dark:bg-green-600/80',
+    category: 'devops',
+    keywords: [
+      'Tree Shaking',
+      'Bundling',
+      'Optimization',
+      'Webpack'
+    ],
+    icon: 'FaTree'
+  },
+  {
+    id: 'bundling',
+    name: 'Bundling',
+    description: 'Combining modules into optimized bundles for deployment',
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/90 dark:bg-orange-500/80',
+    category: 'devops',
+    keywords: [
+      'Bundling',
+      'Webpack',
+      'Rollup',
+      'Vite'
+    ],
+    icon: 'FaBoxes'
+  },
+  {
+    id: 'web-framework',
+    name: 'Web Framework',
+    description: 'Libraries for building web applications efficiently',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+    category: 'frontend',
+    keywords: [
+      'Framework',
+      'React',
+      'Vue',
+      'Angular'
+    ],
+    icon: 'FaGlobe'
+  },
+  {
+    id: 'type-safety',
+    name: 'Type Safety',
+    description: 'Compile-time type checking for reliable code',
+    color: 'text-blue-700',
+    bgColor: 'bg-blue-700/90 dark:bg-blue-700/80',
+    category: 'frontend',
+    keywords: [
+      'Type Safety',
+      'TypeScript',
+      'Static Typing',
+      'Type Checking'
+    ],
+    icon: 'FaShieldAlt'
+  },
+  {
+    id: 'cli',
+    name: 'CLI Development',
+    description: 'Building command-line interface applications',
+    color: 'text-gray-700',
+    bgColor: 'bg-gray-700/90 dark:bg-gray-700/80',
+    category: 'tools',
+    keywords: [
+      'CLI',
+      'Command Line',
+      'Terminal',
+      'Shell'
+    ],
+    icon: 'FaTerminal'
+  },
+  {
+    id: 'ai-integration',
+    name: 'AI Integration',
+    description: 'Integrating AI services and models into applications',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-600/90 dark:bg-purple-600/80',
+    category: 'ai',
+    keywords: [
+      'AI Integration',
+      'OpenAI',
+      'Claude',
+      'LLM'
+    ],
+    icon: 'FaRobot'
+  },
+  {
+    id: 'developer-tools',
+    name: 'Developer Tools',
+    description: 'Tools that improve developer productivity and workflow',
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-600/90 dark:bg-indigo-600/80',
+    category: 'tools',
+    keywords: [
+      'DevTools',
+      'Productivity',
+      'Workflow',
+      'Automation'
+    ],
+    icon: 'FaTools'
+  },
+  {
+    id: 'openai',
+    name: 'OpenAI',
+    description: 'Integration with OpenAI APIs and models',
+    color: 'text-green-600',
+    bgColor: 'bg-green-600/90 dark:bg-green-600/80',
+    category: 'ai',
+    keywords: [
+      'OpenAI',
+      'GPT',
+      'ChatGPT',
+      'API'
+    ],
+    icon: 'FaRobot'
+  },
+  {
+    id: 'web-scraping',
+    name: 'Web Scraping',
+    description: 'Extracting data from websites programmatically',
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-600/90 dark:bg-teal-600/80',
+    category: 'tools',
+    keywords: [
+      'Web Scraping',
+      'Puppeteer',
+      'Playwright',
+      'Data Extraction'
+    ],
+    icon: 'FaSpider'
+  },
+  {
+    id: 'research-automation',
+    name: 'Research Automation',
+    description: 'Automating research tasks and data gathering',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-600/90 dark:bg-blue-600/80',
+    category: 'ai',
+    keywords: [
+      'Research',
+      'Automation',
+      'Data Gathering',
+      'Analysis'
+    ],
+    icon: 'FaSearchPlus'
+  },
+  {
+    id: 'sqlite',
+    name: 'SQLite',
+    description: 'Lightweight embedded relational database',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/90 dark:bg-blue-500/80',
+    category: 'database',
+    keywords: [
+      'SQLite',
+      'Database',
+      'Embedded',
+      'SQL'
+    ],
+    icon: 'FaDatabase'
+  },
+  {
+    id: 'pdf-processing',
+    name: 'PDF Processing',
+    description: 'Parsing and manipulating PDF documents',
+    color: 'text-red-600',
+    bgColor: 'bg-red-600/90 dark:bg-red-600/80',
+    category: 'tools',
+    keywords: [
+      'PDF',
+      'Document Processing',
+      'Parsing',
+      'Text Extraction'
+    ],
+    icon: 'FaFilePdf'
+  },
+  {
+    id: 'parallel-processing',
+    name: 'Parallel Processing',
+    description: 'Concurrent execution for improved performance',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-600/90 dark:bg-orange-600/80',
+    category: 'backend',
+    keywords: [
+      'Parallel',
+      'Concurrency',
+      'Multi-threading',
+      'Performance'
+    ],
+    icon: 'FaLayerGroup'
+  },
+  {
+    id: 'github-actions',
+    name: 'GitHub Actions',
+    description: 'CI/CD and automation directly in GitHub',
+    color: 'text-gray-800',
+    bgColor: 'bg-gray-800/90 dark:bg-gray-800/80',
+    category: 'devops',
+    keywords: [
+      'GitHub Actions',
+      'CI/CD',
+      'Automation',
+      'Workflows'
+    ],
+    icon: 'FaGithub'
+  },
+  {
+    id: 'svelte',
+    name: 'Svelte',
+    description: 'Compile-time reactive UI framework',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-600/90 dark:bg-orange-600/80',
+    category: 'frontend',
+    keywords: [
+      'Svelte',
+      'SvelteKit',
+      'Reactive',
+      'Compile-time'
+    ],
+    icon: 'SiSvelte'
+  },
+  {
+    id: 'firestore',
+    name: 'Firestore',
+    description: 'NoSQL document database from Firebase',
+    color: 'text-yellow-600',
+    bgColor: 'bg-yellow-600/90 dark:bg-yellow-600/80',
+    category: 'database',
+    keywords: [
+      'Firestore',
+      'Firebase',
+      'NoSQL',
+      'Real-time'
+    ],
+    icon: 'SiFirebase'
+  },
+  {
+    id: 'functional-programming',
+    name: 'Functional Programming',
+    description: 'Programming paradigm using pure functions and immutability',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-600/90 dark:bg-purple-600/80',
+    category: 'frontend',
+    keywords: [
+      'Functional',
+      'FP',
+      'Pure Functions',
+      'Immutability'
+    ],
+    icon: 'FaCode'
   }
 ] as const;
 

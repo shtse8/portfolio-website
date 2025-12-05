@@ -2,6 +2,8 @@ import { Project } from './types';
 
 export const PROJECT_CATEGORIES = [
   'All',
+  'Open Source',
+  'Frameworks & Libraries',
   'Professional Experience',
   'Mobile Games',
   'Web Apps',
@@ -11,6 +13,338 @@ export const PROJECT_CATEGORIES = [
 ] as const;
 
 export const PROJECTS: Project[] = [
+    // ============================================
+    // FEATURED OPEN SOURCE PROJECTS
+    // ============================================
+    {
+        id: 'pdf-reader-mcp',
+        title: 'PDF Reader MCP',
+        description: 'Production-ready Model Context Protocol server for PDF processing with 5-10x faster parallel processing. 348+ GitHub stars.',
+        images: [],
+        skills: ['typescript', 'nodejs', 'bun', 'api-development', 'performance-testing', 'mcp', 'pdf-processing', 'parallel-processing'],
+        category: "Open Source",
+        related_experience_id: null,
+        start_date: "2024-01-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/SylphxAI/pdf-reader-mcp',
+          documentation: 'https://www.npmjs.com/package/@sylphx/pdf-reader-mcp'
+        },
+        details: [
+          'Built production-ready MCP server for PDF processing with enterprise-grade capabilities',
+          'Achieved 5-10x faster parallel processing compared to sequential approaches (5,575 ops/sec)',
+          'Implemented Y-coordinate based layout preservation for natural reading flow',
+          'Supports local files (Windows/Unix) and HTTP/HTTPS URLs with flexible input handling',
+          'Reached 348+ GitHub stars with 94%+ test coverage (103 passing tests)',
+          'Integrated with Claude Code, Claude Desktop, VS Code, Cursor, Windsurf, and Smithery',
+          'Published on NPM as @sylphx/pdf-reader-mcp with comprehensive documentation'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'coderag',
+        title: 'CodeRAG',
+        description: 'Lightning-fast semantic code search engine with AST chunking supporting 15+ programming languages. Sub-50ms search latency.',
+        images: [],
+        skills: ['typescript', 'nodejs', 'bun', 'ast-parsing', 'semantic-search', 'sqlite', 'mcp', 'vector-embeddings'],
+        category: "Open Source",
+        related_experience_id: null,
+        start_date: "2024-06-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/SylphxAI/coderag'
+        },
+        details: [
+          'Built hybrid TF-IDF + vector search engine with StarCoder2 tokenization',
+          'Achieved sub-50ms search latency across large codebases',
+          'Implemented AST chunking via Synth parsers for 15+ programming languages',
+          'Created persistent SQLite-based caching for instant subsequent startups',
+          'Added real-time file watching with incremental updates',
+          'Indexes 1000-2000 files/sec with ~1-2 MB memory per 1,000 files',
+          'MCP server compatible with Claude Desktop, Cursor, VS Code, and Windsurf'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'rapid',
+        title: 'Rapid',
+        description: 'Hyper-optimized reactive state management library. 1.7-45x faster than competitors with only 2.49KB gzipped.',
+        images: [],
+        skills: ['typescript', 'react', 'vuejs', 'svelte', 'state-management', 'performance-testing', 'bundling'],
+        category: "Frameworks & Libraries",
+        related_experience_id: null,
+        start_date: "2024-03-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/SylphxAI/rapid'
+        },
+        details: [
+          'Created hyper-optimized reactive state management ecosystem',
+          'Achieved 1.7-45x faster performance than traditional state libraries',
+          'Core package only 2.49 KB gzipped (vs Redux Toolkit 12+ KB)',
+          'Implemented automatic dependency tracking without manual specification',
+          'Built framework-agnostic with bindings for React, Vue, Svelte, Preact, and SolidJS',
+          'Designed unified API using .value accessor across all reactive primitives',
+          'Full TypeScript support with complete type inference'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'craft',
+        title: 'Craft',
+        description: 'Ultra-fast immutable state library for TypeScript. 1.4-35x faster than Immer with comprehensive ES6 collection support.',
+        images: [],
+        skills: ['typescript', 'immutable-data', 'performance-testing', 'functional-programming', 'json-patch'],
+        category: "Frameworks & Libraries",
+        related_experience_id: null,
+        start_date: "2024-02-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/SylphxAI/craft'
+        },
+        details: [
+          'Built high-performance immutable state library for TypeScript',
+          'Achieved 1.4-35x faster than Immer across standard operations',
+          'Up to 35x faster on large Set operations, 24x faster applying JSON patches',
+          'Only 3.1 KB gzipped (smaller than Immer\'s ~4.7 KB)',
+          'Full ES6 Map and Set support with mutation tracking',
+          'Implemented JSON patches (RFC 6902) and introspection utilities',
+          '168+ comprehensive tests with zero external dependencies'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'xdash',
+        title: 'xdash',
+        description: 'Lean, modular TypeScript utility library with zero runtime dependencies. Tree-shaking optimized for minimal bundle size.',
+        images: [],
+        skills: ['typescript', 'bun', 'functional-programming', 'tree-shaking', 'performance-testing'],
+        category: "Frameworks & Libraries",
+        related_experience_id: null,
+        start_date: "2023-06-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/xdash',
+          documentation: 'https://shtse8.github.io/xdash/'
+        },
+        details: [
+          'Created laser-focused modular utility library for TypeScript',
+          'Implemented aggressive tree-shaking for minimal bundle sizes',
+          'Zero runtime dependencies with high-performance implementations',
+          'Built chainable interface for composable operations',
+          'Created InlineSwitch as modern alternative to switch statements',
+          'Full TypeScript support with comprehensive type guards',
+          'Documented via VitePress and TypeDoc'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'spectra',
+        title: 'Spectra',
+        description: 'Dart code generation tool transforming data classes into JSON Schema, OpenAPI, and Protocol Buffers with a single annotation.',
+        images: [],
+        skills: ['dart', 'code-generation', 'json-schema', 'openapi', 'protobuf', 'flutter'],
+        category: "Frameworks & Libraries",
+        related_experience_id: null,
+        start_date: "2023-01-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/spectra'
+        },
+        details: [
+          'Built multi-format schema generator for Dart data classes',
+          'Supports JSON Schema (Draft 2020-12), OpenAPI 3.0/3.1, and Protocol Buffers',
+          'Compatible with Freezed, json_serializable, and plain Dart classes',
+          'Implemented validation constraints for strings, numbers, and arrays',
+          'Handles union types with oneOf schemas and discriminators',
+          'Field-level customization with detailed annotation options',
+          '6 stars, actively maintained with MIT license'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'xserver',
+        title: 'xserver',
+        description: 'Dart web server framework with automatic handler registration and type-safe client generation through source code generation.',
+        images: [],
+        skills: ['dart', 'web-framework', 'code-generation', 'api-development', 'type-safety'],
+        category: "Frameworks & Libraries",
+        related_experience_id: null,
+        start_date: "2023-03-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/xserver'
+        },
+        details: [
+          'Created Dart web framework with automatic handler registration via annotations',
+          'Implemented flexible response types: Future<T>, Stream<T>, and synchronous returns',
+          'Built type-safe parameter handling for query, body, header, and path variables',
+          'Auto-generates strongly-typed client classes with serialization',
+          'Async context access via XServer.currentRequest without parameter passing',
+          'Uses Dart\'s build_runner for code generation',
+          'MIT licensed, actively maintained'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'dust',
+        title: 'Dust',
+        description: 'Modern component-based Dart web framework compiled to WebAssembly (WASM). React/Vue inspired with Virtual DOM and keyed diffing.',
+        images: [],
+        skills: ['dart', 'webassembly', 'virtual-dom', 'web-framework', 'state-management', 'frontend-development'],
+        category: "Frameworks & Libraries",
+        related_experience_id: null,
+        start_date: "2023-08-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/Dust'
+        },
+        details: [
+          'Built high-performance component-based web framework for Dart with WASM compilation',
+          'Implemented Virtual DOM with keyed diffing for efficient updates',
+          'Created declarative component model supporting stateless and stateful components',
+          'Built-time atomic CSS generation via dust_atomic_styles package',
+          'Integrated Riverpod for state management with component-level setState',
+          'Basic routing using History API with JavaScript interoperability',
+          'Targets native HTML DOM manipulation vs Flutter Web\'s canvas approach'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'fireschema',
+        title: 'FireSchema',
+        description: 'Code generation tool for Firestore creating strongly-typed ODM code from JSON Schema. Supports TypeScript, Dart, and C#.',
+        images: [],
+        skills: ['typescript', 'dart', 'csharp', 'firebase', 'firestore', 'code-generation', 'json-schema'],
+        category: "Frameworks & Libraries",
+        related_experience_id: null,
+        start_date: "2022-06-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/FireSchema'
+        },
+        details: [
+          'Built Firestore ODM code generator from JSON Schema definitions',
+          'Supports TypeScript (Client & Admin), Dart, and C# platforms',
+          'Generates type-safe CRUD operations with compile-time error detection',
+          'Implements type-safe query builders with field-specific methods',
+          'Supports transactions, batch operations, streaming, and subcollections',
+          'Includes unit and integration testing with corresponding Firestore SDKs',
+          '4 stars, actively maintained'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'flow',
+        title: 'Sylphx Flow',
+        description: 'Unified AI CLI orchestration platform implementing MEP (Minimal Effective Prompt) architecture. One CLI for Claude Code, Cursor, and more.',
+        images: [],
+        skills: ['typescript', 'nodejs', 'cli', 'ai-integration', 'developer-tools', 'mcp'],
+        category: "AI & ML",
+        related_experience_id: null,
+        start_date: "2024-08-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/SylphxAI/flow'
+        },
+        details: [
+          'Built unified CLI orchestration platform for multiple AI development tools',
+          'Implements MEP (Minimal Effective Prompt) architecture for AI interaction',
+          'Auto-detects and orchestrates Claude Code, OpenCode, Cursor seamlessly',
+          'Zero-friction with auto-installation, auto-detection, and auto-upgrade',
+          'Git-aware operations using skip-worktree for clean version control',
+          'Specialized agents: Coder, Writer, Reviewer, Orchestrator',
+          'Graceful interruption with clean environment restoration'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'deep-research',
+        title: 'DeepResearch',
+        description: 'AI research tool implementing Tree of Thoughts and ReAct methodologies for autonomous investigation on complex topics.',
+        images: [],
+        skills: ['typescript', 'bun', 'artificial-intelligence', 'openai', 'web-scraping', 'research-automation'],
+        category: "AI & ML",
+        related_experience_id: null,
+        start_date: "2024-04-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/DeepResearch'
+        },
+        details: [
+          'Built autonomous AI research tool using Tree of Thoughts and ReAct frameworks',
+          'Implements confidence scoring to determine continue, backtrack, or pursue new directions',
+          'Combines reasoning with tool execution for iterative web search and analysis',
+          'Dynamically adjusts research strategies based on findings',
+          'Generates structured, detailed research reports',
+          'Modular architecture: ReasoningEngine, BrowserManager, ToolRegistry, ReportGenerator',
+          'Built with TypeScript and Bun runtime'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    {
+        id: 'kyleml',
+        title: 'KyleML',
+        description: 'Personal ML learning repository with implementations of PPO, AlphaZero MCTS, ICM, and various reinforcement learning algorithms.',
+        images: [],
+        skills: ['python', 'pytorch', 'reinforcement-learning', 'neural-networks', 'monte-carlo-simulation', 'game-ai'],
+        category: "AI & ML",
+        related_experience_id: null,
+        start_date: "2020-01-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/KyleML'
+        },
+        details: [
+          'Implemented PPO (Proximal Policy Optimization) with orthogonal weight initialization',
+          'Built AlphaZero MCTS (Monte Carlo Tree Search) for game-playing agents',
+          'Created ICM (Intrinsic Curiosity Module) for curiosity-driven exploration',
+          'Implemented GRU RNN networks with bidirectional 2 layers and dropout',
+          'Used GAE (Generalized Advantage Estimation) with reward normalization',
+          '347 commits demonstrating deep learning dedication',
+          'Organized codebase: agents, games, policies, optimizers, memories'
+        ],
+        teamSize: '1',
+        role: 'Creator'
+    },
+    {
+        id: 'cursor-ai-downloads',
+        title: 'Cursor AI Downloads',
+        description: 'Track and download official Cursor AI editor versions with hourly automatic updates. 13+ GitHub stars.',
+        images: [],
+        skills: ['typescript', 'github-actions', 'automation', 'cicd', 'developer-tools'],
+        category: "Tools & Utilities",
+        related_experience_id: null,
+        start_date: "2024-05-01",
+        end_date: undefined,
+        urls: {
+          repository: 'https://github.com/shtse8/cursor-ai-downloads'
+        },
+        details: [
+          'Built automated version tracking system for Cursor AI editor',
+          'Implements hourly updates via GitHub Actions',
+          'Provides direct download links for all platforms',
+          '13+ GitHub stars from developer community',
+          'Helps developers access specific Cursor versions easily',
+          'Fully automated CI/CD pipeline'
+        ],
+        teamSize: '1',
+        role: 'Creator & Maintainer'
+    },
+    // ============================================
+    // EXISTING PROJECTS
+    // ============================================
     {
         id: 'cubeage',
         title: 'Cubeage.com',
