@@ -11,6 +11,7 @@ import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEther
 import { motion } from 'framer-motion';
 import { PROJECTS } from '@/data/projects';
 import { EXPERIENCES } from '@/data/experiences';
+import { formatPeriod } from '@/data';
 import type { Project, Experience } from '@/data/types';
 import { getSkillNames } from '@/utils/skillHelpers';
 import { cn } from '@/lib/utils';
@@ -286,7 +287,7 @@ export default function SkillModal({
                         {experience.title}
                       </h5>
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{experience.company}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">{experience.period}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">{formatPeriod(experience.period)}</p>
                       <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">
                         {experience.description || experience.details?.[0] || ''}
                       </p>

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import type { Company, Project, Experience } from '@/data/types';
 import { PROJECTS } from '@/data/projects';
 import { EXPERIENCES } from '@/data/experiences';
+import { formatPeriod } from '@/data';
 import { motion } from 'framer-motion';
 import ProjectImage from '@/components/shared/ProjectImage';
 
@@ -153,7 +154,7 @@ export default function CompanyModal({
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
                           <h4 className="font-medium text-gray-900 dark:text-white text-lg mb-1">{exp.title}</h4>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{exp.period}</p>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{formatPeriod(exp.period)}</p>
                           <p className="text-gray-700 dark:text-gray-300 line-clamp-2 font-light">{exp.description}</p>
                         </div>
                         <motion.div 

@@ -5,6 +5,7 @@ import type { Project, Experience } from '@/data/types';
 import { COMPANIES } from '@/data/companies';
 import { EXPERIENCES } from '@/data/experiences';
 import { PROJECTS, PROJECT_CATEGORIES } from '@/data/projects';
+import { formatPeriod } from '@/data';
 import ProjectCard from './ProjectCard';
 import ProjectModal from './ProjectModal';
 import ExperienceModal from '../experience/ExperienceModal';
@@ -255,7 +256,7 @@ export default function FeaturedProjects() {
                             <span className="mx-3 text-gray-400 dark:text-gray-500">•</span>
                           </>
                         )}
-                        <span className="text-gray-600 dark:text-gray-400 font-light tracking-wider">{experience.period}</span>
+                        <span className="text-gray-600 dark:text-gray-400 font-light tracking-wider">{formatPeriod(experience.period)}</span>
                       </div>
                     </div>
                   </div>

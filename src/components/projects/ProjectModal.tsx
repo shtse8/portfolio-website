@@ -7,6 +7,7 @@ import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, 
 import type { Project, Experience } from '@/data/types';
 import { COMPANIES } from '@/data/companies';
 import { EXPERIENCES } from '@/data/experiences';
+import { formatPeriod } from '@/data';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
 import ProjectImage from '@/components/shared/ProjectImage';
@@ -290,7 +291,7 @@ export default function ProjectModal({
                       <div>
                         <h4 className="font-medium text-gray-900 dark:text-white mb-1">{getExperienceForProject()?.title}</h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          {getExperienceForProject()?.company} • {getExperienceForProject()?.period}
+                          {getExperienceForProject()?.company} • {getExperienceForProject()?.period ? formatPeriod(getExperienceForProject()!.period) : ''}
                         </p>
                         <p className="text-gray-700 dark:text-gray-300 font-light">
                           {getExperienceForProject()?.description}

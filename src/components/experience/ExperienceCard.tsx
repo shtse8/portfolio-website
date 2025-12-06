@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { PROJECTS } from '@/data/projects';
 import { COMPANIES } from '@/data/companies';
 import type { Project, Experience } from '@/data/types';
+import { formatPeriod } from '@/data';
 import { parseMarkdownLinks } from '../projects/utils';
 import { getSkillNames } from '@/utils/skillHelpers';
 import ProjectImage from '@/components/shared/ProjectImage';
@@ -88,7 +89,7 @@ export default function ExperienceCard({
         <div className="flex flex-wrap gap-5 mb-6 text-sm">
           <div className="inline-flex items-center text-gray-600 dark:text-gray-300">
             <FaCalendarAlt className="mr-2 text-blue-500/70 dark:text-blue-400/70" />
-            {experience.period}
+            {formatPeriod(experience.period)}
           </div>
           
           {experience.location && (

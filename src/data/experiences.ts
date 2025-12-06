@@ -5,7 +5,7 @@ export const EXPERIENCES: Experience[] = [
     id: 'sylphx',
     title: 'Founder',
     company: 'sylphx',
-    period: '2025 - Present',
+    period: { start: '2025-01' },
     location: 'United Kingdom',
     description: 'Founded Sylphx to democratize AI through elegant, high-performance open source tools and frameworks',
     logo: '/companys/sylphx.png',
@@ -24,6 +24,11 @@ export const EXPERIENCES: Experience[] = [
       '27+ open source repositories',
       '8K+ NPM downloads'
     ],
+    metrics: [
+      { type: 'stars', value: 348, context: 'total' },
+      { type: 'projects', value: 27, context: 'total' },
+      { type: 'downloads', value: 8000, unit: 'NPM', context: 'total' }
+    ],
     impactStatements: [
       { value: '348+', label: 'GitHub Stars' },
       { value: '27+', label: 'Repositories' },
@@ -34,7 +39,7 @@ export const EXPERIENCES: Experience[] = [
     id: 'epiow',
     title: 'Co-Founder & CTO',
     company: 'epiow',
-    period: '2025 - Present',
+    period: { start: '2025-01' },
     location: 'United Kingdom',
     description: 'Building enterprise AI solutions including ML, NLP, and Computer Vision applications for global clients',
     logo: '/companys/epiow.png',
@@ -52,6 +57,11 @@ export const EXPERIENCES: Experience[] = [
       'Custom ML/NLP solutions',
       'Global client base'
     ],
+    metrics: [
+      { type: 'custom', value: 'UK', unit: 'Headquarters' },
+      { type: 'custom', value: 'AI', unit: 'Focus Area' },
+      { type: 'custom', value: 'Global', unit: 'Client Base' }
+    ],
     impactStatements: [
       { value: 'UK', label: 'Headquarters' },
       { value: 'AI', label: 'Focus Area' },
@@ -62,7 +72,7 @@ export const EXPERIENCES: Experience[] = [
     id: 'cubeage',
     title: 'Founder & CEO',
     company: 'cubeage',
-    period: '2014 - Present',
+    period: { start: '2014-01' },
     location: 'Hong Kong / China',
     description: 'Founded and led all technical development for mobile gaming company achieving 10M+ global downloads',
     logo: '/companys/cubeage.jpeg',
@@ -82,6 +92,11 @@ export const EXPERIENCES: Experience[] = [
       'Successfully launched in multiple markets',
       'Built scalable multi-region infrastructure'
     ],
+    metrics: [
+      { type: 'downloads', value: 10000000, context: 'total' },
+      { type: 'projects', value: 4, unit: 'Game Frameworks' },
+      { type: 'custom', value: 2, unit: 'Regional Offices' }
+    ],
     impactStatements: [
       { value: '10M+', label: 'Global Downloads' },
       { value: '4', label: 'Game Frameworks' },
@@ -92,7 +107,7 @@ export const EXPERIENCES: Experience[] = [
     id: 'minimax',
     title: 'Co-Founder & CEO',
     company: 'minimax',
-    period: '2010 - 2016',
+    period: { start: '2010-01', end: '2016-12' },
     location: 'Hong Kong / Taiwan / China',
     description: 'Co-founded and led technical development for Hong Kong\'s top social gaming company with 10M+ monthly active users',
     logo: '/companys/minimax.jpeg',
@@ -112,6 +127,11 @@ export const EXPERIENCES: Experience[] = [
       'Operated 30+ concurrent games',
       'Top Facebook game developer in HK'
     ],
+    metrics: [
+      { type: 'users', value: 10000000, context: 'monthly' },
+      { type: 'projects', value: 30, unit: 'Active Games' },
+      { type: 'custom', value: 3, unit: 'Regional Offices' }
+    ],
     impactStatements: [
       { value: '10M+', label: 'Monthly Active Users' },
       { value: '30+', label: 'Active Games' },
@@ -122,7 +142,7 @@ export const EXPERIENCES: Experience[] = [
     id: 'nakuz',
     title: 'Co-Founder & CTO',
     company: 'nakuz',
-    period: '2006 - Present',
+    period: { start: '2006-01' },
     location: 'Hong Kong',
     description: 'Co-founded and built Hong Kong\'s #1 gaming media platform with 500K+ registered users',
     logo: '/companys/nakuz.jpeg',
@@ -142,10 +162,15 @@ export const EXPERIENCES: Experience[] = [
       '100+ Official Game Partnerships',
       'Industry-Leading Community'
     ],
+    metrics: [
+      { type: 'users', value: 500000, context: 'total' },
+      { type: 'users', value: 3000, context: 'concurrent' },
+      { type: 'partners', value: 100, unit: 'Game Partners' }
+    ],
     impactStatements: [
       { value: '500K+', label: 'Registered Users' },
       { value: '3000+', label: 'Concurrent Users' },
       { value: '100+', label: 'Game Partners' }
     ]
   }
-] as const; 
+] as const;

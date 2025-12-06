@@ -5,6 +5,7 @@ import { FaAngleRight } from 'react-icons/fa';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { EXPERIENCES } from '@/data/experiences';
 import { COMPANIES } from '@/data/companies';
+import { formatPeriod } from '@/data';
 import { parseMarkdownLinks } from '../projects/utils';
 import { useModalManager } from '@/hooks/useModalManager';
 import { getSkillNames } from '@/utils/skillHelpers';
@@ -72,7 +73,7 @@ export default function ExperienceSection() {
 
   // Separate experiences by decade
   const timelineGroups = EXPERIENCES.reduce((groups, experience) => {
-    const startYear = parseInt(experience.period.split(' - ')[0]);
+    const startYear = parseInt(experience.period.start.substring(0, 4));
     const decade = Math.floor(startYear / 10) * 10;
     const decadeKey = `${decade}s`;
     
@@ -175,8 +176,8 @@ export default function ExperienceSection() {
               <div className="space-y-20 md:space-y-32">
                 {timelineGroups[decade].map((experience, index) => {
                   const isEven = index % 2 === 0;
-                  const startYear = experience.period.split(' - ')[0];
-                  const endYear = experience.period.split(' - ')[1] || 'Present';
+                  const startYear = experience.period.start.substring(0, 4);
+                  const endYear = experience.period.end ? experience.period.end.substring(0, 4) : 'Present';
                   const companyName = experience.company ? COMPANIES[experience.company]?.name : null;
                   
                   return (

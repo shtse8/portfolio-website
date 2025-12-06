@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding } from 'react-icons/fa';
 import type { Experience } from '@/data/types';
 import { COMPANIES } from '@/data/companies';
+import { formatPeriod } from '@/data';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
 
@@ -81,7 +82,7 @@ export default function ExperienceModal({
                     {experience.location}
                   </span>
                   <span className="mx-3">•</span>
-                  <span>{experience.period}</span>
+                  <span>{formatPeriod(experience.period)}</span>
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { EXPERIENCES } from '@/data/experiences';
 import { COMPANIES } from '@/data/companies';
+import { formatPeriod } from '@/data';
 import { motion, useScroll, useSpring, useInView } from 'framer-motion';
 import Image from 'next/image';
 import { parseMarkdownLinks } from '../projects/utils';
@@ -24,8 +25,8 @@ export default function ExperiencesTimeline() {
 
   // Sort experiences by start year (newest first)
   const sortedExperiences = [...EXPERIENCES].sort((a, b) => {
-    const aStartYear = parseInt(a.period.split(' - ')[0]);
-    const bStartYear = parseInt(b.period.split(' - ')[0]);
+    const aStartYear = parseInt(a.period.start.substring(0, 4));
+    const bStartYear = parseInt(b.period.start.substring(0, 4));
     return bStartYear - aStartYear;
   });
   
@@ -175,8 +176,8 @@ export default function ExperiencesTimeline() {
               {sortedExperiences.map((experience, index) => {
                 const companyName = experience.company ? COMPANIES[experience.company]?.name : null;
                 const isEven = index % 2 === 0;
-                const startYear = experience.period.split(' - ')[0];
-                const endYear = experience.period.split(' - ')[1] || 'Present';
+                const startYear = experience.period.start.substring(0, 4);
+                const endYear = experience.period.end ? experience.period.end.substring(0, 4) : 'Present';
                 
                 return (
                   <motion.div 

@@ -42,7 +42,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'Next.js',
       'JSX'
     ],
-    icon: 'FaReact'
+    icon: 'FaReact',
+    parentId: 'javascript',
+    relatedIds: ['vuejs', 'svelte']
   },
   {
     id: 'typescript',
@@ -55,7 +57,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'TypeScript',
       'TS'
     ],
-    icon: 'SiTypescript'
+    icon: 'SiTypescript',
+    parentId: 'javascript',
+    relatedIds: ['dart']
   },
   {
     id: 'nodejs',
@@ -69,7 +73,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'Express',
       'Nest.js'
     ],
-    icon: 'FaNodeJs'
+    icon: 'FaNodeJs',
+    parentId: 'javascript',
+    relatedIds: ['bun', 'php']
   },
   {
     id: 'python',
@@ -383,7 +389,8 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'SSR',
       'Static Site Generation'
     ],
-    icon: 'SiNextdotjs'
+    icon: 'SiNextdotjs',
+    parentId: 'react'
   },
   {
     id: 'vuejs',
@@ -397,7 +404,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'JavaScript Framework',
       'Frontend'
     ],
-    icon: 'FaVuejs'
+    icon: 'FaVuejs',
+    parentId: 'javascript',
+    relatedIds: ['react', 'svelte']
   },
   {
     id: 'nestjs',
@@ -412,7 +421,8 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'TypeScript',
       'Server-side'
     ],
-    icon: 'SiNestjs'
+    icon: 'SiNestjs',
+    parentId: 'nodejs'
   },
   {
     id: 'php',
@@ -596,7 +606,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'AI',
       'Neural Networks'
     ],
-    icon: 'SiPytorch'
+    icon: 'SiPytorch',
+    parentId: 'python',
+    relatedIds: ['tensorflow']
   },
   {
     id: 'telegram',
@@ -1450,7 +1462,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'Deep Learning',
       'Neural Networks'
     ],
-    icon: 'SiTensorflow'
+    icon: 'SiTensorflow',
+    parentId: 'python',
+    relatedIds: ['pytorch']
   },
   {
     id: 'computer-vision',
@@ -1737,7 +1751,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'Cross-platform',
       'Mobile UI'
     ],
-    icon: 'SiFlutter'
+    icon: 'SiFlutter',
+    parentId: 'dart',
+    relatedIds: ['react', 'corona-sdk']
   },
   {
     id: 'virtual-dom',
@@ -2112,7 +2128,9 @@ export const SKILLS_BASE: Omit<TechSkill, 'yearsOfExperience'>[] = [
       'Reactive',
       'Compile-time'
     ],
-    icon: 'SiSvelte'
+    icon: 'SiSvelte',
+    parentId: 'javascript',
+    relatedIds: ['react', 'vuejs']
   },
   {
     id: 'firestore',

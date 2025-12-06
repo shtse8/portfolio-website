@@ -1,3 +1,31 @@
+// ========================================
+// Core Types
+// ========================================
+
+/**
+ * Represents a time period with structured start/end dates
+ */
+export type Period = {
+  start: string;  // ISO date "YYYY-MM-DD" or "YYYY-MM" or "YYYY"
+  end?: string;   // undefined = present/ongoing
+};
+
+/**
+ * Metric for quantifiable achievements
+ */
+export type Metric = {
+  type: 'users' | 'downloads' | 'stars' | 'revenue' | 'engagement' | 'projects' | 'partners' | 'custom';
+  value: number | string;
+  unit?: string;
+  context?: 'monthly' | 'total' | 'peak' | 'daily' | 'concurrent';
+  verified?: boolean;
+  source?: string;
+};
+
+// ========================================
+// Entity Types
+// ========================================
+
 export type Project = {
   id: string;
   title: string;
@@ -42,6 +70,9 @@ export type Project = {
   iosUrl?: string;
 };
 
+/**
+ * @deprecated Use Organization instead
+ */
 export type Company = {
   id: string;
   name: string;
@@ -53,11 +84,40 @@ export type Company = {
   size?: string;
 };
 
+/**
+ * Unified Organization entity - replaces Company
+ * Supports companies, GitHub orgs, communities
+ */
+export type Organization = {
+  id: string;
+  name: string;
+  legalName?: string;      // "Sylphx Limited"
+  tradingName?: string;    // "Sylphx"
+  type: 'company' | 'github_org' | 'community' | 'personal';
+  status: 'active' | 'acquired' | 'closed' | 'dormant';
+
+  description: string;
+  logo: string;
+
+  // Links
+  website?: string;
+  github?: string;         // GitHub org username
+
+  // Meta
+  location?: string;
+  industry?: string;
+  size?: string;
+  founded?: string;        // ISO date
+
+  // Relationships
+  parentId?: string;       // For subsidiaries
+};
+
 export type Experience = {
   id: string;
   title: string;
   company: string | null;
-  period: string;
+  period: Period;  // Structured period with start/end
   location: string;
   description: string;
   logo: string;
@@ -66,7 +126,39 @@ export type Experience = {
   details: string[];
   projects?: string[];
   keyAchievements?: string[];
+  metrics?: Metric[];  // Structured metrics
+
+  // @deprecated Use metrics instead
   impactStatements?: Array<{ value: string; label: string }>;
+};
+
+/**
+ * Role entity - richer alternative to Experience
+ * Supports multiple roles per organization with proper relationships
+ */
+export type Role = {
+  id: string;
+  organizationId: string;
+
+  title: string;
+  type: 'founder' | 'cofounder' | 'cto' | 'ceo' | 'employee' | 'contractor' | 'advisor' | 'freelance';
+
+  period: Period;
+  location?: string;
+  isRemote?: boolean;
+
+  description: string;
+  responsibilities: string[];
+  keyAchievements?: string[];
+  metrics: Metric[];
+
+  // Auto-derived from projects
+  skills?: string[];
+  projectIds?: string[];
+
+  // Display
+  logo?: string;
+  liveUrl?: string;
 };
 
 export type TechSkill = {
@@ -79,6 +171,10 @@ export type TechSkill = {
   category: string;
   keywords: string[];
   icon: string;
+
+  // Hierarchy
+  parentId?: string;        // e.g., TypeScript → JavaScript
+  relatedIds?: string[];    // Similar purpose techs
 };
 
 export type PersonalInfo = {
