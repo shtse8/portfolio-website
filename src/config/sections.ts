@@ -3,7 +3,7 @@
  * Keep in sync with VALID_SECTIONS in src/lib/constants.ts
  */
 
-export type SectionId = 'hero' | 'tech-stack' | 'open-source' | 'philosophy' | 'projects' | 'experience' | 'credentials' | 'contact';
+export type SectionId = 'hero' | 'tech-stack' | 'open-source' | 'philosophy' | 'projects' | 'experience' | 'contact';
 
 export interface SectionConfig {
   id: SectionId;
@@ -18,7 +18,6 @@ export const SECTIONS: SectionConfig[] = [
   { id: 'philosophy', label: 'Philosophy', path: '/philosophy' },
   { id: 'projects', label: 'Projects', path: '/projects' },
   { id: 'experience', label: 'Experience', path: '/experience' },
-  { id: 'credentials', label: 'Background', path: '/credentials' },
   { id: 'contact', label: 'Contact', path: '/contact' },
 ];
 

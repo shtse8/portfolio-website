@@ -26,9 +26,6 @@ const FeaturedProjects = dynamic(() => import('@/components/FeaturedProjects'), 
 const Experience = dynamic(() => import('@/components/Experience'), {
   loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
 });
-const Credentials = dynamic(() => import('@/components/Credentials'), {
-  loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
-});
 const Contact = dynamic(() => import('@/components/Contact'), {
   loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
 });
@@ -139,13 +136,6 @@ export default function Home({ initialSection }: HomeProps) {
       <div id="experience" className="py-40 bg-white dark:bg-gray-900/10 scroll-mt-20">
         <ErrorBoundary>
           <Experience />
-        </ErrorBoundary>
-      </div>
-
-      {/* Credentials section */}
-      <div id="credentials" className="py-40 bg-gray-50 dark:bg-gray-900/20 scroll-mt-20">
-        <ErrorBoundary>
-          <Credentials />
         </ErrorBoundary>
       </div>
 
