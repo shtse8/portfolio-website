@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useEffect, useState, useRef } from 'react';
 import SkillCloudView from './skills/cloud/SkillCloudView';
 import { getSkills } from '@/data/skills';
@@ -12,15 +12,20 @@ export default function TechStack() {
   const [expertise, setExpertise] = useState<{[key: string]: number}>({});
   const sectionRef = useRef<HTMLDivElement>(null);
   const skills = getSkills();
-  
-  // Set up scroll animations
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
-  
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [0, 1, 1, 0]);
-  const y = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [60, 0, 0, 60]);
+
+  // Section animation variants - using whileInView instead of scroll-based animation
+  // to work properly with custom scroll container
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    }
+  };
 
   // Calculate statistics from skills data
   useEffect(() => {
@@ -99,7 +104,10 @@ export default function TechStack() {
       id="tech-stack"
       ref={sectionRef}
       className="w-full relative py-12 md:py-20 overflow-hidden"
-      style={{ opacity, y }}
+      variants={sectionVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
       aria-labelledby="skills-heading"
     >
       {/* Background pattern */}
@@ -222,16 +230,6 @@ export default function TechStack() {
       <div className="container mx-auto">
         <SkillCloudView />
       </div>
-      
-      {/* Scroll progress indicator */}
-      <motion.div 
-        className="fixed right-4 top-1/2 -translate-y-1/2 w-1 h-32 bg-gray-200 dark:bg-gray-800 rounded-full hidden md:block"
-        style={{
-          scaleY: scrollYProgress,
-          transformOrigin: "top"
-        }}
-        aria-hidden="true"
-      />
     </motion.section>
   );
 } 
