@@ -3,36 +3,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PHILOSOPHY_PRINCIPLES } from '@/data';
-import {
-  FaLightbulb, FaUsers, FaCode, FaRocket,
-  FaLayerGroup, FaBolt, FaFingerprint, FaTools,
-  FaChevronDown
-} from 'react-icons/fa';
 import { cn } from '@/lib/utils';
 
-// Icon mapping for principles
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  FaLightbulb, FaUsers, FaCode, FaRocket,
-  FaLayerGroup, FaBolt, FaFingerprint, FaTools
-};
-
-// Color schemes for cards (subtle, not overwhelming)
-const COLOR_SCHEMES = [
-  { bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-200 dark:border-blue-800/50', icon: 'text-blue-500', activeBorder: 'border-blue-400 dark:border-blue-600' },
-  { bg: 'bg-emerald-50 dark:bg-emerald-950/30', border: 'border-emerald-200 dark:border-emerald-800/50', icon: 'text-emerald-500', activeBorder: 'border-emerald-400 dark:border-emerald-600' },
-  { bg: 'bg-violet-50 dark:bg-violet-950/30', border: 'border-violet-200 dark:border-violet-800/50', icon: 'text-violet-500', activeBorder: 'border-violet-400 dark:border-violet-600' },
-  { bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800/50', icon: 'text-amber-500', activeBorder: 'border-amber-400 dark:border-amber-600' },
-];
+// Select key principles for display (mix of categories)
+const DISPLAY_PRINCIPLES = PHILOSOPHY_PRINCIPLES.filter(p =>
+  ['minimal', 'clarity', 'intuitive', 'users', 'efficiency', 'open'].includes(p.id)
+);
 
 export default function Philosophy() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  // Show core principles
-  const corePrinciples = PHILOSOPHY_PRINCIPLES.filter(p => p.category === 'core').slice(0, 4);
-
-  const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
 
   return (
     <section
@@ -53,16 +32,15 @@ export default function Philosophy() {
             Philosophy
           </h2>
           <p className="text-text-secondary max-w-xl mx-auto">
-            Guiding principles that shape my approach to building software.
+            Guiding principles that shape how I build software.
           </p>
         </motion.div>
 
-        {/* Principles grid - cards with icons */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {corePrinciples.map((principle, index) => {
-            const IconComponent = ICON_MAP[principle.icon as keyof typeof ICON_MAP] || FaLightbulb;
-            const colors = COLOR_SCHEMES[index % COLOR_SCHEMES.length];
+        {/* Manifesto-style list */}
+        <div className="max-w-3xl mx-auto">
+          {DISPLAY_PRINCIPLES.map((principle, index) => {
             const isExpanded = expandedId === principle.id;
+            const number = String(index + 1).padStart(2, '0');
 
             return (
               <motion.div
@@ -70,40 +48,56 @@ export default function Philosophy() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                onClick={() => toggleExpand(principle.id)}
-                className={cn(
-                  "group relative p-6 rounded-xl border transition-all duration-300 cursor-pointer",
-                  "hover:shadow-lg hover:-translate-y-1",
-                  colors.bg,
-                  isExpanded ? colors.activeBorder : colors.border
-                )}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                className="group"
               >
-                {/* Icon + Header */}
-                <div className="flex items-start gap-4">
-                  <div className={cn(
-                    "shrink-0 w-12 h-12 rounded-lg flex items-center justify-center",
-                    "bg-white dark:bg-gray-900 shadow-sm",
-                    colors.icon
-                  )}>
-                    <IconComponent className="w-6 h-6" />
-                  </div>
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : principle.id)}
+                  className={cn(
+                    "w-full text-left py-6 border-b border-border",
+                    "hover:bg-surface-elevated/50 transition-colors duration-200",
+                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  )}
+                >
+                  <div className="flex items-start gap-4 md:gap-6">
+                    {/* Number */}
+                    <span className="text-sm font-mono text-accent mt-1 shrink-0 w-6">
+                      {number}
+                    </span>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-lg font-medium text-text-primary">
-                        {principle.title}
-                      </h3>
-                      <FaChevronDown className={cn(
-                        "w-4 h-4 text-text-tertiary transition-transform duration-300",
-                        isExpanded && "rotate-180"
-                      )} />
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <h3 className="text-lg md:text-xl font-medium text-text-primary group-hover:text-accent transition-colors capitalize">
+                            {principle.title}
+                          </h3>
+                          <p className="text-text-secondary text-sm md:text-base mt-0.5">
+                            {principle.shortDescription}
+                          </p>
+                        </div>
+
+                        {/* Expand indicator */}
+                        <div className={cn(
+                          "w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300",
+                          isExpanded
+                            ? "bg-accent border-accent text-white rotate-45"
+                            : "border-border text-text-tertiary group-hover:border-accent group-hover:text-accent"
+                        )}>
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-text-secondary text-sm leading-relaxed mt-1">
-                      {principle.shortDescription}
-                    </p>
                   </div>
-                </div>
+                </button>
 
                 {/* Expanded content */}
                 <AnimatePresence>
@@ -112,45 +106,46 @@ export default function Philosophy() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="pt-4 mt-4 border-t border-current/10">
-                        <p className="text-text-secondary text-sm leading-relaxed mb-4">
+                      <div className="pl-10 md:pl-12 pr-4 py-6 bg-surface-elevated/30 border-b border-border">
+                        <p className="text-text-secondary leading-relaxed mb-5 max-w-2xl">
                           {principle.fullDescription}
                         </p>
 
+                        {/* Key points as tags */}
                         {principle.keyPoints && principle.keyPoints.length > 0 && (
-                          <ul className="space-y-2">
+                          <div className="flex flex-wrap gap-2">
                             {principle.keyPoints.map((point, i) => (
-                              <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                                <span className={cn("mt-1.5 w-1.5 h-1.5 rounded-full shrink-0", colors.icon.replace('text-', 'bg-'))} />
+                              <span
+                                key={i}
+                                className="inline-flex items-center px-3 py-1.5 bg-accent-subtle text-accent rounded-full text-sm"
+                              >
                                 {point}
-                              </li>
+                              </span>
                             ))}
-                          </ul>
+                          </div>
                         )}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {/* Click hint */}
-                {!isExpanded && (
-                  <p className="text-xs text-text-tertiary mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    Click to read more
-                  </p>
-                )}
-
-                {/* Subtle decorative element */}
-                <div className={cn(
-                  "absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-50 pointer-events-none",
-                  colors.bg
-                )} />
               </motion.div>
             );
           })}
         </div>
+
+        {/* Footer note */}
+        <motion.p
+          className="mt-12 text-center text-sm text-text-tertiary max-w-md mx-auto"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+        >
+          These principles guide every project — from architecture decisions to pixel-level details.
+        </motion.p>
       </div>
     </section>
   );
