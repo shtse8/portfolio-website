@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRef, useMemo, useState } from 'react';
 import { 
   FaTools, FaUsers, FaFingerprint, FaRocket, FaCode, FaLightbulb, 
@@ -216,14 +216,18 @@ export default function Philosophy() {
   const { open } = useModalManager();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   
-  // Scroll animation setup
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
-  
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [0, 1, 1, 0]);
-  const y = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [60, 0, 0, 60]);
+  // Section animation variants - using whileInView to work with custom scroll container
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1] as const
+      }
+    }
+  };
 
   // Organize principles by categories
   const { corePrinciples, categorizedPrinciples } = useMemo(() => {
@@ -278,12 +282,12 @@ export default function Philosophy() {
     >
       <PhilosophyBackground />
       
-      <motion.div 
-        style={{ opacity, y }} 
+      <motion.div
         className="max-w-7xl mx-auto"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.7 }}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
       >
         {/* Section Title */}
         <div className="mb-20 relative">

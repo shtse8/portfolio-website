@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRef, useMemo } from 'react';
 import { FaGithub, FaStar, FaExternalLinkAlt, FaNpm, FaRocket } from 'react-icons/fa';
 import { PROJECTS } from '@/data/projects';
@@ -131,21 +131,28 @@ export default function OpenSource() {
     ).slice(0, 6); // Show top 6
   }, []);
 
-  // Scroll animations
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"]
-  });
-
-  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [0, 1, 1, 0]);
-  const y = useTransform(scrollYProgress, [0, 0.2, 0.9, 1], [60, 0, 0, 60]);
+  // Section animation variants - using whileInView to work with custom scroll container
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1] as const
+      }
+    }
+  };
 
   return (
     <motion.section
       id="open-source"
       ref={sectionRef}
       className="w-full relative py-16 md:py-24 overflow-hidden"
-      style={{ opacity, y }}
+      variants={sectionVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.1 }}
       aria-labelledby="opensource-heading"
     >
       {/* Background */}
