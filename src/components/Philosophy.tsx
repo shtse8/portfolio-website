@@ -2,16 +2,46 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PHILOSOPHY_PRINCIPLES } from '@/data';
 import { cn } from '@/lib/utils';
 
-// Select key principles for display (mix of categories)
-const DISPLAY_PRINCIPLES = PHILOSOPHY_PRINCIPLES.filter(p =>
-  ['minimal', 'clarity', 'intuitive', 'users', 'efficiency', 'open'].includes(p.id)
-);
+// Philosophy expressed as contrarian beliefs with evidence
+const PHILOSOPHY_ITEMS = [
+  {
+    id: 'simplicity',
+    belief: "Complexity is debt. Simplicity is wealth.",
+    contrast: "Most add features to solve problems.",
+    approach: "I remove complexity to reveal solutions.",
+    evidence: "My libraries average 200 LOC. They do one thing well.",
+    tags: ['minimalism', 'focus', 'clarity']
+  },
+  {
+    id: 'speed',
+    belief: "Ship fast, but never ship broken.",
+    contrast: "Most trade quality for speed.",
+    approach: "I use AI and automation to have both.",
+    evidence: "4,600+ commits. Zero breaking releases.",
+    tags: ['velocity', 'quality', 'automation']
+  },
+  {
+    id: 'users',
+    belief: "If users need a manual, you've already failed.",
+    contrast: "Most document after building.",
+    approach: "I design interfaces that explain themselves.",
+    evidence: "10M+ app downloads with 4.5+ star ratings.",
+    tags: ['intuitive', 'user-first', 'self-explanatory']
+  },
+  {
+    id: 'open',
+    belief: "Open source isn't charity. It's leverage.",
+    contrast: "Most keep solutions private.",
+    approach: "I share to multiply impact and attract talent.",
+    evidence: "500+ GitHub stars. Used in production worldwide.",
+    tags: ['leverage', 'community', 'compounding']
+  },
+];
 
 export default function Philosophy() {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
     <section
@@ -29,123 +59,91 @@ export default function Philosophy() {
           transition={{ duration: 0.4 }}
         >
           <h2 id="philosophy-heading" className="text-3xl md:text-4xl font-medium tracking-tight text-text-primary mb-4">
-            Philosophy
+            How I Think
           </h2>
           <p className="text-text-secondary max-w-xl mx-auto">
-            Guiding principles that shape how I build software.
+            Beliefs that shape every decision I make.
           </p>
         </motion.div>
 
-        {/* Manifesto-style list */}
-        <div className="max-w-3xl mx-auto">
-          {DISPLAY_PRINCIPLES.map((principle, index) => {
-            const isExpanded = expandedId === principle.id;
-            const number = String(index + 1).padStart(2, '0');
+        {/* Philosophy cards - contrarian style */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {PHILOSOPHY_ITEMS.map((item, index) => {
+            const isHovered = hoveredId === item.id;
 
             return (
               <motion.div
-                key={principle.id}
+                key={item.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="group"
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                onMouseEnter={() => setHoveredId(item.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                className={cn(
+                  "group relative p-6 rounded-xl border bg-surface",
+                  "border-border hover:border-accent/40",
+                  "transition-all duration-300 hover:shadow-lg"
+                )}
               >
-                <button
-                  onClick={() => setExpandedId(isExpanded ? null : principle.id)}
-                  className={cn(
-                    "w-full text-left py-6 border-b border-border",
-                    "hover:bg-surface-elevated/50 transition-colors duration-200",
-                    "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                  )}
-                >
-                  <div className="flex items-start gap-4 md:gap-6">
-                    {/* Number */}
-                    <span className="text-sm font-mono text-accent mt-1 shrink-0 w-6">
-                      {number}
-                    </span>
+                {/* Main belief - large quote */}
+                <blockquote className="text-lg md:text-xl font-medium text-text-primary mb-4 leading-snug">
+                  "{item.belief}"
+                </blockquote>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-4">
-                        <div>
-                          <h3 className="text-lg md:text-xl font-medium text-text-primary group-hover:text-accent transition-colors capitalize">
-                            {principle.title}
-                          </h3>
-                          <p className="text-text-secondary text-sm md:text-base mt-0.5">
-                            {principle.shortDescription}
-                          </p>
-                        </div>
+                {/* Contrast + Approach */}
+                <div className="space-y-2 mb-4">
+                  <p className="text-sm text-text-tertiary">
+                    <span className="line-through opacity-60">{item.contrast}</span>
+                  </p>
+                  <p className="text-sm text-accent font-medium">
+                    → {item.approach}
+                  </p>
+                </div>
 
-                        {/* Expand indicator */}
-                        <div className={cn(
-                          "w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300",
-                          isExpanded
-                            ? "bg-accent border-accent text-white rotate-45"
-                            : "border-border text-text-tertiary group-hover:border-accent group-hover:text-accent"
-                        )}>
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m6-6H6" />
-                          </svg>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </button>
+                {/* Evidence */}
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs text-text-tertiary uppercase tracking-wider mb-1">
+                    Evidence
+                  </p>
+                  <p className="text-sm text-text-secondary">
+                    {item.evidence}
+                  </p>
+                </div>
 
-                {/* Expanded content */}
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      className="overflow-hidden"
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 mt-4">
+                  {item.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs px-2 py-0.5 bg-surface-elevated rounded text-text-tertiary"
                     >
-                      <div className="pl-10 md:pl-12 pr-4 py-6 bg-surface-elevated/30 border-b border-border">
-                        <p className="text-text-secondary leading-relaxed mb-5 max-w-2xl">
-                          {principle.fullDescription}
-                        </p>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
 
-                        {/* Key points as tags */}
-                        {principle.keyPoints && principle.keyPoints.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {principle.keyPoints.map((point, i) => (
-                              <span
-                                key={i}
-                                className="inline-flex items-center px-3 py-1.5 bg-accent-subtle text-accent rounded-full text-sm"
-                              >
-                                {point}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Index number */}
+                <div className="absolute top-4 right-4 text-xs font-mono text-text-tertiary">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
               </motion.div>
             );
           })}
         </div>
 
-        {/* Footer note */}
-        <motion.p
-          className="mt-12 text-center text-sm text-text-tertiary max-w-md mx-auto"
+        {/* Summary equation */}
+        <motion.div
+          className="mt-16 text-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
         >
-          These principles guide every project — from architecture decisions to pixel-level details.
-        </motion.p>
+          <p className="text-sm font-mono text-text-tertiary">
+            value = impact / complexity
+          </p>
+        </motion.div>
       </div>
     </section>
   );
