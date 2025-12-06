@@ -3,8 +3,8 @@ import { PersonalInfo } from './types';
 export const PERSONAL_INFO: PersonalInfo = {
   firstName: "Kyle",
   lastName: "Tse",
-  title: "Full Stack Developer & Open Source Creator",
-  shortBio: "Full Stack Developer and founder of SylphxAI, building high-performance open source tools. 18+ years of experience spanning web development, mobile games (10M+ downloads), blockchain solutions, and AI integration. Creator of pdf-reader-mcp (348+ stars) and multiple TypeScript/Dart frameworks.",
+  title: "Technical Founder & Full Stack Developer",
+  shortBio: "Founder of Sylphx and Epiow (UK), building high-performance open source AI tools. 18+ years of experience spanning web development, mobile games (10M+ downloads), blockchain solutions, and AI integration. Creator of pdf-reader-mcp (348+ stars) and multiple TypeScript/Dart frameworks.",
   email: "hi@kylet.se",
   location: {
     base: "London & Hong Kong",
@@ -24,7 +24,7 @@ export const PERSONAL_INFO: PersonalInfo = {
     "Other"
   ],
   portfolioUrl: "https://kylet.se",
-  company: "SylphxAI",
+  company: "Sylphx & Epiow",
   specialties: [
     "Open Source Development",
     "High-Performance Libraries",
@@ -37,11 +37,11 @@ export const PERSONAL_INFO: PersonalInfo = {
   ],
   tagline: "Building high-performance open source tools and digital experiences",
   roles: [
+    "Technical Founder",
     "Open Source Creator",
     "Full Stack Developer",
     "Game Developer",
     "Framework Author",
-    "Blockchain Engineer",
     "AI Tool Builder"
   ]
 } as const;

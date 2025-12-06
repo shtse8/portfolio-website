@@ -2,12 +2,69 @@ import { Experience } from './types';
 
 export const EXPERIENCES: Experience[] = [
   {
+    id: 'sylphx',
+    title: 'Founder',
+    company: 'sylphx',
+    period: '2025 - Present',
+    location: 'United Kingdom',
+    description: 'Founded Sylphx to democratize AI through elegant, high-performance open source tools and frameworks',
+    logo: '/companys/sylphx.png',
+    skills: ['typescript', 'mcp', 'ai-integration', 'nodejs', 'bun', 'performance-testing', 'open-source'],
+    liveUrl: 'https://sylphx.com',
+    details: [
+      'Founded UK-based open source AI tools company focused on developer experience',
+      'Created pdf-reader-mcp achieving 348+ GitHub stars with 5-10x faster PDF processing',
+      'Built CodeRAG semantic code search engine with sub-50ms latency across 15+ languages',
+      'Developed Rapid state management library 1.7-45x faster than competitors',
+      'Created comprehensive MCP ecosystem tools for AI agent development',
+      'Published multiple packages on NPM with 8,000+ combined downloads'
+    ],
+    keyAchievements: [
+      '348+ GitHub stars on flagship project',
+      '27+ open source repositories',
+      '8K+ NPM downloads'
+    ],
+    impactStatements: [
+      { value: '348+', label: 'GitHub Stars' },
+      { value: '27+', label: 'Repositories' },
+      { value: '8K+', label: 'NPM Downloads' }
+    ]
+  },
+  {
+    id: 'epiow',
+    title: 'Co-Founder & CTO',
+    company: 'epiow',
+    period: '2025 - Present',
+    location: 'United Kingdom',
+    description: 'Building enterprise AI solutions including ML, NLP, and Computer Vision applications for global clients',
+    logo: '/companys/epiow.png',
+    skills: ['artificial-intelligence', 'machine-learning', 'nlp', 'computer-vision', 'python', 'typescript', 'enterprise'],
+    liveUrl: 'https://epiow.com',
+    details: [
+      'Co-founded UK-based AI consulting and development company',
+      'Leading technical strategy and architecture for enterprise AI solutions',
+      'Developing custom ML/NLP/Computer Vision applications for global clients',
+      'Building autonomous intelligent systems for business process automation',
+      'Providing AI integration consulting and implementation services'
+    ],
+    keyAchievements: [
+      'Enterprise AI consulting',
+      'Custom ML/NLP solutions',
+      'Global client base'
+    ],
+    impactStatements: [
+      { value: 'UK', label: 'Headquarters' },
+      { value: 'AI', label: 'Focus Area' },
+      { value: 'Global', label: 'Client Base' }
+    ]
+  },
+  {
     id: 'cubeage',
-    title: 'Full Stack Developer',
-    company: 'cubeage', 
+    title: 'Founder & CEO',
+    company: 'cubeage',
     period: '2014 - 2024',
     location: 'Hong Kong / China',
-    description: 'Developed mobile games for a company with over 10M total installs globally',
+    description: 'Founded and led all technical development for mobile gaming company achieving 10M+ global downloads',
     logo: '/companys/cubeage.jpeg',
     skills: ['unity3d', 'cocos2d', 'flutter', 'corona-sdk', 'gamedev', 'databases', 'ios', 'android'],
     liveUrl: 'https://cubeage.com',
@@ -33,11 +90,11 @@ export const EXPERIENCES: Experience[] = [
   },
   {
     id: 'minimax',
-    title: 'Full Stack Developer',
+    title: 'Co-Founder & CEO',
     company: 'minimax',
     period: '2010 - 2016',
     location: 'Hong Kong / Taiwan / China',
-    description: 'Developed for one of Hong Kong\'s top social gaming companies with over 10M monthly active users across multiple platforms',
+    description: 'Co-founded and led technical development for Hong Kong\'s top social gaming company with 10M+ monthly active users',
     logo: '/companys/minimax.jpeg',
     skills: ['databases', 'php', 'nodejs', 'payment-integration', 'social-gaming', 'game-operations', 'facebook-platform'],
     details: [
@@ -63,11 +120,11 @@ export const EXPERIENCES: Experience[] = [
   },
   {
     id: 'nakuz',
-    title: 'Full Stack Developer',
+    title: 'Co-Founder & CTO',
     company: 'nakuz',
     period: '2006 - 2024',
     location: 'Hong Kong',
-    description: 'Hong Kong\'s #1 gaming media and community platform with over 500,000 registered users',
+    description: 'Co-founded and built Hong Kong\'s #1 gaming media platform with 500K+ registered users',
     logo: '/companys/nakuz.jpeg',
     skills: ['php', 'mysql', 'ubuntu', 'discuz', 'seo', 'community-management', 'digital-media', 'content-strategy'],
     liveUrl: 'https://nakuz.com',

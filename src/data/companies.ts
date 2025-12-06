@@ -1,6 +1,26 @@
 import { Company } from './types';
 
 export const COMPANIES: Record<string, Company> = {
+  "sylphx": {
+    id: "sylphx",
+    name: "Sylphx Limited",
+    description: "Open source AI tools company democratizing AI through elegant, high-performance code",
+    logo: "/companys/sylphx.png",
+    website: "https://sylphx.com",
+    location: "United Kingdom",
+    industry: "AI & Open Source",
+    size: "1-10 employees"
+  },
+  "epiow": {
+    id: "epiow",
+    name: "Epiow Limited",
+    description: "Leading AI application development company specializing in enterprise solutions",
+    logo: "/companys/epiow.png",
+    website: "https://epiow.com",
+    location: "United Kingdom",
+    industry: "Enterprise AI",
+    size: "1-10 employees"
+  },
   "cubeage": {
     id: "cubeage",
     name: "Cubeage Limited",
