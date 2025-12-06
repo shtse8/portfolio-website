@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import { getSkills } from '@/data/skills';
 import { cn } from '@/lib/utils';
+import { getSkillUrl } from '@/lib/skillUrls';
 
 // Category display names
 const CATEGORY_LABELS: Record<string, string> = {
@@ -126,7 +129,47 @@ export default function TechStack() {
           <div className="flex flex-wrap justify-center gap-3">
             {featuredSkills.map((skill, index) => {
               const style = getSkillStyle(skill.yearsOfExperience);
-              return (
+              const url = getSkillUrl(skill.id);
+              const content = (
+                <>
+                  {skill.name}
+                  <span className={cn(
+                    "ml-1.5 text-xs",
+                    style.accent ? "text-white/70" : "text-accent/60"
+                  )}>
+                    {skill.yearsOfExperience}y
+                  </span>
+                  {url && (
+                    <FaExternalLinkAlt className={cn(
+                      "ml-1.5 w-2.5 h-2.5 opacity-0 group-hover:opacity-70 transition-opacity",
+                      style.accent ? "text-white/70" : "text-accent/60"
+                    )} />
+                  )}
+                </>
+              );
+
+              return url ? (
+                <motion.a
+                  key={skill.id}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: index * 0.03 }}
+                  whileHover={{ scale: 1.08, y: -2 }}
+                  className={cn(
+                    "group inline-flex items-center rounded-lg cursor-pointer transition-all duration-200",
+                    style.size, style.weight,
+                    style.accent
+                      ? "bg-accent text-white shadow-sm shadow-accent/25 hover:shadow-md hover:shadow-accent/30"
+                      : "bg-accent-subtle text-accent border border-accent/20 hover:border-accent/40"
+                  )}
+                >
+                  {content}
+                </motion.a>
+              ) : (
                 <motion.span
                   key={skill.id}
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -142,13 +185,7 @@ export default function TechStack() {
                       : "bg-accent-subtle text-accent border border-accent/20"
                   )}
                 >
-                  {skill.name}
-                  <span className={cn(
-                    "ml-1.5 text-xs",
-                    style.accent ? "text-white/70" : "text-accent/60"
-                  )}>
-                    {skill.yearsOfExperience}y
-                  </span>
+                  {content}
                 </motion.span>
               );
             })}
@@ -172,16 +209,27 @@ export default function TechStack() {
               <div className="flex flex-wrap items-center gap-2">
                 {skillsByCategory[category].map((skill) => {
                   const style = getSkillStyle(skill.yearsOfExperience);
-                  return (
-                    <span
+                  const url = getSkillUrl(skill.id);
+                  const classes = cn(
+                    "inline-flex items-center bg-surface border border-border rounded-md",
+                    "hover:border-accent hover:text-accent transition-all duration-150",
+                    "text-text-secondary group",
+                    style.size, style.weight, style.opacity
+                  );
+
+                  return url ? (
+                    <a
                       key={skill.id}
-                      className={cn(
-                        "inline-flex items-center bg-surface border border-border rounded-md",
-                        "hover:border-accent hover:text-accent transition-all duration-150",
-                        "text-text-secondary",
-                        style.size, style.weight, style.opacity
-                      )}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(classes, "cursor-pointer")}
                     >
+                      {skill.name}
+                      <FaExternalLinkAlt className="ml-1 w-2 h-2 opacity-0 group-hover:opacity-50 transition-opacity" />
+                    </a>
+                  ) : (
+                    <span key={skill.id} className={classes}>
                       {skill.name}
                     </span>
                   );

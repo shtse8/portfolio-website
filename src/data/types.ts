@@ -134,6 +134,7 @@ export type TechSkill = {
   category: string;
   keywords: string[];
   icon: string;
+  url?: string;             // Official website/docs
 
   // Hierarchy
   parentId?: string;        // e.g., TypeScript → JavaScript

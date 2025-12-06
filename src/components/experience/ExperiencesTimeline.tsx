@@ -147,6 +147,78 @@ function RoleCard({
 
   // Current roles get card layout with year indicator
   if (isCurrent) {
+    const cardContent = (
+      <div className="flex gap-4">
+        {/* Logo with fallback */}
+        <div className="shrink-0">
+          {role.logo && !imgError ? (
+            <div className="w-14 h-14 rounded-lg overflow-hidden bg-surface-elevated border border-border">
+              <Image
+                src={role.logo}
+                alt={displayName}
+                width={56}
+                height={56}
+                className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
+              />
+            </div>
+          ) : (
+            <LogoFallback name={displayName} size="md" />
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <h4 className="text-base md:text-lg font-medium text-text-primary group-hover:text-accent transition-colors">
+                {role.title}
+              </h4>
+              {organization && (
+                <p className="text-sm text-text-secondary">
+                  {organization.name}
+                </p>
+              )}
+            </div>
+            {role.liveUrl && (
+              <FaExternalLinkAlt className="shrink-0 w-3.5 h-3.5 text-text-tertiary group-hover:text-accent transition-colors" />
+            )}
+          </div>
+
+          {/* Duration badge */}
+          <span className="inline-block px-2 py-0.5 mb-2 bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
+            {duration}
+          </span>
+
+          {/* Description */}
+          <p className="text-sm text-text-secondary line-clamp-2">
+            {role.description}
+          </p>
+
+          {/* Key metrics */}
+          {role.keyAchievements && role.keyAchievements.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {role.keyAchievements.slice(0, 2).map((achievement, i) => (
+                <span
+                  key={i}
+                  className="text-xs px-2 py-1 bg-surface-elevated border border-border rounded-md text-text-tertiary"
+                >
+                  {achievement}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+
+    const cardClasses = cn(
+      "group flex-1 p-4 md:p-5 rounded-xl border bg-surface",
+      "border-green-200 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-800",
+      "hover:shadow-lg transition-all duration-300",
+      role.liveUrl && "cursor-pointer"
+    );
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -163,88 +235,81 @@ function RoleCard({
           </span>
         </div>
 
-        {/* Card */}
-        <div className={cn(
-          "group flex-1 p-4 md:p-5 rounded-xl border bg-surface",
-          "border-green-200 dark:border-green-900/50 hover:border-green-300 dark:hover:border-green-800",
-          "hover:shadow-lg transition-all duration-300"
-        )}>
-          <div className="flex gap-4">
-            {/* Logo with fallback */}
-            <div className="shrink-0">
-              {role.logo && !imgError ? (
-                <div className="w-14 h-14 rounded-lg overflow-hidden bg-surface-elevated border border-border">
-                  <Image
-                    src={role.logo}
-                    alt={displayName}
-                    width={56}
-                    height={56}
-                    className="w-full h-full object-cover"
-                    onError={() => setImgError(true)}
-                  />
-                </div>
-              ) : (
-                <LogoFallback name={displayName} size="md" />
-              )}
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <div>
-                  <h4 className="text-base md:text-lg font-medium text-text-primary group-hover:text-accent transition-colors">
-                    {role.title}
-                  </h4>
-                  {organization && (
-                    <p className="text-sm text-text-secondary">
-                      {organization.name}
-                    </p>
-                  )}
-                </div>
-                {role.liveUrl && (
-                  <Link
-                    href={role.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="shrink-0 p-2 text-text-tertiary hover:text-accent transition-colors"
-                    aria-label={`Visit ${displayName}`}
-                  >
-                    <FaExternalLinkAlt className="w-3.5 h-3.5" />
-                  </Link>
-                )}
-              </div>
-
-              {/* Duration badge */}
-              <span className="inline-block px-2 py-0.5 mb-2 bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 rounded-full text-xs font-medium">
-                {duration}
-              </span>
-
-              {/* Description */}
-              <p className="text-sm text-text-secondary line-clamp-2">
-                {role.description}
-              </p>
-
-              {/* Key metrics */}
-              {role.keyAchievements && role.keyAchievements.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {role.keyAchievements.slice(0, 2).map((achievement, i) => (
-                    <span
-                      key={i}
-                      className="text-xs px-2 py-1 bg-surface-elevated border border-border rounded-md text-text-tertiary"
-                    >
-                      {achievement}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+        {/* Card - wrap with Link if has URL */}
+        {role.liveUrl ? (
+          <Link
+            href={role.liveUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cardClasses}
+          >
+            {cardContent}
+          </Link>
+        ) : (
+          <div className={cardClasses}>
+            {cardContent}
           </div>
-        </div>
+        )}
       </motion.div>
     );
   }
 
   // Past roles - compact with year indicator
+  const pastCardContent = (
+    <>
+      {/* Logo with fallback */}
+      <div className="shrink-0">
+        {role.logo && !imgError ? (
+          <div className="w-10 h-10 rounded-lg overflow-hidden bg-surface border border-border">
+            <Image
+              src={role.logo}
+              alt={displayName}
+              width={40}
+              height={40}
+              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
+              onError={() => setImgError(true)}
+            />
+          </div>
+        ) : (
+          <LogoFallback name={displayName} size="sm" />
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline gap-2 flex-wrap">
+          <h4 className="font-medium text-text-primary group-hover:text-accent transition-colors">
+            {role.title}
+          </h4>
+          {organization && (
+            <span className="text-sm text-text-tertiary">
+              at {organization.name}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-text-tertiary line-clamp-1">
+          {role.description}
+        </p>
+      </div>
+
+      {/* Duration + Link icon */}
+      <div className="shrink-0 flex items-center gap-2">
+        <span className="text-xs text-text-tertiary px-2 py-0.5 bg-surface-elevated rounded hidden sm:block">
+          {duration}
+        </span>
+        {role.liveUrl && (
+          <FaExternalLinkAlt className="w-3 h-3 text-text-tertiary group-hover:text-accent transition-colors" />
+        )}
+      </div>
+    </>
+  );
+
+  const pastCardClasses = cn(
+    "group flex-1 flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg",
+    "hover:bg-surface-elevated transition-colors duration-200",
+    role.liveUrl && "cursor-pointer"
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -261,53 +326,21 @@ function RoleCard({
         </span>
       </div>
 
-      {/* Content row */}
-      <div className={cn(
-        "group flex-1 flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg",
-        "hover:bg-surface-elevated transition-colors duration-200"
-      )}>
-        {/* Logo with fallback */}
-        <div className="shrink-0">
-          {role.logo && !imgError ? (
-            <div className="w-10 h-10 rounded-lg overflow-hidden bg-surface border border-border">
-              <Image
-                src={role.logo}
-                alt={displayName}
-                width={40}
-                height={40}
-                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all"
-                onError={() => setImgError(true)}
-              />
-            </div>
-          ) : (
-            <LogoFallback name={displayName} size="sm" />
-          )}
+      {/* Content row - wrap with Link if has URL */}
+      {role.liveUrl ? (
+        <Link
+          href={role.liveUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={pastCardClasses}
+        >
+          {pastCardContent}
+        </Link>
+      ) : (
+        <div className={pastCardClasses}>
+          {pastCardContent}
         </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <h4 className="font-medium text-text-primary group-hover:text-accent transition-colors">
-              {role.title}
-            </h4>
-            {organization && (
-              <span className="text-sm text-text-tertiary">
-                at {organization.name}
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-text-tertiary line-clamp-1">
-            {role.description}
-          </p>
-        </div>
-
-        {/* Duration */}
-        <div className="shrink-0 text-right hidden sm:block">
-          <span className="text-xs text-text-tertiary px-2 py-0.5 bg-surface-elevated rounded">
-            {duration}
-          </span>
-        </div>
-      </div>
+      )}
     </motion.div>
   );
 }
