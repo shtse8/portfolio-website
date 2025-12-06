@@ -53,7 +53,13 @@ export default function ProjectsShowcase() {
 
     PROJECT_CATEGORIES.forEach(cat => {
       const categoryProjects = DISPLAY_PROJECTS.filter(cat.filter);
-      const featured = getFeaturedProjects(categoryProjects).slice(0, 3);
+      let featured = getFeaturedProjects(categoryProjects).slice(0, 3);
+
+      // If no featured projects (no images), show first 3 from category as featured
+      if (featured.length === 0 && categoryProjects.length > 0) {
+        featured = categoryProjects.slice(0, 3);
+      }
+
       const featuredIds = new Set(featured.map(p => p.id));
       const others = categoryProjects.filter(p => !featuredIds.has(p.id));
 
@@ -311,6 +317,8 @@ function CompactProjectCard({
   index: number;
   onClick: () => void;
 }) {
+  const hasImage = project.images && project.images.length > 0;
+
   return (
     <div
       onClick={onClick}
@@ -320,17 +328,21 @@ function CompactProjectCard({
         "hover:shadow-md transition-all duration-200"
       )}
     >
-      {/* Thumbnail */}
-      {project.images && project.images.length > 0 && (
-        <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0">
+      {/* Thumbnail or placeholder */}
+      <div className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-surface-elevated border border-border">
+        {hasImage ? (
           <ProjectImage
             src={project.images}
             alt={project.title}
             fill
             className="object-cover"
           />
-        </div>
-      )}
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <FaCube className="w-6 h-6 text-text-tertiary" />
+          </div>
+        )}
+      </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
