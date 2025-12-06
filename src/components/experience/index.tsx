@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { FaAngleRight } from 'react-icons/fa';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { EXPERIENCES } from '@/data/experiences';
-import { COMPANIES } from '@/data/companies';
+import { ROLES } from '@/data/roles';
+import { ORGANIZATIONS } from '@/data/organizations';
 import { formatPeriod } from '@/data';
 import { parseMarkdownLinks } from '../projects/utils';
 import { useModalManager } from '@/hooks/useModalManager';
@@ -24,15 +24,15 @@ export default function ExperienceSection() {
   
   // Adapter function for experience modal
   const handleOpenExperience = (index: number) => {
-    const experience = EXPERIENCES[index];
+    const experience = ROLES[index];
     
     const handleNext = () => {
-      const nextIndex = (index + 1) % EXPERIENCES.length;
+      const nextIndex = (index + 1) % ROLES.length;
       handleOpenExperience(nextIndex);
     };
     
     const handlePrev = () => {
-      const prevIndex = (index - 1 + EXPERIENCES.length) % EXPERIENCES.length;
+      const prevIndex = (index - 1 + ROLES.length) % ROLES.length;
       handleOpenExperience(prevIndex);
     };
     
@@ -58,7 +58,7 @@ export default function ExperienceSection() {
   const handleOpenCompany = (companyId: string) => {
     open(
       <CompanyModal
-        company={COMPANIES[companyId]}
+        company={ORGANIZATIONS[companyId]}
         openProjectModal={() => {}}
         openExperienceModal={handleOpenExperience}
       />,
@@ -72,7 +72,7 @@ export default function ExperienceSection() {
   const timelineScale = useTransform(scrollYProgress, [0, 0.2], [0.98, 1]);
 
   // Separate experiences by decade
-  const timelineGroups = EXPERIENCES.reduce((groups, experience) => {
+  const timelineGroups = ROLES.reduce((groups, experience) => {
     const startYear = parseInt(experience.period.start.substring(0, 4));
     const decade = Math.floor(startYear / 10) * 10;
     const decadeKey = `${decade}s`;
@@ -83,7 +83,7 @@ export default function ExperienceSection() {
     
     groups[decadeKey].push(experience);
     return groups;
-  }, {} as Record<string, typeof EXPERIENCES>);
+  }, {} as Record<string, typeof ROLES>);
 
   // Sort decades in descending order
   const sortedDecades = Object.keys(timelineGroups).sort((a, b) => {
@@ -178,7 +178,7 @@ export default function ExperienceSection() {
                   const isEven = index % 2 === 0;
                   const startYear = experience.period.start.substring(0, 4);
                   const endYear = experience.period.end ? experience.period.end.substring(0, 4) : 'Present';
-                  const companyName = experience.company ? COMPANIES[experience.company]?.name : null;
+                  const companyName = experience.organizationId ? ORGANIZATIONS[experience.organizationId]?.name : null;
                   
                   return (
                     <motion.div 
@@ -216,7 +216,7 @@ export default function ExperienceSection() {
                             </h3>
                             {companyName && (
                               <button 
-                                onClick={() => handleOpenCompany(experience.company!)}
+                                onClick={() => handleOpenCompany(experience.organizationId!)}
                                 className="mt-1 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors inline-flex items-center justify-end gap-1"
                               >
                                 at <span className="font-medium">{companyName}</span>
@@ -224,17 +224,19 @@ export default function ExperienceSection() {
                             )}
                           </>
                         ) : (
-                          <motion.div 
+                          <motion.div
                             className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl overflow-hidden aspect-video relative group cursor-pointer"
                             whileHover={{ scale: 1.02 }}
-                            onClick={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
+                            onClick={() => handleOpenExperience(ROLES.findIndex(e => e.id === experience.id))}
                           >
-                            <Image 
-                              src={experience.logo} 
-                              alt={experience.title}
-                              fill
-                              className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                            />
+                            {experience.logo && (
+                              <Image
+                                src={experience.logo}
+                                alt={experience.title}
+                                fill
+                                className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                              />
+                            )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                               <div className="text-white space-y-1">
                                 <h4 className="text-xl font-medium">{experience.title}</h4>
@@ -261,7 +263,7 @@ export default function ExperienceSection() {
                             </h3>
                             {companyName && (
                               <button 
-                                onClick={() => handleOpenCompany(experience.company!)}
+                                onClick={() => handleOpenCompany(experience.organizationId!)}
                                 className="hidden md:inline-flex mt-1 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors items-center justify-start gap-1"
                               >
                                 at <span className="font-medium">{companyName}</span>
@@ -269,17 +271,19 @@ export default function ExperienceSection() {
                             )}
                           </>
                         ) : (
-                          <motion.div 
+                          <motion.div
                             className="hidden md:block bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl overflow-hidden aspect-video relative group cursor-pointer"
                             whileHover={{ scale: 1.02 }}
-                            onClick={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
+                            onClick={() => handleOpenExperience(ROLES.findIndex(e => e.id === experience.id))}
                           >
-                            <Image 
-                              src={experience.logo} 
-                              alt={experience.title}
-                              fill
-                              className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                            />
+                            {experience.logo && (
+                              <Image
+                                src={experience.logo}
+                                alt={experience.title}
+                                fill
+                                className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                              />
+                            )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                               <div className="text-white space-y-1">
                                 <h4 className="text-xl font-medium">{experience.title}</h4>
@@ -292,17 +296,19 @@ export default function ExperienceSection() {
                         )}
                         
                         {/* Experience Card for mobile */}
-                        <motion.div 
+                        <motion.div
                           className="md:hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl overflow-hidden aspect-video relative group cursor-pointer mt-2"
                           whileHover={{ scale: 1.02 }}
-                          onClick={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
+                          onClick={() => handleOpenExperience(ROLES.findIndex(e => e.id === experience.id))}
                         >
-                          <Image 
-                            src={experience.logo} 
-                            alt={experience.title}
-                            fill
-                            className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                          />
+                          {experience.logo && (
+                            <Image
+                              src={experience.logo}
+                              alt={experience.title}
+                              fill
+                              className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                            />
+                          )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
                             <div className="text-white space-y-1">
                               {companyName && (
@@ -335,7 +341,7 @@ export default function ExperienceSection() {
                           </div>
                           
                           <motion.button
-                            onClick={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
+                            onClick={() => handleOpenExperience(ROLES.findIndex(e => e.id === experience.id))}
                             className={`group inline-flex items-center space-x-1 text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 ${!isEven ? 'md:flex-row-reverse' : ''}`}
                             whileHover={{ x: isEven ? 5 : -5 }}
                           >

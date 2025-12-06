@@ -23,9 +23,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'nodejs', 'bun', 'api-development', 'performance-testing', 'mcp', 'pdf-processing', 'parallel-processing'],
         category: "Open Source",
-        related_experience_id: null,
-        start_date: "2024-01-01",
-        end_date: undefined,
+        period: { start: "2024-01-01", end: undefined },
         urls: {
           repository: 'https://github.com/SylphxAI/pdf-reader-mcp',
           documentation: 'https://www.npmjs.com/package/@sylphx/pdf-reader-mcp'
@@ -49,9 +47,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'nodejs', 'bun', 'ast-parsing', 'semantic-search', 'sqlite', 'mcp', 'vector-embeddings'],
         category: "Open Source",
-        related_experience_id: null,
-        start_date: "2024-06-01",
-        end_date: undefined,
+        period: { start: "2024-06-01", end: undefined },
         urls: {
           repository: 'https://github.com/SylphxAI/coderag'
         },
@@ -74,9 +70,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'react', 'vuejs', 'svelte', 'state-management', 'performance-testing', 'bundling'],
         category: "Frameworks & Libraries",
-        related_experience_id: null,
-        start_date: "2024-03-01",
-        end_date: undefined,
+        period: { start: "2024-03-01", end: undefined },
         urls: {
           repository: 'https://github.com/SylphxAI/rapid'
         },
@@ -99,9 +93,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'immutable-data', 'performance-testing', 'functional-programming', 'json-patch'],
         category: "Frameworks & Libraries",
-        related_experience_id: null,
-        start_date: "2024-02-01",
-        end_date: undefined,
+        period: { start: "2024-02-01", end: undefined },
         urls: {
           repository: 'https://github.com/SylphxAI/craft'
         },
@@ -124,9 +116,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'bun', 'functional-programming', 'tree-shaking', 'performance-testing'],
         category: "Frameworks & Libraries",
-        related_experience_id: null,
-        start_date: "2023-06-01",
-        end_date: undefined,
+        period: { start: "2023-06-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/xdash',
           documentation: 'https://shtse8.github.io/xdash/'
@@ -150,9 +140,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['dart', 'code-generation', 'json-schema', 'openapi', 'protobuf', 'flutter'],
         category: "Frameworks & Libraries",
-        related_experience_id: null,
-        start_date: "2023-01-01",
-        end_date: undefined,
+        period: { start: "2023-01-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/spectra'
         },
@@ -175,9 +163,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['dart', 'web-framework', 'code-generation', 'api-development', 'type-safety'],
         category: "Frameworks & Libraries",
-        related_experience_id: null,
-        start_date: "2023-03-01",
-        end_date: undefined,
+        period: { start: "2023-03-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/xserver'
         },
@@ -200,9 +186,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['dart', 'webassembly', 'virtual-dom', 'web-framework', 'state-management', 'frontend-development'],
         category: "Frameworks & Libraries",
-        related_experience_id: null,
-        start_date: "2023-08-01",
-        end_date: undefined,
+        period: { start: "2023-08-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/Dust'
         },
@@ -225,9 +209,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'dart', 'csharp', 'firebase', 'firestore', 'code-generation', 'json-schema'],
         category: "Frameworks & Libraries",
-        related_experience_id: null,
-        start_date: "2022-06-01",
-        end_date: undefined,
+        period: { start: "2022-06-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/FireSchema'
         },
@@ -250,9 +232,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'nodejs', 'cli', 'ai-integration', 'developer-tools', 'mcp'],
         category: "AI & ML",
-        related_experience_id: null,
-        start_date: "2024-08-01",
-        end_date: undefined,
+        period: { start: "2024-08-01", end: undefined },
         urls: {
           repository: 'https://github.com/SylphxAI/flow'
         },
@@ -275,9 +255,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'bun', 'artificial-intelligence', 'openai', 'web-scraping', 'research-automation'],
         category: "AI & ML",
-        related_experience_id: null,
-        start_date: "2024-04-01",
-        end_date: undefined,
+        period: { start: "2024-04-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/DeepResearch'
         },
@@ -300,9 +278,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['python', 'pytorch', 'reinforcement-learning', 'neural-networks', 'monte-carlo-simulation', 'game-ai'],
         category: "AI & ML",
-        related_experience_id: null,
-        start_date: "2020-01-01",
-        end_date: undefined,
+        period: { start: "2020-01-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/KyleML'
         },
@@ -325,9 +301,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'github-actions', 'automation', 'cicd', 'developer-tools'],
         category: "Tools & Utilities",
-        related_experience_id: null,
-        start_date: "2024-05-01",
-        end_date: undefined,
+        period: { start: "2024-05-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/cursor-ai-downloads'
         },
@@ -354,9 +328,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['vue', 'mysql', 'ubuntu', 'responsive-design', 'seo', 'typescript', 'payment-integration', 'user-management', 'frontend-development', 'mobile-web'],
         category: "Web Apps",
-        related_experience_id: "cubeage", 
-        start_date: "2014-03-15",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2014-03-15", end: undefined },
         details: [
           'Developed official game portal using Vue.js and TypeScript',
           'Implemented comprehensive user management system with authentication and profiles',
@@ -375,9 +348,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'typescript', 'game-development', 'database-design', 'database-optimization', 'java', 'socket-io', 'protobuf', 'elo-rating', 'multiplayer', 'javascript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal', 'game-ai', 'game-networking', 'offline-first', 'push-notifications'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2016-01-01",
-        end_date: "2023-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2016-01-01", end: "2023-12-31" },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.gameflask.btthk",
           appStore: "https://apps.apple.com/az/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A8-%E6%9C%80%E5%88%BA%E6%BF%80%E7%9A%84%E7%AD%96%E7%95%A5%E6%A3%8B%E7%89%8C%E9%81%8A%E6%88%B2/id1295634408"
@@ -400,9 +372,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'react', 'typescript', 'nextjs', 'responsive-design', 'responsive-web-design', 'discuz', 'ubuntu', 'mobile-web', 'ajax', 'rss', 'google-adsense', 'digital-marketing', 'frontend-development', 'sql'],
         category: "Web Apps",
-        related_experience_id: "nakuz",
-        start_date: "2005-01-01",
-        end_date: undefined,
+        roleId: "nakuz-cto",
+        period: { start: "2005-01-01", end: undefined },
         urls: {
           website: "https://nakuz.com/"
         },
@@ -457,9 +428,8 @@ export const PROJECTS: Project[] = [
           'unity3d'
         ],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2016-09-12",
-        end_date: undefined, // 保持为 undefined 表示项目仍在进行中
+        roleId: "cubeage-founder",
+        period: { start: "2016-09-12", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.showhand.app",
           appStore: "https://apps.apple.com/az/app/fun-showhand-stud-poker/id1238318956",
@@ -498,9 +468,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['corona-sdk', 'game-development', 'mysql', 'php', 'ubuntu', 'google-admob', 'appodeal', 'onesignal', 'android', 'ios', 'artificial-intelligence', 'machine-learning', 'mobile-games', 'game-ai', 'monte-carlo-simulation', 'offline-first', 'push-notifications'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2013-01-01",
-        end_date: undefined, // Still being maintained
+        roleId: "cubeage-founder",
+        period: { start: "2013-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app",
           appStore: "https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150",
@@ -558,9 +527,7 @@ export const PROJECTS: Project[] = [
           'vuejs'
         ],
         category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2022-01-01", // 使用第二个条目的日期（更新）
-        end_date: "2024-12-31", // 使用第二个条目的日期（更新）
+        period: { start: "2022-01-01", end: "2024-12-31" },
         details: [
           'Built a Medium-like platform with TypeScript, Vue.js, and Node.js',
           'Implemented GraphQL API with Prisma ORM for efficient data access',
@@ -579,9 +546,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['database-design', 'database-optimization', 'php', 'responsive-design', 'responsive-web-design', 'seo', 'facebook-integration', 'mysql', 'percona', 'api-testing', 'digital-marketing'],
         category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2012-05-20",
-        end_date: "2013-11-30",
+        period: { start: "2012-05-20", end: "2013-11-30" },
         details: [
           'Developed a publisher-focused article sharing platform with PHP and MySQL/Percona',
           'Created Facebook and mobile optimized versions to maximize user reach',
@@ -599,9 +564,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['database-design', 'database-optimization', 'php', 'nodejs', 'payment-integration', 'javascript', 'mysql', 'ubuntu', 'game-distribution', 'api-development', 'api-testing', 'sass', 'styled-components', 'sql'],
         category: "Web Apps",
-        related_experience_id: "minimax",
-        start_date: "2010-02-10",
-        end_date: "2014-08-15",
+        roleId: "minimax-ceo",
+        period: { start: "2010-02-10", end: "2014-08-15" },
         details: [
           'Developed Funimax, a well-known gaming platform with significant presence in Hong Kong',
           'Built with pure PHP and JavaScript, developing a custom template system for rapid game website deployment',
@@ -619,9 +583,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'kubernetes', 'blockchain', 'nodejs', 'docker', 'microservices', 'eos', 'ethereum', 'solidity', 'web3', 'defi', 'dapps', 'smart-contracts', 'cicd'],
         category: "Blockchain",
-        related_experience_id: null,
-        start_date: "2018-04-15",
-        end_date: "2019-10-30",
+        period: { start: "2018-04-15", end: "2019-10-30" },
         details: [
           'Designed and developed a hybrid Bancor-Orderbook model for cross-chain asset trading',
           'Built with TypeScript microservices orchestrated with Kubernetes for high availability',
@@ -637,9 +599,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['blockchain', 'nodejs', 'typescript', 'smart-contracts', 'multi-chain', 'eos', 'ethereum', 'bitcoin', 'web3', 'solidity', 'defi', 'nft', 'dapps'],
         category: "Blockchain",
-        related_experience_id: null,
-        start_date: "2017-11-10",
-        end_date: "2018-09-25",
+        period: { start: "2017-11-10", end: "2018-09-25" },
         details: [
           'Built a platform enabling streamlined deployment of applications across multiple blockchains',
           'Pioneered real-time profit-sharing system for developers through smart contract automation',
@@ -655,9 +615,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['blockchain', 'nodejs', 'typescript', 'database-design', 'database-optimization', 'mysql', 'redis', 'bitcoin', 'ethereum', 'cryptocurrency', 'solidity', 'smart-contracts', 'web3', 'defi', 'nft'],
         category: "Blockchain",
-        related_experience_id: null,
-        start_date: "2016-12-05",
-        end_date: "2017-08-20",
+        period: { start: "2016-12-05", end: "2017-08-20" },
         details: [
           'Developed a comprehensive mining pool management system for Bitcoin and Ethereum',
           'Created real-time analytics dashboard for monitoring hashrate, worker status, and earnings',
@@ -675,7 +633,6 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['python', 'artificial-intelligence', 'machine-learning', 'firebase', 'gcp', 'typescript', 'go', 'tradingview', 'tigertrade', 'pytorch', 'telegram', 'data-analysis', 'financial-analysis', 'time-series', 'reinforcement-learning', 'llm', 'serverless'],
         category: "AI & ML",
-        related_experience_id: null,
         details: [
           'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
           'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
@@ -691,7 +648,6 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['typescript', 'python', 'nodejs', 'ffmpeg', 'simhash', 'bun', 'automation', 'performance-testing'],
         category: "Tools & Utilities",
-        related_experience_id: null,
         details: [
           'Created a media deduplication tool with TypeScript, Python, and Bun',
           'Leveraged Simhash, VP Tree, and FFmpeg for efficient processing',
@@ -709,7 +665,6 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['nodejs', 'chrome-extension', 'google-photos-api', 'javascript', 'automation', 'api-development', 'frontend-development'],
         category: "Tools & Utilities",
-        related_experience_id: null,
         urls: {
           repository: 'https://github.com/shtse8/google-photos-delete-tool',
           demo: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb'
@@ -731,9 +686,7 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['typescript', 'react', 'nextjs', 'tailwindcss', 'responsive-design', 'responsive-web-design', 'frontend-development', 'api-testing', 'sass', 'framer-motion', 'animation', 'serverless', 'github-actions', 'ci-cd', 'cloudflare-pages', 'bun'],
         category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2024-03-01",
-        end_date: undefined,
+        period: { start: "2024-03-01", end: undefined },
         urls: {
           repository: 'https://github.com/shtse8/portfolio',
           website: 'https://kylet.se'
@@ -756,9 +709,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'discuz', 'ubuntu', 'ajax', 'rss', 'digital-marketing', 'sql'],
         category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2001-01-01",
-        end_date: "2005-12-31",
+        period: { start: "2001-01-01", end: "2005-12-31" },
         urls: {
           website: 'http://sky-c.com/',
           timemachine: 'https://web.archive.org/web/20241211084528/http://sky-c.com/'
@@ -780,9 +731,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'google-adsense', 'digital-marketing', 'sql'],
         category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2008-01-01",
-        end_date: "2009-12-31",
+        period: { start: "2008-01-01", end: "2009-12-31" },
         urls: {
           website: 'http://www.agraders.com/',
           timemachine: 'https://web.archive.org/web/20241211084528/https://agraders.com/'
@@ -804,9 +753,7 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'ubuntu', 'mobile-web', 'google-adsense', 'digital-marketing', 'sql'],
         category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2008-01-01",
-        end_date: "2009-12-31",
+        period: { start: "2008-01-01", end: "2009-12-31" },
         urls: {
           website: 'http://hyperfds.com/',
           timemachine: 'https://web.archive.org/web/20080813211308/http://hyperfds.com/'
@@ -832,9 +779,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['flash', 'php', 'mysql', 'facebook-api', 'ubuntu', 'google-admob', 'game-ai', 'game-development'],
         category: "Mobile Games",
-        related_experience_id: "minimax",
-        start_date: "2010-01-01",
-        end_date: "2011-12-31",
+        roleId: "minimax-ceo",
+        period: { start: "2010-01-01", end: "2011-12-31" },
         urls: {
           other: [
             {
@@ -868,9 +814,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['corona-sdk', 'lua', 'mysql', 'php', 'google-admob', 'google-cloud-service', 'game-analytics', 'game-development', 'game-monetization'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: "2019-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: "2019-12-31" },
         urls: {
           other: [
             {
@@ -905,9 +850,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['typescript', 'javascript', 'nodejs', 'socket-io', 'protobuf', 'mysql', 'cocos2d', 'ubuntu', 'google-admob', 'google-cloud-service', 'database-optimization', 'game-analytics', 'game-development', 'game-physics'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2019-01-01",
-        end_date: "2022-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2019-01-01", end: "2022-12-31" },
         details: [
           'Developed a space shooting game with Cocos2d featuring 30+ types of warplanes',
           'Created 100 unique levels with diverse environments including desert, glacier, and ocean scenes',
@@ -934,9 +878,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'game-development', 'game-analytics', 'offline-first', 'api-development'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2019-01-01",
-        end_date: "2023-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2019-01-01", end: "2023-12-31" },
         urls: {
           appStore: "https://apps.apple.com/us/app/taiwan-mahjong-tycoon/id1515252812",
           other: [
@@ -975,9 +918,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'game-development', 'shader-programming'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2020-01-01",
-        end_date: "2023-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2020-01-01", end: "2023-12-31" },
         urls: {
           appStore: "https://apps.apple.com/az/app/%E5%8F%B0%E7%81%A3%E9%BA%BB%E5%B0%87%E5%A4%A7%E4%BA%A82/id1589759836",
           other: [
@@ -1023,9 +965,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'tensorflow', 'shader-programming', 'api-development'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2018-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2018-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.crazycube.hkmahjongtycoon.app",
           appStore: "https://apps.apple.com/az/app/%E9%A6%99%E6%B8%AF%E9%BA%BB%E5%B0%87%E5%A4%A7%E4%BA%A8-%E9%BA%BB%E9%9B%80%E4%BF%BE%E4%BD%A0%E7%8E%A9/id1478835027",
@@ -1068,9 +1009,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'game-development', 'game-analytics', 'game-monetization', 'api-development'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2015-01-01",
-        end_date: "2023-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2015-01-01", end: "2023-12-31" },
         details: [
           'Developed an authentic Taiwanese Big 2 card game with easy to learn mechanics',
           'Implemented global server for worldwide competitive play',
@@ -1099,9 +1039,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'nodejs', 'protobuf', 'socket-io', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-development', 'offline-first'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2020-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2020-01-01", end: undefined },
         urls: {
           appStore: "https://apps.apple.com/az/app/%E9%8B%A4%E5%A4%A7d%E5%A4%A7%E4%BA%A82-%E6%89%93%E5%90%8C%E8%8A%B1%E9%A0%86/id1593378088"
         },
@@ -1123,9 +1062,8 @@ export const PROJECTS: Project[] = [
         images: [],
         skills: ['cocos2d', 'javascript', 'typescript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal', 'game-development', 'offline-first'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2022-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2022-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.ttfe.app"
         },
@@ -1154,9 +1092,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-physics'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2013-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2013-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.luckystargame.funbig2_tw",
           appStore: "https://apps.apple.com/az/app/fun-big-2-taiwan-card-craze/id1251326780"
@@ -1186,9 +1123,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-analytics', 'push-notifications', 'shader-programming'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.luckystargame.funbigtwo",
           appStore: "https://apps.apple.com/az/app/fun-big-2-card-battle-royale/id1247782302"
@@ -1214,9 +1150,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'reinforcement-learning', 'tensorflow', 'game-development', 'game-monetization', 'game-physics'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.luckystargame.texaspoker",
           appStore: "https://apps.apple.com/az/app/fun-texas-hold-em/id1251843403",
@@ -1257,9 +1192,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['cocos2d', 'javascript', 'typescript', 'nodejs', 'ubuntu', 'google-admob', 'appodeal', 'artificial-intelligence', 'machine-learning', 'game-ai', 'neural-networks', 'tensorflow', 'api-development', 'game-analytics', 'game-monetization', 'push-notifications'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2021-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2021-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.blackjack.app",
           other: [
@@ -1295,9 +1229,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['corona-sdk', 'lua', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'offline-first', 'push-notifications'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2013-01-01",
-        end_date: undefined, // Still ongoing
+        roleId: "cubeage-founder",
+        period: { start: "2013-01-01", end: undefined },
         urls: {
           googlePlay: "https://play.google.com/store/apps/details?id=com.cubeage.fmj16.app",
           appStore: "https://apps.apple.com/us/app/%E7%98%8B%E9%BA%BB%E5%B0%8716%E5%BC%B5-%E6%89%8B%E6%A9%9F%E5%8F%B0%E5%BC%8F%E9%BA%BB%E5%B0%87%E6%A8%82%E5%9C%92/id1252568150"
@@ -1330,9 +1263,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'game-development', 'game-analytics', 'shader-programming'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2015-01-01",
-        end_date: "2023-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2015-01-01", end: "2023-12-31" },
         details: [
           'Created innovative game combining slot machine mechanics with combat gameplay',
           'Designed unique betting system using \'cans\' instead of coins',
@@ -1358,9 +1290,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'tensorflow', 'game-development', 'game-physics', 'shader-programming'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2015-01-01",
-        end_date: "2023-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2015-01-01", end: "2023-12-31" },
         details: [
           'Developed classic blackjack card game with competitive gameplay',
           'Designed streamlined interface for quick, intuitive play',
@@ -1388,9 +1319,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'game-ai', 'game-monetization', 'shader-programming'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: "2023-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: "2023-12-31" },
         details: [
           'Created innovative math puzzle game with unique algebra challenges',
           'Designed dynamic background feature that responds to device rotation',
@@ -1418,9 +1348,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'game-development', 'game-monetization', 'offline-first', 'push-notifications', 'shader-programming'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: "2017-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: "2017-12-31" },
         details: [
           'Developed endless runner game with humorous garbage bag character',
           'Created engaging storyline about garbage bags mysteriously running away',
@@ -1449,9 +1378,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'game-development', 'offline-first'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: "2017-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: "2017-12-31" },
         details: [
           'Created popular Chinese card game based on Fight the Landlord (斗地主) mechanics',
           'Designed authentic Chinese aesthetic to complement the gameplay theme',
@@ -1479,9 +1407,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'csharp', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'push-notifications', 'shader-programming', 'game-development'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: "2021-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: "2021-12-31" },
         details: [
           'Developed spot the difference game set in a museum with mysterious art theft storyline',
           'Created engaging narrative about museum artworks being altered overnight',
@@ -1508,9 +1435,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['corona-sdk', 'lua', 'php', 'ubuntu', 'google-admob', 'google-cloud-service', 'typescript', 'javascript', 'artificial-intelligence', 'machine-learning', 'game-ai', 'monte-carlo-simulation', 'neural-networks', 'reinforcement-learning', 'tensorflow', 'offline-first'],
         category: "Mobile Games",
-        related_experience_id: "cubeage",
-        start_date: "2014-01-01",
-        end_date: "2016-12-31",
+        roleId: "cubeage-founder",
+        period: { start: "2014-01-01", end: "2016-12-31" },
         details: [
           'Created first Taiwan Q-style Mahjong game with cat-themed visuals',
           'Designed fast table opening and gameplay with no waiting',
@@ -1545,9 +1471,7 @@ export const PROJECTS: Project[] = [
           'api-development'
         ],
         category: "Web Apps",
-        related_experience_id: null,
-        start_date: "2018-01-01",
-        end_date: "2020-12-31",
+        period: { start: "2018-01-01", end: "2020-12-31" },
         details: [
           'Developed a Medium-like content platform using Vue.js and TypeScript',
           'Implemented blockchain-based tipping and reward system for content creators',
@@ -1568,9 +1492,8 @@ export const PROJECTS: Project[] = [
         ],
         skills: ['unity3d', 'web3', 'php', 'mysql', 'ubuntu', 'game-development', 'blockchain', '3d-modeling', 'animation', 'virtual-currency', 'web-game'],
         category: "Mobile Games",
-        related_experience_id: "minimax",
-        start_date: "2011-01-01",
-        end_date: "2014-12-31",
+        roleId: "minimax-ceo",
+        period: { start: "2011-01-01", end: "2014-12-31" },
         details: [
           'Developed a 3D coin pusher game at Minimax using Unity 3D with realistic physics',
           'Implemented Web3 integration for virtual currency and transactions',

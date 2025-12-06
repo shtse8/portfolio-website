@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { Project, Experience } from '@/data/types';
-import { COMPANIES } from '@/data/companies';
-import { EXPERIENCES } from '@/data/experiences';
+import type { Project, Role } from '@/data/types';
+import { ORGANIZATIONS } from '@/data/organizations';
+import { ROLES } from '@/data/roles';
 import { PROJECTS, PROJECT_CATEGORIES } from '@/data/projects';
 import { formatPeriod } from '@/data';
 import ProjectCard from './ProjectCard';
@@ -20,20 +20,20 @@ export default function FeaturedProjects() {
   const { openProject, openExperience, openCompany } = useModalManager();
   const [activeCategory, setActiveCategory] = useState<typeof PROJECT_CATEGORIES[number]>("All");
   const [filteredProjects, setFilteredProjects] = useState<Project[]>(PROJECTS);
-  const [filteredExperiences, setFilteredExperiences] = useState<Experience[]>([]);
+  const [filteredRoles, setFilteredRoles] = useState<Role[]>([]);
   
-  // Filter projects and experiences
+  // Filter projects and roles
   useEffect(() => {
     if (activeCategory === "Professional Experience") {
       setFilteredProjects([]);
-      setFilteredExperiences(EXPERIENCES);
+      setFilteredRoles(ROLES);
     } else {
       if (activeCategory === "All") {
         setFilteredProjects(PROJECTS);
       } else {
         setFilteredProjects(PROJECTS.filter(project => project.category === activeCategory));
       }
-      setFilteredExperiences([]);
+      setFilteredRoles([]);
     }
   }, [activeCategory]);
   
@@ -71,39 +71,39 @@ export default function FeaturedProjects() {
     });
   };
 
-  // Adapter function for experience modal
+  // Adapter function for role modal (experience modal)
   const handleOpenExperience = (index: number) => {
-    const experience = EXPERIENCES[index];
-    
+    const role = ROLES[index];
+
     const handleNext = () => {
-      const nextIndex = (index + 1) % EXPERIENCES.length;
+      const nextIndex = (index + 1) % ROLES.length;
       handleOpenExperience(nextIndex);
     };
-    
+
     const handlePrev = () => {
-      const prevIndex = (index - 1 + EXPERIENCES.length) % EXPERIENCES.length;
+      const prevIndex = (index - 1 + ROLES.length) % ROLES.length;
       handleOpenExperience(prevIndex);
     };
-    
+
     openExperience(ExperienceModal, {
-      experience,
+      experience: role,
       openCompanyModal: handleOpenCompany,
       parseMarkdownLinks,
       nextExperience: handleNext,
       prevExperience: handlePrev,
       closeModal: () => {}
     }, {
-      modalKey: experience.id,
+      modalKey: role.id,
       hasNavigation: true,
       onNext: handleNext,
       onPrevious: handlePrev
     });
   };
   
-  // Adapter function for company modal
+  // Adapter function for organization modal (company modal)
   const handleOpenCompany = (companyId: string) => {
     openCompany(CompanyModal, {
-      company: COMPANIES[companyId],
+      company: ORGANIZATIONS[companyId],
       closeModal: () => {},
       openProjectModal: handleOpenProject,
       openExperienceModal: handleOpenExperience
@@ -211,20 +211,20 @@ export default function FeaturedProjects() {
           </motion.div>
         )}
         
-        {/* Experiences List */}
-        {filteredExperiences.length > 0 && (
-          <motion.div 
+        {/* Roles List */}
+        {filteredRoles.length > 0 && (
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
             className="space-y-6 max-w-4xl mx-auto"
           >
-            {filteredExperiences.map((experience, index) => (
-              <motion.div 
-                key={experience.id} 
+            {filteredRoles.map((role, index) => (
+              <motion.div
+                key={role.id}
                 variants={itemVariants}
-                className="bg-white dark:bg-gray-800/70 backdrop-blur-sm rounded-xl overflow-hidden 
+                className="bg-white dark:bg-gray-800/70 backdrop-blur-sm rounded-xl overflow-hidden
                           cursor-pointer transition-all duration-300 border border-gray-100 dark:border-gray-700/50
                           hover:shadow-lg hover:border-blue-100 dark:hover:border-blue-900/30"
                 onClick={() => handleOpenExperience(index)}
@@ -232,50 +232,50 @@ export default function FeaturedProjects() {
                 <div className="p-8">
                   <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
                     <div>
-                      <h3 className="text-xl md:text-2xl font-medium text-gray-900 dark:text-white tracking-wide">{experience.title}</h3>
+                      <h3 className="text-xl md:text-2xl font-medium text-gray-900 dark:text-white tracking-wide">{role.title}</h3>
                       <div className="flex items-center mt-2 text-sm">
-                        {experience.company && (
+                        {role.organizationId && (
                           <>
-                            <button 
-                              onClick={(e) => handleCompanyClick(e, experience.company)}
+                            <button
+                              onClick={(e) => handleCompanyClick(e, role.organizationId)}
                               className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 group transition-colors"
                             >
                               <span className="w-6 h-6 mr-2 relative overflow-hidden rounded">
-                                <ProjectImage 
-                                  src={COMPANIES[experience.company].logo} 
-                                  alt={COMPANIES[experience.company].name}
+                                <ProjectImage
+                                  src={ORGANIZATIONS[role.organizationId].logo}
+                                  alt={ORGANIZATIONS[role.organizationId].name}
                                   fill
                                   style={{ objectFit: 'cover' }}
                                   className="rounded-sm group-hover:scale-105 transition-transform duration-300"
                                 />
                               </span>
                               <span className="underline-offset-4 group-hover:underline">
-                                {COMPANIES[experience.company].name}
+                                {ORGANIZATIONS[role.organizationId].name}
                               </span>
                             </button>
                             <span className="mx-3 text-gray-400 dark:text-gray-500">•</span>
                           </>
                         )}
-                        <span className="text-gray-600 dark:text-gray-400 font-light tracking-wider">{formatPeriod(experience.period)}</span>
+                        <span className="text-gray-600 dark:text-gray-400 font-light tracking-wider">{formatPeriod(role.period)}</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{experience.description}</p>
-                  
+
+                  <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">{role.description}</p>
+
                   {/* Technologies used */}
                   <div className="flex flex-wrap gap-2 mt-6">
-                    {experience.skills && getSkillNames(experience.skills).slice(0, 5).map((skillName, tagIndex) => (
-                      <span 
+                    {role.skills && getSkillNames(role.skills).slice(0, 5).map((skillName, tagIndex) => (
+                      <span
                         key={tagIndex}
                         className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full"
                       >
                         {skillName}
                       </span>
                     ))}
-                    {experience.skills && experience.skills.length > 5 && (
+                    {role.skills && role.skills.length > 5 && (
                       <span className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full">
-                        +{experience.skills.length - 5}
+                        +{role.skills.length - 5}
                       </span>
                     )}
                   </div>

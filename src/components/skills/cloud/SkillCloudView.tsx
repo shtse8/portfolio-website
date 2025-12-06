@@ -4,8 +4,8 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSkills } from '@/data/skills';
 import { PROJECTS } from '@/data/projects';
-import { EXPERIENCES } from '@/data/experiences';
-import type { TechSkill, Project, Experience } from '@/data/types';
+import { ROLES } from '@/data/roles';
+import type { TechSkill, Project, Role } from '@/data/types';
 import SkillModal from '../SkillModal';
 import SkillCard from '../SkillCard';
 import { useModalManager } from '@/hooks/useModalManager';
@@ -302,11 +302,11 @@ interface CompactSkillCardProps {
 }
 
 const CompactSkillCard: React.FC<CompactSkillCardProps> = ({ skill, onClick, getSkillIcon }) => {
-  // Determine if card is interactive based on having related projects/experiences
+  // Determine if card is interactive based on having related projects/roles
   const relatedProjectCount = useMemo(() => {
     const projects = PROJECTS.filter((project: Project) => project.skills.includes(skill.id));
-    const experiences = EXPERIENCES.filter((exp: Experience) => exp.skills.includes(skill.id));
-    return projects.length + experiences.length;
+    const roles = ROLES.filter((role: Role) => role.skills?.includes(skill.id));
+    return projects.length + roles.length;
   }, [skill.id]);
   
   const isInteractive = relatedProjectCount > 0;

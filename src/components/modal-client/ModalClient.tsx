@@ -4,8 +4,8 @@ import { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import SkillModal from '@/components/skills/SkillModal';
 import { PROJECTS } from '@/data/projects';
-import { EXPERIENCES } from '@/data/experiences';
-import { COMPANIES } from '@/data/companies';
+import { ROLES } from '@/data/roles';
+import { ORGANIZATIONS } from '@/data/organizations';
 import dynamic from 'next/dynamic';
 
 // Dynamically import the modal components to avoid circular dependencies
@@ -71,8 +71,8 @@ export default function ModalClient({ modalType, modalId, sectionId }: ModalClie
   
   // Find item data for the requested modal
   const project = modalType === 'projects' ? PROJECTS.find(p => p.id === modalId) : null;
-  const experience = modalType === 'experiences' ? EXPERIENCES.find(e => e.id === modalId) : null;
-  const company = modalType === 'companies' ? COMPANIES[modalId] : null;
+  const experience = modalType === 'experiences' ? ROLES.find(e => e.id === modalId) : null;
+  const company = modalType === 'companies' ? ORGANIZATIONS[modalId] : null;
   
   // Helper functions for modals
   const parseMarkdownLinks = (text: string) => text; // Simple placeholder

@@ -3,9 +3,7 @@ export * from './types';
 
 // Export all data
 export { PROJECTS, PROJECT_CATEGORIES } from './projects';
-export * from './companies';
 export * from './organizations';
-export * from './experiences';
 export * from './roles';
 export { getSkills, SKILLS_BASE, clearSkillsCache } from './skills';
 export { PERSONAL_INFO, GITHUB_STATS } from './personal';
@@ -97,25 +95,12 @@ export function getProjectTimeMachineUrl(project: Project): string | undefined {
  * @returns Formatted string like "2001-2005" or "2005-Present"
  */
 export function formatProjectPeriod(project: Project): string {
-  if (!project.start_date) {
-    return ""; // Return empty string if no start date
+  if (!project.period) {
+    return ""; // Return empty string if no period
   }
-  
-  // Extract years from ISO dates or use the whole string if not in ISO format
-  const startYear = project.start_date.substring(0, 4);
-  
-  if (!project.end_date) {
-    return `${startYear}-Present`;
-  }
-  
-  const endYear = project.end_date.substring(0, 4);
-  
-  // If same year, just return one year
-  if (startYear === endYear) {
-    return startYear;
-  }
-  
-  return `${startYear}-${endYear}`;
+
+  // Use the Period-based formatPeriod function
+  return formatPeriod(project.period);
 }
 
 /**

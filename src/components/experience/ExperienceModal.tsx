@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding } from 'react-icons/fa';
-import type { Experience } from '@/data/types';
-import { COMPANIES } from '@/data/companies';
+import type { Role } from '@/data/types';
+import { ORGANIZATIONS } from '@/data/organizations';
 import { formatPeriod } from '@/data';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
 
 type ExperienceModalProps = {
-  experience: Experience;
+  experience: Role;
   nextExperience?: () => void;
   prevExperience?: () => void;
   openCompanyModal: (companyId: string) => void;
@@ -19,7 +19,7 @@ type ExperienceModalProps = {
 };
 
 export default function ExperienceModal({
-  experience,
+  experience: role,
   nextExperience,
   prevExperience,
   openCompanyModal,
@@ -49,29 +49,31 @@ export default function ExperienceModal({
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 relative overflow-hidden rounded-lg shadow-sm">
-                <Image
-                  src={experience.logo}
-                  alt={experience.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+              {role.logo && (
+                <div className="w-20 h-20 relative overflow-hidden rounded-lg shadow-sm">
+                  <Image
+                    src={role.logo}
+                    alt={role.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
               <div>
                 <h2 className="text-3xl font-light tracking-wide text-gray-900 dark:text-white mb-2">
-                  {experience.title}
+                  {role.title}
                 </h2>
                 
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  {experience.company && (
+                  {role.organizationId && (
                     <>
                       <button
-                        onClick={() => openCompanyModal(experience.company as string)}
+                        onClick={() => openCompanyModal(role.organizationId as string)}
                         className="flex items-center hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
                       >
                         <FaBuilding className="mr-2 text-blue-500 dark:text-blue-400" />
                         <span className="underline-offset-4 hover:underline">
-                          {COMPANIES[experience.company]?.name || experience.company}
+                          {ORGANIZATIONS[role.organizationId]?.name || role.organizationId}
                         </span>
                       </button>
                       <span className="mx-3">•</span>
@@ -79,10 +81,10 @@ export default function ExperienceModal({
                   )}
                   <span className="flex items-center">
                     <FaMapMarkerAlt className="mr-2 text-blue-500 dark:text-blue-400" />
-                    {experience.location}
+                    {role.location}
                   </span>
                   <span className="mx-3">•</span>
-                  <span>{formatPeriod(experience.period)}</span>
+                  <span>{formatPeriod(role.period)}</span>
                 </div>
               </div>
             </div>
@@ -141,12 +143,12 @@ export default function ExperienceModal({
               className="prose dark:prose-invert prose-lg max-w-none"
             >
               <div className="text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                {experience.description}
+                {role.description}
               </div>
               
               {/* Tags */}
               <div className="flex flex-wrap gap-2 mb-6">
-                {experience.skills && getSkillNames(experience.skills).map((skillName, i) => (
+                {role.skills && getSkillNames(role.skills).map((skillName, i) => (
                   <span
                     key={i}
                     className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-400 rounded-full"
@@ -156,10 +158,10 @@ export default function ExperienceModal({
                 ))}
               </div>
               
-              {experience.liveUrl && (
+              {role.liveUrl && (
                 <div className="mt-8">
                   <a
-                    href={experience.liveUrl}
+                    href={role.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -180,7 +182,7 @@ export default function ExperienceModal({
               transition={{ duration: 0.2 }}
             >
               <ul className="space-y-6 text-gray-700 dark:text-gray-300">
-                {experience.details.map((detail, index) => (
+                {role.responsibilities.map((detail, index) => (
                   <li key={index} className="flex gap-4">
                     <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mt-1">
                       <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400"></div>

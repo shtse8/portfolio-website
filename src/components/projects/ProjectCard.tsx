@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { Project } from '@/data/types';
-import { COMPANIES } from '@/data/companies';
+import { ORGANIZATIONS } from '@/data/organizations';
 import { motion } from 'framer-motion';
 import { FaLink, FaGithub, FaBuilding } from 'react-icons/fa';
 import { getSkillNames } from '@/utils/skillHelpers';
@@ -26,8 +26,8 @@ export default function ProjectCard({
   // Helper function for company click with null check
   const handleCompanyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (project.related_experience_id) {
-      openCompanyModal(project.related_experience_id);
+    if (project.organizationId) {
+      openCompanyModal(project.organizationId);
     }
   };
 
@@ -112,15 +112,15 @@ export default function ProjectCard({
             )}
           </div>
           
-          {project.related_experience_id && COMPANIES[project.related_experience_id] && (
+          {project.organizationId && ORGANIZATIONS[project.organizationId] && (
             <button
               onClick={handleCompanyClick}
               className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs group"
-              aria-label={`View company: ${COMPANIES[project.related_experience_id].name}`}
-              title={`View company: ${COMPANIES[project.related_experience_id].name}`}
+              aria-label={`View company: ${ORGANIZATIONS[project.organizationId].name}`}
+              title={`View company: ${ORGANIZATIONS[project.organizationId].name}`}
             >
               <FaBuilding className="mr-1.5 text-gray-500 dark:text-gray-500" />
-              <span className="group-hover:underline">{COMPANIES[project.related_experience_id].name}</span>
+              <span className="group-hover:underline">{ORGANIZATIONS[project.organizationId].name}</span>
             </button>
           )}
         </div>

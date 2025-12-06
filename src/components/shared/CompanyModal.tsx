@@ -4,15 +4,15 @@ import { useEffect } from 'react';
 import Image from 'next/image';
 import { FaExternalLinkAlt, FaMapMarkerAlt, FaBuilding, FaUsers, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link';
-import type { Company, Project, Experience } from '@/data/types';
+import type { Organization, Project, Role } from '@/data/types';
 import { PROJECTS } from '@/data/projects';
-import { EXPERIENCES } from '@/data/experiences';
+import { ROLES } from '@/data/roles';
 import { formatPeriod } from '@/data';
 import { motion } from 'framer-motion';
 import ProjectImage from '@/components/shared/ProjectImage';
 
 type CompanyModalProps = {
-  company: Company;
+  company: Organization;
   closeModal?: () => void;
   openProjectModal?: (index: number) => void;
   openExperienceModal?: (index: number) => void;
@@ -24,9 +24,9 @@ export default function CompanyModal({
   openProjectModal,
   openExperienceModal
 }: CompanyModalProps) {
-  // Get related projects and experiences
-  const relatedProjects: Project[] = PROJECTS.filter(project => project.related_experience_id === company.id);
-  const relatedExperiences: Experience[] = EXPERIENCES.filter(exp => exp.company === company.id);
+  // Get related projects and roles
+  const relatedProjects: Project[] = PROJECTS.filter(project => project.organizationId === company.id);
+  const relatedRoles: Role[] = ROLES.filter(role => role.organizationId === company.id);
   
   // Handle keyboard navigation
   useEffect(() => {
@@ -121,28 +121,28 @@ export default function CompanyModal({
         </motion.div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Experience at Company */}
+          {/* Roles at Organization */}
           <div>
-            {relatedExperiences.length > 0 && (
-              <motion.div 
+            {relatedRoles.length > 0 && (
+              <motion.div
                 className="mb-12"
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15, duration: 0.2 }}
               >
                 <h3 className="text-xl font-light mb-6 text-gray-900 dark:text-white">
-                  Experience at {company.name}
+                  Roles at {company.name}
                 </h3>
                 <div className="space-y-4">
-                  {relatedExperiences.map((exp, index) => (
-                    <motion.div 
-                      key={exp.id} 
+                  {relatedRoles.map((role, index) => (
+                    <motion.div
+                      key={role.id}
                       className="p-6 bg-gray-50 dark:bg-gray-800/20 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800/30 transition-all shadow-sm"
                       onClick={() => {
                         if (openExperienceModal) {
-                          const expIndex = EXPERIENCES.findIndex(e => e.id === exp.id);
-                          if (expIndex !== -1) {
-                            openExperienceModal(expIndex);
+                          const roleIndex = ROLES.findIndex(r => r.id === role.id);
+                          if (roleIndex !== -1) {
+                            openExperienceModal(roleIndex);
                           }
                         }
                       }}
@@ -153,11 +153,11 @@ export default function CompanyModal({
                     >
                       <div className="flex justify-between items-start gap-4">
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 dark:text-white text-lg mb-1">{exp.title}</h4>
-                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{formatPeriod(exp.period)}</p>
-                          <p className="text-gray-700 dark:text-gray-300 line-clamp-2 font-light">{exp.description}</p>
+                          <h4 className="font-medium text-gray-900 dark:text-white text-lg mb-1">{role.title}</h4>
+                          <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">{formatPeriod(role.period)}</p>
+                          <p className="text-gray-700 dark:text-gray-300 line-clamp-2 font-light">{role.description}</p>
                         </div>
-                        <motion.div 
+                        <motion.div
                           className="text-blue-500 dark:text-blue-400 self-center"
                           whileHover={{ x: 3 }}
                         >

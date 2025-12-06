@@ -3,8 +3,8 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { PROJECTS } from '@/data/projects';
-import { EXPERIENCES } from '@/data/experiences';
-import type { Project, Experience, TechSkill } from '@/data/types';
+import { ROLES } from '@/data/roles';
+import type { Project, Role, TechSkill } from '@/data/types';
 import { cn } from '@/lib/utils';
 
 // Interfaces for component props
@@ -39,8 +39,8 @@ const getRelatedProjects = (skillId: string): Project[] => {
   return PROJECTS.filter(project => project.skills.includes(skillId));
 };
 
-const getRelatedExperiences = (skillId: string): Experience[] => {
-  return EXPERIENCES.filter(experience => experience.skills.includes(skillId));
+const getRelatedRoles = (skillId: string): Role[] => {
+  return ROLES.filter(role => role.skills?.includes(skillId));
 };
 
 // Separate component for related items indicator
@@ -71,11 +71,11 @@ const SkillCard: React.FC<SkillCardProps> = ({ skill, onClick, getSkillIcon }) =
   // Memoize expensive calculations to improve performance
   const relatedData = useMemo(() => {
     const projects = getRelatedProjects(skill.id);
-    const experiences = getRelatedExperiences(skill.id);
+    const roles = getRelatedRoles(skill.id);
     return {
       projects,
-      experiences,
-      totalCount: projects.length + experiences.length
+      roles,
+      totalCount: projects.length + roles.length
     };
   }, [skill.id]);
   

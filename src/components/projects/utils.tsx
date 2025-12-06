@@ -1,5 +1,5 @@
-import type { Project, Experience } from '@/data/types';
-import { EXPERIENCES } from '@/data/experiences';
+import type { Project, Role } from '@/data/types';
+import { ROLES } from '@/data/roles';
 import { ReactNode } from 'react';
 import Link from 'next/link';
 
@@ -46,10 +46,10 @@ export const getProjectColor = (index: number): string => {
   return colors[index % colors.length];
 };
 
-// Find experience related to a project
-export const getExperienceForProject = (project: Project): Experience | null => {
-  if (!project.related_experience_id) return null;
-  
-  const relatedExperiences = EXPERIENCES.filter(exp => exp.company === project.related_experience_id);
-  return relatedExperiences.length > 0 ? relatedExperiences[0] : null;
+// Find role related to a project
+export const getRoleForProject = (project: Project): Role | null => {
+  if (!project.organizationId) return null;
+
+  const relatedRoles = ROLES.filter(role => role.organizationId === project.organizationId);
+  return relatedRoles.length > 0 ? relatedRoles[0] : null;
 }; 

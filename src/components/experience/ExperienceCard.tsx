@@ -4,15 +4,15 @@ import Image from 'next/image';
 import { FaCalendarAlt, FaChevronDown, FaChevronUp, FaMapMarkerAlt, FaLink, FaChevronRight } from 'react-icons/fa';
 import Link from 'next/link';
 import { PROJECTS } from '@/data/projects';
-import { COMPANIES } from '@/data/companies';
-import type { Project, Experience } from '@/data/types';
+import { ORGANIZATIONS } from '@/data/organizations';
+import type { Project, Role } from '@/data/types';
 import { formatPeriod } from '@/data';
 import { parseMarkdownLinks } from '../projects/utils';
 import { getSkillNames } from '@/utils/skillHelpers';
 import ProjectImage from '@/components/shared/ProjectImage';
 
 type ExperienceCardProps = {
-  experience: Experience;
+  experience: Role;
   expandedId: string | null;
   toggleExpand: (id: string) => void;
   openExperienceModal: (index: number) => void;
@@ -20,8 +20,8 @@ type ExperienceCardProps = {
   experienceIndex: number;
 };
 
-// Extend the Experience type to include optional relatedProjects
-interface ExperienceWithRelatedProjects extends Experience {
+// Extend the Role type to include optional relatedProjects
+interface RoleWithRelatedProjects extends Role {
   relatedProjects?: string[];
 }
 
@@ -33,10 +33,10 @@ export default function ExperienceCard({
   openCompanyModal,
   experienceIndex
 }: ExperienceCardProps) {
-  const companyName = experience.company ? COMPANIES[experience.company]?.name || experience.company : "";
-  
+  const companyName = experience.organizationId ? ORGANIZATIONS[experience.organizationId]?.name || experience.organizationId : "";
+
   // Check if experience has relatedProjects property
-  const experienceWithProjects = experience as ExperienceWithRelatedProjects;
+  const experienceWithProjects = experience as RoleWithRelatedProjects;
   const hasRelatedProjects = experienceWithProjects.relatedProjects && experienceWithProjects.relatedProjects.length > 0;
   
   return (
@@ -48,33 +48,35 @@ export default function ExperienceCard({
       <div className="p-8">
         {/* Header with company logo */}
         <div className="flex gap-6 mb-6">
-          <div 
-            className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (experience.company) {
-                openCompanyModal(experience.company);
-              }
-            }}
-            title={`View ${companyName} details`}
-          >
-            <Image
-              src={experience.logo}
-              alt={companyName}
-              fill
-              className="object-cover"
-            />
-          </div>
+          {experience.logo && (
+            <div
+              className="relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (experience.organizationId) {
+                  openCompanyModal(experience.organizationId);
+                }
+              }}
+              title={`View ${companyName} details`}
+            >
+              <Image
+                src={experience.logo}
+                alt={companyName}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
           
           <div className="flex-1">
             <h3 className="text-xl font-light tracking-wide text-gray-800 dark:text-white mb-2">{experience.title}</h3>
-            {experience.company && (
-              <button 
+            {experience.organizationId && (
+              <button
                 className="text-blue-600 dark:text-blue-400 font-light hover:underline inline-flex items-center gap-1"
                 onClick={(e) => {
                   e.stopPropagation();
-                  if (experience.company) {
-                    openCompanyModal(experience.company);
+                  if (experience.organizationId) {
+                    openCompanyModal(experience.organizationId);
                   }
                 }}
               >
@@ -115,12 +117,12 @@ export default function ExperienceCard({
         {/* Quick preview or detailed achievements */}
         {expandedId !== experience.id ? (
           <p className="text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2 mb-6 font-light">
-            {experience.details[0]}
+            {experience.responsibilities[0]}
           </p>
         ) : (
           <div className="mb-6">
             <ul className="space-y-4">
-              {experience.details.map((detail: string, idx: number) => (
+              {experience.responsibilities.map((detail: string, idx: number) => (
                 <li key={idx} className="flex items-start">
                   <div className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-1.5 rounded-full mr-3 mt-0.5 flex-shrink-0">
                     <span className="block w-1.5 h-1.5 bg-current rounded-full"></span>

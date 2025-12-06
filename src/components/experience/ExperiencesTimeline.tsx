@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { EXPERIENCES } from '@/data/experiences';
-import { COMPANIES } from '@/data/companies';
+import { ROLES } from '@/data/roles';
+import { ORGANIZATIONS } from '@/data/organizations';
 import { formatPeriod } from '@/data';
 import { motion, useScroll, useSpring, useInView } from 'framer-motion';
 import Image from 'next/image';
@@ -24,7 +24,7 @@ export default function ExperiencesTimeline() {
   }, []);
 
   // Sort experiences by start year (newest first)
-  const sortedExperiences = [...EXPERIENCES].sort((a, b) => {
+  const sortedExperiences = [...ROLES].sort((a, b) => {
     const aStartYear = parseInt(a.period.start.substring(0, 4));
     const bStartYear = parseInt(b.period.start.substring(0, 4));
     return bStartYear - aStartYear;
@@ -32,15 +32,15 @@ export default function ExperiencesTimeline() {
   
   // Adapter function for experience modal
   const handleOpenExperience = (index: number) => {
-    const experience = EXPERIENCES[index];
+    const experience = ROLES[index];
     
     const handleNext = () => {
-      const nextIndex = (index + 1) % EXPERIENCES.length;
+      const nextIndex = (index + 1) % ROLES.length;
       handleOpenExperience(nextIndex);
     };
     
     const handlePrev = () => {
-      const prevIndex = (index - 1 + EXPERIENCES.length) % EXPERIENCES.length;
+      const prevIndex = (index - 1 + ROLES.length) % ROLES.length;
       handleOpenExperience(prevIndex);
     };
     
@@ -66,7 +66,7 @@ export default function ExperiencesTimeline() {
   const handleOpenCompany = (companyId: string) => {
     open(
       <CompanyModal
-        company={COMPANIES[companyId]}
+        company={ORGANIZATIONS[companyId]}
         openProjectModal={() => {}}
         openExperienceModal={handleOpenExperience}
       />,
@@ -174,7 +174,7 @@ export default function ExperiencesTimeline() {
             {/* Experience blocks */}
             <div className="space-y-32 md:space-y-48">
               {sortedExperiences.map((experience, index) => {
-                const companyName = experience.company ? COMPANIES[experience.company]?.name : null;
+                const companyName = experience.organizationId ? ORGANIZATIONS[experience.organizationId]?.name : null;
                 const isEven = index % 2 === 0;
                 const startYear = experience.period.start.substring(0, 4);
                 const endYear = experience.period.end ? experience.period.end.substring(0, 4) : 'Present';
@@ -238,8 +238,8 @@ export default function ExperiencesTimeline() {
                             companyName={companyName}
                             index={index}
                             activeIndex={activeExperience}
-                            handleOpenExperience={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
-                            handleOpenCompany={() => experience.company && handleOpenCompany(experience.company)}
+                            handleOpenExperience={() => handleOpenExperience(ROLES.findIndex(e => e.id === experience.id))}
+                            handleOpenCompany={() => experience.organizationId && handleOpenCompany(experience.organizationId)}
                             position="left"
                           />
                         )}
@@ -253,8 +253,8 @@ export default function ExperiencesTimeline() {
                             companyName={companyName}
                             index={index}
                             activeIndex={activeExperience}
-                            handleOpenExperience={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
-                            handleOpenCompany={() => experience.company && handleOpenCompany(experience.company)}
+                            handleOpenExperience={() => handleOpenExperience(ROLES.findIndex(e => e.id === experience.id))}
+                            handleOpenCompany={() => experience.organizationId && handleOpenCompany(experience.organizationId)}
                             position="right"
                           />
                         )}
@@ -267,8 +267,8 @@ export default function ExperiencesTimeline() {
                               companyName={companyName}
                               index={index}
                               activeIndex={activeExperience}
-                              handleOpenExperience={() => handleOpenExperience(EXPERIENCES.findIndex(e => e.id === experience.id))}
-                              handleOpenCompany={() => experience.company && handleOpenCompany(experience.company)}
+                              handleOpenExperience={() => handleOpenExperience(ROLES.findIndex(e => e.id === experience.id))}
+                              handleOpenCompany={() => experience.organizationId && handleOpenCompany(experience.organizationId)}
                               position="mobile"
                             />
                           )}
@@ -296,7 +296,7 @@ function ExperienceContent({
   handleOpenCompany,
   position
 }: { 
-  experience: typeof EXPERIENCES[number];
+  experience: typeof ROLES[number];
   companyName: string | null;
   index: number;
   activeIndex: number | null;
@@ -335,13 +335,15 @@ function ExperienceContent({
       >
         <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-40"></div>
         
-        <Image 
-          src={experience.logo} 
-          alt={experience.title}
-          fill
-          className="object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
-          style={{ objectPosition: 'center' }}
-        />
+        {experience.logo && (
+          <Image
+            src={experience.logo}
+            alt={experience.title}
+            fill
+            className="object-cover opacity-70 group-hover:opacity-90 transition-opacity duration-300"
+            style={{ objectPosition: 'center' }}
+          />
+        )}
         
         {/* Gradient overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
@@ -362,23 +364,25 @@ function ExperienceContent({
         </div>
         
         {/* Skill tags container - appears on hover */}
-        <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="flex flex-wrap gap-2 justify-end">
-            {experience.skills.slice(0, 3).map((skill, i) => (
-              <span
-                key={i}
-                className="text-xs px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white"
-              >
-                {getSkillNames([skill])[0]}
-              </span>
-            ))}
-            {experience.skills.length > 3 && (
-              <span className="text-xs px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white">
-                +{experience.skills.length - 3}
-              </span>
-            )}
+        {experience.skills && experience.skills.length > 0 && (
+          <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="flex flex-wrap gap-2 justify-end">
+              {experience.skills.slice(0, 3).map((skill, i) => (
+                <span
+                  key={i}
+                  className="text-xs px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white"
+                >
+                  {getSkillNames([skill])[0]}
+                </span>
+              ))}
+              {experience.skills.length > 3 && (
+                <span className="text-xs px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white">
+                  +{experience.skills.length - 3}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
       
       {/* Description and statistics - visible information */}
@@ -391,9 +395,9 @@ function ExperienceContent({
         </p>
         
         {/* Impact statistics - bold visual metrics */}
-        {experience.impactStatements && (
+        {experience.metrics && (
           <div className="flex flex-wrap gap-4 mb-6">
-            {experience.impactStatements.map((stat, i) => (
+            {experience.metrics.map((stat, i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
@@ -405,7 +409,7 @@ function ExperienceContent({
                   {stat.value}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-500 uppercase tracking-wider font-light mt-1">
-                  {stat.label}
+                  {stat.label || stat.type}
                 </span>
               </motion.div>
             ))}

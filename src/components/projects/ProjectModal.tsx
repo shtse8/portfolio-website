@@ -4,9 +4,9 @@ import { useState, ReactNode } from 'react';
 import Image from 'next/image';
 import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight, 
   FaGooglePlay, FaApple, FaWikipediaW, FaLink, FaFileAlt, FaVideo, FaNewspaper, FaBook } from 'react-icons/fa';
-import type { Project, Experience } from '@/data/types';
-import { COMPANIES } from '@/data/companies';
-import { EXPERIENCES } from '@/data/experiences';
+import type { Project, Role } from '@/data/types';
+import { ORGANIZATIONS } from '@/data/organizations';
+import { ROLES } from '@/data/roles';
 import { formatPeriod } from '@/data';
 import { motion } from 'framer-motion';
 import { getSkillNames } from '@/utils/skillHelpers';
@@ -61,19 +61,23 @@ export default function ProjectModal({
     }
   };
   
-  const getExperienceForProject = (): Experience | null => {
-    // First check if there's an experience that lists this project
-    const relatedExperience = EXPERIENCES.find(exp => 
-      exp.projects?.includes(project.id)
+  const getRoleForProject = (): Role | null => {
+    // First check if there's a role that lists this project
+    const relatedRole = ROLES.find(role =>
+      role.projectIds?.includes(project.id)
     );
-    
-    // If not found, fall back to experience match
-    if (!relatedExperience && project.related_experience_id) {
-      const companyExperiences = EXPERIENCES.filter(exp => exp.company === project.related_experience_id);
-      return companyExperiences.length > 0 ? companyExperiences[0] : null;
+
+    // If not found, fall back to roleId or organizationId match
+    if (!relatedRole && project.roleId) {
+      return ROLES.find(r => r.id === project.roleId) || null;
     }
-    
-    return relatedExperience || null;
+
+    if (!relatedRole && project.organizationId) {
+      const orgRoles = ROLES.filter(r => r.organizationId === project.organizationId);
+      return orgRoles.length > 0 ? orgRoles[0] : null;
+    }
+
+    return relatedRole || null;
   };
 
   const nextImage = () => {
@@ -185,25 +189,25 @@ export default function ProjectModal({
               </div>
               
               <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
-                {project.start_date && (
+                {project.period && (
                   <div className="flex items-center">
                     <FaCalendarAlt className="mr-2 text-blue-500 dark:text-blue-400" />
                     <span>
-                      {new Date(project.start_date).getFullYear()}
-                      {project.end_date && ` - ${new Date(project.end_date).getFullYear()}`}
+                      {project.period.start.substring(0, 4)}
+                      {project.period.end ? ` - ${project.period.end.substring(0, 4)}` : ' - Present'}
                     </span>
                   </div>
                 )}
                 
-                {/* Company button */}
-                {project.related_experience_id && (
+                {/* Organization button */}
+                {project.organizationId && (
                   <button
                     className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    onClick={() => openCompanyModal(project.related_experience_id as string)}
+                    onClick={() => openCompanyModal(project.organizationId as string)}
                   >
                     <FaBuilding className="mr-2" />
                     <span className="underline-offset-4 hover:underline">
-                      {COMPANIES[project.related_experience_id]?.name || project.related_experience_id}
+                      {ORGANIZATIONS[project.organizationId]?.name || project.organizationId}
                     </span>
                   </button>
                 )}
@@ -260,41 +264,41 @@ export default function ProjectModal({
                 </>
               )}
               
-              {/* Related Experience Section */}
-              {getExperienceForProject() && (
+              {/* Related Role Section */}
+              {getRoleForProject() && (
                 <>
-                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Related Experience</h3>
-                  
-                  <div 
+                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Related Role</h3>
+
+                  <div
                     className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
                     onClick={() => {
-                      const exp = getExperienceForProject();
-                      if (exp) {
-                        const expIndex = EXPERIENCES.findIndex(e => e.id === exp.id);
-                        if (expIndex !== -1) {
-                          openExperienceModal(expIndex);
+                      const role = getRoleForProject();
+                      if (role) {
+                        const roleIndex = ROLES.findIndex(r => r.id === role.id);
+                        if (roleIndex !== -1) {
+                          openExperienceModal(roleIndex);
                         }
                       }
                     }}
                   >
                     <div className="flex items-start gap-4">
                       <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                        {getExperienceForProject()?.logo && (
+                        {getRoleForProject()?.logo && (
                           <Image
-                            src={getExperienceForProject()?.logo || ''}
-                            alt={getExperienceForProject()?.title || ''}
+                            src={getRoleForProject()?.logo || ''}
+                            alt={getRoleForProject()?.title || ''}
                             fill
                             className="object-cover"
                           />
                         )}
                       </div>
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-1">{getExperienceForProject()?.title}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-1">{getRoleForProject()?.title}</h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          {getExperienceForProject()?.company} • {getExperienceForProject()?.period ? formatPeriod(getExperienceForProject()!.period) : ''}
+                          {getRoleForProject()?.organizationId && ORGANIZATIONS[getRoleForProject()!.organizationId]?.name} • {getRoleForProject()?.period ? formatPeriod(getRoleForProject()!.period) : ''}
                         </p>
                         <p className="text-gray-700 dark:text-gray-300 font-light">
-                          {getExperienceForProject()?.description}
+                          {getRoleForProject()?.description}
                         </p>
                       </div>
                     </div>

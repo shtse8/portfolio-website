@@ -10,9 +10,9 @@ import { SiTypescript, SiKubernetes, SiGooglecloud, SiFirebase, SiUnity, SiEther
   SiNestjs, SiGooglechrome, SiGo, SiPytorch } from 'react-icons/si';
 import { motion } from 'framer-motion';
 import { PROJECTS } from '@/data/projects';
-import { EXPERIENCES } from '@/data/experiences';
+import { ROLES } from '@/data/roles';
 import { formatPeriod } from '@/data';
-import type { Project, Experience } from '@/data/types';
+import type { Project, Role } from '@/data/types';
 import { getSkillNames } from '@/utils/skillHelpers';
 import { cn } from '@/lib/utils';
 import ProjectImage from '@/components/shared/ProjectImage';
@@ -74,9 +74,9 @@ const getRelatedProjects = (skillId: string): Project[] => {
   return PROJECTS.filter(project => project.skills.includes(skillId));
 };
 
-// Get experiences related to the selected skill
-const getRelatedExperiences = (skillId: string): Experience[] => {
-  return EXPERIENCES.filter(experience => experience.skills.includes(skillId));
+// Get roles related to the selected skill
+const getRelatedRoles = (skillId: string): Role[] => {
+  return ROLES.filter(role => role.skills?.includes(skillId));
 };
 
 // Icon mapping function using a memoized object
@@ -141,11 +141,11 @@ export default function SkillModal({
   
   // Get related data - memoize for performance
   const relatedData = useMemo(() => {
-    if (!skill) return { projects: [], experiences: [] };
-    
+    if (!skill) return { projects: [], roles: [] };
+
     return {
       projects: getRelatedProjects(skillId),
-      experiences: getRelatedExperiences(skillId)
+      roles: getRelatedRoles(skillId)
     };
   }, [skillId, skill]);
 
@@ -253,9 +253,9 @@ export default function SkillModal({
         exit="exit"
         key={`skill-content-${skillId}`}
       >
-        {/* Related Experiences Section */}
-        {relatedData.experiences.length > 0 && (
-          <motion.div 
+        {/* Related Roles Section */}
+        {relatedData.roles.length > 0 && (
+          <motion.div
             className="mb-8"
             variants={itemVariants}
           >
@@ -263,33 +263,35 @@ export default function SkillModal({
               <FaBriefcase className="mr-3 text-blue-500 dark:text-blue-400" aria-hidden="true" />
               Work Experience
             </h4>
-            
+
             <div className="grid grid-cols-1 gap-4">
-              {relatedData.experiences.map((experience) => (
+              {relatedData.roles.map((role) => (
                 <motion.div
-                  key={experience.id}
+                  key={role.id}
                   className="bg-white dark:bg-gray-900 rounded-lg overflow-hidden p-4 sm:p-5 transition-all duration-200 hover:shadow-md border border-gray-100 dark:border-gray-700"
                   variants={itemVariants}
                   whileHover={{ x: 2, transition: { duration: 0.2 } }}
                 >
                   <div className="flex items-start">
                     <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-md overflow-hidden flex-shrink-0 mr-4 sm:mr-5 bg-gray-100 dark:bg-gray-800">
-                      <Image
-                        src={experience.logo}
-                        alt={`${experience.company} logo`}
-                        fill
-                        className="object-contain p-1"
-                        sizes="(max-width: 768px) 48px, 56px"
-                      />
+                      {role.logo && (
+                        <Image
+                          src={role.logo}
+                          alt={`${role.title} logo`}
+                          fill
+                          className="object-contain p-1"
+                          sizes="(max-width: 768px) 48px, 56px"
+                        />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h5 className="font-medium text-base sm:text-lg mb-1 text-gray-900 dark:text-white">
-                        {experience.title}
+                        {role.title}
                       </h5>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{experience.company}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">{formatPeriod(experience.period)}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{role.organizationId}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">{formatPeriod(role.period)}</p>
                       <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3">
-                        {experience.description || experience.details?.[0] || ''}
+                        {role.description || role.responsibilities?.[0] || ''}
                       </p>
                     </div>
                   </div>
@@ -381,12 +383,12 @@ export default function SkillModal({
         )}
         
         {/* Empty state */}
-        {relatedData.projects.length === 0 && relatedData.experiences.length === 0 && (
-          <motion.div 
+        {relatedData.projects.length === 0 && relatedData.roles.length === 0 && (
+          <motion.div
             className="text-center py-10 text-gray-500 dark:text-gray-400"
             variants={itemVariants}
           >
-            <p>No related projects or experiences found for this skill.</p>
+            <p>No related projects or roles found for this skill.</p>
           </motion.div>
         )}
       </motion.div>

@@ -1,8 +1,7 @@
-import { Organization, Company } from './types';
+import { Organization } from './types';
 
 /**
- * Unified Organizations - replaces COMPANIES
- * Supports companies, GitHub orgs, communities
+ * All Organizations
  */
 export const ORGANIZATIONS: Record<string, Organization> = {
   sylphx: {
@@ -29,7 +28,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     description: 'Leading AI application development company specializing in enterprise solutions',
     logo: '/companys/epiow.png',
     website: 'https://epiow.com',
-    github: 'Epiow',
+    github: 'EpiowAI',
     location: 'United Kingdom',
     industry: 'Enterprise AI',
     size: '1-10 employees',
@@ -44,6 +43,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     description: 'Mobile gaming company specializing in card and casino games with millions of downloads',
     logo: '/companys/cubeage.jpeg',
     website: 'https://cubeage.com',
+    github: 'Cubeage',
     location: 'Hong Kong',
     industry: 'Game Development',
     size: '10-50 employees',
@@ -78,57 +78,20 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     size: '10-50 employees',
     founded: '2010-01'
   }
-} as const;
+};
 
 // ========================================
 // Helper Functions
 // ========================================
 
-/**
- * Get organization by ID
- */
 export function getOrganization(id: string): Organization | undefined {
   return ORGANIZATIONS[id];
 }
 
-/**
- * Get all active organizations
- */
 export function getActiveOrganizations(): Organization[] {
   return Object.values(ORGANIZATIONS).filter(org => org.status === 'active');
 }
 
-/**
- * Get organizations by type
- */
 export function getOrganizationsByType(type: Organization['type']): Organization[] {
   return Object.values(ORGANIZATIONS).filter(org => org.type === type);
 }
-
-// ========================================
-// Backward Compatibility
-// ========================================
-
-/**
- * Convert Organization to legacy Company format
- */
-function organizationToCompany(org: Organization): Company {
-  return {
-    id: org.id,
-    name: org.legalName || org.name,
-    description: org.description,
-    logo: org.logo,
-    website: org.website,
-    location: org.location,
-    industry: org.industry,
-    size: org.size
-  };
-}
-
-/**
- * @deprecated Use ORGANIZATIONS instead
- * Legacy COMPANIES export for backward compatibility
- */
-export const COMPANIES_FROM_ORGS: Record<string, Company> = Object.fromEntries(
-  Object.entries(ORGANIZATIONS).map(([id, org]) => [id, organizationToCompany(org)])
-) as Record<string, Company>;

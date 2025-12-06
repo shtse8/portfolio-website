@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGithub, FaLink, FaBuilding, FaChevronRight, FaChevronLeft } from 'react-icons/fa';
 import { PROJECTS, PROJECT_CATEGORIES } from '@/data/projects';
-import { COMPANIES } from '@/data/companies';
+import { ORGANIZATIONS } from '@/data/organizations';
 import type { Project } from '@/data/types';
 import { useModalManager } from '@/hooks/useModalManager';
 import ProjectModal from './ProjectModal';
@@ -99,7 +99,7 @@ export default function ProjectsShowcase() {
   
   const handleOpenCompany = (companyId: string) => {
     openCompany(CompanyModal, {
-      company: COMPANIES[companyId],
+      company: ORGANIZATIONS[companyId],
       closeModal: () => {},
       openProjectModal: handleOpenProject
     }, {
@@ -215,16 +215,16 @@ export default function ProjectsShowcase() {
               </div>
               
               {/* Company link */}
-              {currentProject.related_experience_id && COMPANIES[currentProject.related_experience_id] && (
+              {currentProject.organizationId && ORGANIZATIONS[currentProject.organizationId] && (
                 <button
                   className="flex items-center text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors text-sm group ml-auto"
-                  onClick={(e) => handleCompanyClick(e, currentProject.related_experience_id)}
-                  aria-label={`View company: ${COMPANIES[currentProject.related_experience_id].name}`}
-                  title={`View company: ${COMPANIES[currentProject.related_experience_id].name}`}
+                  onClick={(e) => handleCompanyClick(e, currentProject.organizationId ?? null)}
+                  aria-label={`View company: ${ORGANIZATIONS[currentProject.organizationId].name}`}
+                  title={`View company: ${ORGANIZATIONS[currentProject.organizationId].name}`}
                 >
                   <FaBuilding className="mr-1.5 text-gray-500 dark:text-gray-500" />
                   <span className="group-hover:underline">
-                    {COMPANIES[currentProject.related_experience_id].name}
+                    {ORGANIZATIONS[currentProject.organizationId].name}
                   </span>
                 </button>
               )}
