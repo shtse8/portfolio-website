@@ -254,10 +254,15 @@ function FeaturedProjectCard({
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${project.title}`}
       className={cn(
         "group relative overflow-hidden rounded-xl cursor-pointer",
         "bg-surface border border-border hover:border-accent/30",
-        "hover:shadow-lg transition-all duration-300"
+        "hover:shadow-lg transition-all duration-300",
+        "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
       )}
     >
       {/* Image */}
@@ -322,10 +327,15 @@ function CompactProjectCard({
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${project.title}`}
       className={cn(
         "group flex gap-3 p-3 rounded-lg cursor-pointer",
         "bg-surface border border-border hover:border-accent/30",
-        "hover:shadow-md transition-all duration-200"
+        "hover:shadow-md transition-all duration-200",
+        "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
       )}
     >
       {/* Thumbnail or placeholder */}
@@ -384,9 +394,14 @@ function MiniProjectCard({
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${project.title}`}
       className={cn(
         "group flex items-center gap-3 p-2 rounded-lg cursor-pointer",
-        "hover:bg-surface-elevated transition-colors duration-200"
+        "hover:bg-surface-elevated transition-colors duration-200",
+        "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
       )}
     >
       {/* Thumbnail or placeholder */}

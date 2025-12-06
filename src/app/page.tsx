@@ -105,42 +105,42 @@ export default function Home({ initialSection }: HomeProps) {
       </div>
 
       {/* Technical skills section */}
-      <div id="tech-stack" className="py-40 scroll-mt-20">
+      <div id="tech-stack" className="py-24 scroll-mt-20">
         <ErrorBoundary>
           <TechStack />
         </ErrorBoundary>
       </div>
 
       {/* Open Source section */}
-      <div id="open-source" className="py-20 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900/10 dark:to-gray-900/30 scroll-mt-20">
+      <div id="open-source" className="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900/10 dark:to-gray-900/30 scroll-mt-20">
         <ErrorBoundary>
           <OpenSource />
         </ErrorBoundary>
       </div>
 
       {/* Philosophy section */}
-      <div id="philosophy" className="py-40 bg-gray-50 dark:bg-gray-900/20 scroll-mt-20">
+      <div id="philosophy" className="py-24 bg-gray-50 dark:bg-gray-900/20 scroll-mt-20">
         <ErrorBoundary>
           <Philosophy />
         </ErrorBoundary>
       </div>
 
       {/* Projects section */}
-      <div id="projects" className="py-40 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
+      <div id="projects" className="py-24 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
         <ErrorBoundary>
           <FeaturedProjects />
         </ErrorBoundary>
       </div>
 
       {/* Experience section */}
-      <div id="experience" className="py-40 bg-white dark:bg-gray-900/10 scroll-mt-20">
+      <div id="experience" className="py-24 bg-white dark:bg-gray-900/10 scroll-mt-20">
         <ErrorBoundary>
           <Experience />
         </ErrorBoundary>
       </div>
 
       {/* Contact section */}
-      <div id="contact" className="py-40 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
+      <div id="contact" className="py-24 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
         <ErrorBoundary>
           <Contact />
         </ErrorBoundary>

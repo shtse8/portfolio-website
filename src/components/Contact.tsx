@@ -205,9 +205,12 @@ export default function Contact() {
                   onChange={handleChange}
                   className="input"
                   placeholder="Your name"
+                  aria-required="true"
+                  aria-invalid={!!errors.name}
+                  aria-describedby={errors.name ? "name-error" : undefined}
                 />
                 {errors.name && (
-                  <p className="mt-1.5 text-sm text-red-500">{errors.name}</p>
+                  <p id="name-error" className="mt-1.5 text-sm text-red-500" role="alert">{errors.name}</p>
                 )}
               </div>
 
@@ -224,9 +227,12 @@ export default function Contact() {
                   onChange={handleChange}
                   className="input"
                   placeholder="you@example.com"
+                  aria-required="true"
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? "email-error" : undefined}
                 />
                 {errors.email && (
-                  <p className="mt-1.5 text-sm text-red-500">{errors.email}</p>
+                  <p id="email-error" className="mt-1.5 text-sm text-red-500" role="alert">{errors.email}</p>
                 )}
               </div>
 
@@ -243,9 +249,12 @@ export default function Contact() {
                   rows={4}
                   className="textarea"
                   placeholder="Tell me about your project..."
+                  aria-required="true"
+                  aria-invalid={!!errors.message}
+                  aria-describedby={errors.message ? "message-error" : undefined}
                 />
                 {errors.message && (
-                  <p className="mt-1.5 text-sm text-red-500">{errors.message}</p>
+                  <p id="message-error" className="mt-1.5 text-sm text-red-500" role="alert">{errors.message}</p>
                 )}
               </div>
 
@@ -277,16 +286,18 @@ export default function Contact() {
               </button>
 
               {/* Status messages */}
-              {submitStatus === 'success' && (
-                <p className="text-center text-sm text-green-600 dark:text-green-400">
-                  Thanks for reaching out! I'll get back to you within 24 hours.
-                </p>
-              )}
-              {submitStatus === 'error' && (
-                <p className="text-center text-sm text-red-500">
-                  Something went wrong. Please try again or email directly.
-                </p>
-              )}
+              <div role="status" aria-live="polite">
+                {submitStatus === 'success' && (
+                  <p className="text-center text-sm text-green-600 dark:text-green-400">
+                    Thanks for reaching out! I'll get back to you within 24 hours.
+                  </p>
+                )}
+                {submitStatus === 'error' && (
+                  <p className="text-center text-sm text-red-500">
+                    Something went wrong. Please try again or email directly.
+                  </p>
+                )}
+              </div>
             </form>
           </motion.div>
         </div>

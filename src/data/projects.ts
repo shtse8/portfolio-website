@@ -66,7 +66,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'rapid',
         title: 'Rapid',
-        description: 'Hyper-optimized reactive state management library. 1.7-45x faster than competitors with only 2.49KB gzipped.',
+        description: 'Hyper-optimized reactive state management library with only 2.49KB gzipped. See benchmarks in repo.',
         images: [],
         skills: ['typescript', 'react', 'vuejs', 'svelte', 'state-management', 'performance-testing', 'bundling'],
         category: "Frameworks & Libraries",
@@ -89,7 +89,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'craft',
         title: 'Craft',
-        description: 'Ultra-fast immutable state library for TypeScript. 1.4-35x faster than Immer with comprehensive ES6 collection support.',
+        description: 'Ultra-fast immutable state library for TypeScript with comprehensive ES6 collection support. See benchmarks in repo.',
         images: [],
         skills: ['typescript', 'immutable-data', 'performance-testing', 'functional-programming', 'json-patch'],
         category: "Frameworks & Libraries",

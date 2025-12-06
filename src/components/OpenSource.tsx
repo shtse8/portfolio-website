@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FaGithub, FaStar, FaArrowRight, FaExternalLinkAlt, FaCodeBranch, FaNpm, FaDownload } from 'react-icons/fa';
+import { FaGithub, FaStar, FaArrowRight, FaExternalLinkAlt, FaCodeBranch, FaNpm } from 'react-icons/fa';
 import { PROJECTS } from '@/data/projects';
 import { GITHUB_STATS } from '@/data/personal';
 import { cn } from '@/lib/utils';

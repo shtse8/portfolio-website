@@ -49,7 +49,6 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
     setIsScrolling(true);
     setActiveSection(sectionId);
     
-    console.log(`NavigationStore: Navigating to section: ${sectionId}`);
     
     // Scroll to section
     const element = document.getElementById(sectionId);
@@ -60,7 +59,6 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
         // Use pushState instead of replaceState to create a history entry
         // This enables back/forward navigation
         window.history.pushState({ path: targetPath, section: sectionId }, '', targetPath);
-        console.log(`Updated URL to ${targetPath} with history entry`);
       }
       
       // Scroll behavior options
@@ -78,7 +76,6 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
         element.classList.remove('section-focus');
       }, 1000);
     } else {
-      console.error(`Could not find element with id ${sectionId}`);
     }
     
     // Reset scrolling state after animation completes
@@ -94,7 +91,6 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
     // Skip setup if already scrolling
     if (isScrolling) return;
     
-    console.log('Setting up intersection observer for sections:', sections);
     
     const rootEl = document.getElementById('main-content');
     const observerOptions = {
@@ -117,7 +113,6 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
           
           // Only update URL if it's different from current path
           if (window.location.pathname !== targetPath) {
-            console.log(`Updating URL to ${targetPath} due to scroll`);
             
             // Use pushState to create a history entry
             window.history.pushState(
@@ -137,9 +132,7 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
       const element = document.getElementById(sectionId);
       if (element) {
         observer.observe(element);
-        console.log(`Observing section: ${sectionId}`);
       } else {
-        console.warn(`Could not find element with id ${sectionId} to observe`);
       }
     });
     
@@ -147,13 +140,11 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
     // This handles cases where the DOM hasn't fully loaded yet
     const missingElements = sections.filter(sectionId => !document.getElementById(sectionId));
     if (missingElements.length > 0) {
-      console.log('Some sections not found, will retry:', missingElements);
       setTimeout(() => {
         missingElements.forEach(sectionId => {
           const element = document.getElementById(sectionId);
           if (element) {
             observer.observe(element);
-            console.log(`Now observing section: ${sectionId}`);
           }
         });
       }, 500);
@@ -171,14 +162,12 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
       if (isScrolling) return; // Avoid interference during programmatic scrolling
       
       const path = window.location.pathname;
-      console.log(`PopState event detected - path: ${path}`);
       
       // Determine section ID from path
       const sectionId = path === '/' ? 'hero' : path.substring(1);
       
       // Validate section ID
       if (sections.includes(sectionId)) {
-        console.log(`PopState: Navigating to valid section: ${sectionId}`);
         
         // Set the active section right away
         setActiveSection(sectionId);
@@ -206,11 +195,8 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
             setIsScrolling(false);
           }, 800);
         } else {
-          console.error(`PopState: Element with id ${sectionId} not found`);
           setIsScrolling(false);
         }
-      } else {
-        console.warn(`PopState: Unknown section: ${sectionId}`);
       }
     };
     
@@ -220,7 +206,6 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
     // Store reference for cleanup
     (window as WindowWithNavigationHandlers).__navigationPopStateHandler = handlePopState;
     
-    console.log('Popstate listener set up successfully');
   },
   
   // Cleanup function
@@ -267,7 +252,6 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
     if (typeof window === 'undefined') return;
     
     const path = window.location.pathname;
-    console.log('NavigationProvider initializing with path:', path);
     
     if (path === '/') {
       setActiveSection('hero');
@@ -279,7 +263,6 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
     }
     
     // Setup observers and event listeners
-    console.log('Setting up navigation observers and listeners');
     setupPopStateListener();
     
     // Setup intersection observer with a slight delay to ensure DOM is loaded

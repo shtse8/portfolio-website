@@ -19,7 +19,7 @@ const PHILOSOPHY_ITEMS = [
     belief: "Ship fast, but never ship broken.",
     contrast: "Most trade quality for speed.",
     approach: "I use AI and automation to have both.",
-    evidence: "4,600+ commits. Zero breaking releases.",
+    evidence: "4,600+ commits. Strict semantic versioning.",
     tags: ['velocity', 'quality', 'automation']
   },
   {

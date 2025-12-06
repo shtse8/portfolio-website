@@ -2,8 +2,8 @@
 
 import { useCallback, useState, useEffect } from 'react';
 import { FaGithub, FaArrowRight, FaArrowDown, FaStar, FaDownload, FaCode, FaClock } from 'react-icons/fa';
-import { PERSONAL_INFO, GITHUB_STATS } from '@/data/personal';
-import { motion, AnimatePresence } from 'framer-motion';
+import { PERSONAL_INFO } from '@/data/personal';
+import { motion } from 'framer-motion';
 
 // Key stats to display
 const HERO_STATS = [
