@@ -4,241 +4,262 @@
 
 /*
   ========================================
-  MODERN SWEDISH DESIGN SYSTEM
+  MODERN MINIMAL DESIGN SYSTEM
+  Vercel/Linear Inspired
   ========================================
-  Key principles:
-  - Minimalism and functional clarity
-  - Generous whitespace and balanced proportions
-  - Light, airy color palette with thoughtful accents
-  - Typography that prioritizes readability
 */
 
-/* ======== THEME VARIABLES ======== */
+/* ======== CSS CUSTOM PROPERTIES ======== */
 :root {
-  /* Base colors */
-  --foreground-rgb: 33, 37, 41;
-  --background-rgb: 255, 255, 255;
-  --primary-color: 69, 123, 157;
-  --accent-color: 0, 98, 114;
-  
-  /* Design system values */
+  /* Colors - Light Mode */
+  --background: #FAFAFA;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --border: #E5E5E5;
+  --border-subtle: #F0F0F0;
+
+  --text-primary: #171717;
+  --text-secondary: #525252;
+  --text-tertiary: #A3A3A3;
+
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-subtle: #EFF6FF;
+
+  /* Spacing base unit */
   --space-unit: 4px;
-  --border-radius-sm: 6px;
-  --border-radius-md: 12px;
-  --border-radius-lg: 16px;
-  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --shadow-elevation-1: 0 2px 10px rgba(0, 0, 0, 0.04);
-  --shadow-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  /* Transitions */
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark {
-  --foreground-rgb: 241, 243, 245;
-  --background-rgb: 33, 37, 41;
-  --primary-color: 99, 102, 241;
-  --accent-color: 165, 180, 252;
+  /* Colors - Dark Mode */
+  --background: #0A0A0A;
+  --surface: #171717;
+  --surface-elevated: #262626;
+  --border: #262626;
+  --border-subtle: #1C1C1C;
+
+  --text-primary: #FAFAFA;
+  --text-secondary: #A3A3A3;
+  --text-tertiary: #525252;
+
+  --accent: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-subtle: #172554;
 }
 
 /* ======== BASE STYLES ======== */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px; /* Space for fixed header */
+  scroll-padding-top: 80px;
 }
 
-/* Prevent background scrolling when modal is open */
 html.modal-open {
   overflow: hidden;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
-  font-family: 'Inter', sans-serif;
-  line-height: 1.5;
-  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  background: var(--background);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Improves readability with balanced text wrapping */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* ======== TYPOGRAPHY ======== */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
-/* ======== ACCESSIBILITY ======== */
-/* Focus styles that align with Swedish design - subtle but clear */
+p {
+  color: var(--text-secondary);
+}
+
+/* ======== FOCUS STYLES ======== */
 *:focus-visible {
-  @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-white dark:ring-offset-gray-900;
-  transition: all 0.2s var(--ease-out);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-/* ======== SCROLLBAR STYLING ======== */
-/* Clean, minimal scrollbar design */
+/* ======== SCROLLBAR ======== */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  background: var(--border);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-500;
+  background: var(--text-tertiary);
 }
 
-/* ======== LAYOUT UTILITIES ======== */
-/* Swedish design emphasizes generous white space */
+/* ======== SELECTION ======== */
+::selection {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+/* ======== UTILITY CLASSES ======== */
+
+/* Section padding - consistent across all sections */
 .section-padding {
-  @apply py-24 px-6 md:px-8;
+  @apply py-24 px-6;
 }
 
-.container-narrow {
-  @apply max-w-4xl mx-auto px-4;
+/* Container - consistent width */
+.container-content {
+  @apply max-w-5xl mx-auto px-4 sm:px-6;
 }
 
-.container-wide {
-  @apply max-w-6xl mx-auto px-4;
+/* Text styles */
+.text-heading {
+  @apply text-3xl md:text-4xl font-medium tracking-tight text-text-primary;
 }
 
-/* Modern Swedish positioning utilities */
-.left-1\/5 {
-  left: 20%;
+.text-subheading {
+  @apply text-lg text-text-secondary;
 }
 
-.right-1\/5 {
-  right: 20%;
+.text-body {
+  @apply text-base text-text-secondary leading-relaxed;
 }
 
-/* ======== TRANSITIONS ======== */
-/* Smooth theme transitions */
-.dark-transition {
-  @apply transition-colors duration-300;
+.text-small {
+  @apply text-sm text-text-tertiary;
 }
 
-/* ======== COMPONENT STYLES ======== */
-/* Button styles with Swedish influence - clean, subtle, functional */
+/* Button styles */
 .btn-primary {
-  @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-indigo-600 text-white rounded-full font-light tracking-wide
-         shadow-md shadow-primary-500/10 hover:shadow-lg hover:shadow-primary-500/20 
-         transition-all transform hover:-translate-y-0.5 active:translate-y-0;
+  @apply inline-flex items-center justify-center px-4 py-2;
+  @apply bg-accent text-white font-medium text-sm;
+  @apply rounded-md shadow-sm;
+  @apply transition-colors duration-150;
+  @apply hover:bg-accent-hover;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2;
 }
 
 .btn-secondary {
-  @apply px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-         rounded-full font-light tracking-wide shadow-sm hover:shadow-md 
-         transition-all transform hover:-translate-y-0.5 active:translate-y-0;
+  @apply inline-flex items-center justify-center px-4 py-2;
+  @apply bg-surface text-text-primary font-medium text-sm;
+  @apply border border-border rounded-md;
+  @apply transition-colors duration-150;
+  @apply hover:bg-surface-elevated hover:border-text-tertiary;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2;
 }
 
-/* Card styles with Swedish aesthetic */
-.card-hover {
-  @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+.btn-ghost {
+  @apply inline-flex items-center justify-center px-4 py-2;
+  @apply text-text-secondary font-medium text-sm;
+  @apply rounded-md;
+  @apply transition-colors duration-150;
+  @apply hover:text-text-primary hover:bg-surface;
 }
 
-/* Glass effect - very Swedish modern approach */
-.glass-effect {
-  @apply bg-white/70 dark:bg-gray-800/70 backdrop-blur-md 
-         border border-white/20 dark:border-gray-700/30 
-         shadow-sm;
+/* Card styles */
+.card {
+  @apply bg-surface border border-border rounded-lg;
+  @apply transition-shadow duration-150;
+  @apply hover:shadow-md;
 }
 
-/* ======== ANIMATIONS ======== */
-/* Keyframes Definitions */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+.card-elevated {
+  @apply bg-surface-elevated border border-border rounded-lg shadow-sm;
+  @apply transition-shadow duration-150;
+  @apply hover:shadow-md;
 }
 
-@keyframes scaleIn {
-  from { transform: scale(0.97); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+/* Link styles */
+.link {
+  @apply text-accent hover:text-accent-hover;
+  @apply underline-offset-4 hover:underline;
+  @apply transition-colors duration-150;
 }
 
-@keyframes slideInLeft {
-  from { transform: translateX(-24px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+/* Divider */
+.divider {
+  @apply h-px bg-border w-full;
 }
 
-@keyframes slideInRight {
-  from { transform: translateX(24px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+/* Badge/Tag styles */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5;
+  @apply text-xs font-medium;
+  @apply bg-accent-subtle text-accent;
+  @apply rounded-full;
 }
 
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0px); }
+.tag {
+  @apply inline-flex items-center px-3 py-1;
+  @apply text-sm text-text-secondary;
+  @apply bg-surface border border-border;
+  @apply rounded-md;
 }
 
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Input styles */
+.input {
+  @apply w-full px-3 py-2;
+  @apply text-base text-text-primary placeholder:text-text-tertiary;
+  @apply bg-surface border border-border rounded-md;
+  @apply transition-colors duration-150;
+  @apply focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent;
 }
 
-@keyframes pulseLight {
-  0% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(var(--primary-color), 0); }
-  100% { box-shadow: 0 0 0 0 rgba(var(--primary-color), 0); }
+.textarea {
+  @apply w-full px-3 py-2 min-h-[120px] resize-y;
+  @apply text-base text-text-primary placeholder:text-text-tertiary;
+  @apply bg-surface border border-border rounded-md;
+  @apply transition-colors duration-150;
+  @apply focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent;
 }
 
-/* Animation Utilities */
-.animate-fadeIn { animation: fadeIn 0.4s var(--ease-out) forwards; }
-.animate-scaleIn { animation: scaleIn 0.4s var(--ease-out) forwards; }
-.animate-slideInLeft { animation: slideInLeft 0.5s var(--ease-out) forwards; }
-.animate-slideInRight { animation: slideInRight 0.5s var(--ease-out) forwards; }
-.animate-float { animation: float 6s ease-in-out infinite; }
-.animate-pulseLight { animation: pulseLight 2s infinite; }
-
-/* Animation delays */
-.animation-delay-300 { animation-delay: 300ms; }
-.animation-delay-600 { animation-delay: 600ms; }
-.animation-delay-900 { animation-delay: 900ms; }
-.animation-delay-2000 { animation-delay: 2000ms; }
-.animation-delay-4000 { animation-delay: 4000ms; }
-
-/* Gradient text - subtle Swedish-influenced effect */
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-indigo-600 dark:from-primary-400 dark:to-indigo-400;
-  background-size: 200% auto;
-  animation: gradient 8s ease infinite;
-}
-
-/* Staggered animation for lists - creates a calm, balanced flow */
-.stagger-item:nth-child(1) { animation-delay: 0.1s; }
-.stagger-item:nth-child(2) { animation-delay: 0.15s; }
-.stagger-item:nth-child(3) { animation-delay: 0.2s; }
-.stagger-item:nth-child(4) { animation-delay: 0.25s; }
-.stagger-item:nth-child(5) { animation-delay: 0.3s; }
-.stagger-item:nth-child(6) { animation-delay: 0.35s; }
-.stagger-item:nth-child(7) { animation-delay: 0.4s; }
-.stagger-item:nth-child(8) { animation-delay: 0.45s; }
-.stagger-item:nth-child(9) { animation-delay: 0.5s; }
-.stagger-item:nth-child(10) { animation-delay: 0.55s; }
-
-/* ======== CUSTOM UTILITIES ======== */
-/* Hide scrollbar but allow scrolling */
+/* Hide scrollbar utility */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .hide-scrollbar::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
 }
 
-/* Add focus styling for active sections */
-.section-focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5); /* Blue outline with reduced opacity */
-  outline-offset: -2px;
-  transition: outline 0.3s ease-in-out;
-  scroll-margin-top: 80px; /* Add some margin at the top when scrolling */
+/* ======== ANIMATIONS ======== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* General scroll behavior improvement */
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 80px; /* Global scroll padding */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s var(--ease-out) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s var(--ease-out) forwards;
 }

@@ -19,79 +19,90 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // Modern Minimal Color System
+        background: 'var(--background)',
+        surface: 'var(--surface)',
+        'surface-elevated': 'var(--surface-elevated)',
+        border: 'var(--border)',
+        'border-subtle': 'var(--border-subtle)',
+
+        // Text colors
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-tertiary': 'var(--text-tertiary)',
+
+        // Accent colors
+        accent: {
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          subtle: 'var(--accent-subtle)',
+        },
+
+        // Legacy primary (for gradual migration)
         primary: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
         },
       },
+
+      // Spacing scale (base unit: 4px)
+      spacing: {
+        '18': '4.5rem',   // 72px
+        '22': '5.5rem',   // 88px
+      },
+
+      // Typography
+      fontWeight: {
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+      },
+
+      // Simplified animations - only essential ones
       animation: {
-        blob: "blob 7s infinite",
-        'fade-in': 'fadeIn 1s ease-in-out',
-        'slide-up': 'slideUp 0.5s ease-out',
-        'slide-down': 'slideDown 0.5s ease-out',
-        'slide-left': 'slideLeft 0.5s ease-out',
-        'slide-right': 'slideRight 0.5s ease-out',
-        'scroll-progress': 'scrollProgress 1s linear',
-        'float': 'float 6s ease-in-out infinite',
-        'parallax-slow': 'parallax 60s linear infinite',
-        'parallax-medium': 'parallax 40s linear infinite',
-        'parallax-fast': 'parallax 25s linear infinite',
+        'fade-in': 'fadeIn 0.2s ease-out',
+        'slide-up': 'slideUp 0.3s ease-out',
       },
+
       keyframes: {
-        blob: {
-          "0%": {
-            transform: "translate(0px, 0px) scale(1)",
-          },
-          "33%": {
-            transform: "translate(30px, -50px) scale(1.1)",
-          },
-          "66%": {
-            transform: "translate(-20px, 20px) scale(0.9)",
-          },
-          "100%": {
-            transform: "translate(0px, 0px) scale(1)",
-          },
-        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
         slideUp: {
-          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '0%': { transform: 'translateY(8px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
         },
-        slideDown: {
-          '0%': { transform: 'translateY(-20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
-        slideLeft: {
-          '0%': { transform: 'translateX(20px)', opacity: '0' },
-          '100%': { transform: 'translateX(0)', opacity: '1' },
-        },
-        slideRight: {
-          '0%': { transform: 'translateX(-20px)', opacity: '0' },
-          '100%': { transform: 'translateX(0)', opacity: '1' },
-        },
-        scrollProgress: {
-          '0%': { width: '0%' },
-          '100%': { width: '100%' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-20px)' },
-        },
-        parallax: {
-          '0%': { backgroundPosition: '0% 50%' },
-          '100%': { backgroundPosition: '100% 50%' },
-        },
+      },
+
+      // Consistent border radius
+      borderRadius: {
+        'sm': '4px',
+        'DEFAULT': '6px',
+        'md': '8px',
+        'lg': '12px',
+        'xl': '16px',
+      },
+
+      // Consistent shadows
+      boxShadow: {
+        'sm': '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+        'DEFAULT': '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+        'md': '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+        'lg': '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+      },
+
+      // Max widths for containers
+      maxWidth: {
+        'content': '1024px',  // Main content width (max-w-5xl equivalent)
       },
     },
   },
@@ -99,4 +110,5 @@ const config: Config = {
     tailwindcssAnimate,
   ],
 };
+
 export default config;
