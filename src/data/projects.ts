@@ -639,6 +639,28 @@ export const PROJECTS: Project[] = [
         ]
       },
       {
+        id: 'chatgpt-export',
+        title: 'ChatGPT Export',
+        description: 'Chrome extension to export ChatGPT conversations to JSON, Markdown, plain text, or HTML',
+        images: [],
+        skills: ['typescript', 'chrome-extension', 'api-development', 'automation', 'frontend-development'],
+        category: "Tools & Utilities",
+        period: { start: "2026-02-01", end: undefined },
+        urls: {
+          repository: 'https://github.com/shtse8/chatgpt-export',
+          demo: 'https://chromewebstore.google.com/detail/chatgpt-export/elkdhnegeooliobekanjpdifoaoolbbf'
+        },
+        details: [
+          'Built a Chrome extension for exporting ChatGPT conversations in multiple formats (JSON, Markdown, plain text, HTML)',
+          'Supports selective export, search/filter by title, and incremental export (only new conversations since last export)',
+          'Concurrent batch downloads with configurable parallelism and automatic retry with exponential backoff',
+          'Also available as a userscript (Tampermonkey) and bookmarklet — all built from a single TypeScript source',
+          '49 unit tests, TypeScript strict mode, CI/CD pipeline'
+        ],
+        teamSize: '1',
+        role: 'Creator'
+      },
+      {
         id: 'google-photos-delete',
         title: 'Google Photos Delete Tool',
         description: 'Chrome extension for efficient bulk deletion of Google Photos',
