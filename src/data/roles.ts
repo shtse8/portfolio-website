@@ -9,27 +9,24 @@ export const ROLES: Role[] = [
     organizationId: 'sylphx',
     title: 'Founder',
     type: 'founder',
-    period: { start: '2025-01' },
+    period: { start: '2025-05' },
     location: 'United Kingdom',
     isRemote: true,
-    description: 'Founded Sylphx to democratize AI through elegant, high-performance open source tools and frameworks',
+    description: 'Building open source developer tools, primarily MCP servers and TypeScript libraries',
     responsibilities: [
-      'Founded UK-based open source AI tools company focused on developer experience',
-      'Created pdf-reader-mcp achieving 348+ GitHub stars with 5-10x faster PDF processing',
-      'Built CodeRAG semantic code search engine with sub-50ms latency across 15+ languages',
-      'Developed Rapid state management library 1.7-45x faster than competitors',
-      'Created comprehensive MCP ecosystem tools for AI agent development',
-      'Published multiple packages on NPM with 8,000+ combined downloads'
+      'Founded UK-based open source tools company',
+      'Created pdf-reader-mcp — MCP server for PDF processing (492 GitHub stars)',
+      'Built CodeRAG semantic code search engine supporting 15+ languages',
+      'Developed Rapid state management and Craft immutable state libraries',
+      'Published multiple packages on NPM'
     ],
     keyAchievements: [
-      '348+ GitHub stars on flagship project',
-      '27+ open source repositories',
-      '8K+ NPM downloads'
+      '492 GitHub stars on pdf-reader-mcp',
+      '27+ open source repositories'
     ],
     metrics: [
-      { type: 'stars', value: 348, context: 'total' },
-      { type: 'projects', value: 27, context: 'total' },
-      { type: 'downloads', value: 8000, unit: 'NPM', context: 'total' }
+      { type: 'stars', value: 492, context: 'flagship' },
+      { type: 'projects', value: 27, context: 'total' }
     ],
     skills: ['typescript', 'mcp', 'ai-integration', 'nodejs', 'bun', 'performance-testing', 'open-source'],
     logo: '/companys/sylphx.png',
@@ -40,28 +37,22 @@ export const ROLES: Role[] = [
     organizationId: 'epiow',
     title: 'Co-Founder & CTO',
     type: 'cofounder',
-    period: { start: '2025-01' },
+    period: { start: '2025-11' },
     location: 'United Kingdom',
     isRemote: true,
-    description: 'Building enterprise AI solutions including ML, NLP, and Computer Vision applications for global clients',
+    description: 'UK-based web development and software consultancy',
     responsibilities: [
-      'Co-founded UK-based AI consulting and development company',
-      'Leading technical strategy and architecture for enterprise AI solutions',
-      'Developing custom ML/NLP/Computer Vision applications for global clients',
-      'Building autonomous intelligent systems for business process automation',
-      'Providing AI integration consulting and implementation services'
+      'Co-founded UK-based web development company',
+      'Building web applications and software for clients',
+      'Technical architecture and full-stack development'
     ],
     keyAchievements: [
-      'Enterprise AI consulting',
-      'Custom ML/NLP solutions',
-      'Global client base'
+      'UK company established Nov 2025'
     ],
     metrics: [
-      { type: 'custom', value: 'UK', unit: 'Headquarters' },
-      { type: 'custom', value: 'AI', unit: 'Focus Area' },
-      { type: 'custom', value: 'Global', unit: 'Client Base' }
+      { type: 'custom', value: 'UK', unit: 'Headquarters' }
     ],
-    skills: ['artificial-intelligence', 'machine-learning', 'nlp', 'computer-vision', 'python', 'typescript', 'enterprise'],
+    skills: ['typescript', 'react', 'nextjs', 'nodejs', 'full-stack'],
     logo: '/companys/epiow.png',
     liveUrl: 'https://epiow.com'
   },
@@ -103,12 +94,12 @@ export const ROLES: Role[] = [
     type: 'cofounder',
     period: { start: '2010-01', end: '2016-12' },
     location: 'Hong Kong / Taiwan / China',
-    description: 'Co-founded and led technical development for Hong Kong\'s top social gaming company with 10M+ monthly active users',
+    description: 'Co-founded social gaming company that reached 10M+ monthly active users on Facebook',
     responsibilities: [
-      'Developed at MiniMax Game Entertainment Limited, a leading social gaming company with offices in Hong Kong, Taiwan and China',
+      'Co-founded MiniMax Game Entertainment Limited, a social gaming company with offices in Hong Kong, Taiwan and China',
       'Built and operated over 30 concurrent social games and apps on Facebook platform',
       'Achieved over 10 million monthly active users (MAU) across portfolio of social games',
-      'Established as one of the top Facebook game developers in Hong Kong and Taiwan markets',
+      'Became a notable Facebook game developer in Hong Kong and Taiwan markets',
       'Worked on Funimax platform, a major game distribution service with extensive retail network',
       'Participated in multi-region game operations, distribution partnerships and agency relationships',
       'Implemented comprehensive payment and analytics systems across physical and digital channels',
@@ -134,20 +125,20 @@ export const ROLES: Role[] = [
     type: 'cofounder',
     period: { start: '2006-01' },
     location: 'Hong Kong',
-    description: 'Co-founded and built Hong Kong\'s #1 gaming media platform with 500K+ registered users',
+    description: 'Co-founded and built a Hong Kong gaming media platform with 500K+ registered users',
     responsibilities: [
-      'Built and maintained Hong Kong\'s leading gaming information platform powered by Discuz!, PHP, MySQL and Ubuntu',
+      'Built and maintained a popular Hong Kong gaming information platform powered by Discuz!, PHP, MySQL and Ubuntu',
       'Grew to over 500,000 registered users and 3,000+ concurrent online users',
       'Established as the official discussion platform for 100+ game publishers and developers',
-      'Achieved top rankings in Hong Kong gaming media with significant industry influence',
+      'Achieved strong rankings in Hong Kong gaming media',
       'Created comprehensive game guides, news coverage and community features',
       'Optimized infrastructure and performance for high-traffic loads',
       'Built strong partnerships with major gaming companies across Asia'
     ],
     keyAchievements: [
-      '#1 Gaming Platform in Hong Kong',
+      '500K+ Registered Users',
       '100+ Official Game Partnerships',
-      'Industry-Leading Community'
+      '3K+ Concurrent Users'
     ],
     metrics: [
       { type: 'users', value: 500000, context: 'total' },
