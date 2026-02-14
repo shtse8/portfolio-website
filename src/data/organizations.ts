@@ -10,14 +10,14 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     legalName: 'Sylphx Limited',
     type: 'company',
     status: 'active',
-    description: 'Open source AI tools company democratizing AI through elegant, high-performance code',
+    description: 'Open source developer tools company focused on MCP ecosystem and TypeScript libraries',
     logo: '/companys/sylphx.png',
     website: 'https://sylphx.com',
     github: 'SylphxAI',
     location: 'United Kingdom',
-    industry: 'AI & Open Source',
+    industry: 'Open Source Software',
     size: '1-10 employees',
-    founded: '2025-01'
+    founded: '2025-05'
   },
   epiow: {
     id: 'epiow',
@@ -25,14 +25,14 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     legalName: 'Epiow Limited',
     type: 'company',
     status: 'active',
-    description: 'Leading AI application development company specializing in enterprise solutions',
+    description: 'UK-based web development and software consultancy',
     logo: '/companys/epiow.png',
     website: 'https://epiow.com',
     github: 'EpiowAI',
     location: 'United Kingdom',
-    industry: 'Enterprise AI',
+    industry: 'Web Development',
     size: '1-10 employees',
-    founded: '2025-01'
+    founded: '2025-11'
   },
   cubeage: {
     id: 'cubeage',
@@ -40,13 +40,13 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     legalName: 'Cubeage Limited',
     type: 'company',
     status: 'active',
-    description: 'Mobile gaming company specializing in card and casino games with millions of downloads',
+    description: 'Mobile gaming company — card and casino games with 10M+ downloads',
     logo: '/companys/cubeage.jpeg',
     website: 'https://cubeage.com',
     github: 'Cubeage',
     location: 'Hong Kong',
     industry: 'Game Development',
-    size: '10-50 employees',
+    size: '1-10 employees',
     founded: '2014-01'
   },
   nakuz: {
@@ -55,12 +55,12 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     legalName: 'Nakuz.com Limited',
     type: 'company',
     status: 'active',
-    description: 'Hong Kong\'s #1 gaming media platform and community',
+    description: 'Hong Kong gaming media platform and community with 500K+ users',
     logo: '/companys/nakuz.jpeg',
     website: 'https://nakuz.com',
     location: 'Hong Kong',
     industry: 'Digital Media',
-    size: '10-50 employees',
+    size: '1-10 employees',
     founded: '2006-01'
   },
   minimax: {
@@ -70,11 +70,11 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     tradingName: 'Funimax',
     type: 'company',
     status: 'closed',
-    description: 'Hong Kong\'s top social gaming company with 10M+ MAU',
+    description: 'Social gaming company — Facebook games with 10M+ MAU',
     logo: '/companys/minimax.jpeg',
     website: 'https://funimax.com',
     location: 'Hong Kong',
-    industry: 'Game Distribution',
+    industry: 'Social Gaming',
     size: '10-50 employees',
     founded: '2010-01'
   }
