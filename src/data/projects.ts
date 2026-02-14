@@ -19,7 +19,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'pdf-reader-mcp',
         title: 'PDF Reader MCP',
-        description: 'Production-ready Model Context Protocol server for PDF processing with 5-10x faster parallel processing. 348+ GitHub stars.',
+        description: 'Model Context Protocol server for PDF processing with parallel processing support. 492 GitHub stars.',
         images: [],
         skills: ['typescript', 'nodejs', 'bun', 'api-development', 'performance-testing', 'mcp', 'pdf-processing', 'parallel-processing'],
         category: "Open Source",
@@ -29,13 +29,12 @@ export const PROJECTS: Project[] = [
           documentation: 'https://www.npmjs.com/package/@sylphx/pdf-reader-mcp'
         },
         details: [
-          'Built production-ready MCP server for PDF processing with enterprise-grade capabilities',
-          'Achieved 5-10x faster parallel processing compared to sequential approaches (5,575 ops/sec)',
+          'Built MCP server for PDF processing with parallel processing support',
           'Implemented Y-coordinate based layout preservation for natural reading flow',
-          'Supports local files (Windows/Unix) and HTTP/HTTPS URLs with flexible input handling',
-          'Reached 348+ GitHub stars with 94%+ test coverage (103 passing tests)',
+          'Supports local files (Windows/Unix) and HTTP/HTTPS URLs',
+          '492 GitHub stars, 57 forks, 94%+ test coverage (103 passing tests)',
           'Integrated with Claude Code, Claude Desktop, VS Code, Cursor, Windsurf, and Smithery',
-          'Published on NPM as @sylphx/pdf-reader-mcp with comprehensive documentation'
+          'Published on NPM as @sylphx/pdf-reader-mcp'
         ],
         teamSize: '1',
         role: 'Creator & Maintainer'
@@ -43,7 +42,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'coderag',
         title: 'CodeRAG',
-        description: 'Lightning-fast semantic code search engine with AST chunking supporting 15+ programming languages. Sub-50ms search latency.',
+        description: 'Semantic code search engine with AST chunking supporting 15+ programming languages.',
         images: [],
         skills: ['typescript', 'nodejs', 'bun', 'ast-parsing', 'semantic-search', 'sqlite', 'mcp', 'vector-embeddings'],
         category: "Open Source",
@@ -66,7 +65,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'rapid',
         title: 'Rapid',
-        description: 'Hyper-optimized reactive state management library with only 2.49KB gzipped. See benchmarks in repo.',
+        description: 'Reactive state management library — 2.49KB gzipped, framework-agnostic. Benchmarks in repo.',
         images: [],
         skills: ['typescript', 'react', 'vuejs', 'svelte', 'state-management', 'performance-testing', 'bundling'],
         category: "Frameworks & Libraries",
@@ -75,8 +74,8 @@ export const PROJECTS: Project[] = [
           repository: 'https://github.com/SylphxAI/rapid'
         },
         details: [
-          'Created hyper-optimized reactive state management ecosystem',
-          'Achieved 1.7-45x faster performance than traditional state libraries',
+          'Created reactive state management ecosystem',
+          'Performance benchmarks show 1.7-45x improvement over traditional state libraries (see repo)',
           'Core package only 2.49 KB gzipped (vs Redux Toolkit 12+ KB)',
           'Implemented automatic dependency tracking without manual specification',
           'Built framework-agnostic with bindings for React, Vue, Svelte, Preact, and SolidJS',
@@ -89,7 +88,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'craft',
         title: 'Craft',
-        description: 'Ultra-fast immutable state library for TypeScript with comprehensive ES6 collection support. See benchmarks in repo.',
+        description: 'Immutable state library for TypeScript with ES6 collection support. Benchmarks in repo.',
         images: [],
         skills: ['typescript', 'immutable-data', 'performance-testing', 'functional-programming', 'json-patch'],
         category: "Frameworks & Libraries",
@@ -98,9 +97,9 @@ export const PROJECTS: Project[] = [
           repository: 'https://github.com/SylphxAI/craft'
         },
         details: [
-          'Built high-performance immutable state library for TypeScript',
-          'Achieved 1.4-35x faster than Immer across standard operations',
-          'Up to 35x faster on large Set operations, 24x faster applying JSON patches',
+          'Built immutable state library for TypeScript',
+          'Benchmarks show 1.4-35x improvement over Immer across standard operations (see repo)',
+          'Up to 35x faster on large Set operations, 24x faster applying JSON patches (benchmarked)',
           'Only 3.1 KB gzipped (smaller than Immer\'s ~4.7 KB)',
           'Full ES6 Map and Set support with mutation tracking',
           'Implemented JSON patches (RFC 6902) and introspection utilities',
@@ -112,7 +111,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'xdash',
         title: 'xdash',
-        description: 'Lean, modular TypeScript utility library with zero runtime dependencies. Tree-shaking optimized for minimal bundle size.',
+        description: 'Modular TypeScript utility library with zero runtime dependencies and tree-shaking support.',
         images: [],
         skills: ['typescript', 'bun', 'functional-programming', 'tree-shaking', 'performance-testing'],
         category: "Frameworks & Libraries",
@@ -122,7 +121,7 @@ export const PROJECTS: Project[] = [
           documentation: 'https://shtse8.github.io/xdash/'
         },
         details: [
-          'Created laser-focused modular utility library for TypeScript',
+          'Created modular utility library for TypeScript',
           'Implemented aggressive tree-shaking for minimal bundle sizes',
           'Zero runtime dependencies with high-performance implementations',
           'Built chainable interface for composable operations',
@@ -151,7 +150,7 @@ export const PROJECTS: Project[] = [
           'Implemented validation constraints for strings, numbers, and arrays',
           'Handles union types with oneOf schemas and discriminators',
           'Field-level customization with detailed annotation options',
-          '6 stars, actively maintained with MIT license'
+          'MIT licensed, actively maintained'
         ],
         teamSize: '1',
         role: 'Creator & Maintainer'
@@ -228,7 +227,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'flow',
         title: 'Sylphx Flow',
-        description: 'Unified AI CLI orchestration platform implementing MEP (Minimal Effective Prompt) architecture. One CLI for Claude Code, Cursor, and more.',
+        description: 'CLI orchestration tool for AI development — supports Claude Code, Cursor, and other AI coding tools.',
         images: [],
         skills: ['typescript', 'nodejs', 'cli', 'ai-integration', 'developer-tools', 'mcp'],
         category: "AI & ML",
@@ -297,7 +296,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'cursor-ai-downloads',
         title: 'Cursor AI Downloads',
-        description: 'Track and download official Cursor AI editor versions with hourly automatic updates. 13+ GitHub stars.',
+        description: 'Track and download official Cursor AI editor versions with hourly automatic updates. 13 GitHub stars.',
         images: [],
         skills: ['typescript', 'github-actions', 'automation', 'cicd', 'developer-tools'],
         category: "Tools & Utilities",
@@ -309,7 +308,7 @@ export const PROJECTS: Project[] = [
           'Built automated version tracking system for Cursor AI editor',
           'Implements hourly updates via GitHub Actions',
           'Provides direct download links for all platforms',
-          '13+ GitHub stars from developer community',
+          '13 GitHub stars',
           'Helps developers access specific Cursor versions easily',
           'Fully automated CI/CD pipeline'
         ],
@@ -366,7 +365,7 @@ export const PROJECTS: Project[] = [
       {
         id: 'nakuz',
         title: 'Nakuz.com Gaming Portal',
-        description: 'Hong Kong\'s #1 gaming information website with over 500,000 registered users and 3,000+ concurrent online users, achieving top 10 Alexa ranking in Hong Kong',
+        description: 'Hong Kong gaming information website with over 500,000 registered users and 3,000+ concurrent online users',
         images: [
           '/projects/nakuz/1.jpg'
         ],
@@ -378,7 +377,7 @@ export const PROJECTS: Project[] = [
           website: "https://nakuz.com/"
         },
         details: [
-          'Developed and maintained Hong Kong\'s #1 gaming information website since 2005',
+          'Developed and maintained a popular Hong Kong gaming information website since 2005',
           'Built a thriving online community with over 500,000 registered users and 3,000+ concurrent online users',
           'Achieved top 10 Alexa ranking among all Hong Kong websites',
           'Optimized server infrastructure for high-traffic and concurrent user load',
@@ -625,23 +624,6 @@ export const PROJECTS: Project[] = [
         ]
       },
       {
-        id: 'ai-trading',
-        title: 'Quantitative Trading System',
-        description: 'Advanced algorithmic trading platform leveraging multiple indicators and real-time execution',
-        images: [
-          '/projects/ai-trading/1.jpg',
-        ],
-        skills: ['python', 'artificial-intelligence', 'machine-learning', 'firebase', 'gcp', 'typescript', 'go', 'tradingview', 'tigertrade', 'pytorch', 'telegram', 'data-analysis', 'financial-analysis', 'time-series', 'reinforcement-learning', 'llm', 'serverless'],
-        category: "AI & ML",
-        details: [
-          'Developed a serverless quantitative trading system using Golang, Firebase, and Cloud Run',
-          'Integrated TradingView for market monitoring and TigerTrade for automated trade execution',
-          'Built Python-based backtesting framework with pandas, PyTorch, and backtrader',
-          'Implemented machine learning models with PyTorch, AdaBelief optimizer, and Huber Loss function',
-          'Created a Telegram bot for real-time trade notifications, signals, and performance reporting'
-        ]
-      },
-      {
         id: 'media-organizer',
         title: 'SotiMediaOrganizer',
         description: 'Advanced media deduplication and organization tool',
@@ -674,7 +656,7 @@ export const PROJECTS: Project[] = [
           'Implemented intelligent batch processing with custom selectors for automated photo deletion',
           'Created smart scrolling logic to handle large photo libraries with 10,000+ images',
           'Built in robust error handling and progress tracking for operation reliability',
-          'Earned 4.7/5 star rating on Chrome Web Store and 73+ stars on GitHub'
+          'Earned 4.7/5 star rating on Chrome Web Store and 129 stars on GitHub'
         ]
       },
       {
@@ -705,7 +687,7 @@ export const PROJECTS: Project[] = [
       {
         id: 'sky-c',
         title: 'Sky-C Gaming Community',
-        description: 'Hong Kong\'s #1 gaming IP exchange network and discussion forum with over 200,000 registered users and 1,000+ concurrent online users',
+        description: 'Hong Kong gaming IP exchange network and discussion forum with over 200,000 registered users and 1,000+ concurrent online users',
         images: [],
         skills: ['php', 'mysql', 'html', 'css', 'javascript', 'seo', 'discuz', 'ubuntu', 'ajax', 'rss', 'digital-marketing', 'sql'],
         category: "Web Apps",
@@ -715,7 +697,7 @@ export const PROJECTS: Project[] = [
           timemachine: 'https://web.archive.org/web/20241211084528/http://sky-c.com/'
         },
         details: [
-          'Created Hong Kong\'s #1 gaming IP exchange network and discussion forum platform',
+          'Created a Hong Kong gaming IP exchange network and discussion forum platform',
           'Built and managed a community with over 200,000 registered users and 1,000+ concurrent online users',
           'Implemented forum functionality using Discuz! with custom modifications',
           'Optimized server infrastructure on Ubuntu for high concurrent user load',
