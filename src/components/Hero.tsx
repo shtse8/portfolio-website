@@ -7,9 +7,9 @@ import { motion } from 'framer-motion';
 
 // Key stats to display
 const HERO_STATS = [
-  { value: '18+', label: 'Years Experience', icon: FaClock },
+  { value: '20', label: 'Years Experience', icon: FaClock },
   { value: '10M+', label: 'App Downloads', icon: FaDownload },
-  { value: '500+', label: 'GitHub Stars', icon: FaStar },
+  { value: '490+', label: 'GitHub Stars', icon: FaStar },
   { value: '4.6K+', label: 'Commits', icon: FaCode },
 ];
 
