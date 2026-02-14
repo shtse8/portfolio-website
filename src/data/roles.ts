@@ -25,7 +25,7 @@ export const ROLES: Role[] = [
       '27+ open source repositories'
     ],
     metrics: [
-      { type: 'stars', value: 492, context: 'flagship' },
+      { type: 'stars', value: 492, context: 'total' },
       { type: 'projects', value: 27, context: 'total' }
     ],
     skills: ['typescript', 'mcp', 'ai-integration', 'nodejs', 'bun', 'performance-testing', 'open-source'],
