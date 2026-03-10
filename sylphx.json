@@ -1,0 +1,10 @@
+{
+  "dockerfile": "Dockerfile",
+  "buildContext": ".",
+  "watch": [
+    "src/**",
+    "public/**",
+    "package.json",
+    "nginx.conf"
+  ]
+}
