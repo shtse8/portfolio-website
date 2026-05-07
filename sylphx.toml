@@ -1,0 +1,16 @@
+version = "1"
+
+[project]
+name = "portfolio-website"
+slug = "portfolio-website"
+org = "shtse8"
+
+[build]
+strategy = "dockerfile"
+dockerfile = "Dockerfile"
+context = "."
+
+[[services]]
+name = "web"
+type = "worker"
+watch_paths = ["src/**", "public/**", "package.json", "nginx.conf"]
