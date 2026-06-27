@@ -2,15 +2,15 @@
 
 import { useState, ReactNode } from 'react';
 import Image from 'next/image';
-import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight, 
+import { FaGithub, FaExternalLinkAlt, FaCalendarAlt, FaBuilding, FaChevronLeft, FaChevronRight,
   FaGooglePlay, FaApple, FaWikipediaW, FaLink, FaFileAlt, FaVideo, FaNewspaper, FaBook } from 'react-icons/fa';
 import type { Project, Role } from '@/data/types';
 import { ORGANIZATIONS } from '@/data/organizations';
 import { ROLES } from '@/data/roles';
-import { formatPeriod } from '@/data';
-import { motion } from 'framer-motion';
+import { formatPeriod, formatProjectPeriod } from '@/data';
 import { getSkillNames } from '@/utils/skillHelpers';
 import ProjectImage from '@/components/shared/ProjectImage';
+import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
 type ProjectModalProps = {
@@ -23,6 +23,13 @@ type ProjectModalProps = {
   prevProject?: () => void;
 };
 
+/** Initials for the no-image monogram (handles latin + CJK titles). */
+function getMonogram(title: string): string {
+  const words = title.split(/\s+/).filter(Boolean);
+  const initials = words.slice(0, 2).map((w) => w.charAt(0)).join('');
+  return (initials || title.charAt(0)).toUpperCase();
+}
+
 export default function ProjectModal({
   project,
   openExperienceModal,
@@ -32,427 +39,307 @@ export default function ProjectModal({
 }: ProjectModalProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const router = useRouter();
-  
-  // Get images from project using the new structure
+
   const projectImages = project.images || [];
-  
-  // Function to handle skill tag clicks
-  const handleSkillClick = (skillId: string) => {
-    // Close the current modal if a close function is provided
-    if (closeModal) {
-      closeModal();
-    }
-    
-    // Navigate to projects page with skill filter
+  const period = formatProjectPeriod(project);
+  const role = getRoleForProject();
+
+  function handleSkillClick(skillId: string) {
+    if (closeModal) closeModal();
     router.push(`/projects?skill=${skillId}`);
-  };
-  
-  // Function to get the appropriate icon for a media item based on its type
-  const getMediaTypeIcon = (type?: string) => {
-    switch(type) {
-      case 'review': return <FaNewspaper className="text-indigo-500" />;
-      case 'article': return <FaNewspaper className="text-blue-500" />;
-      case 'video': return <FaVideo className="text-red-500" />;
-      case 'social': return <FaLink className="text-blue-400" />;
-      case 'award': return <FaFileAlt className="text-yellow-500" />;
-      case 'resource': return <FaBook className="text-green-500" />;
-      case 'tool': return <FaLink className="text-gray-500" />;
-      default: return <FaLink className="text-gray-500" />;
-    }
-  };
-  
-  const getRoleForProject = (): Role | null => {
-    // First check if there's a role that lists this project
-    const relatedRole = ROLES.find(role =>
-      role.projectIds?.includes(project.id)
-    );
+  }
 
-    // If not found, fall back to roleId or organizationId match
+  function getMediaTypeIcon(type?: string) {
+    switch (type) {
+      case 'review': return <FaNewspaper className="text-text-tertiary" />;
+      case 'article': return <FaNewspaper className="text-text-tertiary" />;
+      case 'video': return <FaVideo className="text-text-tertiary" />;
+      case 'social': return <FaLink className="text-text-tertiary" />;
+      case 'award': return <FaFileAlt className="text-text-tertiary" />;
+      case 'resource': return <FaBook className="text-text-tertiary" />;
+      case 'tool': return <FaLink className="text-text-tertiary" />;
+      default: return <FaLink className="text-text-tertiary" />;
+    }
+  }
+
+  function getRoleForProject(): Role | null {
+    const relatedRole = ROLES.find((r) => r.projectIds?.includes(project.id));
     if (!relatedRole && project.roleId) {
-      return ROLES.find(r => r.id === project.roleId) || null;
+      return ROLES.find((r) => r.id === project.roleId) || null;
     }
-
     if (!relatedRole && project.organizationId) {
-      const orgRoles = ROLES.filter(r => r.organizationId === project.organizationId);
+      const orgRoles = ROLES.filter((r) => r.organizationId === project.organizationId);
       return orgRoles.length > 0 ? orgRoles[0] : null;
     }
-
     return relatedRole || null;
-  };
+  }
 
   const nextImage = () => {
-    if (projectImages.length > 0) {
-      setActiveImageIndex((activeImageIndex + 1) % projectImages.length);
-    }
+    if (projectImages.length > 0) setActiveImageIndex((activeImageIndex + 1) % projectImages.length);
+  };
+  const prevImage = () => {
+    if (projectImages.length > 0)
+      setActiveImageIndex((activeImageIndex - 1 + projectImages.length) % projectImages.length);
   };
 
-  const prevImage = () => {
-    if (projectImages.length > 0) {
-      setActiveImageIndex((activeImageIndex - 1 + projectImages.length) % projectImages.length);
-    }
-  };
-  
-  // Image gallery section
-  const renderImageGallery = () => {
-    return (
-      <div className="relative aspect-video bg-gray-50 dark:bg-gray-800/30 rounded-2xl overflow-hidden">
-        {/* Main image */}
-        <div className="relative w-full h-full">
-          <ProjectImage
-            src={projectImages}
-            index={activeImageIndex}
-            alt={`${project.title} - Image ${activeImageIndex + 1}`}
-            fill
-            style={{ objectFit: 'cover' }}
-            className="w-full h-full"
-          />
-        </div>
-        
-        {/* Image navigation controls */}
-        {projectImages.length > 1 && (
-          <>
-            <motion.button 
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/60 dark:bg-gray-800/70 p-3 rounded-full text-gray-800 dark:text-white z-10"
-              onClick={prevImage}
-              whileHover={{ scale: 1.05, x: -2 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              <FaChevronLeft size={16} />
-            </motion.button>
-            
-            <motion.button 
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/60 dark:bg-gray-800/70 p-3 rounded-full text-gray-800 dark:text-white z-10"
-              onClick={nextImage}
-              whileHover={{ scale: 1.05, x: 2 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              <FaChevronRight size={16} />
-            </motion.button>
-            
-            {/* Image dots indicator */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-              {projectImages.map((_, idx: number) => (
-                <button 
-                  key={idx} 
-                  onClick={() => setActiveImageIndex(idx)}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    idx === activeImageIndex 
-                      ? 'bg-white/90 w-4' 
-                      : 'bg-white/50 hover:bg-white/70'
-                  }`}
-                  aria-label={`Go to image ${idx + 1}`}
-                />
-              ))}
-            </div>
-          </>
-        )}
+  const renderImageGallery = () => (
+    <div className="relative aspect-video overflow-hidden rounded-xl border border-border bg-surface-sunken">
+      <div className="relative h-full w-full">
+        <ProjectImage
+          src={projectImages}
+          index={activeImageIndex}
+          alt={`${project.title} - Image ${activeImageIndex + 1}`}
+          fill
+          style={{ objectFit: 'cover' }}
+          className="h-full w-full"
+        />
       </div>
-    );
-  };
-  
+
+      {projectImages.length > 1 && (
+        <>
+          <button
+            onClick={prevImage}
+            aria-label="Previous image"
+            className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/85 text-text-secondary backdrop-blur-sm transition-colors hover:text-accent"
+          >
+            <FaChevronLeft size={14} />
+          </button>
+          <button
+            onClick={nextImage}
+            aria-label="Next image"
+            className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-surface/85 text-text-secondary backdrop-blur-sm transition-colors hover:text-accent"
+          >
+            <FaChevronRight size={14} />
+          </button>
+
+          <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+            {projectImages.map((_, idx: number) => (
+              <button
+                key={idx}
+                onClick={() => setActiveImageIndex(idx)}
+                aria-label={`Go to image ${idx + 1}`}
+                className={cn(
+                  'h-1.5 rounded-full transition-all duration-300',
+                  idx === activeImageIndex ? 'w-4 bg-accent' : 'w-1.5 bg-surface/70 hover:bg-surface'
+                )}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl w-full shadow-xl overflow-hidden max-h-[85vh] flex flex-col">
-      {/* Project Header */}
-      <div className="relative">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-10">
-          <div className="flex flex-col md:flex-row md:items-start gap-8">
-            <div className="w-full md:w-auto flex-shrink-0">
-              <div className="w-full md:w-28 h-28 relative overflow-hidden rounded-xl shadow-sm">
-                <ProjectImage
-                  src={project.images}
-                  alt={project.title}
-                  fill
-                  className="object-cover"
-                  index={0}
-                />
+    <div className="flex max-h-[85vh] w-full flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
+      {/* Header */}
+      <div className="border-b border-border bg-surface-sunken p-6 sm:p-10">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
+          <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-border sm:h-28 sm:w-28">
+            {projectImages.length > 0 ? (
+              <ProjectImage src={project.images} alt={project.title} fill className="object-cover" index={0} />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-accent-subtle via-surface-sunken to-surface">
+                <span className="font-mono text-3xl font-semibold text-accent/60">{getMonogram(project.title)}</span>
               </div>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="badge">{project.category}</span>
+              {period && (
+                <span className="inline-flex items-center gap-1.5 font-mono text-xs text-text-tertiary">
+                  <FaCalendarAlt className="h-3 w-3" /> {period}
+                </span>
+              )}
+              {project.organizationId && ORGANIZATIONS[project.organizationId] && (
+                <button
+                  onClick={() => openCompanyModal(project.organizationId as string)}
+                  className="inline-flex items-center gap-1.5 font-mono text-xs text-text-tertiary transition-colors hover:text-accent"
+                >
+                  <FaBuilding className="h-3 w-3" />
+                  <span className="underline-offset-4 hover:underline">
+                    {ORGANIZATIONS[project.organizationId].name}
+                  </span>
+                </button>
+              )}
             </div>
-            <div className="flex-1">
-              <h2 className="text-3xl font-light tracking-wide text-gray-900 dark:text-white mb-3">
-                {project.title}
-              </h2>
-              
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-8">
-                {project.skills && project.skills.length > 0 && project.skills.map((skillId, index) => (
-                  <button 
-                    key={index} 
+
+            <h2 className="mt-3 text-h2 text-text-primary">{project.title}</h2>
+
+            {project.skills && project.skills.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-1.5">
+                {project.skills.map((skillId) => (
+                  <button
+                    key={skillId}
                     onClick={() => handleSkillClick(skillId)}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs
-                    hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
+                    className="chip transition-colors hover:border-accent hover:text-accent"
                   >
                     {getSkillNames([skillId])[0]}
                   </button>
                 ))}
               </div>
-              
-              <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
-                {project.period && (
-                  <div className="flex items-center">
-                    <FaCalendarAlt className="mr-2 text-blue-500 dark:text-blue-400" />
-                    <span>
-                      {project.period.start.substring(0, 4)}
-                      {project.period.end ? ` - ${project.period.end.substring(0, 4)}` : ' - Present'}
-                    </span>
-                  </div>
-                )}
-                
-                {/* Organization button */}
-                {project.organizationId && (
-                  <button
-                    className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                    onClick={() => openCompanyModal(project.organizationId as string)}
-                  >
-                    <FaBuilding className="mr-2" />
-                    <span className="underline-offset-4 hover:underline">
-                      {ORGANIZATIONS[project.organizationId]?.name || project.organizationId}
-                    </span>
-                  </button>
-                )}
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
-      
-      <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
-        {/* Project Content */}
-        <div className="p-10 grid grid-cols-1 lg:grid-cols-5 gap-10">
-          {/* Main Content */}
-          <div className="lg:col-span-3 order-2 lg:order-1">
-            <div className="prose dark:prose-invert prose-lg max-w-none">
-              <h3 className="text-2xl font-light mb-6 text-gray-900 dark:text-white">Overview</h3>
-              
-              <div className="text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                {parseMarkdownLinks(project.description)}
-              </div>
-              
-              {project.details && (
-                <>
-                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Key Features</h3>
-                  <ul className="space-y-4">
-                    {Array.isArray(project.details) ? (
-                      project.details.map((detail: string, index: number) => (
-                        <li key={index} className="text-gray-700 dark:text-gray-300 font-light">
-                          {parseMarkdownLinks(detail)}
-                        </li>
-                      ))
-                    ) : (
-                      <div className="text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                        {parseMarkdownLinks(project.details as string)}
-                      </div>
-                    )}
-                  </ul>
-                </>
-              )}
-              
-              {project.challenges && project.challenges.length > 0 && (
-                <>
-                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Challenges & Solutions</h3>
-                  <div className="space-y-8">
-                    {project.challenges.map((challenge, index) => (
-                      <div key={index} className="bg-gray-50 dark:bg-gray-800/30 p-6 rounded-xl">
-                        <h4 className="font-medium text-lg mb-3 text-gray-900 dark:text-white">{challenge.title}</h4>
-                        <div className="text-gray-700 dark:text-gray-300 font-light leading-relaxed">
-                          {parseMarkdownLinks(challenge.description)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-              
-              {/* Related Role Section */}
-              {getRoleForProject() && (
-                <>
-                  <h3 className="text-2xl font-light mt-10 mb-6 text-gray-900 dark:text-white">Related Role</h3>
 
-                  <div
-                    className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-xl cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
-                    onClick={() => {
-                      const role = getRoleForProject();
-                      if (role) {
-                        const roleIndex = ROLES.findIndex(r => r.id === role.id);
-                        if (roleIndex !== -1) {
-                          openExperienceModal(roleIndex);
-                        }
-                      }
-                    }}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                        {getRoleForProject()?.logo && (
-                          <Image
-                            src={getRoleForProject()?.logo || ''}
-                            alt={getRoleForProject()?.title || ''}
-                            fill
-                            className="object-cover"
-                          />
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-1">{getRoleForProject()?.title}</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          {getRoleForProject()?.organizationId && ORGANIZATIONS[getRoleForProject()!.organizationId]?.name} • {getRoleForProject()?.period ? formatPeriod(getRoleForProject()!.period) : ''}
-                        </p>
-                        <p className="text-gray-700 dark:text-gray-300 font-light">
-                          {getRoleForProject()?.description}
-                        </p>
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="grid grid-cols-1 gap-8 p-6 sm:p-10 lg:grid-cols-5 lg:gap-10">
+          {/* Main */}
+          <div className="order-2 lg:order-1 lg:col-span-3">
+            <h3 className="eyebrow mb-3">Overview</h3>
+            <div className="leading-relaxed text-text-secondary">
+              {parseMarkdownLinks(project.description)}
+            </div>
+
+            {project.details && (
+              <>
+                <h3 className="eyebrow mb-4 mt-10">Key Features</h3>
+                <ul className="space-y-3">
+                  {Array.isArray(project.details) ? (
+                    project.details.map((detail: string, index: number) => (
+                      <li key={index} className="flex items-start gap-2.5 text-sm text-text-secondary">
+                        <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+                        <span>{parseMarkdownLinks(detail)}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="leading-relaxed text-text-secondary">
+                      {parseMarkdownLinks(project.details as string)}
+                    </li>
+                  )}
+                </ul>
+              </>
+            )}
+
+            {project.challenges && project.challenges.length > 0 && (
+              <>
+                <h3 className="eyebrow mb-4 mt-10">Challenges &amp; Solutions</h3>
+                <div className="space-y-4">
+                  {project.challenges.map((challenge, index) => (
+                    <div key={index} className="rounded-xl border border-border bg-surface-sunken p-5">
+                      <h4 className="mb-2 font-semibold text-text-primary">{challenge.title}</h4>
+                      <div className="text-sm leading-relaxed text-text-secondary">
+                        {parseMarkdownLinks(challenge.description)}
                       </div>
                     </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-          
-          {/* Sidebar */}
-          <div className="lg:col-span-2 order-1 lg:order-2">
-            {/* Project Gallery */}
-            {projectImages.length > 0 && (
-              <div className="mb-10">
-                {renderImageGallery()}
-              </div>
+                  ))}
+                </div>
+              </>
             )}
-            
+
+            {role && (
+              <>
+                <h3 className="eyebrow mb-4 mt-10">Related Role</h3>
+                <button
+                  className="card card-hover w-full p-5 text-left"
+                  onClick={() => {
+                    const roleIndex = ROLES.findIndex((r) => r.id === role.id);
+                    if (roleIndex !== -1) openExperienceModal(roleIndex);
+                  }}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border">
+                      {role.logo && <Image src={role.logo} alt={role.title} fill className="object-cover" />}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-text-primary">{role.title}</h4>
+                      <p className="mb-2 font-mono text-xs text-text-tertiary">
+                        {role.organizationId && ORGANIZATIONS[role.organizationId]?.name} ·{' '}
+                        {role.period ? formatPeriod(role.period) : ''}
+                      </p>
+                      <p className="text-sm text-text-secondary">{role.description}</p>
+                    </div>
+                  </div>
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="order-1 lg:order-2 lg:col-span-2">
+            {projectImages.length > 0 && <div className="mb-8">{renderImageGallery()}</div>}
+
             {/* Project Links */}
             <div className="mb-8">
-              <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Project Links</h3>
-              <div className="flex flex-col gap-3">
-                {/* Modern url structure links */}
+              <h3 className="eyebrow mb-3">Project Links</h3>
+              <div className="flex flex-col gap-2">
                 {project.urls?.website && (
-                  <a
-                    href={project.urls.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    <FaExternalLinkAlt />
-                    <span>View Website</span>
+                  <a href={project.urls.website} target="_blank" rel="noopener noreferrer" className="btn-primary btn-md w-full">
+                    <FaExternalLinkAlt /> View Website
                   </a>
                 )}
-                
-                {project.urls?.repository && (
-                  <a
-                    href={project.urls.repository}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    <FaGithub />
-                    <span>View Repository</span>
-                  </a>
-                )}
-                
-                {project.urls?.googlePlay && (
-                  <a
-                    href={project.urls.googlePlay}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    <FaGooglePlay />
-                    <span>Google Play Store</span>
-                  </a>
-                )}
-                
-                {project.urls?.appStore && (
-                  <a
-                    href={project.urls.appStore}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg hover:bg-black transition-colors"
-                  >
-                    <FaApple />
-                    <span>App Store</span>
-                  </a>
-                )}
-                
                 {project.urls?.demo && (
-                  <a
-                    href={project.urls.demo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-                  >
-                    <FaExternalLinkAlt />
-                    <span>View Demo</span>
+                  <a href={project.urls.demo} target="_blank" rel="noopener noreferrer" className="btn-primary btn-md w-full">
+                    <FaExternalLinkAlt /> View Demo
                   </a>
                 )}
-                
+                {project.urls?.repository && (
+                  <a href={project.urls.repository} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-md w-full">
+                    <FaGithub /> View Repository
+                  </a>
+                )}
+                {project.urls?.googlePlay && (
+                  <a href={project.urls.googlePlay} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-md w-full">
+                    <FaGooglePlay /> Google Play
+                  </a>
+                )}
+                {project.urls?.appStore && (
+                  <a href={project.urls.appStore} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-md w-full">
+                    <FaApple /> App Store
+                  </a>
+                )}
                 {project.urls?.documentation && (
-                  <a
-                    href={project.urls.documentation}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
-                  >
-                    <FaFileAlt />
-                    <span>Documentation</span>
+                  <a href={project.urls.documentation} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-md w-full">
+                    <FaFileAlt /> Documentation
                   </a>
                 )}
-                
                 {project.urls?.wikipedia && (
-                  <a
-                    href={project.urls.wikipedia}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                  >
-                    <FaWikipediaW />
-                    <span>Wikipedia</span>
+                  <a href={project.urls.wikipedia} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-md w-full">
+                    <FaWikipediaW /> Wikipedia
                   </a>
                 )}
-                
-                {/* Legacy url structure fallbacks */}
+                {project.urls?.timemachine && (
+                  <a href={project.urls.timemachine} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-md w-full">
+                    <FaLink /> Wayback Machine
+                  </a>
+                )}
+
+                {/* Legacy fallbacks */}
                 {!project.urls?.website && project.liveUrl && (
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    <FaExternalLinkAlt />
-                    <span>View Live Project</span>
+                  <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="btn-primary btn-md w-full">
+                    <FaExternalLinkAlt /> View Live Project
                   </a>
                 )}
-                
                 {!project.urls?.repository && project.github && (
-                  <a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    <FaGithub />
-                    <span>View on GitHub</span>
+                  <a href={project.github} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-md w-full">
+                    <FaGithub /> View on GitHub
                   </a>
                 )}
               </div>
             </div>
-            
-            {/* Other References Section */}
+
+            {/* References & Media */}
             {project.urls?.other && project.urls.other.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">References & Media</h3>
-                <div className="space-y-3">
+                <h3 className="eyebrow mb-3">References &amp; Media</h3>
+                <div className="space-y-2">
                   {project.urls.other.map((item, index) => (
                     <a
                       key={index}
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="card card-hover flex items-start gap-3 p-4"
                     >
-                      <div className="mt-1 flex-shrink-0">
-                        {getMediaTypeIcon(item.type)}
-                      </div>
+                      <div className="mt-0.5 shrink-0">{getMediaTypeIcon(item.type)}</div>
                       <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-1">{item.name}</h4>
+                        <h4 className="text-sm font-medium text-text-primary">{item.name}</h4>
                         {item.description && (
-                          <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
+                          <p className="mt-0.5 text-xs text-text-tertiary">{item.description}</p>
                         )}
                       </div>
                     </a>
@@ -460,66 +347,49 @@ export default function ProjectModal({
                 </div>
               </div>
             )}
-            
-            {/* Internet Archive link if available */}
-            {project.urls?.timemachine && (
+
+            {/* Technologies */}
+            {project.skills && project.skills.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Internet Archive</h3>
-                <a
-                  href={project.urls.timemachine}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-3 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-100 rounded-lg hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
-                >
-                  <FaLink />
-                  <span>View on Wayback Machine</span>
-                </a>
+                <h3 className="eyebrow mb-3">Technologies</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {project.skills.map((skillId) => (
+                    <button
+                      key={skillId}
+                      onClick={() => handleSkillClick(skillId)}
+                      className="chip transition-colors hover:border-accent hover:text-accent"
+                    >
+                      {getSkillNames([skillId])[0]}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
-            
-            {/* Technologies Used */}
-            <div className="mb-8">
-              <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Technologies Used</h3>
-              <div className="flex flex-wrap gap-2">
-                {project.skills && project.skills.length > 0 && project.skills.map((skillId, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSkillClick(skillId)}
-                    className="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-lg text-sm
-                    hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
-                  >
-                    {getSkillNames([skillId])[0]}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {/* Additional Metadata */}
+
+            {/* Project Details */}
             {(project.teamSize || project.duration || project.role) && (
               <div className="mb-8">
-                <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-white">Project Details</h3>
-                <div className="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-5 space-y-4">
+                <h3 className="eyebrow mb-3">Project Details</h3>
+                <dl className="divide-y divide-border-subtle overflow-hidden rounded-xl border border-border bg-surface-sunken">
                   {project.role && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">My Role</span>
-                      <span className="text-gray-900 dark:text-white font-medium">{project.role}</span>
+                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                      <dt className="text-sm text-text-tertiary">My Role</dt>
+                      <dd className="text-sm font-medium text-text-primary">{project.role}</dd>
                     </div>
                   )}
-                  
                   {project.teamSize && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Team Size</span>
-                      <span className="text-gray-900 dark:text-white font-medium">{project.teamSize}</span>
+                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                      <dt className="text-sm text-text-tertiary">Team Size</dt>
+                      <dd className="font-mono text-sm font-medium text-text-primary">{project.teamSize}</dd>
                     </div>
                   )}
-                  
                   {project.duration && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Duration</span>
-                      <span className="text-gray-900 dark:text-white font-medium">{project.duration}</span>
+                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                      <dt className="text-sm text-text-tertiary">Duration</dt>
+                      <dd className="text-sm font-medium text-text-primary">{project.duration}</dd>
                     </div>
                   )}
-                </div>
+                </dl>
               </div>
             )}
           </div>
@@ -527,4 +397,4 @@ export default function ProjectModal({
       </div>
     </div>
   );
-} 
+}

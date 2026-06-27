@@ -1,152 +1,105 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import dynamic from 'next/dynamic';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import ErrorBoundary from '@/components/ErrorBoundary';
-import { useNavigationStore } from '@/context/NavigationContext';
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { cn } from "@/lib/utils";
 
-const Hero = dynamic(() => import('@/components/Hero'), {
-  loading: () => <div className="w-full h-screen flex items-center justify-center"><LoadingSpinner /></div>
-});
-const TechStack = dynamic(() => import('@/components/TechStack'), {
-  loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
-});
-const OpenSource = dynamic(() => import('@/components/OpenSource'), {
-  loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
-});
-const Philosophy = dynamic(() => import('@/components/Philosophy'), {
-  loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
-});
-const FeaturedProjects = dynamic(() => import('@/components/FeaturedProjects'), {
-  loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
-});
-const Experience = dynamic(() => import('@/components/Experience'), {
-  loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
-});
-const Contact = dynamic(() => import('@/components/Contact'), {
-  loading: () => <div className="w-full py-24 flex items-center justify-center"><LoadingSpinner /></div>
-});
+const sectionFallback = (
+  <div className="flex w-full justify-center py-24">
+    <LoadingSpinner />
+  </div>
+);
+
+const Now = dynamic(() => import("@/components/Now"), { loading: () => sectionFallback });
+const OpenSource = dynamic(() => import("@/components/OpenSource"), { loading: () => sectionFallback });
+const Experience = dynamic(() => import("@/components/Experience"), { loading: () => sectionFallback });
+const FeaturedProjects = dynamic(() => import("@/components/FeaturedProjects"), { loading: () => sectionFallback });
+const Capabilities = dynamic(() => import("@/components/TechStack"), { loading: () => sectionFallback });
+const Philosophy = dynamic(() => import("@/components/Philosophy"), { loading: () => sectionFallback });
+const Contact = dynamic(() => import("@/components/Contact"), { loading: () => sectionFallback });
 
 interface HomeProps {
   initialSection?: string;
 }
 
+const PAD = "scroll-mt-20 py-24 sm:py-32";
+
+function Section({
+  id,
+  className,
+  children,
+}: {
+  id: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className={cn(PAD, className)}>
+      <ErrorBoundary>{children}</ErrorBoundary>
+    </section>
+  );
+}
+
 export default function Home({ initialSection }: HomeProps) {
-  // Reference to track if we've completed initial navigation
   const hasNavigated = useRef(false);
-  
-  // Access navigation store for section navigation
-  
-  // Navigate to initial section if provided (for direct section URLs)
+
   useEffect(() => {
-    if (!initialSection || typeof window === 'undefined' || hasNavigated.current) {
-      return;
-    }
-    
-    
-    const navigateStore = useNavigationStore.getState();
-    
-    // Set a flag to indicate we're scrolling programmatically
-    navigateStore.setIsScrolling(true);
-    
-    // Force scroll to top first to ensure consistent starting position
-    const container = document.getElementById('main-content');
-    if (container) {
-      (container as HTMLElement).scrollTo(0, 0);
-    } else {
-      window.scrollTo(0, 0);
-    }
-    
-    // Scroll to the section with a delay to ensure DOM is loaded
-    const timer = setTimeout(() => {
-      const section = document.getElementById(initialSection);
-      
-      if (section) {
-        
-        // First update URL to match the section
-        const targetPath = initialSection === 'hero' ? '/' : `/${initialSection}`;
-        window.history.replaceState({ path: targetPath }, '', targetPath);
-        
-        // Then scroll to the section
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
-        // Reset scrolling flag with delay
-        setTimeout(() => {
-          navigateStore.setIsScrolling(false);
-          navigateStore.setActiveSection(initialSection);
-          
-          // Mark that we've completed navigation
-          hasNavigated.current = true;
-          
-          // Re-setup intersection observer
-          navigateStore.setupIntersectionObserver();
-        }, 800);
-      } else {
-        navigateStore.setIsScrolling(false);
+    if (!initialSection || typeof window === "undefined" || hasNavigated.current) return;
+    hasNavigated.current = true;
+    const t = setTimeout(() => {
+      const el = document.getElementById(initialSection);
+      if (el) {
+        const path = initialSection === "hero" ? "/" : `/${initialSection}`;
+        window.history.replaceState({ path }, "", path);
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-    }, 300);
-    
-    return () => clearTimeout(timer);
+    }, 250);
+    return () => clearTimeout(t);
   }, [initialSection]);
 
   return (
     <>
-      {/* Navigation elements */}
       <Header />
-      
-      {/* Hero section */}
-      <div id="hero" className="min-h-[95vh] w-full flex items-center justify-center scroll-mt-20">
+
+      <section id="hero" className="scroll-mt-0">
         <ErrorBoundary>
           <Hero />
         </ErrorBoundary>
-      </div>
+      </section>
 
-      {/* Technical skills section */}
-      <div id="tech-stack" className="py-24 scroll-mt-20">
-        <ErrorBoundary>
-          <TechStack />
-        </ErrorBoundary>
-      </div>
+      <Section id="now">
+        <Now />
+      </Section>
 
-      {/* Open Source section */}
-      <div id="open-source" className="py-24 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900/10 dark:to-gray-900/30 scroll-mt-20">
-        <ErrorBoundary>
-          <OpenSource />
-        </ErrorBoundary>
-      </div>
+      <Section id="open-source" className="border-t border-border-subtle bg-surface-sunken/40">
+        <OpenSource />
+      </Section>
 
-      {/* Philosophy section */}
-      <div id="philosophy" className="py-24 bg-gray-50 dark:bg-gray-900/20 scroll-mt-20">
-        <ErrorBoundary>
-          <Philosophy />
-        </ErrorBoundary>
-      </div>
+      <Section id="experience">
+        <Experience />
+      </Section>
 
-      {/* Projects section */}
-      <div id="projects" className="py-24 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
-        <ErrorBoundary>
-          <FeaturedProjects />
-        </ErrorBoundary>
-      </div>
+      <Section id="projects" className="border-t border-border-subtle bg-surface-sunken/40">
+        <FeaturedProjects />
+      </Section>
 
-      {/* Experience section */}
-      <div id="experience" className="py-24 bg-white dark:bg-gray-900/10 scroll-mt-20">
-        <ErrorBoundary>
-          <Experience />
-        </ErrorBoundary>
-      </div>
+      <Section id="capabilities">
+        <Capabilities />
+      </Section>
 
-      {/* Contact section */}
-      <div id="contact" className="py-24 bg-gray-100 dark:bg-gray-800/30 scroll-mt-20">
-        <ErrorBoundary>
-          <Contact />
-        </ErrorBoundary>
-      </div>
-      
-      {/* Footer */}
+      <Section id="philosophy" className="border-t border-border-subtle bg-surface-sunken/40">
+        <Philosophy />
+      </Section>
+
+      <Section id="contact">
+        <Contact />
+      </Section>
+
       <Footer />
     </>
   );

@@ -18,12 +18,12 @@ export const parseMarkdownLinks = (text: string): ReactNode => {
     
     // Add the link component
     parts.push(
-      <Link 
-        key={match.index} 
-        href={match[2]} 
-        target="_blank" 
+      <Link
+        key={match.index}
+        href={match[2]}
+        target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-600 hover:underline"
+        className="link"
       >
         {match[1]}
       </Link>

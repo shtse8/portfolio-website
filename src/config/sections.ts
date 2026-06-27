@@ -1,25 +1,38 @@
 /**
- * Centralized section configuration used across navigation components.
- * Keep in sync with VALID_SECTIONS in src/lib/constants.ts
+ * Centralized section configuration — the single source of truth for the
+ * one-page narrative. Drives nav, the IntersectionObserver, deep links, and
+ * the JSON-LD navigation element.
  */
 
-export type SectionId = 'hero' | 'tech-stack' | 'open-source' | 'philosophy' | 'projects' | 'experience' | 'contact';
+export type SectionId =
+  | "hero"
+  | "now"
+  | "open-source"
+  | "experience"
+  | "projects"
+  | "capabilities"
+  | "philosophy"
+  | "contact";
 
 export interface SectionConfig {
   id: SectionId;
   label: string;
   path: string;
+  /** Show in the primary header nav (a curated subset keeps the header clean). */
+  nav?: boolean;
 }
 
 export const SECTIONS: SectionConfig[] = [
-  { id: 'hero', label: 'Home', path: '/' },
-  { id: 'tech-stack', label: 'Skills', path: '/tech-stack' },
-  { id: 'open-source', label: 'Open Source', path: '/open-source' },
-  { id: 'philosophy', label: 'Philosophy', path: '/philosophy' },
-  { id: 'projects', label: 'Projects', path: '/projects' },
-  { id: 'experience', label: 'Experience', path: '/experience' },
-  { id: 'contact', label: 'Contact', path: '/contact' },
+  { id: "hero", label: "Home", path: "/" },
+  { id: "now", label: "Now", path: "/now" },
+  { id: "open-source", label: "Open Source", path: "/open-source", nav: true },
+  { id: "experience", label: "Experience", path: "/experience", nav: true },
+  { id: "projects", label: "Projects", path: "/projects", nav: true },
+  { id: "capabilities", label: "Capabilities", path: "/capabilities", nav: true },
+  { id: "philosophy", label: "Philosophy", path: "/philosophy" },
+  { id: "contact", label: "Contact", path: "/contact", nav: true },
 ];
 
-export const SECTION_IDS: SectionId[] = SECTIONS.map(s => s.id);
-export const URL_SECTION_IDS: SectionId[] = SECTIONS.filter(s => s.id !== 'hero').map(s => s.id);
+export const NAV_SECTIONS = SECTIONS.filter((s) => s.nav);
+export const SECTION_IDS: SectionId[] = SECTIONS.map((s) => s.id);
+export const URL_SECTION_IDS: SectionId[] = SECTIONS.filter((s) => s.id !== "hero").map((s) => s.id);

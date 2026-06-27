@@ -1,150 +1,117 @@
 "use client";
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import * as Fa from "react-icons/fa";
+import type { IconType } from "react-icons";
+import { PHILOSOPHY_PRINCIPLES } from "@/data/philosophy";
+import type { PhilosophyPrinciple } from "@/data/types";
+import Reveal from "./ui/Reveal";
+import SectionHeader from "./ui/SectionHeader";
 
-// Philosophy expressed as contrarian beliefs with evidence
-const PHILOSOPHY_ITEMS = [
-  {
-    id: 'simplicity',
-    belief: "Complexity is debt. Simplicity is wealth.",
-    contrast: "Most add features to solve problems.",
-    approach: "I remove complexity to reveal solutions.",
-    evidence: "My libraries average 200 LOC. They do one thing well.",
-    tags: ['minimalism', 'focus', 'clarity']
-  },
-  {
-    id: 'speed',
-    belief: "Ship fast, but never ship broken.",
-    contrast: "Most trade quality for speed.",
-    approach: "I use AI and automation to have both.",
-    evidence: "4,600+ commits. Strict semantic versioning.",
-    tags: ['velocity', 'quality', 'automation']
-  },
-  {
-    id: 'users',
-    belief: "If users need a manual, you've already failed.",
-    contrast: "Most document after building.",
-    approach: "I design interfaces that explain themselves.",
-    evidence: "10M+ app downloads with 4.5+ star ratings.",
-    tags: ['intuitive', 'user-first', 'self-explanatory']
-  },
-  {
-    id: 'open',
-    belief: "Open source isn't charity. It's leverage.",
-    contrast: "Most keep solutions private.",
-    approach: "I share to multiply impact and attract talent.",
-    evidence: "500+ GitHub stars. Used in production worldwide.",
-    tags: ['leverage', 'community', 'compounding']
-  },
-];
+/** Resolve a `react-icons/fa` name string to a component — never crash on an unknown name. */
+function resolveIcon(name: string): IconType {
+  const icons = Fa as unknown as Record<string, IconType | undefined>;
+  return icons[name] ?? Fa.FaRegCircle;
+}
 
-export default function Philosophy() {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
+function KeyPoints({ points }: { points: string[] }) {
   return (
-    <section
-      id="philosophy"
-      className="py-24 px-6"
-      aria-labelledby="philosophy-heading"
-    >
-      <div className="max-w-5xl mx-auto">
-        {/* Section header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-        >
-          <h2 id="philosophy-heading" className="text-3xl md:text-4xl font-medium tracking-tight text-text-primary mb-4">
-            How I Think
-          </h2>
-          <p className="text-text-secondary max-w-xl mx-auto">
-            Beliefs that shape every decision I make.
-          </p>
-        </motion.div>
+    <ul className="mt-5 grid gap-x-5 gap-y-2 sm:grid-cols-2">
+      {points.map((point) => (
+        <li key={point} className="flex items-start gap-2.5 text-sm text-text-secondary">
+          <span aria-hidden className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+          {point}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
-        {/* Philosophy cards - contrarian style */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          {PHILOSOPHY_ITEMS.map((item, index) => {
-            const isHovered = hoveredId === item.id;
+function IconBadge({ icon }: { icon: string }) {
+  const Icon = resolveIcon(icon);
+  return (
+    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-subtle text-accent ring-1 ring-inset ring-accent/10">
+      <Icon className="h-5 w-5" aria-hidden />
+    </span>
+  );
+}
 
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                onMouseEnter={() => setHoveredId(item.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                className={cn(
-                  "group relative p-6 rounded-xl border bg-surface",
-                  "border-border hover:border-accent/40",
-                  "transition-all duration-300 hover:shadow-lg"
-                )}
-              >
-                {/* Main belief - large quote */}
-                <blockquote className="text-lg md:text-xl font-medium text-text-primary mb-4 leading-snug">
-                  "{item.belief}"
-                </blockquote>
+/** Standard principle card — icon, mono index, title, one-liner, body, key points. */
+function PrincipleCard({ principle, index }: { principle: PhilosophyPrinciple; index: number }) {
+  return (
+    <article className="card card-hover flex h-full flex-col p-6 sm:p-7">
+      <div className="flex items-start justify-between gap-4">
+        <IconBadge icon={principle.icon} />
+        <span className="font-mono text-xs text-text-tertiary">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+      </div>
 
-                {/* Contrast + Approach */}
-                <div className="space-y-2 mb-4">
-                  <p className="text-sm text-text-tertiary">
-                    <span className="line-through opacity-60">{item.contrast}</span>
-                  </p>
-                  <p className="text-sm text-accent font-medium">
-                    → {item.approach}
-                  </p>
-                </div>
+      <h3 className="text-h3 mt-5 text-text-primary">{principle.title}</h3>
+      <p className="mt-1.5 font-mono text-xs text-text-tertiary">{principle.shortDescription}</p>
+      <p className="mt-4 text-text-secondary">{principle.fullDescription}</p>
 
-                {/* Evidence */}
-                <div className="pt-4 border-t border-border">
-                  <p className="text-xs text-text-tertiary uppercase tracking-wider mb-1">
-                    Evidence
-                  </p>
-                  <p className="text-sm text-text-secondary">
-                    {item.evidence}
-                  </p>
-                </div>
+      {principle.keyPoints && principle.keyPoints.length > 0 && (
+        <KeyPoints points={principle.keyPoints} />
+      )}
+    </article>
+  );
+}
 
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1.5 mt-4">
-                  {item.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2 py-0.5 bg-surface-elevated rounded text-text-tertiary"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Index number */}
-                <div className="absolute top-4 right-4 text-xs font-mono text-text-tertiary">
-                  {String(index + 1).padStart(2, '0')}
-                </div>
-              </motion.div>
-            );
-          })}
+/** Quiet closing thought — full-width, sunken, two-column on desktop. */
+function ClosingPrinciple({ principle, index }: { principle: PhilosophyPrinciple; index: number }) {
+  return (
+    <article className="card border-border-subtle bg-surface-sunken/60 p-6 sm:p-9">
+      <div className="grid gap-7 sm:grid-cols-[minmax(0,0.9fr)_1.3fr] sm:gap-12">
+        <div>
+          <div className="flex items-center gap-3">
+            <IconBadge icon={principle.icon} />
+            <span className="font-mono text-xs uppercase tracking-[0.18em] text-text-tertiary">
+              {String(index + 1).padStart(2, "0")} · closing thought
+            </span>
+          </div>
+          <h3 className="text-h3 mt-5 text-text-primary">{principle.title}</h3>
+          <p className="mt-1.5 font-mono text-xs text-text-tertiary">{principle.shortDescription}</p>
         </div>
 
-        {/* Summary equation */}
-        <motion.div
-          className="mt-16 text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-        >
-          <p className="text-sm font-mono text-text-tertiary">
-            value = impact / complexity
-          </p>
-        </motion.div>
+        <div>
+          <p className="lead">{principle.fullDescription}</p>
+          {principle.keyPoints && principle.keyPoints.length > 0 && (
+            <KeyPoints points={principle.keyPoints} />
+          )}
+        </div>
       </div>
-    </section>
+    </article>
+  );
+}
+
+export default function Philosophy() {
+  const principles = PHILOSOPHY_PRINCIPLES;
+  const lastIndex = principles.length - 1;
+  const main = principles.slice(0, lastIndex);
+  const closing = principles[lastIndex];
+
+  return (
+    <div className="container-content">
+      <SectionHeader
+        index="06"
+        eyebrow="Philosophy"
+        title="How I build"
+        description="Five principles I keep coming back to — the quiet constraints behind every interface and line of code I ship."
+      />
+
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5">
+        {main.map((principle, i) => (
+          <Reveal key={principle.id} className="h-full" delay={i * 0.06}>
+            <PrincipleCard principle={principle} index={i} />
+          </Reveal>
+        ))}
+
+        {closing && (
+          <Reveal key={closing.id} className="sm:col-span-2" delay={0.12}>
+            <ClosingPrinciple principle={closing} index={lastIndex} />
+          </Reveal>
+        )}
+      </div>
+    </div>
   );
 }

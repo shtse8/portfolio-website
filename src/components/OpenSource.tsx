@@ -1,240 +1,211 @@
 "use client";
 
-import { useMemo } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { FaGithub, FaStar, FaArrowRight, FaExternalLinkAlt, FaCodeBranch, FaNpm } from 'react-icons/fa';
-import { PROJECTS } from '@/data/projects';
-import { GITHUB_STATS } from '@/data/personal';
-import { cn } from '@/lib/utils';
+import { useMemo } from "react";
+import Link from "next/link";
+import { FaGithub, FaStar, FaArrowRight, FaArrowUpRightFromSquare } from "react-icons/fa6";
+import { SiNpm } from "react-icons/si";
+import { PROJECTS } from "@/data/projects";
+import { formatProjectPeriod } from "@/data";
+import { PERSONAL_INFO } from "@/data/personal";
+import { STATS } from "@/lib/stats";
+import type { Project } from "@/data/types";
+import Reveal from "./ui/Reveal";
+import SectionHeader from "./ui/SectionHeader";
 
-// Aggregate stats for the section
-const AGGREGATE_STATS = [
-  { value: '500+', label: 'Total Stars', icon: FaStar },
-  { value: '106', label: 'Repositories', icon: FaCodeBranch },
-  { value: '15+', label: 'npm Packages', icon: FaNpm },
-];
+const FLAGSHIP_ID = "pdf-reader-mcp";
+const OSS_CATEGORIES = new Set(["Open Source", "Frameworks & Libraries"]);
+const GITHUB_ORG = "https://github.com/SylphxAI";
+
+/** Strip a trailing "NNN GitHub stars." claim so star figures live only in STATS. */
+function cleanDescription(text: string): string {
+  return text.replace(/\s*\d[\d,]*\+?\s*GitHub stars\.?/i, "").trim();
+}
+
+function asBullets(details: Project["details"]): string[] {
+  return Array.isArray(details) ? details : [details];
+}
 
 export default function OpenSource() {
-  // Filter for open source projects
-  const { featuredProject, otherProjects } = useMemo(() => {
-    const osProjects = PROJECTS.filter(
-      (p) => p.category === 'Open Source' || p.category === 'Frameworks & Libraries' || p.category === 'AI & ML'
-    );
-
-    // Sort by stars (extracted from description)
-    const withStars = osProjects.map(p => {
-      const match = p.description.match(/(\d+)\+?\s*(?:GitHub\s*)?stars?/i);
-      return { project: p, stars: match ? parseInt(match[1]) : 0 };
-    }).sort((a, b) => b.stars - a.stars);
-
+  const { flagship, others, ossCount } = useMemo(() => {
+    const oss = PROJECTS.filter((p) => OSS_CATEGORIES.has(p.category));
     return {
-      featuredProject: withStars[0],
-      otherProjects: withStars.slice(1, 7)
+      flagship: PROJECTS.find((p) => p.id === FLAGSHIP_ID),
+      others: oss.filter((p) => p.id !== FLAGSHIP_ID).slice(0, 6),
+      ossCount: oss.length,
     };
   }, []);
 
-  // Extract stars from description
-  const getStars = (description: string) => {
-    const match = description.match(/(\d+)\+?\s*(?:GitHub\s*)?stars?/i);
-    return match ? parseInt(match[1]) : null;
-  };
+  // Aggregate proof — every figure reads from the STATS single source of truth.
+  const proof = [
+    STATS.githubStars,
+    STATS.repos,
+    { display: String(ossCount), label: "Open-source projects" },
+  ];
 
-  const cleanDescription = (description: string) => {
-    return description.replace(/\d+\+?\s*(?:GitHub\s*)?stars?\.?\s*/i, '').trim();
-  };
-
-  // Get project language/category tag
-  const getProjectTag = (project: typeof PROJECTS[number]) => {
-    if (project.skills?.includes('typescript')) return { label: 'TypeScript', color: 'bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400' };
-    if (project.skills?.includes('python')) return { label: 'Python', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400' };
-    if (project.skills?.includes('dart')) return { label: 'Dart', color: 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950/50 dark:text-cyan-400' };
-    return { label: 'Open Source', color: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400' };
-  };
+  // First detail repeats the description, so lead with the more specific proof bullets.
+  const flagshipBullets = flagship ? asBullets(flagship.details).slice(1, 4) : [];
 
   return (
-    <section
-      id="open-source"
-      className="py-24 px-6"
-      aria-labelledby="opensource-heading"
-    >
-      <div className="max-w-5xl mx-auto">
-        {/* Section header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-        >
-          <h2 id="opensource-heading" className="text-3xl md:text-4xl font-medium tracking-tight text-text-primary mb-4">
-            Open Source
-          </h2>
-          <p className="text-text-secondary max-w-xl mx-auto">
-            Building tools and libraries that help developers work faster.
-          </p>
-        </motion.div>
+    <div className="container-content">
+      <SectionHeader
+        index="02"
+        eyebrow="Open Source"
+        title="Tools and libraries, built in the open"
+        description="Developer tools and high-performance libraries I design, ship, and maintain solo — from MCP servers to tiny, benchmarked state libraries, each one fully tested."
+      />
 
-        {/* Aggregate stats */}
-        <motion.div
-          className="grid grid-cols-3 gap-4 mb-12 max-w-md mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          {AGGREGATE_STATS.map((stat, index) => (
-            <div key={stat.label} className="text-center p-3">
-              <stat.icon className="w-5 h-5 text-accent mx-auto mb-2" />
-              <div className="text-xl font-medium text-text-primary">{stat.value}</div>
-              <div className="text-xs text-text-tertiary">{stat.label}</div>
+      {/* Aggregate proof — mono numbers, single source of truth */}
+      <Reveal delay={0.05}>
+        <dl className="mt-10 grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-border bg-border">
+          {proof.map((stat) => (
+            <div key={stat.label} className="bg-surface p-4 sm:p-5">
+              <dt className="font-mono text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+                {stat.display}
+              </dt>
+              <dd className="mt-1 text-xs text-text-tertiary">{stat.label}</dd>
             </div>
           ))}
-        </motion.div>
+        </dl>
+      </Reveal>
 
-        {/* Featured project - large card */}
-        {featuredProject && (
-          <motion.div
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-          >
-            <Link
-              href={featuredProject.project.urls?.repository || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block p-6 md:p-8 bg-gradient-to-br from-accent/5 to-accent/10 dark:from-accent/10 dark:to-accent/5 border border-accent/20 rounded-xl hover:border-accent/40 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300"
-            >
-              <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-6">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className="text-xs px-2 py-1 rounded-full bg-accent/20 text-accent font-medium">
-                      Featured
-                    </span>
-                    {(() => {
-                      const tag = getProjectTag(featuredProject.project);
-                      return (
-                        <span className={cn("text-xs px-2 py-1 rounded-full", tag.color)}>
-                          {tag.label}
-                        </span>
-                      );
-                    })()}
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-medium text-text-primary group-hover:text-accent transition-colors duration-150 mb-2">
-                    {featuredProject.project.title}
-                    <FaExternalLinkAlt className="inline-block w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </h3>
-                  <p className="text-text-secondary mb-4 leading-relaxed">
-                    {cleanDescription(featuredProject.project.description)}
-                  </p>
-
-                  {/* Key features from details */}
-                  {featuredProject.project.details && Array.isArray(featuredProject.project.details) && featuredProject.project.details.length > 0 && (
-                    <ul className="space-y-1 mb-4">
-                      {featuredProject.project.details.slice(0, 3).map((detail, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
-                          <span className="w-1 h-1 rounded-full bg-accent mt-2 shrink-0" />
-                          {detail}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <div className="flex flex-wrap gap-2">
-                    {featuredProject.project.skills.slice(0, 5).map(skill => (
-                      <span key={skill} className="px-2.5 py-1 bg-surface border border-border rounded-md text-xs text-text-secondary">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
+      {/* Flagship: pdf-reader-mcp */}
+      {flagship && (
+        <Reveal delay={0.1}>
+          <article className="card mt-6 p-6 sm:p-8 lg:p-10">
+            <div className="flex flex-col-reverse gap-7 lg:flex-row lg:gap-10">
+              <div className="lg:flex-1">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="badge">
+                    <FaGithub className="h-3.5 w-3.5" /> Flagship
+                  </span>
+                  <span className="font-mono text-xs text-text-tertiary">
+                    {formatProjectPeriod(flagship)} · {flagship.role}
+                  </span>
                 </div>
-                <div className="flex md:flex-col items-center gap-4 md:gap-2 md:text-right">
-                  {featuredProject.stars > 0 && (
-                    <div className="flex items-center gap-2 px-4 py-2 bg-accent/20 rounded-lg">
-                      <FaStar className="w-5 h-5 text-accent" />
-                      <span className="text-xl font-medium text-accent">{featuredProject.stars}+</span>
-                    </div>
+
+                <h3 className="text-h3 mt-4 text-text-primary">{flagship.title}</h3>
+                <p className="mt-3 max-w-xl text-text-secondary">
+                  {cleanDescription(flagship.description)}
+                </p>
+
+                {flagshipBullets.length > 0 && (
+                  <ul className="mt-6 space-y-2.5">
+                    {flagshipBullets.map((point) => (
+                      <li key={point} className="flex items-start gap-2.5 text-sm text-text-secondary">
+                        <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <div className="mt-6 flex flex-wrap gap-1.5">
+                  {flagship.skills.slice(0, 6).map((skill) => (
+                    <span key={skill} className="chip">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="mt-7 flex flex-wrap gap-3">
+                  {flagship.urls?.repository && (
+                    <a
+                      href={flagship.urls.repository}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-primary btn-md"
+                    >
+                      <FaGithub className="h-[18px] w-[18px]" /> View source
+                    </a>
                   )}
-                  <span className="text-sm text-text-tertiary">GitHub Stars</span>
+                  {flagship.urls?.documentation && (
+                    <a
+                      href={flagship.urls.documentation}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-secondary btn-md"
+                    >
+                      <SiNpm className="h-[18px] w-[18px]" /> npm package
+                    </a>
+                  )}
                 </div>
               </div>
-            </Link>
-          </motion.div>
-        )}
 
-        {/* Other projects - compact grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {otherProjects.map((item, index) => {
-            const stars = getStars(item.project.description);
-            const repoUrl = item.project.urls?.repository;
-            const tag = getProjectTag(item.project);
-
-            return (
-              <motion.div
-                key={item.project.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <Link
-                  href={repoUrl || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "group block p-4 rounded-lg border border-border bg-surface h-full",
-                    "hover:border-accent/30 hover:shadow-md transition-all duration-200"
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="text-base font-medium text-text-primary group-hover:text-accent transition-colors duration-150 truncate">
-                          {item.project.title}
-                        </h3>
-                      </div>
-                      <span className={cn("inline-block text-xs px-2 py-0.5 rounded-full mb-2", tag.color)}>
-                        {tag.label}
-                      </span>
+              {/* Star highlight */}
+              <div className="lg:w-52 lg:shrink-0">
+                <div className="flex items-center gap-4 rounded-2xl border border-accent/20 bg-accent-subtle p-5 lg:h-full lg:flex-col lg:items-start lg:justify-center lg:gap-1">
+                  <FaStar className="h-6 w-6 shrink-0 text-accent lg:h-7 lg:w-7" />
+                  <div>
+                    <div className="font-mono text-4xl font-semibold tracking-tight text-accent lg:text-5xl">
+                      {STATS.flagshipStars.display}
                     </div>
-                    {stars && (
-                      <div className="flex items-center gap-1 text-text-tertiary shrink-0">
-                        <FaStar className="w-3.5 h-3.5 text-yellow-500" />
-                        <span className="text-sm font-medium">{stars}</span>
-                      </div>
-                    )}
+                    <div className="mt-0.5 text-xs text-text-tertiary">GitHub stars</div>
                   </div>
-                  <p className="text-sm text-text-secondary line-clamp-2">
-                    {cleanDescription(item.project.description)}
-                  </p>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </Reveal>
+      )}
 
-        {/* View all link */}
-        <motion.div
-          className="text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-        >
-          <Link
-            href={`https://github.com/${GITHUB_STATS.username}`}
+      {/* More open-source work */}
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {others.map((project, i) => {
+          const repo = project.urls?.repository;
+          if (!repo) return null;
+          return (
+            <Reveal key={project.id} delay={0.05 + i * 0.05}>
+              <Link
+                href={repo}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${project.title} on GitHub`}
+                className="card card-hover group flex h-full flex-col p-5 transition-transform duration-200 hover:-translate-y-0.5"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-base font-semibold tracking-tight text-text-primary transition-colors group-hover:text-accent">
+                    {project.title}
+                  </h3>
+                  <FaArrowUpRightFromSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-tertiary transition-colors group-hover:text-accent" />
+                </div>
+
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-text-secondary">
+                  {cleanDescription(project.description)}
+                </p>
+
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {project.skills.slice(0, 3).map((skill) => (
+                    <span key={skill} className="chip">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            </Reveal>
+          );
+        })}
+      </div>
+
+      {/* View all */}
+      <Reveal delay={0.1}>
+        <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <a
+            href={PERSONAL_INFO.social.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-accent bg-accent-subtle rounded-lg hover:bg-accent hover:text-white transition-colors duration-200"
+            className="btn-secondary btn-md"
           >
-            <FaGithub className="w-4 h-4" />
-            View all {GITHUB_STATS.totalRepos} repositories
-            <FaArrowRight className="w-3 h-3" />
-          </Link>
-        </motion.div>
-      </div>
-    </section>
+            <FaGithub className="h-[18px] w-[18px] " /> View all repositories on GitHub
+            <FaArrowRight className="h-3.5 w-3.5" />
+          </a>
+          <span className="font-mono text-xs text-text-tertiary">
+            @shtse8 · org work on{" "}
+            <Link href={GITHUB_ORG} target="_blank" rel="noopener noreferrer" className="link">
+              SylphxAI
+            </Link>
+          </span>
+        </div>
+      </Reveal>
+    </div>
   );
 }

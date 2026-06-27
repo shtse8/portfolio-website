@@ -1,208 +1,136 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { PERSONAL_INFO } from '@/data/personal';
-import ScrollAnimationProvider from '@/components/ScrollAnimationProvider';
-import ModalPortal from '@/components/shared/ModalPortal';
-import { NavigationProvider } from '@/context/NavigationContext';
-import AppShell from '@/components/layout/AppShell';
+import { PERSONAL_INFO } from "@/data/personal";
+import { SECTIONS } from "@/config/sections";
+import ModalPortal from "@/components/shared/ModalPortal";
+import { NavigationProvider } from "@/context/NavigationContext";
+import AppShell from "@/components/layout/AppShell";
 
 const inter = Inter({
   subsets: ["latin"],
-  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif']
+  display: "swap",
+  variable: "--font-sans",
+  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
 });
 
-// Client-side theme initialization script - simplified to reduce hydration issues
-const clientThemeScript = `
-  (function() {
-    try {
-      const isDark = localStorage.getItem('themePreference') === 'dark' || 
-        (!localStorage.getItem('themePreference') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      }
-    } catch (e) {
-      // Fail silently if localStorage is not available
-    }
-  })();
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-mono",
+  fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+});
+
+const fullName = `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`;
+const TITLE = `${fullName} — Technical Founder & Builder`;
+const DESCRIPTION =
+  "Kyle Tse is a technical founder with 20 years building products at scale — from a Hong Kong gaming studio (10M+ downloads, 10M+ players) to open-source AI developer tools. Currently building MCP tools at Sylphx.";
+
+// Theme bootstrap — runs before paint to avoid a flash of the wrong theme.
+const themeScript = `
+(function(){try{
+  var p = localStorage.getItem('themePreference');
+  var dark = p === 'dark' || (!p && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  if (dark) document.documentElement.classList.add('dark');
+}catch(e){}})();
 `;
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: '#3b82f6',
+  // Pinch-zoom intentionally allowed (WCAG 1.4.4) — no maximum-scale / user-scalable lock.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0c" },
+  ],
 };
 
 export const metadata: Metadata = {
-  title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer`,
-  description: "Professional portfolio showcasing full-stack development expertise, leadership experience, and innovative projects across web, mobile, and blockchain technologies.",
-  keywords: "full stack developer, web development, react, typescript, nodejs, blockchain, tech lead",
-  authors: [{ name: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}` }],
+  metadataBase: new URL(PERSONAL_INFO.portfolioUrl),
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: [
+    "technical founder",
+    "open source",
+    "MCP",
+    "developer tools",
+    "TypeScript",
+    "full stack developer",
+    "game developer",
+    "startup founder",
+  ],
+  authors: [{ name: fullName, url: PERSONAL_INFO.portfolioUrl }],
+  creator: fullName,
   robots: "index, follow",
-  creator: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`,
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: PERSONAL_INFO.portfolioUrl,
-    title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer`,
-    description: "Professional portfolio showcasing full-stack development expertise, leadership experience, and innovative projects.",
-    siteName: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} Portfolio`,
-    images: [
-      {
-        url: `${PERSONAL_INFO.portfolioUrl}/og-image.svg`,
-        width: 1200,
-        height: 630,
-        alt: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}'s Portfolio`
-      }
-    ],
+    title: TITLE,
+    description: DESCRIPTION,
+    siteName: `${fullName} — Portfolio`,
+    images: [{ url: "/og-image.jpeg", width: 1200, height: 630, alt: `${fullName} — Technical Founder & Builder` }],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Full Stack Developer`,
-    description: "Professional portfolio showcasing full-stack development expertise and innovative projects.",
+    title: TITLE,
+    description: DESCRIPTION,
     creator: "@kyletse",
-    images: [{
-      url: `${PERSONAL_INFO.portfolioUrl}/og-image.svg`,
-      width: 1200,
-      height: 630,
-      alt: `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}'s Portfolio`
-    }],
+    images: ["/og-image.jpeg"],
   },
-  alternates: {
-    canonical: PERSONAL_INFO.portfolioUrl,
-    languages: {
-      'en-US': `${PERSONAL_INFO.portfolioUrl}/en`,
-      'zh-HK': `${PERSONAL_INFO.portfolioUrl}/zh`
-    },
-    types: {
-      // Define alternate URLs for different sections
-      'tech-stack': `${PERSONAL_INFO.portfolioUrl}/tech-stack`,
-      'philosophy': `${PERSONAL_INFO.portfolioUrl}/philosophy`,
-      'projects': `${PERSONAL_INFO.portfolioUrl}/projects`,
-      'experience': `${PERSONAL_INFO.portfolioUrl}/experience`,
-      'contact': `${PERSONAL_INFO.portfolioUrl}/contact`,
-    }
-  },
-  metadataBase: new URL(PERSONAL_INFO.portfolioUrl),
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: fullName,
+  url: PERSONAL_INFO.portfolioUrl,
+  jobTitle: "Technical Founder",
+  description: DESCRIPTION,
+  email: `mailto:${PERSONAL_INFO.email}`,
+  sameAs: [PERSONAL_INFO.social.github, PERSONAL_INFO.social.linkedin, PERSONAL_INFO.social.stackoverflow],
+  worksFor: { "@type": "Organization", name: PERSONAL_INFO.company, url: "https://sylphx.com" },
+  knowsAbout: [
+    "Open Source Development",
+    "Model Context Protocol",
+    "Developer Tools",
+    "TypeScript",
+    "Full Stack Development",
+    "Game Development",
+    "System Architecture",
+  ],
+};
+
+// Single indexable page (/) — sections are in-page anchors, not separate WebPage URLs.
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: `${fullName} — Portfolio`,
+  url: PERSONAL_INFO.portfolioUrl,
+  description: DESCRIPTION,
+  author: { "@type": "Person", name: fullName, url: PERSONAL_INFO.portfolioUrl },
+  hasPart: SECTIONS.filter((s) => s.id !== "hero").map((s) => ({
+    "@type": "WebPageElement",
+    name: s.label,
+    url: `${PERSONAL_INFO.portfolioUrl}/#${s.id}`,
+  })),
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
       <head>
         <link rel="icon" href="/og-icon-temp.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icons/icon-512x512.svg" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.svg" />
         <link rel="manifest" href="/manifest.json" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Person",
-              "name": `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`,
-              "url": PERSONAL_INFO.portfolioUrl,
-              "jobTitle": "Full Stack Developer",
-              "sameAs": [
-                PERSONAL_INFO.social.github,
-                PERSONAL_INFO.social.linkedin,
-                PERSONAL_INFO.social.stackoverflow
-              ],
-              "worksFor": {
-                "@type": "Organization",
-                "name": PERSONAL_INFO.company
-              },
-              "knowsAbout": [
-                "Full Stack Development",
-                "React",
-                "TypeScript",
-                "Node.js",
-                "Blockchain",
-                "Project Management",
-                "Team Leadership"
-              ]
-            })
-          }}
-        />
-        
-        {/* WebSite schema with SiteNavigationElement for structured navigation data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              "name": `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} - Portfolio`,
-              "url": PERSONAL_INFO.portfolioUrl,
-              "description": "Professional portfolio showcasing full-stack development expertise, leadership experience, and innovative projects.",
-              "potentialAction": {
-                "@type": "SearchAction",
-                "target": `${PERSONAL_INFO.portfolioUrl}/search?q={search_term_string}`,
-                "query-input": "required name=search_term_string"
-              },
-              "author": {
-                "@type": "Person",
-                "name": `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`,
-                "url": PERSONAL_INFO.portfolioUrl
-              },
-              "hasPart": [
-                {
-                  "@type": "WebPage",
-                  "name": "Home",
-                  "url": PERSONAL_INFO.portfolioUrl,
-                  "description": "Homepage featuring an introduction to Kyle Tse"
-                },
-                {
-                  "@type": "WebPage",
-                  "name": "Skills",
-                  "url": `${PERSONAL_INFO.portfolioUrl}/tech-stack`,
-                  "description": "Technical skills and expertise"
-                },
-                {
-                  "@type": "WebPage",
-                  "name": "Philosophy",
-                  "url": `${PERSONAL_INFO.portfolioUrl}/philosophy`,
-                  "description": "Development philosophy and approach"
-                },
-                {
-                  "@type": "WebPage",
-                  "name": "Projects",
-                  "url": `${PERSONAL_INFO.portfolioUrl}/projects`,
-                  "description": "Featured projects and case studies"
-                },
-                {
-                  "@type": "WebPage",
-                  "name": "Experience",
-                  "url": `${PERSONAL_INFO.portfolioUrl}/experience`,
-                  "description": "Professional experience and work history"
-                },
-                {
-                  "@type": "WebPage",
-                  "name": "Contact",
-                  "url": `${PERSONAL_INFO.portfolioUrl}/contact`,
-                  "description": "Contact information and form"
-                }
-              ]
-            })
-          }}
-        />
-        {/* Client-side theme initialization - simplified version */}
-        <script dangerouslySetInnerHTML={{ __html: clientThemeScript }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`${inter.className} scroll-smooth overflow-hidden`}>
+      <body className="min-h-dvh antialiased">
         <NavigationProvider>
-          <ScrollAnimationProvider>
-            <AppShell>
-              {children}
-            </AppShell>
-          </ScrollAnimationProvider>
+          <AppShell>{children}</AppShell>
         </NavigationProvider>
         <ModalPortal />
       </body>

@@ -92,11 +92,13 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
     if (isScrolling) return;
     
     
-    const rootEl = document.getElementById('main-content');
+    // Natural document scroll → observe against the viewport. The band activates
+    // whichever section currently occupies the middle of the screen, which is robust
+    // for sections both shorter and taller than the viewport.
     const observerOptions = {
-      root: rootEl || null,
-      rootMargin: '0px',
-      threshold: 0.5
+      root: null,
+      rootMargin: '-45% 0px -50% 0px',
+      threshold: 0 as number
     };
     
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {

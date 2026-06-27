@@ -1,130 +1,117 @@
 "use client";
 
-import { useState } from 'react';
-import type { Project } from '@/data/types';
-import { ORGANIZATIONS } from '@/data/organizations';
-import { motion } from 'framer-motion';
-import { FaLink, FaGithub, FaBuilding } from 'react-icons/fa';
-import { getSkillNames } from '@/utils/skillHelpers';
-import ProjectImage from '@/components/shared/ProjectImage';
+import { FaGithub, FaGooglePlay, FaAppStoreIos } from "react-icons/fa";
+import { FaArrowUpRightFromSquare } from "react-icons/fa6";
+import type { IconType } from "react-icons";
+import type { Project } from "@/data/types";
+import { formatProjectPeriod } from "@/data";
+import { getSkillNames } from "@/utils/skillHelpers";
+import { cn } from "@/lib/utils";
 
 type ProjectCardProps = {
   project: Project;
-  index: number;
-  openProjectModal: (index: number) => void;
-  openCompanyModal: (companyId: string) => void;
+  onOpen: () => void;
 };
 
-export default function ProjectCard({
-  project,
-  index,
-  openProjectModal,
-  openCompanyModal,
-}: ProjectCardProps) {
-  const [hovered, setHovered] = useState(false);
-  
-  // Helper function for company click with null check
-  const handleCompanyClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (project.organizationId) {
-      openCompanyModal(project.organizationId);
+/** Initials for the no-image monogram (handles latin + CJK titles). */
+function getMonogram(title: string): string {
+  const words = title.split(/\s+/).filter(Boolean);
+  const initials = words.slice(0, 2).map((w) => w.charAt(0)).join("");
+  return (initials || title.charAt(0)).toUpperCase();
+}
+
+export default function ProjectCard({ project, onOpen }: ProjectCardProps) {
+  const image = project.images?.[0];
+  const period = formatProjectPeriod(project);
+  const techs = getSkillNames(project.skills ?? []).slice(0, 3);
+
+  const links: { icon: IconType; label: string }[] = [];
+  if (project.urls?.googlePlay) links.push({ icon: FaGooglePlay, label: "Google Play" });
+  if (project.urls?.appStore) links.push({ icon: FaAppStoreIos, label: "App Store" });
+  if (project.urls?.repository || project.github) links.push({ icon: FaGithub, label: "Repository" });
+  if (project.urls?.website || project.liveUrl) links.push({ icon: FaArrowUpRightFromSquare, label: "Website" });
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onOpen();
     }
   };
 
   return (
-    <motion.div
-      className="flex flex-col h-full bg-gray-50 dark:bg-gray-800/20 rounded-xl overflow-hidden
-                transition-all duration-300 cursor-pointer"
-      onClick={() => openProjectModal(index)}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      whileHover={{ y: -5 }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+    <article
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={handleKeyDown}
+      aria-label={`View details for ${project.title}`}
+      className={cn(
+        "card card-hover group flex h-full cursor-pointer flex-col overflow-hidden text-left",
+        "transition-transform duration-200 hover:-translate-y-1"
+      )}
     >
-      <div className="relative h-52 overflow-hidden">
-        {project.category && (
-          <div className="absolute top-3 left-3 z-10">
-            <span className="bg-blue-500/70 text-white text-xs px-3 py-1.5 rounded-full">
-              {project.category}
+      {/* Media — image or tasteful monogram block */}
+      <div className="relative aspect-[16/10] overflow-hidden border-b border-border-subtle bg-surface-sunken">
+        {image ? (
+          <img
+            src={image}
+            alt=""
+            width={640}
+            height={400}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          />
+        ) : (
+          <div
+            aria-hidden
+            className="flex h-full w-full items-center justify-center bg-gradient-to-br from-accent-subtle via-surface-sunken to-surface"
+          >
+            <span className="font-mono text-4xl font-semibold tracking-tight text-accent/60 sm:text-5xl">
+              {getMonogram(project.title)}
             </span>
           </div>
         )}
-        <ProjectImage
-          src={project.images}
-          alt={project.title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          style={{ objectFit: 'cover' }}
-          className={`transition-transform duration-700 ease-out ${hovered ? 'scale-105' : 'scale-100'}`}
-        />
-      </div>
-      
-      <div className="p-8 flex-grow flex flex-col">
-        <h3 className="text-xl font-light text-gray-900 dark:text-white tracking-wide mb-3">{project.title}</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6 line-clamp-2 leading-relaxed font-light">{project.description}</p>
-        
-        <div className="mt-auto flex flex-wrap gap-2">
-          {project.skills && getSkillNames(project.skills).slice(0, 3).map((skillName, index) => (
-            <span 
-              key={index} 
-              className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700/30 text-gray-600 dark:text-gray-300 
-                        rounded-full text-xs"
-            >
-              {skillName}
-            </span>
-          ))}
-          {project.skills && project.skills.length > 3 && (
-            <span className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700/30 text-gray-500 dark:text-gray-400 
-                           rounded-full text-xs">
-              +{project.skills.length - 3} more
-            </span>
-          )}
-        </div>
-        
-        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700/30 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            {project.liveUrl && (
-              <a 
-                href={project.liveUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-                aria-label="View live project"
-                title="View live project"
+
+        {links.length > 0 && (
+          <div className="absolute right-3 top-3 flex gap-1.5">
+            {links.slice(0, 3).map(({ icon: Icon, label }) => (
+              <span
+                key={label}
+                title={label}
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-surface/85 text-text-secondary backdrop-blur-sm"
               >
-                <FaLink size={16} />
-              </a>
-            )}
-            {project.github && (
-              <a 
-                href={project.github} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-gray-700 dark:text-gray-300 hover:text-black dark:hover:text-white transition-colors"
-                onClick={(e) => e.stopPropagation()}
-                aria-label="View source code on GitHub"
-                title="View source code on GitHub"
-              >
-                <FaGithub size={16} />
-              </a>
-            )}
+                <Icon className="h-3 w-3" />
+              </span>
+            ))}
           </div>
-          
-          {project.organizationId && ORGANIZATIONS[project.organizationId] && (
-            <button
-              onClick={handleCompanyClick}
-              className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs group"
-              aria-label={`View company: ${ORGANIZATIONS[project.organizationId].name}`}
-              title={`View company: ${ORGANIZATIONS[project.organizationId].name}`}
-            >
-              <FaBuilding className="mr-1.5 text-gray-500 dark:text-gray-500" />
-              <span className="group-hover:underline">{ORGANIZATIONS[project.organizationId].name}</span>
-            </button>
-          )}
-        </div>
+        )}
       </div>
-    </motion.div>
+
+      {/* Body */}
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-center justify-between gap-3">
+          <span className="badge">{project.category}</span>
+          {period && <span className="font-mono text-xs text-text-tertiary">{period}</span>}
+        </div>
+
+        <h3 className="mt-3 text-base font-semibold tracking-tight text-text-primary transition-colors group-hover:text-accent line-clamp-1 sm:text-lg">
+          {project.title}
+        </h3>
+        <p className="mt-1.5 text-sm leading-relaxed text-text-secondary line-clamp-2">
+          {project.description}
+        </p>
+
+        {techs.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {techs.map((tech) => (
+              <span key={tech} className="chip">
+                {tech}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </article>
   );
-} 
+}

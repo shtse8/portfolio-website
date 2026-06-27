@@ -1,199 +1,123 @@
 "use client";
 
-import { useCallback, useState, useEffect } from 'react';
-import { FaGithub, FaArrowRight, FaArrowDown, FaStar, FaDownload, FaCode, FaClock } from 'react-icons/fa';
-import { PERSONAL_INFO } from '@/data/personal';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { FaArrowRight, FaGithub, FaArrowDown } from "react-icons/fa";
+import { PERSONAL_INFO } from "@/data/personal";
+import { HERO_STATS } from "@/lib/stats";
+import { useNavigationStore } from "@/context/NavigationContext";
 
-// Key stats to display
-const HERO_STATS = [
-  { value: '20', label: 'Years Experience', icon: FaClock },
-  { value: '10M+', label: 'App Downloads', icon: FaDownload },
-  { value: '490+', label: 'GitHub Stars', icon: FaStar },
-  { value: '4.6K+', label: 'Commits', icon: FaCode },
-];
-
-// Roles for typewriter effect
-const ROLES = PERSONAL_INFO.roles || [
-  "Technical Founder",
-  "Open Source Creator",
-  "Full Stack Developer"
-];
+const ROLES = PERSONAL_INFO.roles ?? ["Technical Founder"];
 
 export default function Hero() {
-  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
+  const reduce = useReducedMotion();
+  const navigate = useNavigationStore((s) => s.navigateToSection);
+  const [roleIndex, setRoleIndex] = useState(0);
 
-  // Typewriter effect for roles
   useEffect(() => {
-    const currentRole = ROLES[currentRoleIndex];
-    const typeSpeed = isDeleting ? 30 : 50;
-    const pauseTime = isDeleting ? 500 : 2000;
-
-    if (!isDeleting && displayedText === currentRole) {
-      // Pause before deleting
-      const timeout = setTimeout(() => setIsDeleting(true), pauseTime);
-      return () => clearTimeout(timeout);
-    }
-
-    if (isDeleting && displayedText === '') {
-      // Move to next role
-      setIsDeleting(false);
-      setCurrentRoleIndex((prev) => (prev + 1) % ROLES.length);
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setDisplayedText(prev =>
-        isDeleting
-          ? prev.slice(0, -1)
-          : currentRole.slice(0, prev.length + 1)
-      );
-    }, typeSpeed);
-
-    return () => clearTimeout(timeout);
-  }, [displayedText, isDeleting, currentRoleIndex]);
-
-  const scrollToProjects = useCallback(() => {
-    const projectsSection = document.getElementById('projects');
-    if (projectsSection) {
-      projectsSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    const t = setInterval(() => setRoleIndex((i) => (i + 1) % ROLES.length), 2600);
+    return () => clearInterval(t);
   }, []);
 
-  const scrollToNextSection = useCallback(() => {
-    const nextSection = document.getElementById('tech-stack');
-    if (nextSection) {
-      nextSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, []);
+  const rise = (delay: number) =>
+    reduce
+      ? { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.3, delay } }
+      : {
+          initial: { opacity: 0, y: 16 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] as const },
+        };
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex flex-col items-center justify-center px-6"
-      aria-label="Introduction"
-    >
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-accent-subtle/30 to-transparent dark:from-accent-subtle/10" />
+    <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pt-24 pb-16 sm:px-8">
+      {/* Editorial grid + accent glow */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-grid mask-fade-b opacity-60" />
+        <div className="absolute left-1/2 top-[-10%] h-[60vh] w-[60vh] -translate-x-1/2 rounded-full bg-accent/15 blur-[120px]" />
+      </div>
 
-      <div className="w-full max-w-4xl mx-auto text-center">
-        {/* Availability badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 mb-8 rounded-full bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400 text-sm"
-        >
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          Available for new opportunities
+      <div className="container-content">
+        {/* Eyebrow */}
+        <motion.div {...rise(0)} className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="inline-flex items-center gap-2 rounded-full border border-positive/30 bg-positive-subtle px-3 py-1 text-xs font-medium text-positive">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
+            </span>
+            Open to new ventures
+          </span>
+          <span className="eyebrow">{PERSONAL_INFO.location.base}</span>
         </motion.div>
 
         {/* Name */}
-        <motion.h1
-          className="text-5xl sm:text-6xl md:text-7xl font-medium tracking-tight text-text-primary mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        >
+        <motion.h1 {...rise(0.06)} className="text-display max-w-[16ch] text-text-primary">
           {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
         </motion.h1>
 
-        {/* Animated role with typewriter */}
-        <motion.div
-          className="h-8 sm:h-10 mb-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          <span className="text-xl sm:text-2xl text-accent font-medium">
-            {displayedText}
-            <span className="animate-pulse">|</span>
+        {/* Rotating role */}
+        <motion.div {...rise(0.12)} className="mt-4 flex h-8 items-center gap-2 font-mono text-base text-text-secondary sm:text-lg">
+          <span className="text-accent">▍</span>
+          <span className="relative inline-block">
+            {ROLES.map((role, i) => (
+              <motion.span
+                key={role}
+                className="absolute left-0 whitespace-nowrap"
+                initial={false}
+                animate={{ opacity: i === roleIndex ? 1 : 0, y: reduce ? 0 : i === roleIndex ? 0 : 6 }}
+                transition={{ duration: 0.4 }}
+                aria-hidden={i !== roleIndex}
+              >
+                {role}
+              </motion.span>
+            ))}
+            {/* reserve width */}
+            <span className="invisible">Open Source Creator</span>
           </span>
         </motion.div>
 
-        {/* Tagline */}
-        <motion.p
-          className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-        >
-          {PERSONAL_INFO.tagline}
+        {/* Arc tagline */}
+        <motion.p {...rise(0.18)} className="lead mt-7 max-w-2xl">
+          Twenty years building products at scale — from a Hong Kong gaming studio with{" "}
+          <strong className="font-semibold text-text-primary">10M+ players</strong> to open-source AI
+          developer tools. Now building <strong className="font-semibold text-text-primary">MCP tooling</strong> at Sylphx.
         </motion.p>
 
-        {/* Key stats */}
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-10 max-w-2xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-        >
-          {HERO_STATS.map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              className="relative group"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.25 + index * 0.05 }}
-            >
-              <div className="p-4 rounded-xl bg-surface border border-border group-hover:border-accent/30 transition-colors">
-                <stat.icon className="w-4 h-4 text-accent mx-auto mb-2" />
-                <div className="text-2xl sm:text-3xl font-medium text-text-primary">
-                  {stat.value}
-                </div>
-                <div className="text-xs text-text-tertiary">
-                  {stat.label}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
         {/* CTAs */}
-        <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-        >
-          <button
-            onClick={scrollToProjects}
-            className="btn-primary inline-flex items-center gap-2 px-6 py-3"
-          >
-            View Projects
-            <FaArrowRight className="w-3.5 h-3.5" />
+        <motion.div {...rise(0.24)} className="mt-9 flex flex-wrap items-center gap-3">
+          <button onClick={() => navigate("open-source")} className="btn-primary btn-lg">
+            View work <FaArrowRight className="h-3.5 w-3.5" />
           </button>
-
-          <a
-            href={PERSONAL_INFO.social.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary inline-flex items-center gap-2 px-6 py-3"
-          >
-            <FaGithub className="w-4 h-4" />
-            GitHub
+          <a href={PERSONAL_INFO.social.github} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-lg">
+            <FaGithub className="h-[18px] w-[18px]" /> GitHub
           </a>
+          <button onClick={() => navigate("contact")} className="btn-ghost btn-lg">
+            Get in touch
+          </button>
         </motion.div>
+
+        {/* Proof stats */}
+        <motion.dl {...rise(0.32)} className="mt-14 grid max-w-2xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-4">
+          {HERO_STATS.map((stat) => (
+            <div key={stat.id} className="bg-surface p-4 sm:p-5">
+              <dt className="font-mono text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+                {stat.display}
+              </dt>
+              <dd className="mt-1 text-xs text-text-tertiary">{stat.label}</dd>
+            </div>
+          ))}
+        </motion.dl>
       </div>
 
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.5 }}
+      {/* Scroll cue */}
+      <motion.button
+        {...rise(0.5)}
+        onClick={() => navigate("now")}
+        className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-1.5 text-text-tertiary transition-colors hover:text-text-secondary sm:flex"
+        aria-label="Scroll down"
       >
-        <button
-          onClick={scrollToNextSection}
-          className="flex flex-col items-center gap-2 text-text-tertiary hover:text-text-secondary transition-colors duration-150"
-          aria-label="Scroll to next section"
-        >
-          <span className="text-xs uppercase tracking-wider">Explore</span>
-          <FaArrowDown className="w-3 h-3 animate-bounce" />
-        </button>
-      </motion.div>
+        <span className="eyebrow">Scroll</span>
+        <FaArrowDown className="h-3 w-3 animate-bounce" />
+      </motion.button>
     </section>
   );
 }

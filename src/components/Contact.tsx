@@ -1,307 +1,379 @@
 "use client";
 
-import { useState, FormEvent } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { FaPaperPlane, FaGithub, FaLinkedin, FaEnvelope, FaCalendarAlt, FaClock, FaCheckCircle } from 'react-icons/fa';
-import { PERSONAL_INFO } from '@/data/personal';
-import { cn } from '@/lib/utils';
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import type { IconType } from "react-icons";
+import {
+  FaArrowRight,
+  FaBriefcase,
+  FaCodeBranch,
+  FaEnvelope,
+  FaGithub,
+  FaLinkedin,
+  FaMapMarkerAlt,
+  FaRegComments,
+  FaRocket,
+  FaStackOverflow,
+} from "react-icons/fa";
+import { PERSONAL_INFO } from "@/data/personal";
+import Reveal from "./ui/Reveal";
+import SectionHeader from "./ui/SectionHeader";
 
-interface FormData {
-  name: string;
-  email: string;
-  message: string;
-}
+const { email, social, location, contactFormSubjects } = PERSONAL_INFO;
 
-type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
+/** Build an honest mailto: URL — this is a static export, nothing posts to a server. */
+const mailto = (subject: string, body?: string) =>
+  `mailto:${email}?subject=${encodeURIComponent(subject)}` +
+  (body ? `&body=${encodeURIComponent(body)}` : "");
 
-// Quick contact options
-const QUICK_CONTACT = [
+type Action = {
+  label: string;
+  href: string;
+  primary?: boolean;
+  external?: boolean;
+  icon?: IconType;
+};
+
+type Audience = {
+  icon: IconType;
+  title: string;
+  description: string;
+  actions: Action[];
+};
+
+/** On-ramps for each audience: recruiters, clients, OSS peers, and everyone else. */
+const AUDIENCES: Audience[] = [
   {
-    label: 'Email',
-    href: `mailto:${PERSONAL_INFO.email}`,
-    icon: FaEnvelope,
-    description: 'Direct email',
-    external: false
+    icon: FaBriefcase,
+    title: "Hiring or opportunities",
+    description: "Teams and recruiters looking for a hands-on technical founder.",
+    actions: [{ label: "Email about a role", href: mailto("Job Opportunity"), primary: true }],
   },
   {
-    label: 'LinkedIn',
-    href: PERSONAL_INFO.social.linkedin,
-    icon: FaLinkedin,
-    description: 'Professional network',
-    external: true
+    icon: FaRocket,
+    title: "Work with Epiow",
+    description: "Product and consultancy projects through my studio, Epiow.",
+    actions: [
+      { label: "Start a project", href: mailto("Project Inquiry"), primary: true },
+      { label: "epiow.com", href: "https://epiow.com", external: true },
+    ],
   },
   {
-    label: 'GitHub',
-    href: PERSONAL_INFO.social.github,
-    icon: FaGithub,
-    description: 'Open source work',
-    external: true
+    icon: FaCodeBranch,
+    title: "Open-source collaboration",
+    description: "Contributing to or building on my MCP and OSS tooling.",
+    actions: [
+      { label: "GitHub", href: social.github, external: true, icon: FaGithub },
+      { label: "Collaborate", href: mailto("Open Source Collaboration"), primary: true },
+    ],
+  },
+  {
+    icon: FaRegComments,
+    title: "Just say hi",
+    description: "Questions, ideas, or a friendly hello from a fellow builder.",
+    actions: [{ label: "Say hello", href: mailto("Other"), primary: true }],
   },
 ];
 
+const SOCIALS: { label: string; href: string; icon: IconType }[] = [
+  { label: "GitHub", href: social.github, icon: FaGithub },
+  { label: "LinkedIn", href: social.linkedin, icon: FaLinkedin },
+  { label: "Stack Overflow", href: social.stackoverflow, icon: FaStackOverflow },
+];
+
+type FormState = { name: string; email: string; subject: string; message: string };
+type Errors = Partial<Record<"name" | "email" | "message", string>>;
+
+/** Caps keep the generated mailto: URL inside browser / OS email-handler length limits. */
+const MAX = { name: 80, email: 120, message: 1500 } as const;
+
+const labelBase = "block font-mono text-xs uppercase tracking-wider text-text-secondary";
+const labelCls = `mb-1.5 ${labelBase}`;
+const errorCls = "mt-1.5 font-mono text-xs text-red-600 dark:text-red-400";
+const invalidCls = "aria-[invalid=true]:border-red-500 aria-[invalid=true]:focus:ring-red-500/30";
+const inputCls = `input ${invalidCls}`;
+const textareaCls = `textarea ${invalidCls}`;
+
+function AudienceCard({ audience, delay }: { audience: Audience; delay: number }) {
+  const Icon = audience.icon;
+  return (
+    <Reveal delay={delay} className="h-full">
+      <article className="card card-hover flex h-full flex-col p-5">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-subtle text-accent">
+          <Icon className="h-4 w-4" />
+        </span>
+        <h4 className="mt-3.5 text-[0.95rem] font-semibold text-text-primary">{audience.title}</h4>
+        <p className="mt-1 text-sm text-text-secondary">{audience.description}</p>
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {audience.actions.map((action) => {
+            const ActionIcon = action.icon;
+            const external = action.external
+              ? { target: "_blank", rel: "noopener noreferrer" }
+              : {};
+            return action.primary ? (
+              <a
+                key={action.label}
+                href={action.href}
+                {...external}
+                className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-colors hover:text-accent-hover"
+              >
+                {action.label}
+                <FaArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              </a>
+            ) : (
+              <a
+                key={action.label}
+                href={action.href}
+                {...external}
+                className="inline-flex items-center gap-1.5 text-sm text-text-tertiary transition-colors hover:text-text-primary"
+              >
+                {ActionIcon && <ActionIcon className="h-3.5 w-3.5" />}
+                {action.label}
+              </a>
+            );
+          })}
+        </div>
+      </article>
+    </Reveal>
+  );
+}
+
 export default function Contact() {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    message: ''
+  const [form, setForm] = useState<FormState>({
+    name: "",
+    email: "",
+    subject: contactFormSubjects[0],
+    message: "",
   });
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
-  const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [errors, setErrors] = useState<Errors>({});
 
-  const validateForm = (): boolean => {
-    const newErrors: Partial<FormData> = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-
-    if (!formData.message.trim()) {
-      newErrors.message = 'Message is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const update = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    if (errors[name as keyof FormData]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+    setForm((f) => ({ ...f, [name]: value }));
+    if (errors[name as keyof Errors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
-    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const validate = (): boolean => {
+    const next: Errors = {};
+    if (!form.name.trim()) next.name = "Please add your name.";
+    if (!form.email.trim()) next.email = "Please add your email.";
+    else if (!/^\S+@\S+\.\S+$/.test(form.email)) next.email = "That email looks off — mind checking it?";
+    if (!form.message.trim()) next.message = "Add a short note so I have some context.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
-
-    setSubmitStatus('submitting');
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setSubmitStatus('idle'), 5000);
-    } catch {
-      setSubmitStatus('error');
-      setTimeout(() => setSubmitStatus('idle'), 5000);
-    }
+    if (!validate()) return;
+    const body = `Hi Kyle,\n\n${form.message.trim()}\n\n— ${form.name.trim()}\n${form.email.trim()}`;
+    // Static export: open the visitor's email client. No network request is made.
+    window.location.href = mailto(form.subject, body);
   };
 
   return (
-    <section
-      id="contact"
-      className="py-24 px-6"
-      aria-labelledby="contact-heading"
-    >
-      <div className="max-w-5xl mx-auto">
-        {/* Section header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-        >
-          <h2 id="contact-heading" className="text-3xl md:text-4xl font-medium tracking-tight text-text-primary mb-4">
-            Get in Touch
-          </h2>
-          <p className="text-text-secondary max-w-xl mx-auto">
-            Interested in working together? I'd love to hear from you.
-          </p>
-        </motion.div>
+    <div className="container-content">
+      <SectionHeader
+        index="07"
+        eyebrow="Contact"
+        title="Let's work together"
+        description="Hiring, a project for Epiow, an open-source idea, or just a hello — pick the lane that fits and I'll get back to you within a day or two."
+      />
 
-        <div className="grid md:grid-cols-5 gap-8 max-w-4xl mx-auto">
-          {/* Left side - Quick contact & availability */}
-          <motion.div
-            className="md:col-span-2 space-y-6"
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
-            {/* Availability status */}
-            <div className="p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900/50">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="font-medium text-green-700 dark:text-green-400">Available Now</span>
+      <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-14">
+        {/* LEFT — pitch, audience matrix, socials */}
+        <div className="space-y-8">
+          <Reveal className="space-y-5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-positive/30 bg-positive-subtle px-3 py-1 text-xs font-medium text-positive">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
+              </span>
+              Open to new ventures
+            </span>
+
+            <p className="text-text-secondary">
+              I read everything that lands in my inbox. The fastest way to reach me is the lane
+              below — each opens an email with the right context already filled in.
+            </p>
+
+            <a
+              href={`mailto:${email}`}
+              className="inline-flex items-center gap-2 font-mono text-sm text-text-secondary transition-colors hover:text-accent"
+            >
+              <FaEnvelope className="h-3.5 w-3.5 text-accent" />
+              {email}
+            </a>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                {SOCIALS.map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={s.label}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-text-secondary transition-colors hover:border-accent hover:text-accent"
+                    >
+                      <Icon className="h-[18px] w-[18px]" />
+                    </a>
+                  );
+                })}
               </div>
-              <p className="text-sm text-green-600 dark:text-green-500">
-                Open to freelance projects, consulting, and full-time opportunities.
-              </p>
+              <span className="inline-flex items-center gap-1.5 font-mono text-xs text-text-tertiary">
+                <FaMapMarkerAlt className="h-3 w-3" />
+                {location.base} · {location.remote}
+              </span>
             </div>
+          </Reveal>
 
-            {/* Response time */}
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-surface border border-border">
-              <FaClock className="w-5 h-5 text-accent" />
-              <div>
-                <div className="text-sm font-medium text-text-primary">Typical response time</div>
-                <div className="text-xs text-text-tertiary">Within 24 hours</div>
-              </div>
-            </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {AUDIENCES.map((audience, i) => (
+              <AudienceCard key={audience.title} audience={audience} delay={i * 0.06} />
+            ))}
+          </div>
+        </div>
 
-            {/* Quick contact options */}
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-text-tertiary uppercase tracking-wider mb-3">
-                Quick Connect
-              </h3>
-              {QUICK_CONTACT.map((option) => (
-                <Link
-                  key={option.label}
-                  href={option.href}
-                  target={option.external ? "_blank" : undefined}
-                  rel={option.external ? "noopener noreferrer" : undefined}
-                  className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg",
-                    "bg-surface border border-border hover:border-accent/30",
-                    "transition-all duration-200 group"
-                  )}
-                >
-                  <option.icon className="w-5 h-5 text-text-tertiary group-hover:text-accent transition-colors" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-text-primary group-hover:text-accent transition-colors">
-                      {option.label}
-                    </div>
-                    <div className="text-xs text-text-tertiary">{option.description}</div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Location */}
-            <div className="text-sm text-text-tertiary">
-              <span className="font-medium text-text-secondary">{PERSONAL_INFO.location?.base}</span>
-              <br />
-              {PERSONAL_INFO.location?.remote}
-            </div>
-          </motion.div>
-
-          {/* Right side - Form */}
-          <motion.div
-            className="md:col-span-3"
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.1 }}
+        {/* RIGHT — honest mailto form */}
+        <Reveal delay={0.1}>
+          <form
+            onSubmit={handleSubmit}
+            noValidate
+            aria-labelledby="contact-form-title"
+            className="card p-6 sm:p-7"
           >
-            <form onSubmit={handleSubmit} className="space-y-5 p-6 rounded-xl bg-surface border border-border">
-              {/* Name */}
+            <h3 id="contact-form-title" className="text-h3 text-text-primary">
+              Send a message
+            </h3>
+            <p className="mt-1.5 text-sm text-text-secondary">
+              This composes an email in your own client — nothing is sent through the site.
+            </p>
+
+            <div className="mt-6 space-y-5">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
+                <label htmlFor="contact-name" className={labelCls}>
                   Name
                 </label>
                 <input
-                  type="text"
-                  id="name"
+                  id="contact-name"
                   name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="input"
+                  type="text"
+                  value={form.name}
+                  onChange={update}
+                  className={inputCls}
                   placeholder="Your name"
+                  maxLength={MAX.name}
+                  autoComplete="name"
                   aria-required="true"
                   aria-invalid={!!errors.name}
-                  aria-describedby={errors.name ? "name-error" : undefined}
+                  aria-describedby={errors.name ? "contact-name-error" : undefined}
                 />
                 {errors.name && (
-                  <p id="name-error" className="mt-1.5 text-sm text-red-500" role="alert">{errors.name}</p>
+                  <p id="contact-name-error" role="alert" className={errorCls}>
+                    {errors.name}
+                  </p>
                 )}
               </div>
 
-              {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
+                <label htmlFor="contact-email" className={labelCls}>
                   Email
                 </label>
                 <input
-                  type="email"
-                  id="email"
+                  id="contact-email"
                   name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="input"
+                  type="email"
+                  value={form.email}
+                  onChange={update}
+                  className={inputCls}
                   placeholder="you@example.com"
+                  maxLength={MAX.email}
+                  autoComplete="email"
                   aria-required="true"
                   aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? "email-error" : undefined}
+                  aria-describedby={errors.email ? "contact-email-error" : undefined}
                 />
                 {errors.email && (
-                  <p id="email-error" className="mt-1.5 text-sm text-red-500" role="alert">{errors.email}</p>
+                  <p id="contact-email-error" role="alert" className={errorCls}>
+                    {errors.email}
+                  </p>
                 )}
               </div>
 
-              {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-text-primary mb-2">
-                  Message
+                <label htmlFor="contact-subject" className={labelCls}>
+                  Subject
                 </label>
+                <select
+                  id="contact-subject"
+                  name="subject"
+                  value={form.subject}
+                  onChange={update}
+                  className="input cursor-pointer"
+                >
+                  {contactFormSubjects.map((subject) => (
+                    <option key={subject} value={subject}>
+                      {subject}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <div className="mb-1.5 flex items-baseline justify-between gap-2">
+                  <label htmlFor="contact-message" className={labelBase}>
+                    Message
+                  </label>
+                  <span
+                    aria-hidden
+                    className={`font-mono text-xs tabular-nums ${
+                      form.message.length > MAX.message * 0.9 ? "text-accent" : "text-text-tertiary"
+                    }`}
+                  >
+                    {form.message.length} / {MAX.message}
+                  </span>
+                </div>
                 <textarea
-                  id="message"
+                  id="contact-message"
                   name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows={4}
-                  className="textarea"
-                  placeholder="Tell me about your project..."
+                  value={form.message}
+                  onChange={update}
+                  rows={5}
+                  maxLength={MAX.message}
+                  className={textareaCls}
+                  placeholder="A few lines about what you have in mind…"
                   aria-required="true"
                   aria-invalid={!!errors.message}
-                  aria-describedby={errors.message ? "message-error" : undefined}
+                  aria-describedby={errors.message ? "contact-message-error" : undefined}
                 />
                 {errors.message && (
-                  <p id="message-error" className="mt-1.5 text-sm text-red-500" role="alert">{errors.message}</p>
-                )}
-              </div>
-
-              {/* Submit button */}
-              <button
-                type="submit"
-                disabled={submitStatus === 'submitting'}
-                className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submitStatus === 'submitting' ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Sending...
-                  </span>
-                ) : submitStatus === 'success' ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <FaCheckCircle className="w-4 h-4" />
-                    Message Sent!
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <FaPaperPlane className="w-4 h-4" />
-                    Send Message
-                  </span>
-                )}
-              </button>
-
-              {/* Status messages */}
-              <div role="status" aria-live="polite">
-                {submitStatus === 'success' && (
-                  <p className="text-center text-sm text-green-600 dark:text-green-400">
-                    Thanks for reaching out! I'll get back to you within 24 hours.
-                  </p>
-                )}
-                {submitStatus === 'error' && (
-                  <p className="text-center text-sm text-red-500">
-                    Something went wrong. Please try again or email directly.
+                  <p id="contact-message-error" role="alert" className={errorCls}>
+                    {errors.message}
                   </p>
                 )}
               </div>
-            </form>
-          </motion.div>
-        </div>
+            </div>
+
+            <button type="submit" className="btn-primary btn-lg mt-6 w-full">
+              Compose email
+              <FaArrowRight className="h-3.5 w-3.5" />
+            </button>
+
+            <p className="mt-3 text-center font-mono text-xs text-text-tertiary">
+              Opens your email client · or write me at{" "}
+              <a href={`mailto:${email}`} className="link">
+                {email}
+              </a>
+            </p>
+          </form>
+        </Reveal>
       </div>
-    </section>
+    </div>
   );
 }

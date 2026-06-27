@@ -1,244 +1,113 @@
 "use client";
 
-import { useMemo } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { FaExternalLinkAlt } from 'react-icons/fa';
-import { getSkills } from '@/data/skills';
-import { cn } from '@/lib/utils';
-import { getSkillUrl } from '@/lib/skillUrls';
+import { useMemo } from "react";
+import { FaChevronDown } from "react-icons/fa6";
+import { getSkills } from "@/data/skills";
+import Reveal from "./ui/Reveal";
+import SectionHeader from "./ui/SectionHeader";
+import SkillIcon from "./capabilities/SkillIcon";
+import { buildCapabilities, type DomainGroup } from "./capabilities/domains";
 
-// Category display names
-const CATEGORY_LABELS: Record<string, string> = {
-  frontend: 'Frontend',
-  backend: 'Backend',
-  devops: 'DevOps & Cloud',
-  ai: 'AI & ML',
-  game: 'Game Development',
-  mobile: 'Mobile',
-  database: 'Databases',
-  blockchain: 'Blockchain',
-};
+function SkillChip({ name, icon }: { name: string; icon: string }) {
+  return (
+    <span className="chip gap-1.5">
+      <SkillIcon name={icon} className="h-3 w-3 text-text-tertiary" />
+      {name}
+    </span>
+  );
+}
 
-// Get visual size based on years of experience - creates hierarchy
-function getSkillStyle(years: number) {
-  if (years >= 12) return {
-    size: 'text-lg px-4 py-2',
-    weight: 'font-medium',
-    opacity: 'opacity-100',
-    accent: true
-  };
-  if (years >= 8) return {
-    size: 'text-base px-3.5 py-1.5',
-    weight: 'font-medium',
-    opacity: 'opacity-95',
-    accent: true
-  };
-  if (years >= 5) return {
-    size: 'text-sm px-3 py-1.5',
-    weight: 'font-normal',
-    opacity: 'opacity-90',
-    accent: false
-  };
-  if (years >= 3) return {
-    size: 'text-sm px-2.5 py-1',
-    weight: 'font-normal',
-    opacity: 'opacity-75',
-    accent: false
-  };
-  return {
-    size: 'text-xs px-2 py-0.5',
-    weight: 'font-normal',
-    opacity: 'opacity-60',
-    accent: false
-  };
+function DomainCard({ domain }: { domain: DomainGroup }) {
+  return (
+    <article className="card card-hover h-full p-5 sm:p-6">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="font-mono text-[0.8rem] font-medium uppercase tracking-[0.18em] text-text-primary">
+          {domain.label}
+        </h3>
+        <span className="shrink-0 font-mono text-xs tabular-nums text-text-tertiary">
+          {domain.count}
+        </span>
+      </div>
+
+      <p className="mt-2 text-sm leading-relaxed text-text-tertiary">{domain.blurb}</p>
+
+      <ul className="mt-5 flex flex-wrap gap-1.5">
+        {domain.headliners.map((skill) => (
+          <li key={skill.id}>
+            <SkillChip name={skill.name} icon={skill.icon} />
+          </li>
+        ))}
+      </ul>
+
+      {/* Progressive disclosure — native, keyboard-accessible, no JS state. */}
+      {domain.rest.length > 0 && (
+        <details className="group mt-1.5">
+          <summary className="chip cursor-pointer list-none gap-1.5 border-dashed text-text-tertiary transition-colors marker:content-none hover:border-accent/40 hover:text-text-secondary [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">+{domain.remainder} more</span>
+            <span className="hidden group-open:inline">Show fewer</span>
+            <FaChevronDown
+              aria-hidden
+              className="h-2.5 w-2.5 transition-transform duration-200 group-open:rotate-180"
+            />
+          </summary>
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {domain.rest.map((skill) => (
+              <li key={skill.id}>
+                <SkillChip name={skill.name} icon={skill.icon} />
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </article>
+  );
 }
 
 export default function TechStack() {
-  const skills = getSkills();
-
-  // Split into featured (top 10 by experience) and grouped by category
-  const { featuredSkills, skillsByCategory, sortedCategories } = useMemo(() => {
-    const sorted = [...skills].sort((a, b) => b.yearsOfExperience - a.yearsOfExperience);
-    const featured = sorted.slice(0, 10);
-    const featuredIds = new Set(featured.map(s => s.id));
-
-    // Group all skills by category
-    const grouped: Record<string, typeof skills> = {};
-    skills.forEach(skill => {
-      const category = skill.category;
-      if (!CATEGORY_LABELS[category]) return;
-      if (!grouped[category]) grouped[category] = [];
-      grouped[category].push(skill);
-    });
-
-    // Sort within categories by experience
-    Object.keys(grouped).forEach(key => {
-      grouped[key].sort((a, b) => b.yearsOfExperience - a.yearsOfExperience);
-    });
-
-    // Sort categories by total experience
-    const sortedCats = Object.keys(grouped).sort((a, b) => {
-      const totalA = grouped[a].reduce((sum, s) => sum + s.yearsOfExperience, 0);
-      const totalB = grouped[b].reduce((sum, s) => sum + s.yearsOfExperience, 0);
-      return totalB - totalA;
-    });
-
-    return {
-      featuredSkills: featured,
-      featuredIds,
-      skillsByCategory: grouped,
-      sortedCategories: sortedCats
-    };
-  }, [skills]);
-
-  const totalSkills = skills.length;
-  const maxYears = Math.max(...skills.map(s => s.yearsOfExperience));
+  const { domains, core, total } = useMemo(
+    () => buildCapabilities(getSkills()),
+    [],
+  );
 
   return (
-    <section
-      id="tech-stack"
-      className="py-24 px-6"
-      aria-labelledby="skills-heading"
-    >
-      <div className="max-w-5xl mx-auto">
-        {/* Section header */}
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-        >
-          <h2 id="skills-heading" className="text-3xl md:text-4xl font-medium tracking-tight text-text-primary mb-4">
-            Technologies
-          </h2>
-          <p className="text-text-secondary max-w-xl mx-auto">
-            {totalSkills}+ technologies with up to {maxYears}+ years of hands-on experience.
-          </p>
-        </motion.div>
+    <div className="container-content">
+      <SectionHeader
+        index="05"
+        eyebrow="Capabilities"
+        title="Range across the full stack"
+        description={`${total} technologies from two decades of shipping — grouped into the domains I actually build in, not a flat list.`}
+      />
 
-        {/* Featured skills - prominently displayed */}
-        <motion.div
-          className="mb-20"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          <div className="flex flex-wrap justify-center gap-3">
-            {featuredSkills.map((skill, index) => {
-              const style = getSkillStyle(skill.yearsOfExperience);
-              const url = getSkillUrl(skill.id);
-              const content = (
-                <>
-                  {skill.name}
-                  <span className={cn(
-                    "ml-1.5 text-xs",
-                    style.accent ? "text-white/70" : "text-accent/60"
-                  )}>
-                    {skill.yearsOfExperience}y
-                  </span>
-                  {url && (
-                    <FaExternalLinkAlt className={cn(
-                      "ml-1.5 w-2.5 h-2.5 opacity-0 group-hover:opacity-70 transition-opacity",
-                      style.accent ? "text-white/70" : "text-accent/60"
-                    )} />
-                  )}
-                </>
-              );
-
-              return url ? (
-                <motion.a
+      {/* Signature stack — the curated core I reach for most */}
+      {core.length > 0 && (
+        <div className="mt-12">
+          <Reveal>
+            <p className="eyebrow mb-4">Signature stack</p>
+          </Reveal>
+          <Reveal delay={0.05}>
+            <ul className="flex flex-wrap gap-2">
+              {core.map((skill) => (
+                <li
                   key={skill.id}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: index * 0.03 }}
-                  whileHover={{ scale: 1.08, y: -2 }}
-                  className={cn(
-                    "group inline-flex items-center rounded-lg cursor-pointer transition-all duration-200",
-                    style.size, style.weight,
-                    style.accent
-                      ? "bg-accent text-white shadow-sm shadow-accent/25 hover:shadow-md hover:shadow-accent/30"
-                      : "bg-accent-subtle text-accent border border-accent/20 hover:border-accent/40"
-                  )}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-1.5 transition-colors hover:border-accent/40"
                 >
-                  {content}
-                </motion.a>
-              ) : (
-                <motion.span
-                  key={skill.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: index * 0.03 }}
-                  whileHover={{ scale: 1.08, y: -2 }}
-                  className={cn(
-                    "inline-flex items-center rounded-lg cursor-default transition-all duration-200",
-                    style.size, style.weight,
-                    style.accent
-                      ? "bg-accent text-white shadow-sm shadow-accent/25"
-                      : "bg-accent-subtle text-accent border border-accent/20"
-                  )}
-                >
-                  {content}
-                </motion.span>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Skills by category - with size hierarchy */}
-        <div className="space-y-10">
-          {sortedCategories.map((category, categoryIndex) => (
-            <motion.div
-              key={category}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: categoryIndex * 0.05 }}
-            >
-              <h3 className="text-sm font-medium text-text-tertiary uppercase tracking-wider mb-4">
-                {CATEGORY_LABELS[category]}
-              </h3>
-
-              <div className="flex flex-wrap items-center gap-2">
-                {skillsByCategory[category].map((skill) => {
-                  const style = getSkillStyle(skill.yearsOfExperience);
-                  const url = getSkillUrl(skill.id);
-                  const classes = cn(
-                    "inline-flex items-center bg-surface border border-border rounded-md",
-                    "hover:border-accent hover:text-accent transition-all duration-150",
-                    "text-text-secondary group",
-                    style.size, style.weight, style.opacity
-                  );
-
-                  return url ? (
-                    <a
-                      key={skill.id}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(classes, "cursor-pointer")}
-                    >
-                      {skill.name}
-                      <FaExternalLinkAlt className="ml-1 w-2 h-2 opacity-0 group-hover:opacity-50 transition-opacity" />
-                    </a>
-                  ) : (
-                    <span key={skill.id} className={classes}>
-                      {skill.name}
-                    </span>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ))}
+                  <SkillIcon name={skill.icon} className="h-3.5 w-3.5 text-accent" />
+                  <span className="font-mono text-sm text-text-primary">{skill.name}</span>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </div>
+      )}
+
+      {/* Domain grid — breadth made scannable */}
+      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {domains.map((domain, i) => (
+          <Reveal key={domain.key} delay={i * 0.06}>
+            <DomainCard domain={domain} />
+          </Reveal>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }

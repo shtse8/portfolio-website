@@ -29,9 +29,14 @@ export async function generateMetadata(props: { params: Promise<{ section: strin
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
+  // Section URLs are shareable deep-link entry points that load the one-page site and
+  // scroll to a section. The home page (/) is the single indexable page, so these routes
+  // are noindex + canonical-to-root to avoid duplicate-content dilution.
   return {
-    title: `${formattedSection} | Portfolio`,
+    title: `${formattedSection} — Kyle Tse`,
     description: `View information about ${formattedSection}`,
+    robots: { index: false, follow: true },
+    alternates: { canonical: '/' },
   };
 }
 
