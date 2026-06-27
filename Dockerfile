@@ -8,6 +8,11 @@ RUN bun run build
 
 FROM nginx:alpine AS runner
 COPY --from=builder /app/out /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+# Provide the server config as a template so nginx's entrypoint substitutes ${PORT}
+# (the platform injects PORT=3000). NGINX_ENVSUBST_FILTER limits substitution to PORT
+# so nginx runtime vars ($uri, $host, …) are preserved.
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+ENV PORT=3000
+ENV NGINX_ENVSUBST_FILTER=PORT
+EXPOSE 3000
 CMD ["nginx", "-g", "daemon off;"]

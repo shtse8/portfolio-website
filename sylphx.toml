@@ -12,5 +12,6 @@ context = "."
 
 [[services]]
 name = "web"
-type = "worker"
-watch_paths = ["src/**", "public/**", "package.json", "nginx.conf"]
+type = "web"
+port = 3000
+watch_paths = ["src/**", "public/**", "package.json", "nginx.conf", "Dockerfile"]
