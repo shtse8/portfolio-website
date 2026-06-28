@@ -25,8 +25,8 @@ export const ROLES: Role[] = [
       '~990 GitHub stars across the org'
     ],
     metrics: [
-      { type: 'stars', value: 801, context: 'pdf-reader-mcp' },
-      { type: 'downloads', value: 27038, context: 'npm / month' }
+      { type: 'stars', value: 801, context: 'total' },
+      { type: 'downloads', value: 27038, context: 'monthly' }
     ],
     skills: ['typescript', 'mcp', 'ai-integration', 'nodejs', 'bun', 'performance-testing', 'open-source'],
     logo: '/companys/sylphx.png',
