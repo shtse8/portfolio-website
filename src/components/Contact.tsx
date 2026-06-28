@@ -177,7 +177,7 @@ export default function Contact() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="07"
+        index="08"
         eyebrow="Contact"
         title="Let's work together"
         description="Hiring, a project for Epiow, an open-source idea, or just a hello — pick the lane that fits and I'll get back to you within a day or two."

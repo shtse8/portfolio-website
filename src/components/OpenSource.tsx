@@ -48,7 +48,7 @@ export default function OpenSource() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="02"
+        index="03"
         eyebrow="AI tooling · Open Source"
         title="The tools AI agents — and developers — run on"
         description="MCP servers, RAG and semantic-search engines, AI dev platforms, and the high-performance libraries under them. I design, ship, and maintain each one in the open, solo and fully tested — led by pdf-reader-mcp, used by thousands."

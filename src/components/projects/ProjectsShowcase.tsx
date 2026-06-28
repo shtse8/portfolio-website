@@ -98,7 +98,7 @@ export default function ProjectsShowcase() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="04"
+        index="05"
         eyebrow="Projects"
         title="Selected work"
         description="Two decades of shipped products — mobile games with millions of players, web platforms, developer tools, and open-source libraries. Pick a lane, or browse it all."

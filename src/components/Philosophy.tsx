@@ -93,7 +93,7 @@ export default function Philosophy() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="06"
+        index="07"
         eyebrow="Philosophy"
         title="How I build"
         description="Five principles I keep coming back to — the quiet constraints behind every interface and line of code I ship."

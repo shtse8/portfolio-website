@@ -5,12 +5,15 @@ import { motion, useReducedMotion } from "framer-motion";
 import { FaArrowRight, FaGithub, FaArrowDown } from "react-icons/fa";
 import { PERSONAL_INFO } from "@/data/personal";
 import { HERO_STATS } from "@/lib/stats";
+import { useLiveStats, liveDisplay } from "@/lib/liveStats";
 import { useNavigationStore } from "@/context/NavigationContext";
 
 const ROLES = PERSONAL_INFO.roles ?? ["Technical Founder"];
+const LIVE_IDS = new Set(["stars", "npm-downloads", "flagship-stars", "flagship-downloads"]);
 
 export default function Hero() {
   const reduce = useReducedMotion();
+  const live = useLiveStats();
   const navigate = useNavigationStore((s) => s.navigateToSection);
   const [roleIndex, setRoleIndex] = useState(0);
 
@@ -101,14 +104,27 @@ export default function Hero() {
 
         {/* Proof stats */}
         <motion.dl {...rise(0.32)} className="mt-14 grid max-w-2xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-4">
-          {HERO_STATS.map((stat) => (
-            <div key={stat.id} className="bg-surface p-4 sm:p-5">
-              <dt className="font-mono text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
-                {stat.display}
-              </dt>
-              <dd className="mt-1 text-xs text-text-tertiary">{stat.label}</dd>
-            </div>
-          ))}
+          {HERO_STATS.map((stat) => {
+            const isLive = live !== null && LIVE_IDS.has(stat.id);
+            return (
+              <div key={stat.id} className="bg-surface p-4 sm:p-5">
+                <dt className="flex items-center gap-1.5 font-mono text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">
+                  {liveDisplay(stat.id, live, stat.display)}
+                  {isLive && (
+                    <span
+                      className="relative inline-flex h-1.5 w-1.5"
+                      title="Live from GitHub & npm"
+                      aria-label="live"
+                    >
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-positive" />
+                    </span>
+                  )}
+                </dt>
+                <dd className="mt-1 text-xs text-text-tertiary">{stat.label}</dd>
+              </div>
+            );
+          })}
         </motion.dl>
       </div>
 

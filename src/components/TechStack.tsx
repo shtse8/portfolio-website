@@ -72,7 +72,7 @@ export default function TechStack() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="05"
+        index="06"
         eyebrow="Capabilities"
         title="Range across the full stack"
         description={`${total} technologies from two decades of shipping — grouped into the domains I actually build in, not a flat list.`}

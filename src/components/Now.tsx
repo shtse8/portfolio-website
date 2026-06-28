@@ -14,7 +14,7 @@ export default function Now() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="01"
+        index="02"
         eyebrow="Now"
         title="What I'm building right now"
         description="Two UK-based ventures: open-source developer tools, and a software consultancy."

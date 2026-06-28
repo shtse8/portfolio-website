@@ -15,3 +15,17 @@ name = "web"
 type = "web"
 port = 3000
 watch_paths = ["src/**", "public/**", "package.json", "nginx.conf", "Dockerfile"]
+
+[[services]]
+name = "api"
+type = "web"
+port = 3001
+watch_paths = ["api/**"]
+
+[services.build]
+strategy = "dockerfile"
+dockerfile = "api/Dockerfile"
+context = "api"
+
+[services.health]
+path = "/healthz"
