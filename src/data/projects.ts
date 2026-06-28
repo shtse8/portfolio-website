@@ -19,7 +19,7 @@ export const PROJECTS: Project[] = [
     {
         id: 'pdf-reader-mcp',
         title: 'PDF Reader MCP',
-        description: 'Model Context Protocol server for PDF processing with parallel processing support. 492 GitHub stars.',
+        description: 'The PDF reader AI agents reach for — a Model Context Protocol server with parallel processing, 5–10× faster than typical alternatives.',
         images: [],
         skills: ['typescript', 'nodejs', 'bun', 'api-development', 'performance-testing', 'mcp', 'pdf-processing', 'parallel-processing'],
         category: "Open Source",
@@ -32,7 +32,7 @@ export const PROJECTS: Project[] = [
           'Built MCP server for PDF processing with parallel processing support',
           'Implemented Y-coordinate based layout preservation for natural reading flow',
           'Supports local files (Windows/Unix) and HTTP/HTTPS URLs',
-          '492 GitHub stars, 57 forks, 94%+ test coverage (103 passing tests)',
+          '801 GitHub stars · 24K+ npm downloads/month · 94%+ test coverage (103 passing tests)',
           'Integrated with Claude Code, Claude Desktop, VS Code, Cursor, Windsurf, and Smithery',
           'Published on NPM as @sylphx/pdf-reader-mcp'
         ],

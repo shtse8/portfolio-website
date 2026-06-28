@@ -6,8 +6,9 @@
  * different places). Each stat carries a raw value, a display string, a scope,
  * and a source note so the claim is honest and traceable.
  *
- * Values are Kyle-attested from the data layer (GITHUB_STATS / roles) as of the
- * `verifiedOn` date. A build-time GitHub fetch can later refresh the GitHub ones.
+ * GitHub + npm figures are live-verified across @shtse8 and the SylphxAI /
+ * Cubeage / EpiowAI orgs as of `VERIFIED_ON` (non-fork repos; npm last-month).
+ * A build-time fetch can later refresh them automatically.
  */
 
 export type StatScope = "lifetime" | "company" | "repo" | "org-aggregate" | "personal";
@@ -21,7 +22,7 @@ export interface Stat {
   source: string; // URL or short attestation note
 }
 
-export const VERIFIED_ON = "2026-06-27";
+export const VERIFIED_ON = "2026-06-28";
 
 export const STATS = {
   yearsExperience: {
@@ -50,19 +51,35 @@ export const STATS = {
   },
   githubStars: {
     id: "stars",
-    value: 768,
-    display: "760+",
+    value: 987,
+    display: "~990",
     label: "GitHub stars",
     scope: "org-aggregate",
-    source: "171 personal + 597 across SylphxAI / Cubeage / EpiowAI orgs",
+    source: "Live: 928 SylphxAI + @shtse8 + Cubeage / EpiowAI (non-fork)",
+  },
+  npmDownloads: {
+    id: "npm-downloads",
+    value: 27_038,
+    display: "27K+",
+    label: "npm downloads / month",
+    scope: "org-aggregate",
+    source: "@sylphx + @shtse8 packages — npm last-month (pdf-reader-mcp 24.3K)",
   },
   flagshipStars: {
     id: "flagship-stars",
-    value: 492,
-    display: "492",
+    value: 801,
+    display: "801",
     label: "Stars · pdf-reader-mcp",
     scope: "repo",
     source: "github.com/SylphxAI/pdf-reader-mcp",
+  },
+  flagshipDownloads: {
+    id: "flagship-downloads",
+    value: 24_319,
+    display: "24K+",
+    label: "Downloads / mo · pdf-reader-mcp",
+    scope: "repo",
+    source: "npmjs.com/package/@sylphx/pdf-reader-mcp — last-month",
   },
   commits: {
     id: "commits",
@@ -82,18 +99,22 @@ export const STATS = {
   },
   repos: {
     id: "repos",
-    value: 119,
-    display: "100+",
+    value: 139,
+    display: "130+",
     label: "Public repositories",
     scope: "personal",
     source: "GitHub @shtse8",
   },
 } satisfies Record<string, Stat>;
 
-/** Curated 4-stat set for the hero — distinct, non-overlapping, credibility-first. */
+/**
+ * Curated 4-stat set for the hero — AI-adoption first, then scale credibility.
+ * npm downloads/mo + total stars prove the open-source AI tooling is used;
+ * app downloads + years prove a track record of shipping at scale.
+ */
 export const HERO_STATS: Stat[] = [
-  STATS.yearsExperience,
-  STATS.appDownloads,
+  STATS.npmDownloads,
   STATS.githubStars,
-  STATS.commits,
+  STATS.appDownloads,
+  STATS.yearsExperience,
 ];

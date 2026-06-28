@@ -13,7 +13,7 @@ import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
 const FLAGSHIP_ID = "pdf-reader-mcp";
-const OSS_CATEGORIES = new Set(["Open Source", "Frameworks & Libraries"]);
+const OSS_CATEGORIES = new Set(["Open Source", "AI & ML", "Frameworks & Libraries"]);
 const GITHUB_ORG = "https://github.com/SylphxAI";
 
 /** Strip a trailing "NNN GitHub stars." claim so star figures live only in STATS. */
@@ -37,8 +37,8 @@ export default function OpenSource() {
 
   // Aggregate proof — every figure reads from the STATS single source of truth.
   const proof = [
+    STATS.npmDownloads,
     STATS.githubStars,
-    STATS.repos,
     { display: String(ossCount), label: "Open-source projects" },
   ];
 
@@ -49,9 +49,9 @@ export default function OpenSource() {
     <div className="container-content">
       <SectionHeader
         index="02"
-        eyebrow="Open Source"
-        title="Tools and libraries, built in the open"
-        description="Developer tools and high-performance libraries I design, ship, and maintain solo — from MCP servers to tiny, benchmarked state libraries, each one fully tested."
+        eyebrow="AI tooling · Open Source"
+        title="The tools AI agents — and developers — run on"
+        description="MCP servers, RAG and semantic-search engines, AI dev platforms, and the high-performance libraries under them. I design, ship, and maintain each one in the open, solo and fully tested — led by pdf-reader-mcp, used by thousands."
       />
 
       {/* Aggregate proof — mono numbers, single source of truth */}

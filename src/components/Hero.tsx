@@ -49,13 +49,10 @@ export default function Hero() {
           <span className="eyebrow">{PERSONAL_INFO.location.base}</span>
         </motion.div>
 
-        {/* Name */}
-        <motion.h1 {...rise(0.06)} className="text-display max-w-[16ch] text-text-primary">
-          {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
-        </motion.h1>
-
-        {/* Rotating role */}
-        <motion.div {...rise(0.12)} className="mt-4 flex h-8 items-center gap-2 font-mono text-base text-text-secondary sm:text-lg">
+        {/* Kicker: name + rotating role */}
+        <motion.div {...rise(0.06)} className="mb-5 flex h-7 flex-wrap items-center gap-x-2 font-mono text-base text-text-secondary sm:text-lg">
+          <span className="font-semibold text-text-primary">{PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}</span>
+          <span className="text-text-tertiary">·</span>
           <span className="text-accent">▍</span>
           <span className="relative inline-block">
             {ROLES.map((role, i) => (
@@ -71,15 +68,22 @@ export default function Hero() {
               </motion.span>
             ))}
             {/* reserve width */}
-            <span className="invisible">Open Source Creator</span>
+            <span className="invisible">AI-Native Platform Builder</span>
           </span>
         </motion.div>
 
-        {/* Arc tagline */}
+        {/* Headline — positioning statement */}
+        <motion.h1 {...rise(0.12)} className="text-display max-w-[19ch] text-text-primary">
+          I build the infrastructure <span className="text-accent">AI agents</span> run on.
+        </motion.h1>
+
+        {/* Subhead */}
         <motion.p {...rise(0.18)} className="lead mt-7 max-w-2xl">
-          Twenty years building products at scale — from a Hong Kong gaming studio with{" "}
-          <strong className="font-semibold text-text-primary">10M+ players</strong> to open-source AI
-          developer tools. Now building <strong className="font-semibold text-text-primary">MCP tooling</strong> at Sylphx.
+          MCP servers and AI-native developer tools. My PDF reader for AI agents passed{" "}
+          <strong className="font-semibold text-text-primary">800★ and ~24K downloads a month</strong>; I&rsquo;m
+          building <strong className="font-semibold text-text-primary">Sylphx</strong>, an AI-native PaaS, plus
+          RAG &amp; semantic-search tooling. Twenty years shipping software before this —{" "}
+          <strong className="font-semibold text-text-primary">10M+ app downloads</strong> at a Hong Kong gaming studio.
         </motion.p>
 
         {/* CTAs */}

@@ -22,9 +22,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 const fullName = `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`;
-const TITLE = `${fullName} — Technical Founder & Builder`;
+const TITLE = `${fullName} — AI infrastructure builder`;
 const DESCRIPTION =
-  "Kyle Tse is a technical founder with 20 years building products at scale — from a Hong Kong gaming studio (10M+ downloads, 10M+ players) to open-source AI developer tools. Currently building MCP tools at Sylphx.";
+  "Kyle Tse builds the infrastructure AI agents run on — MCP servers and AI-native developer tools. pdf-reader-mcp passed 800★ and ~24K npm downloads/month; building Sylphx (AI-native PaaS) plus RAG and semantic-search tooling. 20 years shipping software before this: 10M+ app downloads, 10M+ monthly players.";
 
 // Theme bootstrap — runs before paint to avoid a flash of the wrong theme.
 const themeScript = `
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     siteName: `${fullName} — Portfolio`,
-    images: [{ url: "/og-image.jpeg", width: 1200, height: 630, alt: `${fullName} — Technical Founder & Builder` }],
+    images: [{ url: "/og-image.jpeg", width: 1200, height: 630, alt: `${fullName} — AI infrastructure builder` }],
   },
   twitter: {
     card: "summary_large_image",
@@ -86,18 +86,18 @@ const personJsonLd = {
   "@type": "Person",
   name: fullName,
   url: PERSONAL_INFO.portfolioUrl,
-  jobTitle: "Technical Founder",
+  jobTitle: "AI Infrastructure Builder",
   description: DESCRIPTION,
   email: `mailto:${PERSONAL_INFO.email}`,
   sameAs: [PERSONAL_INFO.social.github, PERSONAL_INFO.social.linkedin, PERSONAL_INFO.social.stackoverflow],
   worksFor: { "@type": "Organization", name: PERSONAL_INFO.company, url: "https://sylphx.com" },
   knowsAbout: [
-    "Open Source Development",
     "Model Context Protocol",
+    "AI Agents & Tooling",
+    "RAG & Semantic Search",
+    "AI-Native Platform Engineering",
     "Developer Tools",
     "TypeScript",
-    "Full Stack Development",
-    "Game Development",
     "System Architecture",
   ],
 };

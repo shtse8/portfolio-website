@@ -3,8 +3,8 @@ import { PersonalInfo } from './types';
 export const PERSONAL_INFO: PersonalInfo = {
   firstName: "Kyle",
   lastName: "Tse",
-  title: "Technical Founder",
-  shortBio: "Serial technical founder with 20 years of experience. Currently building open source MCP tools at Sylphx. Previously built mobile games with 10M+ downloads (Cubeage), social games reaching 10M+ MAU (MiniMax), and Hong Kong's leading gaming portal (Nakuz).",
+  title: "AI Infrastructure Builder",
+  shortBio: "I build the infrastructure AI agents run on — MCP servers and AI-native developer tools. My PDF reader for AI agents passed 800★ and ~24K downloads a month; I'm building Sylphx, an AI-native PaaS, plus RAG and semantic-search tooling. 20 years shipping software before this: 10M+ mobile-game downloads (Cubeage), 10M+ monthly players (MiniMax), and Hong Kong's leading gaming portal (Nakuz).",
   email: "hi@kylet.se",
   location: {
     base: "London, UK",
@@ -25,38 +25,38 @@ export const PERSONAL_INFO: PersonalInfo = {
   portfolioUrl: "https://kylet.se",
   company: "Sylphx",
   specialties: [
-    "Open Source Development",
-    "High-Performance Libraries",
-    "Full Stack Development",
-    "Mobile Game Development",
-    "AI Tool Development",
-    "Blockchain Solutions",
+    "MCP & AI-Agent Tooling",
+    "AI-Native Platform Engineering",
+    "RAG & Semantic Search",
+    "High-Performance TypeScript Libraries",
+    "Developer Tools & DX",
     "System Architecture",
-    "TypeScript & Dart Ecosystems"
+    "Full Stack Development",
+    "Shipping at Scale (10M+ users)"
   ],
-  tagline: "Building open source developer tools and shipping products",
+  tagline: "Building the infrastructure AI agents run on — MCP servers & AI-native developer tools",
   roles: [
-    "Technical Founder",
+    "AI Infrastructure Builder",
+    "MCP Server Author",
+    "AI-Native Platform Builder",
     "Open Source Creator",
-    "Full Stack Developer",
-    "Game Developer",
-    "Framework Author"
+    "Technical Founder"
   ]
 } as const;
 
-// GitHub statistics for display
+// GitHub statistics for display (live-verified 2026-06-28; non-fork)
 export const GITHUB_STATS = {
   username: "shtse8",
-  totalStars: 171,
-  orgStars: 597,
-  totalRepos: 119,
+  totalStars: 987,
+  orgStars: 928,
+  totalRepos: 139,
   totalCommits: 4654,
-  followers: 41,
+  followers: 42,
   organizations: ["SylphxAI", "Cubeage", "EpiowAI"],
   featuredRepo: {
     name: "pdf-reader-mcp",
-    stars: 492,
-    description: "MCP server for PDF processing"
+    stars: 801,
+    description: "MCP server for PDF processing — 24K+ npm downloads/mo"
   },
   achievements: [
     "Arctic Code Vault Contributor",

@@ -12,21 +12,21 @@ export const ROLES: Role[] = [
     period: { start: '2025-05' },
     location: 'United Kingdom',
     isRemote: true,
-    description: 'Building open source developer tools, primarily MCP servers and TypeScript libraries',
+    description: 'Building the infrastructure AI agents run on — MCP servers, RAG/semantic-search engines, an AI-native PaaS, and the high-performance libraries under them',
     responsibilities: [
-      'Founded UK-based open source tools company',
-      'Created pdf-reader-mcp — MCP server for PDF processing (492 GitHub stars)',
-      'Built CodeRAG semantic code search engine supporting 15+ languages',
-      'Developed Rapid state management and Craft immutable state libraries',
-      'Published multiple packages on NPM'
+      'Created pdf-reader-mcp — the PDF reader for AI agents (801★, 24K+ npm downloads/month)',
+      'Building Sylphx — an AI-native PaaS that deploys app code, SDK, and infra from one place',
+      'Built CodeRAG — semantic code search with AST chunking across 15+ languages',
+      'Shipped Rapid, Craft, and Silk — benchmarked, zero/low-dependency TypeScript libraries',
+      'Published the @sylphx MCP toolchain on NPM — ~27K downloads/month across packages'
     ],
     keyAchievements: [
-      '492 GitHub stars on pdf-reader-mcp',
-      '27+ open source repositories'
+      '801★ + 24K downloads/mo on pdf-reader-mcp',
+      '~990 GitHub stars across the org'
     ],
     metrics: [
-      { type: 'stars', value: 492, context: 'total' },
-      { type: 'projects', value: 27, context: 'total' }
+      { type: 'stars', value: 801, context: 'pdf-reader-mcp' },
+      { type: 'downloads', value: 27038, context: 'npm / month' }
     ],
     skills: ['typescript', 'mcp', 'ai-integration', 'nodejs', 'bun', 'performance-testing', 'open-source'],
     logo: '/companys/sylphx.png',
