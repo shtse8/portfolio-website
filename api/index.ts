@@ -13,7 +13,15 @@
  */
 
 import { SYSTEM_PROMPT } from "./persona";
-import { TOOL_SCHEMAS, TOOL_RUNNERS, bindLiveStats } from "./tools";
+import {
+  TOOL_SCHEMAS,
+  TOOL_RUNNERS,
+  bindLiveStats,
+  listProjects,
+  getRepoDetail,
+  recentActivity,
+  npmRange,
+} from "./tools";
 
 const PORT = Number(process.env.PORT ?? 3001);
 
@@ -248,6 +256,44 @@ Bun.serve({
       try { return json(await getStats(), origin, 200); }
       catch (err) {
         if (statsCache) return json({ ...statsCache.data, stale: true }, origin, 200);
+        return json({ error: String(err).slice(0, 160) }, origin, 502);
+      }
+    }
+    // ── live terminal data (same source the agent uses) ──────────────────────
+    if (url.pathname === "/projects" && req.method === "GET") {
+      try {
+        const limit = Number(url.searchParams.get("limit")) || 12;
+        return json({ projects: await listProjects(limit), updatedAt: new Date().toISOString() }, origin, 200);
+      } catch (err) {
+        return json({ error: String(err).slice(0, 160) }, origin, 502);
+      }
+    }
+    if (url.pathname === "/repo" && req.method === "GET") {
+      try {
+        const name = url.searchParams.get("name") ?? "";
+        const repo = await getRepoDetail(name);
+        return repo
+          ? json({ repo, updatedAt: new Date().toISOString() }, origin, 200)
+          : json({ error: `no such repo under Kyle's owners: ${name.slice(0, 60)}` }, origin, 404);
+      } catch (err) {
+        return json({ error: String(err).slice(0, 160) }, origin, 502);
+      }
+    }
+    if (url.pathname === "/recent" && req.method === "GET") {
+      try {
+        const limit = Number(url.searchParams.get("limit")) || 6;
+        return json({ recent: await recentActivity(limit), updatedAt: new Date().toISOString() }, origin, 200);
+      } catch (err) {
+        return json({ error: String(err).slice(0, 160) }, origin, 502);
+      }
+    }
+    if (url.pathname === "/downloads" && req.method === "GET") {
+      try {
+        const pkg = url.searchParams.get("pkg") ?? "";
+        const series = pkg ? await npmRange(pkg) : [];
+        const total = series.reduce((a, b) => a + (b.downloads ?? 0), 0);
+        return json({ pkg, series, total, updatedAt: new Date().toISOString() }, origin, 200);
+      } catch (err) {
         return json({ error: String(err).slice(0, 160) }, origin, 502);
       }
     }

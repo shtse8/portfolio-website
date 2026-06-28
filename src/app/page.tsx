@@ -15,7 +15,7 @@ const sectionFallback = (
   </div>
 );
 
-const AskAI = dynamic(() => import("@/components/AskAI"), { loading: () => sectionFallback });
+const Terminal = dynamic(() => import("@/components/Terminal"), { loading: () => sectionFallback });
 const Now = dynamic(() => import("@/components/Now"), { loading: () => sectionFallback });
 const OpenSource = dynamic(() => import("@/components/OpenSource"), { loading: () => sectionFallback });
 const Experience = dynamic(() => import("@/components/Experience"), { loading: () => sectionFallback });
@@ -74,7 +74,7 @@ export default function Home({ initialSection }: HomeProps) {
       </section>
 
       <Section id="ask-ai" className="border-t border-border-subtle bg-surface-sunken/40">
-        <AskAI />
+        <Terminal />
       </Section>
 
       <Section id="now">
