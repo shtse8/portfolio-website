@@ -80,19 +80,22 @@ async function listAllRepos(): Promise<RepoSummary[]> {
 
 /** All real projects, most-starred first (the `ls projects` index). */
 export async function listProjects(limit = 12): Promise<RepoSummary[]> {
+  const lim = Math.min(Math.max(Math.trunc(Number(limit)) || 12, 1), 40);
   const repos = (await listAllRepos())
     .filter((r) => r.stars > 0 || (r.description?.length ?? 0) > 0)
     .sort((a, b) => b.stars - a.stars);
-  return repos.slice(0, Math.min(limit, 40));
+  return repos.slice(0, lim);
 }
 
 /** One repo's live detail, resolved across Kyle's owners (`cat <repo>`). */
 export async function getRepoDetail(nameRaw: string): Promise<RepoSummary | null> {
   const raw = String(nameRaw || "").trim().replace(/^.*\//, "");
-  if (!raw) return null;
+  // Only real GitHub repo names — reject path-like / malformed input before it
+  // reaches the upstream URL (defence-in-depth; the host is already fixed).
+  if (!/^[A-Za-z0-9._-]{1,100}$/.test(raw)) return null;
   for (const owner of GH_OWNERS) {
     try {
-      const res = await gh(`/repos/${owner}/${raw}`);
+      const res = await gh(`/repos/${owner}/${encodeURIComponent(raw)}`);
       if (res.ok) return toSummary(await res.json());
     } catch {
       /* try next owner */

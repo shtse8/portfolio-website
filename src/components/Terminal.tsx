@@ -84,6 +84,7 @@ const TOOL_LABEL: Record<string, string> = {
 };
 
 const FRIENDLY_ERR = (e: unknown) => (e instanceof Error ? e.message : "something went wrong");
+const isAbort = (e: unknown) => (e as { name?: string } | null)?.name === "AbortError";
 const shortId = () => Math.abs(Math.floor(performance.now() * 1000) % 0xffff).toString(16).padStart(4, "0");
 const delay = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -102,11 +103,11 @@ const COMMANDS: Command[] = [
   {
     name: "whoami",
     summary: "who Kyle is, in three lines",
-    run: async ({ push }) => {
+    run: async ({ push, signal }) => {
       push({ k: "lead", t: "Kyle builds the infrastructure layer that lets AI agents read, search, deploy, and act." });
       let proof = "990+ GitHub stars · 27K+ npm downloads/mo";
       try {
-        const s = await fetchStats();
+        const s = await fetchStats(signal);
         proof = `${compact(s.githubStars)} GitHub stars · ${compact(s.npmDownloads)} npm downloads/mo · live`;
       } catch {
         /* static proof fallback */
@@ -127,10 +128,10 @@ const COMMANDS: Command[] = [
     name: "ls",
     usage: "ls projects",
     summary: "his open-source projects, by live stars",
-    run: async ({ push, update }) => {
+    run: async ({ push, update, signal }) => {
       const i = push({ k: "text", lines: [{ t: "reading github…", tone: "faint" }] });
       try {
-        const { projects, updatedAt } = await fetchProjects(10);
+        const { projects, updatedAt } = await fetchProjects(10, signal);
         const max = Math.max(...projects.map((p) => p.stars), 1);
         update(i, () => ({
           k: "projects",
@@ -140,6 +141,7 @@ const COMMANDS: Command[] = [
           receipts: [{ label: "GitHub REST — repos", url: "https://api.github.com/users/shtse8/repos" }],
         }));
       } catch (e) {
+        if (isAbort(e)) return update(i, () => ({ k: "text", lines: [{ t: "^C", tone: "faint", mono: true }] }));
         update(i, () => ({ k: "text", lines: [{ t: `ls: ${FRIENDLY_ERR(e)}`, tone: "err", mono: true }] }));
       }
     },
@@ -148,7 +150,7 @@ const COMMANDS: Command[] = [
     name: "cat",
     usage: "cat <repo>",
     summary: "live detail for one project (try: cat pdf-reader-mcp)",
-    run: async ({ arg, push, update }) => {
+    run: async ({ arg, push, update, signal }) => {
       const name = arg.trim();
       if (!name) {
         push({ k: "text", lines: [{ t: "usage: cat <repo>   e.g. cat pdf-reader-mcp", tone: "warn", mono: true }] });
@@ -156,12 +158,12 @@ const COMMANDS: Command[] = [
       }
       const i = push({ k: "text", lines: [{ t: `reading ${name}…`, tone: "faint" }] });
       try {
-        const { repo, updatedAt } = await fetchRepo(name);
+        const { repo, updatedAt } = await fetchRepo(name, signal);
         let spark = "";
         let total = 0;
         if (/pdf-reader-mcp/i.test(repo.name)) {
           try {
-            const d = await fetchDownloads(FLAGSHIP_PKG);
+            const d = await fetchDownloads(FLAGSHIP_PKG, signal);
             spark = sparkline(d.series.map((p) => p.downloads));
             total = d.total;
           } catch {
@@ -182,6 +184,7 @@ const COMMANDS: Command[] = [
           ],
         }));
       } catch (e) {
+        if (isAbort(e)) return update(i, () => ({ k: "text", lines: [{ t: "^C", tone: "faint", mono: true }] }));
         update(i, () => ({ k: "text", lines: [{ t: `cat: ${FRIENDLY_ERR(e)}`, tone: "err", mono: true }] }));
       }
     },
@@ -190,10 +193,10 @@ const COMMANDS: Command[] = [
     name: "stats",
     usage: "stats",
     summary: "the aggregate proof, live",
-    run: async ({ push, update }) => {
+    run: async ({ push, update, signal }) => {
       const i = push({ k: "text", lines: [{ t: "aggregating github + npm…", tone: "faint" }] });
       try {
-        const data = await fetchStats();
+        const data = await fetchStats(signal);
         update(i, () => ({
           k: "stats",
           data,
@@ -204,6 +207,7 @@ const COMMANDS: Command[] = [
           ],
         }));
       } catch (e) {
+        if (isAbort(e)) return update(i, () => ({ k: "text", lines: [{ t: "^C", tone: "faint", mono: true }] }));
         update(i, () => ({ k: "text", lines: [{ t: `stats: ${FRIENDLY_ERR(e)}`, tone: "err", mono: true }] }));
       }
     },
@@ -212,10 +216,10 @@ const COMMANDS: Command[] = [
     name: "ship",
     usage: "ship --recent",
     summary: "what he pushed lately — the heartbeat",
-    run: async ({ push, update }) => {
+    run: async ({ push, update, signal }) => {
       const i = push({ k: "text", lines: [{ t: "reading recent pushes…", tone: "faint" }] });
       try {
-        const { recent, updatedAt } = await fetchRecent(6);
+        const { recent, updatedAt } = await fetchRecent(6, signal);
         update(i, () => ({
           k: "recent",
           rows: recent,
@@ -223,6 +227,7 @@ const COMMANDS: Command[] = [
           receipts: [{ label: "GitHub REST — repos (by push)", url: "https://api.github.com/users/SylphxAI/repos?sort=pushed" }],
         }));
       } catch (e) {
+        if (isAbort(e)) return update(i, () => ({ k: "text", lines: [{ t: "^C", tone: "faint", mono: true }] }));
         update(i, () => ({ k: "text", lines: [{ t: `ship: ${FRIENDLY_ERR(e)}`, tone: "err", mono: true }] }));
       }
     },
@@ -262,37 +267,40 @@ const COMMANDS: Command[] = [
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buf = "";
+        const handleLine = (line: string) => {
+          const t = line.trim();
+          if (!t.startsWith("data:")) return;
+          const raw = t.slice(5).trim();
+          if (!raw) return;
+          let ev: { type?: string; name?: string; delta?: string; message?: string };
+          try { ev = JSON.parse(raw); } catch { return; }
+          if (ev.type === "tool" && ev.name) {
+            markToolDone();
+            lastTool = push({ k: "tool", name: ev.name, done: false });
+          } else if (ev.type === "text" && ev.delta) {
+            markToolDone();
+            if (answerIdx < 0) answerIdx = push({ k: "answer", t: "" });
+            acc += ev.delta;
+            update(answerIdx, () => ({ k: "answer", t: acc }));
+          } else if (ev.type === "error") {
+            throw new Error(ev.message || "agent error");
+          }
+        };
         for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
           buf += decoder.decode(value, { stream: true });
           const lines = buf.split("\n");
           buf = lines.pop() ?? "";
-          for (const line of lines) {
-            const t = line.trim();
-            if (!t.startsWith("data:")) continue;
-            const raw = t.slice(5).trim();
-            if (!raw) continue;
-            let ev: { type?: string; name?: string; delta?: string; message?: string };
-            try { ev = JSON.parse(raw); } catch { continue; }
-            if (ev.type === "tool" && ev.name) {
-              markToolDone();
-              lastTool = push({ k: "tool", name: ev.name, done: false });
-            } else if (ev.type === "text" && ev.delta) {
-              markToolDone();
-              if (answerIdx < 0) answerIdx = push({ k: "answer", t: "" });
-              acc += ev.delta;
-              update(answerIdx, () => ({ k: "answer", t: acc }));
-            } else if (ev.type === "error") {
-              throw new Error(ev.message || "agent error");
-            }
-          }
+          for (const line of lines) handleLine(line);
         }
-        markToolDone();
+        buf += decoder.decode();
+        if (buf.trim()) handleLine(buf);
       } catch (e) {
-        if ((e as Error)?.name === "AbortError") return;
+        if (isAbort(e)) return;
         push({ k: "text", lines: [{ t: `ask: ${FRIENDLY_ERR(e)}`, tone: "err", mono: true }] });
       } finally {
+        markToolDone();
         setPath("~");
       }
     },
@@ -301,7 +309,7 @@ const COMMANDS: Command[] = [
     name: "trace",
     usage: "trace <claim>",
     summary: "show the exact source chain behind any number",
-    run: async ({ arg, push, update }) => {
+    run: async ({ arg, push, update, signal }) => {
       const claim = arg.replace(/^["']|["']$/g, "").trim().toLowerCase();
       if (!claim) {
         push({
@@ -315,7 +323,7 @@ const COMMANDS: Command[] = [
       }
       const i = push({ k: "text", lines: [{ t: "walking the source chain…", tone: "faint" }] });
       try {
-        const s = await fetchStats();
+        const s = await fetchStats(signal);
         const kind = /down|npm|install|27/.test(claim)
           ? "downloads"
           : /flag|pdf|reader|800|801/.test(claim)
@@ -361,6 +369,7 @@ const COMMANDS: Command[] = [
         const chosen = map[kind];
         update(i, () => ({ k: "trace", claim: kind, value: chosen.value, steps: [...chosen.steps], receipts: [...chosen.receipts] }));
       } catch (e) {
+        if (isAbort(e)) return update(i, () => ({ k: "text", lines: [{ t: "^C", tone: "faint", mono: true }] }));
         update(i, () => ({ k: "text", lines: [{ t: `trace: ${FRIENDLY_ERR(e)}`, tone: "err", mono: true }] }));
       }
     },
@@ -369,13 +378,13 @@ const COMMANDS: Command[] = [
     name: "brief",
     usage: "brief --for founder|recruiter|infra-lead",
     summary: "a tailored one-page case, built from live proof",
-    run: async ({ arg, push }) => {
+    run: async ({ arg, push, signal }) => {
       const who = /recruit/.test(arg) ? "recruiter" : /infra|lead|eng/.test(arg) ? "infra-lead" : "founder";
       let stars = "990+";
       let dl = "27K+";
       let flag = "800+";
       try {
-        const s = await fetchStats();
+        const s = await fetchStats(signal);
         stars = compact(s.githubStars);
         dl = compact(s.npmDownloads);
         flag = compact(s.flagshipStars);
@@ -718,18 +727,10 @@ export default function Terminal() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-  const activeBlocks = useRef<Block[]>([]);
-  const activeId = useRef<string>("");
   const histRef = useRef<string[]>([]);
   const histPos = useRef<number>(-1);
   const abortRef = useRef<AbortController | null>(null);
   const bootedRef = useRef(false);
-
-  const flush = useCallback(() => {
-    const id = activeId.current;
-    const blocks = [...activeBlocks.current];
-    setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, blocks } : e)));
-  }, []);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -750,9 +751,13 @@ export default function Terminal() {
       const arg = trimmed.slice(word.length).trim();
       const id = `e${Date.now()}_${Math.round(performance.now())}`;
       setEntries((prev) => [...prev, { id, path, input: trimmed, blocks: [] }]);
-      activeId.current = id;
-      activeBlocks.current = [];
       setRunning(true);
+
+      // Blocks are LOCAL to this invocation, so a late-resolving command can only
+      // ever write to its own entry — even after Ctrl-C or a new command.
+      const localBlocks: Block[] = [];
+      const flushLocal = () =>
+        setEntries((prev) => prev.map((e) => (e.id === id ? { ...e, blocks: [...localBlocks] } : e)));
 
       const ac = new AbortController();
       abortRef.current = ac;
@@ -760,14 +765,14 @@ export default function Terminal() {
         arg,
         args: arg ? arg.split(/\s+/) : [],
         push: (b) => {
-          activeBlocks.current.push(b);
-          flush();
-          return activeBlocks.current.length - 1;
+          localBlocks.push(b);
+          flushLocal();
+          return localBlocks.length - 1;
         },
         update: (i, fn) => {
-          if (activeBlocks.current[i]) {
-            activeBlocks.current[i] = fn(activeBlocks.current[i]);
-            flush();
+          if (localBlocks[i]) {
+            localBlocks[i] = fn(localBlocks[i]);
+            flushLocal();
           }
         },
         setPath,
@@ -788,13 +793,13 @@ export default function Terminal() {
           await cmd.run(ctx);
         }
       } catch (e) {
-        ctx.push({ k: "text", lines: [{ t: FRIENDLY_ERR(e), tone: "err", mono: true }] });
+        if (!isAbort(e)) ctx.push({ k: "text", lines: [{ t: FRIENDLY_ERR(e), tone: "err", mono: true }] });
       } finally {
         setRunning(false);
         abortRef.current = null;
       }
     },
-    [path, flush],
+    [path],
   );
 
   // opening sequence — the product demonstrates itself (respects reduced-motion)
@@ -864,8 +869,8 @@ export default function Terminal() {
       const hit = COMMANDS.filter((c) => !c.hidden).find((c) => c.name.startsWith(word) && c.name !== word);
       if (hit && !input.includes(" ")) setInput(hit.name + " ");
     } else if (e.key === "c" && e.ctrlKey) {
+      // abort the in-flight command; its own finally settles `running`.
       abortRef.current?.abort();
-      setRunning(false);
     }
   }
 
@@ -905,7 +910,15 @@ export default function Terminal() {
         </div>
 
         {/* scrollback */}
-        <div ref={scrollRef} className="max-h-[58vh] min-h-[300px] overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
+        <div
+          ref={scrollRef}
+          onClick={(e) => {
+            // click anywhere on the surface to focus the prompt — but don't steal
+            // clicks meant for links, buttons, or the input itself.
+            if (!(e.target as HTMLElement).closest("a,button,input")) inputRef.current?.focus();
+          }}
+          className="max-h-[58vh] min-h-[300px] overflow-y-auto px-4 py-4 sm:px-6 sm:py-5"
+        >
           {entries.map((en) => (
             <div key={en.id} className="mb-4 last:mb-1">
               {/* prompt line */}
@@ -934,7 +947,6 @@ export default function Terminal() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              disabled={running}
               spellCheck={false}
               autoComplete="off"
               autoCapitalize="off"

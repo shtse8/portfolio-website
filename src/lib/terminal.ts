@@ -33,8 +33,8 @@ export interface TermStats {
   updatedAt: string;
 }
 
-async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, { headers: { accept: "application/json" } });
+async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, { headers: { accept: "application/json" }, signal });
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
     throw new Error(body.error || `request failed (${res.status})`);
@@ -42,16 +42,17 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const fetchProjects = (limit = 12) =>
-  get<{ projects: TermRepo[]; updatedAt: string }>(`/projects?limit=${limit}`);
-export const fetchRepo = (name: string) =>
-  get<{ repo: TermRepo; updatedAt: string }>(`/repo?name=${encodeURIComponent(name)}`);
-export const fetchRecent = (limit = 6) =>
-  get<{ recent: TermRepo[]; updatedAt: string }>(`/recent?limit=${limit}`);
-export const fetchStats = () => get<TermStats>(`/stats`);
-export const fetchDownloads = (pkg: string) =>
+export const fetchProjects = (limit = 12, signal?: AbortSignal) =>
+  get<{ projects: TermRepo[]; updatedAt: string }>(`/projects?limit=${limit}`, signal);
+export const fetchRepo = (name: string, signal?: AbortSignal) =>
+  get<{ repo: TermRepo; updatedAt: string }>(`/repo?name=${encodeURIComponent(name)}`, signal);
+export const fetchRecent = (limit = 6, signal?: AbortSignal) =>
+  get<{ recent: TermRepo[]; updatedAt: string }>(`/recent?limit=${limit}`, signal);
+export const fetchStats = (signal?: AbortSignal) => get<TermStats>(`/stats`, signal);
+export const fetchDownloads = (pkg: string, signal?: AbortSignal) =>
   get<{ pkg: string; series: { day: string; downloads: number }[]; total: number; updatedAt: string }>(
     `/downloads?pkg=${encodeURIComponent(pkg)}`,
+    signal,
   );
 
 // ── formatting helpers ──────────────────────────────────────────────────────
