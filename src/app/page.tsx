@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { WorkGraphProvider } from "@/context/WorkGraphContext";
 import { cn } from "@/lib/utils";
 
 const sectionFallback = (
@@ -15,30 +16,18 @@ const sectionFallback = (
   </div>
 );
 
-const Terminal = dynamic(() => import("@/components/Terminal"), { loading: () => sectionFallback });
-const Now = dynamic(() => import("@/components/Now"), { loading: () => sectionFallback });
-const OpenSource = dynamic(() => import("@/components/OpenSource"), { loading: () => sectionFallback });
+const WorkGraph = dynamic(() => import("@/components/WorkGraph"), { loading: () => sectionFallback });
+const EvidencePanel = dynamic(() => import("@/components/EvidencePanel"), { loading: () => sectionFallback });
 const Experience = dynamic(() => import("@/components/Experience"), { loading: () => sectionFallback });
-const FeaturedProjects = dynamic(() => import("@/components/FeaturedProjects"), { loading: () => sectionFallback });
-const Capabilities = dynamic(() => import("@/components/TechStack"), { loading: () => sectionFallback });
-const Philosophy = dynamic(() => import("@/components/Philosophy"), { loading: () => sectionFallback });
 const Contact = dynamic(() => import("@/components/Contact"), { loading: () => sectionFallback });
 
 interface HomeProps {
   initialSection?: string;
 }
 
-const PAD = "scroll-mt-20 py-24 sm:py-32";
+const PAD = "scroll-mt-20 py-24 sm:py-28";
 
-function Section({
-  id,
-  className,
-  children,
-}: {
-  id: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
+function Section({ id, className, children }: { id: string; className?: string; children: React.ReactNode }) {
   return (
     <section id={id} className={cn(PAD, className)}>
       <ErrorBoundary>{children}</ErrorBoundary>
@@ -64,7 +53,7 @@ export default function Home({ initialSection }: HomeProps) {
   }, [initialSection]);
 
   return (
-    <>
+    <WorkGraphProvider>
       <Header />
 
       <section id="hero" className="scroll-mt-0">
@@ -73,39 +62,23 @@ export default function Home({ initialSection }: HomeProps) {
         </ErrorBoundary>
       </section>
 
-      <Section id="ask-ai" className="border-t border-border-subtle bg-surface-sunken/40">
-        <Terminal />
+      <Section id="work" className="border-t border-border-subtle">
+        <WorkGraph />
       </Section>
 
-      <Section id="now">
-        <Now />
+      <Section id="ask" className="border-t border-border-subtle bg-surface-sunken/40">
+        <EvidencePanel />
       </Section>
 
-      <Section id="open-source" className="border-t border-border-subtle bg-surface-sunken/40">
-        <OpenSource />
-      </Section>
-
-      <Section id="experience">
+      <Section id="experience" className="border-t border-border-subtle">
         <Experience />
       </Section>
 
-      <Section id="projects" className="border-t border-border-subtle bg-surface-sunken/40">
-        <FeaturedProjects />
-      </Section>
-
-      <Section id="capabilities">
-        <Capabilities />
-      </Section>
-
-      <Section id="philosophy" className="border-t border-border-subtle bg-surface-sunken/40">
-        <Philosophy />
-      </Section>
-
-      <Section id="contact">
+      <Section id="contact" className="border-t border-border-subtle bg-surface-sunken/40">
         <Contact />
       </Section>
 
       <Footer />
-    </>
+    </WorkGraphProvider>
   );
 }

@@ -6,12 +6,9 @@
 
 export type SectionId =
   | "hero"
-  | "now"
-  | "open-source"
+  | "work"
+  | "ask"
   | "experience"
-  | "projects"
-  | "capabilities"
-  | "philosophy"
   | "contact";
 
 export interface SectionConfig {
@@ -24,12 +21,9 @@ export interface SectionConfig {
 
 export const SECTIONS: SectionConfig[] = [
   { id: "hero", label: "Home", path: "/" },
-  { id: "now", label: "Now", path: "/now" },
-  { id: "open-source", label: "Open Source", path: "/open-source", nav: true },
+  { id: "work", label: "Work", path: "/work", nav: true },
+  { id: "ask", label: "Ask", path: "/ask", nav: true },
   { id: "experience", label: "Experience", path: "/experience", nav: true },
-  { id: "projects", label: "Projects", path: "/projects", nav: true },
-  { id: "capabilities", label: "Capabilities", path: "/capabilities", nav: true },
-  { id: "philosophy", label: "Philosophy", path: "/philosophy" },
   { id: "contact", label: "Contact", path: "/contact", nav: true },
 ];
 
