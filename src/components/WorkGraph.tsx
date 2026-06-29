@@ -112,7 +112,12 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
         lit ? "ring-1 ring-accent shadow-lg shadow-accent/5" : ""
       }`}
     >
-      <button onClick={() => setSelected(open ? null : repo.repo)} className="flex items-start justify-between gap-3 text-left">
+      <button
+        onClick={() => setSelected(open ? null : repo.repo)}
+        aria-expanded={open}
+        aria-label={`${repo.name} — ${open ? "collapse" : "expand"} details`}
+        className="flex items-start justify-between gap-3 rounded text-left outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+      >
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <span className="truncate font-mono text-sm font-semibold text-text-primary">{repo.name}</span>

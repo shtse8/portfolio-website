@@ -11,10 +11,22 @@
  */
 
 const GH_OWNERS = ["shtse8", "SylphxAI", "Cubeage", "EpiowAI"];
+const UPSTREAM_TIMEOUT_MS = 8_000;
+
+/** fetch with a hard deadline so a slow GitHub/npm can't hold a request slot. */
+async function fetchT(url: string, init: RequestInit = {}, ms = UPSTREAM_TIMEOUT_MS): Promise<Response> {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: ac.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
 
 function gh(path: string): Promise<Response> {
   const token = process.env.GITHUB_TOKEN;
-  return fetch(`https://api.github.com${path}`, {
+  return fetchT(`https://api.github.com${path}`, {
     headers: {
       "user-agent": "kylet-api",
       accept: "application/vnd.github+json",
@@ -131,7 +143,7 @@ export async function searchProjects(query: string): Promise<RepoSummary[]> {
 /** npm daily downloads for the last 30 days — powers the `cat` sparkline + trace. */
 export async function npmRange(pkg: string): Promise<{ day: string; downloads: number }[]> {
   try {
-    const res = await fetch(
+    const res = await fetchT(
       `https://api.npmjs.org/downloads/range/last-month/${encodeURIComponent(pkg)}`,
     );
     if (!res.ok) return [];

@@ -19,7 +19,7 @@ import { useNavigationStore } from "@/context/NavigationContext";
  */
 export default function Hero() {
   const reduce = useReducedMotion();
-  const { stats, recent, live, setHighlight, setSelected } = useWorkGraph();
+  const { stats, recent, live, loading, setHighlight, flashHighlight, setSelected } = useWorkGraph();
   const navigate = useNavigationStore((s) => s.navigateToSection);
 
   const rise = (delay: number) =>
@@ -39,11 +39,15 @@ export default function Hero() {
   const lastShip = recent[0];
 
   function jump(highlight: HighlightKind) {
-    setHighlight(null);
     setSelected(null);
+    // carry the linkage into the work graph: the repos that compose this number
+    // flash for a few seconds when you land (managed in the context, so the
+    // navigation's mouse-leave can't clear it).
+    flashHighlight(highlight);
     navigate("work");
-    void highlight;
   }
+
+  const liveLabel = loading ? "loading" : live ? "live" : "cached";
 
   return (
     <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pt-24 pb-16 sm:px-8">
@@ -105,7 +109,7 @@ export default function Hero() {
                   {live && <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />}
                   <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${live ? "bg-positive" : "bg-text-tertiary"}`} />
                 </span>
-                {live ? "live" : "loading"}
+                {liveLabel}
               </span>
             </div>
 

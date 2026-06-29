@@ -47,18 +47,24 @@ export default function EvidencePanel() {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const busyRef = useRef(false);
+  const pendingSeedRef = useRef<string | null>(null);
+  const messagesRef = useRef<Msg[]>([]);
 
   useEffect(() => {
+    messagesRef.current = messages;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  // a project card handed us a question — run it + bring focus here
+  // a project card handed us a question — clear the seed immediately (so the
+  // same question can be clicked again), run it now if free, or queue ONE if a
+  // request is in flight; the queue drains when `busy` clears below.
   useEffect(() => {
-    if (askSeed && !busyRef.current) {
-      void send(askSeed);
-      clearAsk();
-      document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    if (!askSeed) return;
+    const q = askSeed;
+    clearAsk();
+    document.getElementById("ask")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (busyRef.current) pendingSeedRef.current = q;
+    else void send(q);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [askSeed]);
 
@@ -75,8 +81,9 @@ export default function EvidencePanel() {
     if (!q || busyRef.current || !HAS_API) return;
     setError(null);
     setInput("");
-    const next: Msg[] = [...messages, { role: "user", content: q }, { role: "assistant", content: "", tools: [] }];
+    const next: Msg[] = [...messagesRef.current, { role: "user", content: q }, { role: "assistant", content: "", tools: [] }];
     setMessages(next);
+    messagesRef.current = next;
     setBusy(true);
     busyRef.current = true;
     try {
@@ -124,8 +131,16 @@ export default function EvidencePanel() {
       setMessages((prev) => prev.slice(0, -1));
       setError(e instanceof Error ? e.message : "something went wrong");
     } finally {
-      setBusy(false);
+      // clear the ref BEFORE the state so the queued-seed drain below (and any
+      // re-entrant send) sees a consistent not-busy state; drain synchronously
+      // so a render-timing race can't double-send or drop the queued seed.
       busyRef.current = false;
+      setBusy(false);
+      const pending = pendingSeedRef.current;
+      if (pending) {
+        pendingSeedRef.current = null;
+        void send(pending);
+      }
     }
   }
 

@@ -160,22 +160,46 @@ const AI_MODEL = process.env.AI_MODEL ?? "claude-sonnet-4-6";
 const MAX_USER_CHARS = 1500;
 const MAX_TURNS = 14;
 const MAX_TOOL_ROUNDS = 4;
+const MAX_TOOL_CALLS_PER_ROUND = 3; // ignore extra fan-out in a single round
+const MAX_TOOL_CALLS_TOTAL = 8; // hard ceiling on paid tool work per conversation
+const MAX_TOOL_RESULT_CHARS = 4000; // don't feed a huge tool result back into a paid call
+const LLM_TIMEOUT_MS = 45_000;
+
+/** fetch with a hard deadline so a slow upstream can't hold a request/SSE slot. */
+async function fetchWithTimeout(url: string, init: RequestInit, ms: number): Promise<Response> {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: ac.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
 
 async function llmCall(baseUrl: string, key: string, messages: any[], useTools: boolean): Promise<any> {
-  const res = await fetch(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-    body: JSON.stringify({
-      model: AI_MODEL,
-      max_tokens: 900,
-      // No explicit temperature: claude-sonnet-4-6 via the Gateway only allows
-      // temperature=1 unless extended thinking / adaptive mode is on, so we let
-      // the model default rather than pin a value the Gateway rejects (500).
-      messages,
-      ...(useTools ? { tools: TOOL_SCHEMAS, tool_choice: "auto" } : {}),
-    }),
-  });
-  if (!res.ok) throw new Error(`ai ${res.status}: ${(await res.text().catch(() => "")).slice(0, 200)}`);
+  const res = await fetchWithTimeout(
+    `${baseUrl}/chat/completions`,
+    {
+      method: "POST",
+      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        model: AI_MODEL,
+        max_tokens: 900,
+        // No explicit temperature: claude-sonnet-4-6 via the Gateway only allows
+        // temperature=1 unless extended thinking / adaptive mode is on, so we let
+        // the model default rather than pin a value the Gateway rejects (500).
+        messages,
+        ...(useTools ? { tools: TOOL_SCHEMAS, tool_choice: "auto" } : {}),
+      }),
+    },
+    LLM_TIMEOUT_MS,
+  );
+  // Keep upstream error bodies server-side only — never stream them to the client.
+  if (!res.ok) {
+    const body = (await res.text().catch(() => "")).slice(0, 300);
+    console.error(`llm upstream ${res.status}: ${body}`);
+    throw new Error(`ai_upstream_${res.status}`);
+  }
   return res.json();
 }
 
@@ -198,17 +222,21 @@ const ipHits = new Map<string, number[]>();
 const ipDay = new Map<string, { day: number; n: number }>();
 let globalDay = { day: -1, n: 0 };
 let lastPrune = 0;
+const MAP_CAP = 50_000; // bound memory against x-forwarded-for spoofing/rotation
 const dayNumber = (now: number) => Math.floor(now / 86_400_000);
 
 function clientIp(req: Request): string {
-  const xff = req.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0]!.trim();
-  return (
+  // NOTE: x-forwarded-for is set by the platform gateway but is ultimately
+  // spoofable; per-IP limits are best-effort, and the global daily cap is what
+  // actually bounds cost against IP rotation. Bound the key length so a giant
+  // spoofed header can't bloat the maps.
+  const raw =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     req.headers.get("x-real-ip") ||
     req.headers.get("x-envoy-external-address") ||
     req.headers.get("cf-connecting-ip") ||
-    "unknown"
-  );
+    "unknown";
+  return raw.slice(0, 45); // max length of an IPv6 + zone literal
 }
 
 type LimitVerdict = { ok: true } | { ok: false; status: number; error: string };
@@ -219,10 +247,10 @@ function checkRateLimit(ip: string, now: number): LimitVerdict {
   if (globalDay.n >= GLOBAL_MAX_PER_DAY) {
     return { ok: false, status: 503, error: "My AI has answered a lot today and is resting — please try again tomorrow, or reach me at hi@kylet.se." };
   }
-  // Per-IP limits only when the gateway actually gives us a client IP. If it
-  // doesn't (ip === "unknown"), throttling per-IP would lump every visitor into
-  // one bucket and choke legit users — so we rely on the global cap alone there.
-  if (ip !== "unknown") {
+  // Per-IP limits only when we have an IP AND the maps aren't saturated (a
+  // spoofed-XFF flood could otherwise grow them unbounded). At capacity we fall
+  // back to the global cap alone — which is the real bound against IP rotation.
+  if (ip !== "unknown" && (ipDay.has(ip) || ipDay.size < MAP_CAP)) {
     const d = ipDay.get(ip);
     const dayCount = d && d.day === day ? d.n : 0;
     if (dayCount >= IP_MAX_PER_DAY) {
@@ -258,11 +286,6 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
   if (!baseUrl || !key) {
     return json({ error: "chat is warming up — the AI gateway isn't wired yet." }, origin, 503);
   }
-  // cost/abuse guard — bound how much any one visitor (and everyone) can spend.
-  const now = Date.now();
-  maybePrune(now);
-  const verdict = checkRateLimit(clientIp(req), now);
-  if (!verdict.ok) return json({ error: verdict.error }, origin, verdict.status);
   let payload: { messages?: Array<{ role: string; content: string }> };
   try { payload = await req.json(); } catch { return json({ error: "invalid JSON" }, origin, 400); }
   const history = (Array.isArray(payload.messages) ? payload.messages : [])
@@ -272,26 +295,44 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
   if (!history.length || history[history.length - 1].role !== "user") {
     return json({ error: "send at least one user message" }, origin, 400);
   }
+  // cost/abuse guard — charged only for a VALID chat attempt (right before the
+  // first paid call), so malformed requests can't grief the quota.
+  const now = Date.now();
+  maybePrune(now);
+  const verdict = checkRateLimit(clientIp(req), now);
+  if (!verdict.ok) return json({ error: verdict.error }, origin, verdict.status);
 
   const stream = new ReadableStream({
     async start(controller) {
       const messages: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...history];
+      let toolBudget = MAX_TOOL_CALLS_TOTAL;
       try {
         // Agent loop: let the model call tools until it's ready to answer.
         for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-          const data = await llmCall(baseUrl, key, messages, round < MAX_TOOL_ROUNDS);
+          const offerTools = round < MAX_TOOL_ROUNDS && toolBudget > 0;
+          const data = await llmCall(baseUrl, key, messages, offerTools);
           const msg = data.choices?.[0]?.message ?? {};
-          const calls = msg.tool_calls ?? [];
-          if (calls.length && round < MAX_TOOL_ROUNDS) {
+          // Cap fan-out: honour at most N tool calls per round so a runaway loop
+          // can't trigger dozens of paid fetches + an inflated follow-up call.
+          const calls = (msg.tool_calls ?? []).slice(0, MAX_TOOL_CALLS_PER_ROUND);
+          if (calls.length && offerTools) {
             messages.push({ role: "assistant", content: msg.content ?? "", tool_calls: calls });
             for (const call of calls) {
               const name = call.function?.name ?? "";
               sse(controller, { type: "tool", name });
-              let args: Record<string, unknown> = {};
-              try { args = JSON.parse(call.function?.arguments || "{}"); } catch { /* */ }
-              const runner = TOOL_RUNNERS[name];
-              const result = runner ? await runner(args).catch((e) => JSON.stringify({ error: String(e) })) : JSON.stringify({ error: "unknown tool" });
-              messages.push({ role: "tool", tool_call_id: call.id, content: result });
+              let result: string;
+              if (toolBudget <= 0) {
+                result = JSON.stringify({ error: "tool budget exhausted" });
+              } else {
+                toolBudget--;
+                let args: Record<string, unknown> = {};
+                try { args = JSON.parse(call.function?.arguments || "{}"); } catch { /* */ }
+                const runner = TOOL_RUNNERS[name];
+                result = runner
+                  ? await runner(args).catch(() => JSON.stringify({ error: "tool failed" }))
+                  : JSON.stringify({ error: "unknown tool" });
+              }
+              messages.push({ role: "tool", tool_call_id: call.id, content: result.slice(0, MAX_TOOL_RESULT_CHARS) });
             }
             continue; // ask the model again with the tool results
           }
@@ -305,7 +346,9 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
         }
         sse(controller, { type: "done" });
       } catch (e) {
-        sse(controller, { type: "error", message: e instanceof Error ? e.message : "error" });
+        // Log the real cause server-side; the client only gets a safe message.
+        console.error("chat stream error:", e instanceof Error ? e.message : e);
+        sse(controller, { type: "error", message: "The agent hit a snag — please try again, or reach Kyle at hi@kylet.se." });
       } finally {
         controller.close();
       }
@@ -336,7 +379,8 @@ Bun.serve({
       try { return json(await getStats(), origin, 200); }
       catch (err) {
         if (statsCache) return json({ ...statsCache.data, stale: true }, origin, 200);
-        return json({ error: String(err).slice(0, 160) }, origin, 502);
+        console.error("api error:", err instanceof Error ? err.message : err);
+        return json({ error: "live data is briefly unavailable — try again shortly." }, origin, 502);
       }
     }
     // ── live terminal data (same source the agent uses) ──────────────────────
@@ -345,7 +389,8 @@ Bun.serve({
         const limit = Number(url.searchParams.get("limit")) || 12;
         return json({ projects: await listProjects(limit), updatedAt: new Date().toISOString() }, origin, 200);
       } catch (err) {
-        return json({ error: String(err).slice(0, 160) }, origin, 502);
+        console.error("api error:", err instanceof Error ? err.message : err);
+        return json({ error: "live data is briefly unavailable — try again shortly." }, origin, 502);
       }
     }
     if (url.pathname === "/repo" && req.method === "GET") {
@@ -356,7 +401,8 @@ Bun.serve({
           ? json({ repo, updatedAt: new Date().toISOString() }, origin, 200)
           : json({ error: `no such repo under Kyle's owners: ${name.slice(0, 60)}` }, origin, 404);
       } catch (err) {
-        return json({ error: String(err).slice(0, 160) }, origin, 502);
+        console.error("api error:", err instanceof Error ? err.message : err);
+        return json({ error: "live data is briefly unavailable — try again shortly." }, origin, 502);
       }
     }
     if (url.pathname === "/recent" && req.method === "GET") {
@@ -364,17 +410,22 @@ Bun.serve({
         const limit = Number(url.searchParams.get("limit")) || 6;
         return json({ recent: await recentActivity(limit), updatedAt: new Date().toISOString() }, origin, 200);
       } catch (err) {
-        return json({ error: String(err).slice(0, 160) }, origin, 502);
+        console.error("api error:", err instanceof Error ? err.message : err);
+        return json({ error: "live data is briefly unavailable — try again shortly." }, origin, 502);
       }
     }
     if (url.pathname === "/downloads" && req.method === "GET") {
       try {
         const pkg = url.searchParams.get("pkg") ?? "";
-        const series = pkg ? await npmRange(pkg) : [];
+        // Only real npm package names — keeps this from being an arbitrary
+        // outbound-request proxy.
+        const validPkg = /^(@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/i.test(pkg) && pkg.length <= 80;
+        const series = validPkg ? await npmRange(pkg) : [];
         const total = series.reduce((a, b) => a + (b.downloads ?? 0), 0);
         return json({ pkg, series, total, updatedAt: new Date().toISOString() }, origin, 200);
       } catch (err) {
-        return json({ error: String(err).slice(0, 160) }, origin, 502);
+        console.error("api error:", err instanceof Error ? err.message : err);
+        return json({ error: "live data is briefly unavailable — try again shortly." }, origin, 502);
       }
     }
     if (url.pathname === "/chat" && req.method === "POST") return handleChat(req, origin);
