@@ -33,16 +33,17 @@ function inline(text: string, keyBase: string): ReactNode[] {
       if (lm && SAFE_URL.test(lm[2])) {
         nodes.push(
           <a key={key} href={lm[2]} target="_blank" rel="noopener noreferrer" className="text-accent underline-offset-2 hover:underline">
-            {lm[1]}
+            {inline(lm[1], key)}
           </a>,
         );
       } else {
         nodes.push(lm ? lm[1] : tok);
       }
     } else if (tok.startsWith("**")) {
-      nodes.push(<strong key={key} className="font-semibold text-text-primary">{tok.slice(2, -2)}</strong>);
+      // recurse so links/code nested inside bold (e.g. **[name](url)**) still render
+      nodes.push(<strong key={key} className="font-semibold text-text-primary">{inline(tok.slice(2, -2), key)}</strong>);
     } else {
-      nodes.push(<em key={key}>{tok.slice(1, -1)}</em>);
+      nodes.push(<em key={key}>{inline(tok.slice(1, -1), key)}</em>);
     }
     last = m.index + tok.length;
   }
