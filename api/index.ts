@@ -168,7 +168,9 @@ async function llmCall(baseUrl: string, key: string, messages: any[], useTools: 
     body: JSON.stringify({
       model: AI_MODEL,
       max_tokens: 900,
-      temperature: 0.5,
+      // No explicit temperature: claude-sonnet-4-6 via the Gateway only allows
+      // temperature=1 unless extended thinking / adaptive mode is on, so we let
+      // the model default rather than pin a value the Gateway rejects (500).
       messages,
       ...(useTools ? { tools: TOOL_SCHEMAS, tool_choice: "auto" } : {}),
     }),
