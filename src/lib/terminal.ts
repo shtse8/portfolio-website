@@ -6,6 +6,7 @@
  * number shows up, it came back from a real fetch in the last few seconds — that
  * is the whole point ("nothing here is a claim").
  */
+import { formatDistanceToNowStrict } from "date-fns";
 import { API_BASE } from "./api";
 
 export interface TermRepo {
@@ -56,11 +57,9 @@ export const fetchDownloads = (pkg: string, signal?: AbortSignal) =>
   );
 
 // ── formatting helpers ──────────────────────────────────────────────────────
-export function compact(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 0 : 1)}K`;
-  return String(n);
-}
+const compactFmt = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+/** "27038" → "27K" via the built-in Intl compact notation (no hand-rolled math). */
+export const compact = (n: number): string => compactFmt.format(n);
 
 const SPARK = "▁▂▃▄▅▆▇█";
 /** Render a daily series as a unicode sparkline string. */
@@ -74,23 +73,9 @@ export function sparkline(values: number[]): string {
     .join("");
 }
 
-/** Honest, terse relative time — the terminal never rounds away latency. */
+/** Human relative time, e.g. "3 hours ago" — date-fns, not hand-rolled date math. */
 export function timeAgo(iso: string): string {
-  const then = new Date(iso).getTime();
-  if (!then) return "—";
-  const s = Math.max(0, Math.round((Date.now() - then) / 1000));
-  if (s < 60) return `${s}s ago`;
-  const m = Math.round(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.round(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.round(h / 24);
-  if (d < 7) return `${d}d ago`;
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "—" : formatDistanceToNowStrict(d, { addSuffix: true });
 }
 
-/** A bar bullet sized to a value relative to a max — for the `ls`/`stats` views. */
-export function bar(value: number, max: number, width = 8): string {
-  const filled = Math.max(value > 0 ? 1 : 0, Math.round((value / (max || 1)) * width));
-  return "▓".repeat(Math.min(width, filled)) + "░".repeat(Math.max(0, width - filled));
-}

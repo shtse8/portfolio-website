@@ -4,5 +4,10 @@
   "type": "module",
   "scripts": {
     "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.1",
+    "ai": "^7.0.4",
+    "zod": "^4.4.3"
   }
 }

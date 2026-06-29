@@ -16,15 +16,9 @@
  */
 
 import { SYSTEM_PROMPT } from "./persona";
-import {
-  TOOL_SCHEMAS,
-  TOOL_RUNNERS,
-  bindLiveStats,
-  listProjects,
-  getRepoDetail,
-  recentActivity,
-  npmRange,
-} from "./tools";
+import { listProjects, getRepoDetail, recentActivity, npmRange } from "./tools";
+import { streamText, convertToModelMessages, type UIMessage } from "ai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 
 const PORT = Number(process.env.PORT ?? 3001);
 
@@ -140,7 +134,6 @@ async function getStats(): Promise<StatsPayload> {
   statsCache = { at: now, data };
   return data;
 }
-bindLiveStats(getStats); // the get_live_stats agent tool reuses the cached computation
 
 // ── AI config — resolve from the auto-injected project connection URL ─────────
 // SYLPHX_URL is injected into every service as `sylphx://<key>@<host>[/v1]`. We
@@ -157,54 +150,41 @@ function resolveAi(): { baseUrl: string; key: string } {
   return { baseUrl, key: overrideKey || cred };
 }
 const AI_MODEL = process.env.AI_MODEL ?? "claude-sonnet-4-6";
-const MAX_USER_CHARS = 1500;
-const MAX_TURNS = 14;
-const MAX_TOOL_ROUNDS = 4;
-const MAX_TOOL_CALLS_PER_ROUND = 3; // ignore extra fan-out in a single round
-const MAX_TOOL_CALLS_TOTAL = 8; // hard ceiling on paid tool work per conversation
-const MAX_TOOL_RESULT_CHARS = 4000; // don't feed a huge tool result back into a paid call
-const LLM_TIMEOUT_MS = 45_000;
+const MAX_TURNS = 14; // cap conversation length fed to the model
+const CHAT_TIMEOUT_MS = 60_000; // hard deadline for a whole chat turn
+const LIVE_CONTEXT_TTL_MS = 60_000; // re-fetch the injected live block at most once a minute
 
-/** fetch with a hard deadline so a slow upstream can't hold a request/SSE slot. */
-async function fetchWithTimeout(url: string, init: RequestInit, ms: number): Promise<Response> {
-  const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), ms);
+/**
+ * The Sylphx Gateway is OpenAI-compatible for chat but does NOT support
+ * function/tool calling (it drops the `tools` param), so instead of giving the
+ * model tools we fetch this minute's truth server-side and inject it into the
+ * system prompt — the answer is genuinely grounded in live data. Cheap: stats
+ * are cached 10 min and the repo list 5 min underneath, plus this 60 s memo.
+ */
+let liveContextCache: { at: number; text: string } | null = null;
+async function buildLiveContext(): Promise<string> {
+  const now = Date.now();
+  if (liveContextCache && now - liveContextCache.at < LIVE_CONTEXT_TTL_MS) return liveContextCache.text;
   try {
-    return await fetch(url, { ...init, signal: ac.signal });
-  } finally {
-    clearTimeout(t);
+    const [stats, projects, recent] = await Promise.all([
+      getStats().catch(() => null),
+      listProjects(10).catch(() => []),
+      recentActivity(6).catch(() => []),
+    ]);
+    const lines = ["LIVE DATA — fetched moments ago; quote these exact current numbers, not older ones:"];
+    if (stats) {
+      lines.push(`- Total GitHub stars: ${stats.githubStars} (SylphxAI, shtse8, Cubeage, EpiowAI; non-fork).`);
+      lines.push(`- Total npm downloads/month: ${stats.npmDownloads}.`);
+      lines.push(`- Flagship pdf-reader-mcp: ${stats.flagshipStars} stars, ${stats.flagshipDownloads} npm downloads/month.`);
+    }
+    if (projects.length) lines.push(`- Top projects by live stars: ${projects.map((p) => `${p.name} (${p.stars}★)`).join(", ")}.`);
+    if (recent.length) lines.push(`- Recently shipped (most recent first): ${recent.map((r) => `${r.name} on ${r.pushed}`).join(", ")}.`);
+    const text = lines.length > 1 ? lines.join("\n") : "";
+    liveContextCache = { at: now, text };
+    return text;
+  } catch {
+    return "";
   }
-}
-
-async function llmCall(baseUrl: string, key: string, messages: any[], useTools: boolean): Promise<any> {
-  const res = await fetchWithTimeout(
-    `${baseUrl}/chat/completions`,
-    {
-      method: "POST",
-      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        max_tokens: 900,
-        // No explicit temperature: claude-sonnet-4-6 via the Gateway only allows
-        // temperature=1 unless extended thinking / adaptive mode is on, so we let
-        // the model default rather than pin a value the Gateway rejects (500).
-        messages,
-        ...(useTools ? { tools: TOOL_SCHEMAS, tool_choice: "auto" } : {}),
-      }),
-    },
-    LLM_TIMEOUT_MS,
-  );
-  // Keep upstream error bodies server-side only — never stream them to the client.
-  if (!res.ok) {
-    const body = (await res.text().catch(() => "")).slice(0, 300);
-    console.error(`llm upstream ${res.status}: ${body}`);
-    throw new Error(`ai_upstream_${res.status}`);
-  }
-  return res.json();
-}
-
-function sse(controller: ReadableStreamDefaultController, obj: unknown) {
-  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(obj)}\n\n`));
 }
 
 // ── cost / abuse guard ────────────────────────────────────────────────────────
@@ -286,87 +266,51 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
   if (!baseUrl || !key) {
     return json({ error: "chat is warming up — the AI gateway isn't wired yet." }, origin, 503);
   }
-  let payload: { messages?: Array<{ role: string; content: string }> };
-  try { payload = await req.json(); } catch { return json({ error: "invalid JSON" }, origin, 400); }
-  const history = (Array.isArray(payload.messages) ? payload.messages : [])
-    .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
-    .slice(-MAX_TURNS)
-    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_USER_CHARS) }));
-  if (!history.length || history[history.length - 1].role !== "user") {
+  let body: { messages?: UIMessage[] };
+  try { body = await req.json(); } catch { return json({ error: "invalid JSON" }, origin, 400); }
+  const messages = (Array.isArray(body.messages) ? body.messages : []).slice(-MAX_TURNS);
+  if (!messages.length || messages[messages.length - 1]?.role !== "user") {
     return json({ error: "send at least one user message" }, origin, 400);
   }
-  // cost/abuse guard — charged only for a VALID chat attempt (right before the
-  // first paid call), so malformed requests can't grief the quota.
+  // cheap DoS guard: reject an absurdly large payload before doing paid work.
+  if (JSON.stringify(messages).length > 60_000) {
+    return json({ error: "that message is too long — please trim it." }, origin, 413);
+  }
+  // cost/abuse guard — charged only for a VALID chat attempt, right before the
+  // first paid call, so malformed requests can't grief the quota.
   const now = Date.now();
   maybePrune(now);
   const verdict = checkRateLimit(clientIp(req), now);
   if (!verdict.ok) return json({ error: verdict.error }, origin, verdict.status);
 
-  const stream = new ReadableStream({
-    async start(controller) {
-      const messages: any[] = [{ role: "system", content: SYSTEM_PROMPT }, ...history];
-      let toolBudget = MAX_TOOL_CALLS_TOTAL;
-      try {
-        // Agent loop: let the model call tools until it's ready to answer.
-        for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
-          const offerTools = round < MAX_TOOL_ROUNDS && toolBudget > 0;
-          const data = await llmCall(baseUrl, key, messages, offerTools);
-          const msg = data.choices?.[0]?.message ?? {};
-          // Cap fan-out: honour at most N tool calls per round so a runaway loop
-          // can't trigger dozens of paid fetches + an inflated follow-up call.
-          const calls = (msg.tool_calls ?? []).slice(0, MAX_TOOL_CALLS_PER_ROUND);
-          if (calls.length && offerTools) {
-            messages.push({ role: "assistant", content: msg.content ?? "", tool_calls: calls });
-            for (const call of calls) {
-              const name = call.function?.name ?? "";
-              sse(controller, { type: "tool", name });
-              let result: string;
-              if (toolBudget <= 0) {
-                result = JSON.stringify({ error: "tool budget exhausted" });
-              } else {
-                toolBudget--;
-                let args: Record<string, unknown> = {};
-                try { args = JSON.parse(call.function?.arguments || "{}"); } catch { /* */ }
-                const runner = TOOL_RUNNERS[name];
-                result = runner
-                  ? await runner(args).catch(() => JSON.stringify({ error: "tool failed" }))
-                  : JSON.stringify({ error: "unknown tool" });
-              }
-              messages.push({ role: "tool", tool_call_id: call.id, content: result.slice(0, MAX_TOOL_RESULT_CHARS) });
-            }
-            continue; // ask the model again with the tool results
-          }
-          // Final answer — chunk it out for a live typing feel. If the model
-          // returns empty content (e.g. it stopped on the tool-budget cap), send
-          // a graceful fallback so the user never sees tool calls with no answer.
-          const raw: string = msg.content ?? "";
-          const text = raw.trim()
-            ? raw
-            : "I couldn't pull that together just now — try rephrasing, or reach Kyle directly at hi@kylet.se.";
-          for (const chunk of text.match(/[\s\S]{1,18}/g) ?? []) {
-            sse(controller, { type: "text", delta: chunk });
-            await new Promise((r) => setTimeout(r, 12));
-          }
-          break;
-        }
-        sse(controller, { type: "done" });
-      } catch (e) {
-        // Log the real cause server-side; the client only gets a safe message.
-        console.error("chat stream error:", e instanceof Error ? e.message : e);
-        sse(controller, { type: "error", message: "The agent hit a snag — please try again, or reach Kyle at hi@kylet.se." });
-      } finally {
-        controller.close();
-      }
-    },
+  let modelMessages;
+  try {
+    modelMessages = await convertToModelMessages(messages);
+  } catch {
+    return json({ error: "couldn't read that conversation — start a new one." }, origin, 400);
+  }
+
+  // The AI SDK handles streaming + message state (no hand-rolled SSE / chat
+  // state). The gateway is OpenAI-compatible but has no tool-calling, so we
+  // ground the answer by injecting live data into the system prompt instead.
+  // Temperature is omitted so the model uses its default (the Gateway rejects
+  // temperature != 1 for sonnet).
+  const liveContext = await buildLiveContext();
+  const system = liveContext ? `${SYSTEM_PROMPT}\n\n${liveContext}` : SYSTEM_PROMPT;
+  const gateway = createOpenAICompatible({ name: "sylphx", baseURL: baseUrl, apiKey: key });
+  const result = streamText({
+    model: gateway.chatModel(AI_MODEL),
+    system,
+    messages: modelMessages,
+    abortSignal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
   });
 
-  return new Response(stream, {
-    status: 200,
-    headers: {
-      "content-type": "text/event-stream; charset=utf-8",
-      "cache-control": "no-cache",
-      connection: "keep-alive",
-      ...corsHeaders(origin),
+  return result.toUIMessageStreamResponse({
+    headers: corsHeaders(origin),
+    onError: (error) => {
+      // Log the real cause server-side; the client only ever gets a safe line.
+      console.error("chat stream error:", error instanceof Error ? error.message : error);
+      return "The agent hit a snag — please try again, or reach Kyle at hi@kylet.se.";
     },
   });
 }
