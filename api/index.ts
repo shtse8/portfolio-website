@@ -336,8 +336,13 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
             }
             continue; // ask the model again with the tool results
           }
-          // Final answer — chunk it out for a live typing feel.
-          const text: string = msg.content ?? "";
+          // Final answer — chunk it out for a live typing feel. If the model
+          // returns empty content (e.g. it stopped on the tool-budget cap), send
+          // a graceful fallback so the user never sees tool calls with no answer.
+          const raw: string = msg.content ?? "";
+          const text = raw.trim()
+            ? raw
+            : "I couldn't pull that together just now — try rephrasing, or reach Kyle directly at hi@kylet.se.";
           for (const chunk of text.match(/[\s\S]{1,18}/g) ?? []) {
             sse(controller, { type: "text", delta: chunk });
             await new Promise((r) => setTimeout(r, 12));

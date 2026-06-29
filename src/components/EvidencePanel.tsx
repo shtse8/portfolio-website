@@ -70,8 +70,10 @@ export default function EvidencePanel() {
 
   function patchLast(fn: (m: Msg) => Msg) {
     setMessages((prev) => {
+      if (!prev.length) return prev;
       const copy = [...prev];
       copy[copy.length - 1] = fn(copy[copy.length - 1]);
+      messagesRef.current = copy; // keep the ref in lockstep for the synchronous drain
       return copy;
     });
   }
@@ -128,7 +130,11 @@ export default function EvidencePanel() {
       }
       if (!got) throw new Error("no response");
     } catch (e) {
-      setMessages((prev) => prev.slice(0, -1));
+      setMessages((prev) => {
+        const next = prev.slice(0, -1);
+        messagesRef.current = next; // drop the empty assistant from the ref too
+        return next;
+      });
       setError(e instanceof Error ? e.message : "something went wrong");
     } finally {
       // clear the ref BEFORE the state so the queued-seed drain below (and any
