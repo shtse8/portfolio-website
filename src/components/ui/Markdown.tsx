@@ -1,108 +1,54 @@
-import { Fragment, type ReactNode } from "react";
+import ReactMarkdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 /**
- * Markdown — a tiny, dependency-free, SAFE renderer for the AI agent's answers.
+ * Markdown — renders the AI agent's answers with the industry-standard
+ * `react-markdown` (+ GFM), styled to the site's tokens.
  *
- * The agent replies in light Markdown (bold, italic, inline code, links, and
- * ordered/unordered lists). We render only that safe subset into real React
- * nodes — never `dangerouslySetInnerHTML`, and links are restricted to
- * http/https/mailto so a model can't emit a `javascript:` URL.
+ * Safe by default: react-markdown does not render raw HTML (no rehype-raw) and
+ * sanitises URLs (its defaultUrlTransform strips `javascript:` etc.), so the
+ * model's output can't inject markup. We only restyle the safe element subset
+ * the agent uses; links open in a new tab.
  */
 
-const SAFE_URL = /^(https?:\/\/|mailto:)/i;
-
-function inline(text: string, keyBase: string): ReactNode[] {
-  const nodes: ReactNode[] = [];
-  // code | link | bold | italic — code first so ** inside `code` is literal.
-  const re = /(`[^`]+`)|(\[[^\]]+\]\([^)\s]+\))|(\*\*[^*]+\*\*)|(\*[^*\s][^*]*\*|_[^_\s][^_]*_)/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let k = 0;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) nodes.push(text.slice(last, m.index));
-    const tok = m[0];
-    const key = `${keyBase}-${k++}`;
-    if (tok.startsWith("`")) {
-      nodes.push(
-        <code key={key} className="rounded bg-surface-sunken px-1 py-0.5 font-mono text-[0.85em] text-text-primary">
-          {tok.slice(1, -1)}
-        </code>,
-      );
-    } else if (tok.startsWith("[")) {
-      const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok);
-      if (lm && SAFE_URL.test(lm[2])) {
-        nodes.push(
-          <a key={key} href={lm[2]} target="_blank" rel="noopener noreferrer" className="text-accent underline-offset-2 hover:underline">
-            {inline(lm[1], key)}
-          </a>,
-        );
-      } else {
-        nodes.push(lm ? lm[1] : tok);
-      }
-    } else if (tok.startsWith("**")) {
-      // recurse so links/code nested inside bold (e.g. **[name](url)**) still render
-      nodes.push(<strong key={key} className="font-semibold text-text-primary">{inline(tok.slice(2, -2), key)}</strong>);
-    } else {
-      nodes.push(<em key={key}>{inline(tok.slice(1, -1), key)}</em>);
-    }
-    last = m.index + tok.length;
-  }
-  if (last < text.length) nodes.push(text.slice(last));
-  return nodes;
-}
-
-function paragraph(text: string, key: string): ReactNode {
-  const lines = text.split("\n");
-  return (
-    <p key={key} className="leading-relaxed [&:not(:first-child)]:mt-2.5">
-      {lines.map((ln, i) => (
-        <Fragment key={i}>
-          {i > 0 && <br />}
-          {inline(ln, `${key}-${i}`)}
-        </Fragment>
-      ))}
-    </p>
-  );
-}
-
-const LIST_RE = /^\s*([-*]|\d+\.)\s+/;
+const components: Components = {
+  a: ({ node, ...props }) => (
+    <a {...props} target="_blank" rel="noopener noreferrer" className="text-accent underline-offset-2 hover:underline" />
+  ),
+  strong: ({ node, ...props }) => <strong {...props} className="font-semibold text-text-primary" />,
+  em: ({ node, ...props }) => <em {...props} />,
+  code: ({ node, ...props }) => (
+    <code {...props} className="rounded bg-surface-sunken px-1 py-0.5 font-mono text-[0.85em] text-text-primary" />
+  ),
+  pre: ({ node, ...props }) => (
+    <pre {...props} className="my-2.5 overflow-x-auto rounded-lg border border-border-subtle bg-surface-sunken p-3 font-mono text-[12px] leading-relaxed" />
+  ),
+  ul: ({ node, ...props }) => <ul {...props} className="my-2.5 ml-4 list-disc space-y-1" />,
+  ol: ({ node, ...props }) => <ol {...props} className="my-2.5 ml-4 list-decimal space-y-1" />,
+  li: ({ node, ...props }) => <li {...props} className="leading-relaxed" />,
+  p: ({ node, ...props }) => <p {...props} className="leading-relaxed [&:not(:first-child)]:mt-2.5" />,
+  h1: ({ node, ...props }) => <p {...props} className="font-semibold text-text-primary [&:not(:first-child)]:mt-3" />,
+  h2: ({ node, ...props }) => <p {...props} className="font-semibold text-text-primary [&:not(:first-child)]:mt-3" />,
+  h3: ({ node, ...props }) => <p {...props} className="font-semibold text-text-primary [&:not(:first-child)]:mt-3" />,
+  blockquote: ({ node, ...props }) => (
+    <blockquote {...props} className="my-2.5 border-l-2 border-border pl-3 text-text-tertiary" />
+  ),
+  hr: () => <hr className="my-3 border-border-subtle" />,
+  table: ({ node, ...props }) => (
+    <div className="my-2.5 overflow-x-auto">
+      <table {...props} className="w-full border-collapse text-left text-[13px]" />
+    </div>
+  ),
+  th: ({ node, ...props }) => <th {...props} className="border-b border-border px-2 py-1 font-semibold text-text-primary" />,
+  td: ({ node, ...props }) => <td {...props} className="border-b border-border-subtle px-2 py-1" />,
+};
 
 export default function Markdown({ text }: { text: string }) {
-  const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const blocks: ReactNode[] = [];
-  let i = 0;
-  let b = 0;
-
-  while (i < lines.length) {
-    if (/^\s*$/.test(lines[i])) { i++; continue; }
-
-    if (LIST_RE.test(lines[i])) {
-      const ordered = /^\s*\d+\.\s+/.test(lines[i]);
-      const items: string[] = [];
-      while (i < lines.length && LIST_RE.test(lines[i])) {
-        items.push(lines[i].replace(LIST_RE, ""));
-        i++;
-      }
-      const key = `b${b++}`;
-      const inner = items.map((it, j) => (
-        <li key={j} className="leading-relaxed">{inline(it, `${key}-${j}`)}</li>
-      ));
-      blocks.push(
-        ordered ? (
-          <ol key={key} className="ml-4 list-decimal space-y-1 [&:not(:first-child)]:mt-2.5">{inner}</ol>
-        ) : (
-          <ul key={key} className="ml-4 list-disc space-y-1 [&:not(:first-child)]:mt-2.5">{inner}</ul>
-        ),
-      );
-    } else {
-      const para: string[] = [];
-      while (i < lines.length && !/^\s*$/.test(lines[i]) && !LIST_RE.test(lines[i])) {
-        para.push(lines[i]);
-        i++;
-      }
-      blocks.push(paragraph(para.join("\n"), `b${b++}`));
-    }
-  }
-
-  return <div className="text-sm text-text-secondary">{blocks}</div>;
+  return (
+    <div className="text-sm leading-relaxed text-text-secondary">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+        {text}
+      </ReactMarkdown>
+    </div>
+  );
 }
