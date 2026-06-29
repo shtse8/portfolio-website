@@ -183,11 +183,86 @@ function sse(controller: ReadableStreamDefaultController, obj: unknown) {
   controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(obj)}\n\n`));
 }
 
+// ── cost / abuse guard ────────────────────────────────────────────────────────
+// The chat costs real money per message (it calls the AI Gateway). This is a
+// personal portfolio, so the goal is to BOUND runaway cost simply, not to build
+// a fraud system. In-memory + per-replica: with N replicas the effective ceiling
+// is ~N× these numbers, which is an acceptable bound for a portfolio; the global
+// daily cap is the real backstop against a determined spammer / bot.
+const IP_WINDOW_MS = 3 * 60_000; // sliding window
+const IP_MAX_IN_WINDOW = 12; // ≤ 12 questions / 3 min / IP
+const IP_MAX_PER_DAY = 60; // ≤ 60 questions / day / IP
+const GLOBAL_MAX_PER_DAY = 500; // hard daily backstop across everyone (per replica)
+
+const ipHits = new Map<string, number[]>();
+const ipDay = new Map<string, { day: number; n: number }>();
+let globalDay = { day: -1, n: 0 };
+let lastPrune = 0;
+const dayNumber = (now: number) => Math.floor(now / 86_400_000);
+
+function clientIp(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",")[0]!.trim();
+  return (
+    req.headers.get("x-real-ip") ||
+    req.headers.get("x-envoy-external-address") ||
+    req.headers.get("cf-connecting-ip") ||
+    "unknown"
+  );
+}
+
+type LimitVerdict = { ok: true } | { ok: false; status: number; error: string };
+
+function checkRateLimit(ip: string, now: number): LimitVerdict {
+  const day = dayNumber(now);
+  if (globalDay.day !== day) globalDay = { day, n: 0 };
+  if (globalDay.n >= GLOBAL_MAX_PER_DAY) {
+    return { ok: false, status: 503, error: "My AI has answered a lot today and is resting — please try again tomorrow, or reach me at hi@kylet.se." };
+  }
+  // Per-IP limits only when the gateway actually gives us a client IP. If it
+  // doesn't (ip === "unknown"), throttling per-IP would lump every visitor into
+  // one bucket and choke legit users — so we rely on the global cap alone there.
+  if (ip !== "unknown") {
+    const d = ipDay.get(ip);
+    const dayCount = d && d.day === day ? d.n : 0;
+    if (dayCount >= IP_MAX_PER_DAY) {
+      return { ok: false, status: 429, error: "You've reached today's question limit. Come back tomorrow — or just email Kyle at hi@kylet.se." };
+    }
+    const hits = (ipHits.get(ip) ?? []).filter((t) => now - t < IP_WINDOW_MS);
+    if (hits.length >= IP_MAX_IN_WINDOW) {
+      return { ok: false, status: 429, error: "Slow down a moment — that's a lot of questions very fast. Try again shortly." };
+    }
+    hits.push(now);
+    ipHits.set(ip, hits);
+    ipDay.set(ip, { day, n: dayCount + 1 });
+  }
+  globalDay.n += 1;
+  return { ok: true };
+}
+
+/** Keep the in-memory maps from growing unbounded. */
+function maybePrune(now: number): void {
+  if (now - lastPrune < 10 * 60_000) return;
+  lastPrune = now;
+  for (const [ip, hits] of ipHits) {
+    const live = hits.filter((t) => now - t < IP_WINDOW_MS);
+    if (live.length) ipHits.set(ip, live);
+    else ipHits.delete(ip);
+  }
+  const day = dayNumber(now);
+  for (const [ip, d] of ipDay) if (d.day !== day) ipDay.delete(ip);
+}
+
 async function handleChat(req: Request, origin: string | null): Promise<Response> {
   const { baseUrl, key } = resolveAi();
   if (!baseUrl || !key) {
     return json({ error: "chat is warming up — the AI gateway isn't wired yet." }, origin, 503);
   }
+  // cost/abuse guard — bound how much any one visitor (and everyone) can spend.
+  const now = Date.now();
+  maybePrune(now);
+  const verdict = checkRateLimit(clientIp(req), now);
+  if (!verdict.ok) return json({ error: verdict.error }, origin, verdict.status);
   let payload: { messages?: Array<{ role: string; content: string }> };
   try { payload = await req.json(); } catch { return json({ error: "invalid JSON" }, origin, 400); }
   const history = (Array.isArray(payload.messages) ? payload.messages : [])

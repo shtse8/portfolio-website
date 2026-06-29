@@ -7,6 +7,7 @@ import { API_BASE, HAS_API } from "@/lib/api";
 import { useWorkGraph } from "@/context/WorkGraphContext";
 import SectionHeader from "./ui/SectionHeader";
 import Reveal from "./ui/Reveal";
+import Markdown from "./ui/Markdown";
 
 interface Msg {
   role: "user" | "assistant";
@@ -159,17 +160,25 @@ export default function EvidencePanel() {
                   <div
                     className={
                       m.role === "user"
-                        ? "max-w-[85%] self-end rounded-2xl rounded-br-sm bg-accent px-4 py-2.5 text-sm text-white"
-                        : "max-w-[92%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-surface-sunken px-4 py-2.5 text-sm leading-relaxed text-text-secondary"
+                        ? "max-w-[85%] self-end whitespace-pre-wrap rounded-2xl rounded-br-sm bg-accent px-4 py-2.5 text-sm text-white"
+                        : "max-w-[92%] rounded-2xl rounded-bl-sm bg-surface-sunken px-4 py-2.5"
                     }
                   >
-                    {m.content || (m.role === "assistant" && (!m.tools || m.tools.length === 0) && (
-                      <span className="inline-flex gap-1">
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.3s]" />
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.15s]" />
-                        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-tertiary" />
-                      </span>
-                    ))}
+                    {m.role === "assistant" ? (
+                      m.content ? (
+                        <Markdown text={m.content} />
+                      ) : (
+                        (!m.tools || m.tools.length === 0) && (
+                          <span className="inline-flex gap-1">
+                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.3s]" />
+                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-tertiary [animation-delay:-0.15s]" />
+                            <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-text-tertiary" />
+                          </span>
+                        )
+                      )
+                    ) : (
+                      m.content
+                    )}
                   </div>
                 </div>
               ))}
