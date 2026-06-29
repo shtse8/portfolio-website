@@ -10,6 +10,9 @@
  *                 each tool call, so visitors watch it act like an agent.
  *
  * Runs on Sylphx as a second service of the portfolio project (dogfooding).
+ *
+ * Live surface: /stats /projects /repo /recent /downloads + the /chat agent —
+ * the Terminal and the agent read the same data source (see tools.ts).
  */
 
 import { SYSTEM_PROMPT } from "./persona";
