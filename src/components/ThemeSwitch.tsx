@@ -97,15 +97,15 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
   
   // Get the appropriate icon
   const getActiveIcon = () => {
-    if (theme === 'dark') return <FaMoon className="text-white" />;
-    if (theme === 'light') return <FaSun className="text-yellow-500" />;
-    return <FaDesktop className="text-blue-500" />;
+    if (theme === 'dark') return <FaMoon className="text-accent-contrast" />;
+    if (theme === 'light') return <FaSun className="text-positive" />;
+    return <FaDesktop className="text-accent" />;
   };
   
   // Prevent hydration mismatch by returning a placeholder during SSR
   if (!mounted) {
     return (
-      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full bg-surface-sunken flex items-center justify-center">
         <span className="sr-only">Theme toggle</span>
       </div>
     );
@@ -115,17 +115,17 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
   if (isMobile) {
     return (
       <div className="space-y-4">
-        <p className="text-gray-600 dark:text-gray-400 font-medium">Theme</p>
+        <p className="text-text-secondary font-medium">Theme</p>
         <div className="grid grid-cols-3 gap-2">
           <button
             onClick={() => toggleTheme('light')}
             className={`flex flex-col items-center justify-center p-3 rounded-lg ${
               theme === 'light' 
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
-                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-accent-subtle text-accent' 
+                : 'border border-border bg-surface hover:bg-surface-sunken'
             }`}
           >
-            <FaSun className="text-xl mb-1 text-yellow-500" />
+            <FaSun className="text-xl mb-1 text-positive" />
             <span className="text-sm">Light</span>
           </button>
           
@@ -133,11 +133,11 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
             onClick={() => toggleTheme('dark')}
             className={`flex flex-col items-center justify-center p-3 rounded-lg ${
               theme === 'dark' 
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
-                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-accent-subtle text-accent' 
+                : 'border border-border bg-surface hover:bg-surface-sunken'
             }`}
           >
-            <FaMoon className="text-xl mb-1 text-gray-600 dark:text-gray-400" />
+            <FaMoon className="text-xl mb-1 text-text-secondary" />
             <span className="text-sm">Dark</span>
           </button>
           
@@ -145,11 +145,11 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
             onClick={() => toggleTheme('system')}
             className={`flex flex-col items-center justify-center p-3 rounded-lg ${
               theme === 'system' 
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' 
-                : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                ? 'bg-accent-subtle text-accent' 
+                : 'border border-border bg-surface hover:bg-surface-sunken'
             }`}
           >
-            <FaDesktop className="text-xl mb-1 text-blue-500" />
+            <FaDesktop className="text-xl mb-1 text-accent" />
             <span className="text-sm">System</span>
           </button>
         </div>
@@ -163,40 +163,40 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Theme options"
-        className="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors duration-300"
+        className="p-2 rounded-full border border-border bg-surface text-text-secondary hover:border-text-tertiary hover:bg-surface-sunken transition-colors"
       >
         {getActiveIcon()}
       </button>
       
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-50 min-w-[120px] animate-fadeIn">
+        <div className="absolute top-full right-0 mt-2 p-2 bg-surface rounded-xl border border-border shadow-md z-50 min-w-[120px] animate-fade-in">
           <button
             onClick={() => toggleTheme('light')}
             className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
-              theme === 'light' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+              theme === 'light' ? 'bg-accent-subtle text-accent' : 'hover:bg-surface-sunken'
             }`}
           >
-            <FaSun className="mr-2 text-yellow-500" />
+            <FaSun className="mr-2 text-positive" />
             Light
           </button>
           
           <button
             onClick={() => toggleTheme('dark')}
             className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
-              theme === 'dark' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+              theme === 'dark' ? 'bg-accent-subtle text-accent' : 'hover:bg-surface-sunken'
             }`}
           >
-            <FaMoon className="mr-2 text-gray-600 dark:text-gray-400" />
+            <FaMoon className="mr-2 text-text-secondary" />
             Dark
           </button>
           
           <button
             onClick={() => toggleTheme('system')}
             className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
-              theme === 'system' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+              theme === 'system' ? 'bg-accent-subtle text-accent' : 'hover:bg-surface-sunken'
             }`}
           >
-            <FaDesktop className="mr-2 text-blue-500" />
+            <FaDesktop className="mr-2 text-accent" />
             System
           </button>
         </div>
