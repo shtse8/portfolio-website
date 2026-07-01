@@ -269,9 +269,11 @@ export default function FloatingAgent() {
                   className="flex items-end gap-2"
                 >
                   <input
+                    ref={(el) => { if (open && el) setTimeout(() => el.focus(), 100); }}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     disabled={!HAS_API || busy}
+                    aria-label="Ask the AI agent"
                     placeholder={HAS_API ? "Ask about Kyle's work…" : "Agent coming online…"}
                     className="flex-1 rounded-2xl border border-border bg-surface px-4 py-2.5 text-sm text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-accent disabled:opacity-60"
                   />
