@@ -1,7 +1,8 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { FaArrowRight, FaGithub } from "react-icons/fa";
+import { FaArrowRight, FaGithub, FaBolt } from "react-icons/fa6";
+import { useCountUp } from "@/hooks/useCountUp";
 import { PERSONAL_INFO } from "@/data/personal";
 import { STATS } from "@/lib/stats";
 import { useWorkGraph, type HighlightKind } from "@/context/WorkGraphContext";
@@ -93,6 +94,15 @@ export default function Hero() {
             <a href={PERSONAL_INFO.social.github} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-lg">
               <FaGithub className="h-[18px] w-[18px]" /> GitHub
             </a>
+            <button
+              onClick={() => {
+                const ev = new CustomEvent("open-agent");
+                window.dispatchEvent(ev);
+              }}
+              className="btn-ghost btn-lg"
+            >
+              <FaBolt className="h-3.5 w-3.5 text-accent" /> Ask my AI
+            </button>
             <button onClick={() => navigate("contact")} className="btn-ghost btn-lg">
               Get in touch
             </button>
@@ -115,9 +125,9 @@ export default function Hero() {
 
             {/* three interactive number nodes */}
             <div className="grid grid-cols-2 gap-px bg-border-subtle">
-              <ProofNode label="GitHub stars" value={stars} suffix="★" kind="stars" hint="across all repos" onHover={setHighlight} onClick={jump} />
-              <ProofNode label="npm downloads" value={downloads} suffix="/mo" kind="downloads" hint="across packages" onHover={setHighlight} onClick={jump} />
-              <ProofNode label="pdf-reader-mcp" value={flagStars} suffix="★" kind="flagship" hint={`${flagDl}/mo · the flagship`} onHover={setHighlight} onClick={jump} wide />
+              <ProofNode label="GitHub stars" value={stars} suffix="★" kind="stars" hint="across all repos" onHover={setHighlight} onClick={jump} numeric={stats?.githubStars} />
+              <ProofNode label="npm downloads" value={downloads} suffix="/mo" kind="downloads" hint="across packages" onHover={setHighlight} onClick={jump} numeric={stats?.npmDownloads} />
+              <ProofNode label="pdf-reader-mcp" value={flagStars} suffix="★" kind="flagship" hint={`${flagDl}/mo · the flagship`} onHover={setHighlight} onClick={jump} wide numeric={stats?.flagshipStars} />
             </div>
 
             {/* active-now pulse */}
@@ -148,7 +158,7 @@ export default function Hero() {
 }
 
 function ProofNode({
-  label, value, suffix, kind, hint, onHover, onClick, wide,
+  label, value, suffix, kind, hint, onHover, onClick, wide, numeric,
 }: {
   label: string;
   value: string;
@@ -158,7 +168,10 @@ function ProofNode({
   onHover: (h: HighlightKind) => void;
   onClick: (h: HighlightKind) => void;
   wide?: boolean;
+  numeric?: number; // if provided, count-up animates to this
 }) {
+  const animated = useCountUp(numeric ?? 0, 1500, true);
+  const display = numeric ? animated.toLocaleString() : value;
   return (
     <button
       onMouseEnter={() => onHover(kind)}
@@ -166,10 +179,10 @@ function ProofNode({
       onFocus={() => onHover(kind)}
       onBlur={() => onHover(null)}
       onClick={() => onClick(kind)}
-      className={`group bg-surface px-4 py-4 text-left transition-colors hover:bg-accent-subtle/40 ${wide ? "col-span-2" : ""}`}
+      className={`group bg-surface px-4 py-4 text-left transition-all hover:bg-accent-subtle/40 hover:shadow-sm ${wide ? "col-span-2" : ""}`}
     >
-      <div className="flex items-baseline gap-1 font-mono text-2xl font-semibold tracking-tight text-text-primary tabular-nums sm:text-3xl">
-        {value}
+      <div className="flex items-baseline gap-1 font-mono text-2xl font-semibold tracking-tight text-text-primary tabular-nums transition-colors group-hover:text-accent sm:text-3xl">
+        {display}
         <span className="text-base text-text-tertiary group-hover:text-accent">{suffix}</span>
       </div>
       <div className="mt-1 text-xs text-text-tertiary">{label}</div>

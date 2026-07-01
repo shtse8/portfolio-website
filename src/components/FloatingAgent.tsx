@@ -51,6 +51,14 @@ export default function FloatingAgent() {
   });
   const busy = status === "submitted" || status === "streaming";
 
+  // Listen for "open-agent" custom events (e.g. from Hero CTA)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = () => setOpen(true);
+    window.addEventListener("open-agent", handler);
+    return () => window.removeEventListener("open-agent", handler);
+  }, []);
+
   // One-time hint bubble after 3s on first visit
   useEffect(() => {
     if (typeof window === "undefined") return;
