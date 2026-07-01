@@ -17,6 +17,7 @@ const sectionFallback = (
 );
 
 const WorkGraph = dynamic(() => import("@/components/WorkGraph"), { loading: () => sectionFallback });
+const StoryArc = dynamic(() => import("@/components/StoryArc"), { loading: () => sectionFallback });
 const FloatingAgent = dynamic(() => import("@/components/FloatingAgent"), { ssr: false });
 const Experience = dynamic(() => import("@/components/Experience"), { loading: () => sectionFallback });
 const Contact = dynamic(() => import("@/components/Contact"), { loading: () => sectionFallback });
@@ -61,6 +62,10 @@ export default function Home({ initialSection }: HomeProps) {
           <Hero />
         </ErrorBoundary>
       </section>
+
+      <Section id="story" className="border-t border-border-subtle">
+        <StoryArc />
+      </Section>
 
       <Section id="work" className="border-t border-border-subtle">
         <WorkGraph />
