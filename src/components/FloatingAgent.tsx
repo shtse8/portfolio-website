@@ -49,6 +49,19 @@ export default function FloatingAgent() {
   });
   const busy = status === "submitted" || status === "streaming";
 
+  // Cmd+K / Ctrl+K to open agent (power-user shortcut)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   // Mobile: lock body scroll when bottom sheet is open
   useEffect(() => {
     if (typeof window === "undefined") return;
