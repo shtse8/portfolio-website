@@ -20,7 +20,6 @@ const WorkGraph = dynamic(() => import("@/components/WorkGraph"), { loading: () 
 const StoryArc = dynamic(() => import("@/components/StoryArc"), { loading: () => sectionFallback });
 const FloatingAgent = dynamic(() => import("@/components/FloatingAgent"), { ssr: false });
 const ScrollProgress = dynamic(() => import("@/components/ScrollProgress"), { ssr: false });
-const Experience = dynamic(() => import("@/components/Experience"), { loading: () => sectionFallback });
 const Contact = dynamic(() => import("@/components/Contact"), { loading: () => sectionFallback });
 
 interface HomeProps {
@@ -73,9 +72,6 @@ export default function Home({ initialSection }: HomeProps) {
         <WorkGraph />
       </Section>
 
-      <Section id="experience" className="border-t border-border-subtle">
-        <Experience />
-      </Section>
 
       <Section id="contact" className="border-t border-border-subtle bg-surface-sunken/40">
         <Contact />
