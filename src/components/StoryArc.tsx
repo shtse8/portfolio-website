@@ -8,8 +8,8 @@ import { formatNumber, formatPeriod } from "@/data";
 import {
   calculateTotalExperience,
   getRolesSortedByDate,
-  type Role,
 } from "@/data/roles";
+import type { Role } from "@/data/types";
 import { getOrganization } from "@/data/organizations";
 import { useCountUp } from "@/hooks/useCountUp";
 import Reveal from "./ui/Reveal";
