@@ -58,7 +58,7 @@ export default function Experience() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="04"
+        index="03"
         eyebrow="Experience"
         title="Twenty years of shipping at scale"
         description="Five companies across four eras — from a Hong Kong gaming forum to social and mobile platforms with 10M+ users, now open-source AI tooling."

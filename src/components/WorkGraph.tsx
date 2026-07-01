@@ -38,10 +38,10 @@ export default function WorkGraph() {
   return (
     <div className="container-content">
       <SectionHeader
-        index="01"
+        index="02"
         eyebrow="The work · live"
         title="Everything here is real, and connected"
-        description="Open-source projects, their live stars and downloads, and what shipped lately — one dataset. Hover a number in the proof board; filter by what I build; open a project to trace it to source."
+        description="Open-source projects with live GitHub stars and npm downloads — hover a number above to trace what it's made of, filter by capability, or open a project to see its download trend and ask the AI about it."
       />
 
       {/* capability filter — narrows the same graph */}
@@ -108,7 +108,7 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
       layout
       animate={{ opacity: dimmed ? 0.4 : 1 }}
       transition={{ duration: 0.25 }}
-      className={`card flex flex-col p-4 transition-shadow ${open ? "sm:col-span-2 lg:col-span-3" : ""} ${
+      className={`card group flex flex-col p-4 transition-all hover:-translate-y-0.5 hover:border-text-tertiary/30 hover:shadow-md ${open ? "sm:col-span-2 lg:col-span-3" : ""} ${
         lit ? "ring-1 ring-accent shadow-lg shadow-accent/5" : ""
       }`}
     >
@@ -122,13 +122,13 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
           <div className="flex items-center gap-2">
             <span className="truncate font-mono text-sm font-semibold text-text-primary">{repo.name}</span>
             {/pdf-reader-mcp/i.test(repo.name) && (
-              <span className="rounded bg-accent-subtle px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent">flagship</span>
+              <span className="rounded bg-accent-subtle px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent ring-1 ring-accent/20">flagship</span>
             )}
           </div>
           <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-text-secondary">{repo.description}</p>
         </div>
         <div className="shrink-0 text-right">
-          <div className="font-mono text-sm font-semibold tabular-nums text-text-primary">{compact(repo.stars)}★</div>
+          <div className="font-mono text-sm font-semibold tabular-nums text-text-primary transition-colors group-hover:text-accent">{compact(repo.stars)}★</div>
           {repo.language && <div className="mt-0.5 text-[10.5px] text-text-tertiary">{repo.language}</div>}
         </div>
       </button>
