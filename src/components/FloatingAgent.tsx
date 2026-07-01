@@ -162,12 +162,14 @@ export default function FloatingAgent() {
               setOpen(true);
               setShowHint(false);
             }}
-            className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-contrast shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-7 sm:right-7"
+            className="group fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-contrast shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-7 sm:right-7"
             aria-label="Ask my AI"
           >
             {/* pulse ring */}
             <span className="absolute inset-0 rounded-full bg-accent/40 animate-ping-soft" />
             <FaWandMagicSparkles className="relative h-6 w-6" />
+            {/* ⌘K hint (desktop, hidden on mobile) */}
+            <kbd className="absolute -left-12 top-1/2 hidden -translate-y-1/2 rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary opacity-0 shadow-sm transition-opacity group-hover:opacity-100 sm:block">⌘K</kbd>
           </motion.button>
         )}
       </AnimatePresence>
