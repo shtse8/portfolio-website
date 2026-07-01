@@ -52,9 +52,24 @@ export default function Hero() {
 
   return (
     <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pt-24 pb-16 sm:px-8">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-grid mask-fade-b opacity-50" />
-        <div className="absolute left-[15%] top-[-10%] h-[55vh] w-[55vh] -translate-x-1/2 rounded-full bg-accent/12 blur-[130px]" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-grid mask-fade-b opacity-30" />
+        <motion.div
+          className="absolute left-[10%] top-[-15%] h-[60vh] w-[60vh] rounded-full bg-accent/10 blur-[120px]"
+          animate={reduce ? undefined : {
+            x: [0, 30, 0],
+            y: [0, -20, 0],
+          }}
+          transition={{ duration: 20, repeat: 99999, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute right-[5%] top-[20%] h-[45vh] w-[45vh] rounded-full bg-accent/8 blur-[100px]"
+          animate={reduce ? undefined : {
+            x: [0, -25, 0],
+            y: [0, 15, 0],
+          }}
+          transition={{ duration: 25, repeat: 99999, ease: "easeInOut", delay: 2 }}
+        />
       </div>
 
       <div className="container-content grid w-full items-center gap-x-12 gap-y-12 lg:grid-cols-[1.05fr_0.95fr]">
