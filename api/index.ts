@@ -16,9 +16,10 @@
  */
 
 import { SYSTEM_PROMPT } from "./persona";
-import { listProjects, getRepoDetail, recentActivity, npmRange } from "./tools";
-import { streamText, convertToModelMessages, type UIMessage } from "ai";
+import { listProjects, getRepoDetail, recentActivity, searchProjects, npmRange } from "./tools";
+import { streamText, convertToModelMessages, isStepCount, tool, type UIMessage } from "ai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { z } from "zod";
 
 const PORT = Number(process.env.PORT ?? 3001);
 
@@ -152,40 +153,37 @@ function resolveAi(): { baseUrl: string; key: string } {
 const AI_MODEL = process.env.AI_MODEL ?? "claude-sonnet-4-6";
 const MAX_TURNS = 14; // cap conversation length fed to the model
 const CHAT_TIMEOUT_MS = 60_000; // hard deadline for a whole chat turn
-const LIVE_CONTEXT_TTL_MS = 60_000; // re-fetch the injected live block at most once a minute
-
-/**
- * The Sylphx Gateway is OpenAI-compatible for chat but does NOT support
- * function/tool calling (it drops the `tools` param), so instead of giving the
- * model tools we fetch this minute's truth server-side and inject it into the
- * system prompt — the answer is genuinely grounded in live data. Cheap: stats
- * are cached 10 min and the repo list 5 min underneath, plus this 60 s memo.
- */
-let liveContextCache: { at: number; text: string } | null = null;
-async function buildLiveContext(): Promise<string> {
-  const now = Date.now();
-  if (liveContextCache && now - liveContextCache.at < LIVE_CONTEXT_TTL_MS) return liveContextCache.text;
-  try {
-    const [stats, projects, recent] = await Promise.all([
-      getStats().catch(() => null),
-      listProjects(10).catch(() => []),
-      recentActivity(6).catch(() => []),
-    ]);
-    const lines = ["LIVE DATA — fetched moments ago; quote these exact current numbers, not older ones:"];
-    if (stats) {
-      lines.push(`- Total GitHub stars: ${stats.githubStars} (SylphxAI, shtse8, Cubeage, EpiowAI; non-fork).`);
-      lines.push(`- Total npm downloads/month: ${stats.npmDownloads}.`);
-      lines.push(`- Flagship pdf-reader-mcp: ${stats.flagshipStars} stars, ${stats.flagshipDownloads} npm downloads/month.`);
-    }
-    if (projects.length) lines.push(`- Top projects by live stars: ${projects.map((p) => `${p.name} (${p.stars}★)`).join(", ")}.`);
-    if (recent.length) lines.push(`- Recently shipped (most recent first): ${recent.map((r) => `${r.name} on ${r.pushed}`).join(", ")}.`);
-    const text = lines.length > 1 ? lines.join("\n") : "";
-    liveContextCache = { at: now, text };
-    return text;
-  } catch {
-    return "";
-  }
-}
+// ── agent tools (ADR-2942 dogfood) ────────────────────────────────────────────
+// Real tool-calling through the Sylphx AI Gateway. Each tool hits live data
+// so the agent's answers are grounded in this minute's truth — no more
+// live-context injection workaround (the gateway now supports tools natively).
+const AGENT_TOOLS = {
+  list_projects: tool({
+    description: "List Kyle's top projects by live GitHub stars. Use when the user asks about his work, repos, or what he's built.",
+    inputSchema: z.object({ limit: z.number().optional().describe("max results (default 12)") }),
+    execute: async ({ limit }) => listProjects(limit ?? 12),
+  }),
+  get_repo: tool({
+    description: "Get live details (stars, forks, description, language, topics) for a specific repository. Pass the repo name like 'pdf-reader-mcp' or 'owner/name'.",
+    inputSchema: z.object({ name: z.string().describe("repo name or owner/name") }),
+    execute: async ({ name }) => getRepoDetail(name),
+  }),
+  recent_activity: tool({
+    description: "Show Kyle's most recently shipped repos (by last push date). Use when the user asks what's new or recently updated.",
+    inputSchema: z.object({ limit: z.number().optional().describe("max results (default 6)") }),
+    execute: async ({ limit }) => recentActivity(limit ?? 6),
+  }),
+  search_projects: tool({
+    description: "Search Kyle's repos by keyword. Use when the user asks about a specific topic, technology, or keyword.",
+    inputSchema: z.object({ query: z.string().describe("search keyword") }),
+    execute: async ({ query }) => searchProjects(query),
+  }),
+  npm_downloads: tool({
+    description: "Get the last month of npm download counts for a package (e.g. '@sylphx/pdf-reader-mcp'). Use when the user asks about package popularity or install counts.",
+    inputSchema: z.object({ pkg: z.string().describe("npm package name") }),
+    execute: async ({ pkg }) => npmRange(pkg),
+  }),
+};
 
 // ── cost / abuse guard ────────────────────────────────────────────────────────
 // The chat costs real money per message (it calls the AI Gateway). This is a
@@ -290,18 +288,17 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
     return json({ error: "couldn't read that conversation — start a new one." }, origin, 400);
   }
 
-  // The AI SDK handles streaming + message state (no hand-rolled SSE / chat
-  // state). The gateway is OpenAI-compatible but has no tool-calling, so we
-  // ground the answer by injecting live data into the system prompt instead.
-  // Temperature is omitted so the model uses its default (the Gateway rejects
-  // temperature != 1 for sonnet).
-  const liveContext = await buildLiveContext();
-  const system = liveContext ? `${SYSTEM_PROMPT}\n\n${liveContext}` : SYSTEM_PROMPT;
+  // The AI SDK handles streaming + message state. The gateway now supports
+  // real tool-calling (ADR-2942), so the agent calls live tools directly —
+  // no more system-prompt context injection. Temperature is omitted so the
+  // model uses its default (the Gateway rejects temperature != 1 for sonnet).
   const gateway = createOpenAICompatible({ name: "sylphx", baseURL: baseUrl, apiKey: key });
   const result = streamText({
     model: gateway.chatModel(AI_MODEL),
-    system,
+    system: SYSTEM_PROMPT,
     messages: modelMessages,
+    tools: AGENT_TOOLS,
+    stopWhen: isStepCount(3),
     abortSignal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
   });
 
