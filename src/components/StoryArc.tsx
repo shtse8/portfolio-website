@@ -195,6 +195,17 @@ function EraChapterView({
             {scaleNumber && (
               <AnimatedScale value={scaleNumber.value} display={scaleNumber.display} label={scaleNumber.label} />
             )}
+            {!scaleNumber && isCurrent && (
+              <div className="mb-4">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-positive-subtle px-3 py-1 font-mono text-xs font-medium text-positive">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-positive" />
+                  </span>
+                  Just started
+                </div>
+              </div>
+            )}
 
             <h3 className="mt-4 text-h2 text-text-primary">{headline}</h3>
 
