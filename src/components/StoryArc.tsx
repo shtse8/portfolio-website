@@ -113,7 +113,7 @@ export default function StoryArc() {
             <span key={ch.role.id} className="flex items-center gap-3">
               {i > 0 && <span className="text-border">→</span>}
               <span className="text-text-secondary">{ch.startYear}</span>
-              <span className="hidden sm:inline">{ch.era}</span>
+              <span className="text-text-tertiary">{ch.era.split(" · ")[0]}</span>
             </span>
           ))}
         </div>
