@@ -47,7 +47,6 @@ export default function FloatingAgent() {
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: `${API_BASE}/chat` }),
-    maxSteps: 5,
   });
   const busy = status === "submitted" || status === "streaming";
 
