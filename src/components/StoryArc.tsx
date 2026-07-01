@@ -9,6 +9,7 @@ import {
 } from "@/data/roles";
 import type { Role } from "@/data/types";
 import { getOrganization } from "@/data/organizations";
+import { PROJECTS } from "@/data/projects";
 import { useCountUp } from "@/hooks/useCountUp";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
@@ -29,6 +30,16 @@ interface EraChapter {
   headline: string;
   scaleNumber?: { value: number; label: string; display: string };
   gradient: string; // tailwind gradient classes
+  projects?: string[]; // representative project names from static data
+}
+
+/** Representative project names for an org from the static data (top 4). */
+function eraProjects(orgId: string): string[] {
+  return PROJECTS
+    .filter((p) => p.organizationId === orgId)
+    .sort((a, b) => (b.details?.length ?? 0) - (a.details?.length ?? 0))
+    .slice(0, 4)
+    .map((p) => p.title);
 }
 
 const ERA_META: Record<string, { era: string; headline: string; gradient: string }> = {
@@ -93,6 +104,7 @@ export default function StoryArc() {
         headline: meta.headline,
         scaleNumber: getScaleNumber(role),
         gradient: meta.gradient,
+        projects: eraProjects(role.organizationId),
       };
     })
     .filter(Boolean) as EraChapter[];
@@ -246,6 +258,17 @@ function EraChapterView({
                       {m.label || m.unit || m.type}
                     </span>
                   </div>
+                ))}
+              </div>
+            )}
+
+            {/* Representative projects from this era */}
+            {chapter.projects && chapter.projects.length > 0 && (
+              <div className="mt-5 flex flex-wrap gap-1.5">
+                {chapter.projects.map((proj) => (
+                  <span key={proj} className="rounded-lg bg-surface-sunken px-2.5 py-1 text-xs font-medium text-text-secondary">
+                    {proj}
+                  </span>
                 ))}
               </div>
             )}
