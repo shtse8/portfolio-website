@@ -97,8 +97,8 @@ function AudienceCard({ audience, delay }: { audience: Audience; delay: number }
   const Icon = audience.icon;
   return (
     <Reveal delay={delay} className="h-full">
-      <article className="card card-hover flex h-full flex-col p-5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-subtle text-accent">
+      <article className="card card-hover group flex h-full flex-col p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent-subtle text-accent transition-transform group-hover:scale-110">
           <Icon className="h-4 w-4" />
         </span>
         <h4 className="mt-3.5 text-[0.95rem] font-semibold text-text-primary">{audience.title}</h4>
