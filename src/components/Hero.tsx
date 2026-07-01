@@ -60,7 +60,7 @@ export default function Hero() {
             x: [0, 30, 0],
             y: [0, -20, 0],
           }}
-          transition={{ duration: 20, repeat: 99999, ease: "easeInOut" }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
           className="absolute right-[5%] top-[20%] h-[45vh] w-[45vh] rounded-full bg-accent/8 blur-[100px]"
@@ -68,7 +68,7 @@ export default function Hero() {
             x: [0, -25, 0],
             y: [0, 15, 0],
           }}
-          transition={{ duration: 25, repeat: 99999, ease: "easeInOut", delay: 2 }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         />
       </div>
 
