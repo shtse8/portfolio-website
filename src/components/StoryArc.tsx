@@ -2,9 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { FaArrowUpRightFromSquare } from "react-icons/fa6";
-import type { Metric } from "@/data";
-import { formatNumber, formatPeriod } from "@/data";
+import { formatNumber } from "@/data";
 import {
   calculateTotalExperience,
   getRolesSortedByDate,

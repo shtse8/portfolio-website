@@ -7,7 +7,6 @@ import { DefaultChatTransport, type UIMessage } from "ai";
 import {
   FaArrowUp,
   FaBolt,
-  FaGithub,
   FaMagnifyingGlass,
   FaRegStar,
   FaTerminal,
