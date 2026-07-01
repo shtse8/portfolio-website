@@ -150,7 +150,7 @@ function resolveAi(): { baseUrl: string; key: string } {
   const baseUrl = (overrideBase || (host ? `https://${host}/v1` : "")).replace(/\/$/, "");
   return { baseUrl, key: overrideKey || cred };
 }
-const AI_MODEL = process.env.AI_MODEL ?? "claude-sonnet-4-6";
+const AI_MODEL = process.env.AI_MODEL ?? "sylphx/lumen";
 const MAX_TURNS = 14; // cap conversation length fed to the model
 const CHAT_TIMEOUT_MS = 60_000; // hard deadline for a whole chat turn
 // ── agent tools (ADR-2942 dogfood) ────────────────────────────────────────────
