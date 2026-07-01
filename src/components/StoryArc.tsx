@@ -100,7 +100,7 @@ export default function StoryArc() {
     .filter(Boolean) as EraChapter[];
 
   return (
-    <div className="container-wide">
+    <div className="container-content">
       <SectionHeader
         index="01"
         eyebrow="The journey"
@@ -159,14 +159,14 @@ function EraChapterView({
   const isCurrent = !role.period.end;
 
   return (
-    <section className="relative min-h-[60vh] py-12 sm:min-h-[70vh] sm:py-20">
+    <section className="relative min-h-[45vh] py-10 sm:min-h-[65vh] sm:py-20">
       {/* Gradient backdrop */}
       <div
         aria-hidden
         className={`pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b ${gradient}`}
       />
 
-      <div className="container-content">
+      <div>
         <div className="grid items-center gap-8 lg:grid-cols-[0.4fr_0.6fr]">
           {/* ── Left: Massive year + era ── */}
           <motion.div
