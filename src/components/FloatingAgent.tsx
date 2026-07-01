@@ -50,6 +50,16 @@ export default function FloatingAgent() {
   });
   const busy = status === "submitted" || status === "streaming";
 
+  // Mobile: lock body scroll when bottom sheet is open
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!open) return;
+    const isMobile = window.matchMedia("(max-width: 639px)").matches;
+    if (!isMobile) return;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   // Listen for "open-agent" custom events (e.g. from Hero CTA)
   // + Escape-to-close when panel is open
   useEffect(() => {
