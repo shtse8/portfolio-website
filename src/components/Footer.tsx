@@ -15,9 +15,27 @@ const SOCIALS = [
 export default function Footer() {
   const year = 2026;
   return (
-    <footer className="border-t border-border bg-surface-sunken">
+    <footer className="relative border-t border-border bg-surface-sunken">
+      {/* gradient accent at top of footer */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
       <div className="container-content py-14">
-        <div className="flex flex-col justify-between gap-10 md:flex-row">
+        {/* Closing CTA */}
+        <div className="mb-14 text-center">
+          <h2 className="text-h2 text-text-primary">Let&apos;s build something.</h2>
+          <p className="mx-auto mt-3 max-w-md text-text-secondary">
+            Whether it&apos;s MCP integrations, AI infrastructure, or scaling a platform to millions — I&apos;m open to it.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <a href={`mailto:${PERSONAL_INFO.email}`} className="btn-primary btn-lg">
+              {PERSONAL_INFO.email}
+            </a>
+            <a href={PERSONAL_INFO.social.github} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-lg">
+              <FaGithub className="h-[18px] w-[18px]" /> GitHub
+            </a>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between gap-10 border-t border-border pt-10 md:flex-row">
           {/* Identity */}
           <div className="max-w-sm">
             <DeepLink to="hero" className="flex items-center gap-2.5">
@@ -52,7 +70,8 @@ export default function Footer() {
 
         <div className="mt-12 flex flex-col-reverse items-start justify-between gap-6 border-t border-border pt-6 sm:flex-row sm:items-center">
           <p className="font-mono text-xs text-text-tertiary">
-            © {year} {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}. Built with Next.js.
+            © {year} {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}. Built with Next.js · Powered by{" "}
+            <a href="https://sylphx.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Sylphx</a>.
           </p>
           <div className="flex items-center gap-2">
             {SOCIALS.map(({ href, label, Icon }) => (
