@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Playwright MCP debug screenshots
 .playwright-mcp/
+api/node_modules/

@@ -17,7 +17,7 @@ const sectionFallback = (
 );
 
 const WorkGraph = dynamic(() => import("@/components/WorkGraph"), { loading: () => sectionFallback });
-const EvidencePanel = dynamic(() => import("@/components/EvidencePanel"), { loading: () => sectionFallback });
+const FloatingAgent = dynamic(() => import("@/components/FloatingAgent"), { ssr: false });
 const Experience = dynamic(() => import("@/components/Experience"), { loading: () => sectionFallback });
 const Contact = dynamic(() => import("@/components/Contact"), { loading: () => sectionFallback });
 
@@ -66,10 +66,6 @@ export default function Home({ initialSection }: HomeProps) {
         <WorkGraph />
       </Section>
 
-      <Section id="ask" className="border-t border-border-subtle bg-surface-sunken/40">
-        <EvidencePanel />
-      </Section>
-
       <Section id="experience" className="border-t border-border-subtle">
         <Experience />
       </Section>
@@ -78,6 +74,7 @@ export default function Home({ initialSection }: HomeProps) {
         <Contact />
       </Section>
 
+      <FloatingAgent />
       <Footer />
     </WorkGraphProvider>
   );
