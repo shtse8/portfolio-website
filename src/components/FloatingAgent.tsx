@@ -51,12 +51,20 @@ export default function FloatingAgent() {
   const busy = status === "submitted" || status === "streaming";
 
   // Listen for "open-agent" custom events (e.g. from Hero CTA)
+  // + Escape-to-close when panel is open
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const handler = () => setOpen(true);
-    window.addEventListener("open-agent", handler);
-    return () => window.removeEventListener("open-agent", handler);
-  }, []);
+    const openHandler = () => setOpen(true);
+    const escapeHandler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && open) setOpen(false);
+    };
+    window.addEventListener("open-agent", openHandler);
+    if (open) window.addEventListener("keydown", escapeHandler);
+    return () => {
+      window.removeEventListener("open-agent", openHandler);
+      window.removeEventListener("keydown", escapeHandler);
+    };
+  }, [open]);
 
   // One-time hint bubble after 3s on first visit
   useEffect(() => {
@@ -184,7 +192,6 @@ export default function FloatingAgent() {
               animate={{ y: 0, opacity: 1 }}
               exit={reduce ? { opacity: 0 } : { y: 30, opacity: 0 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}
               className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col rounded-t-3xl border border-border bg-surface shadow-2xl sm:inset-x-auto sm:bottom-7 sm:right-7 sm:max-h-[600px] sm:w-[400px] sm:rounded-3xl"
             >
               {/* Header */}
