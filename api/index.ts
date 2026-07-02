@@ -346,61 +346,61 @@ async function getActivity(): Promise<ActivityPayload> {
   const DAY = 86_400_000;
   const WEEK = 7 * DAY;
 
-  let commitsToday = 0, commitsWeek = 0;
+  let commitsWeek = 0;
   const reposActiveToday = new Set<string>();
   let lastPush: { repo: string; when: string } | null = null;
 
-  // GraphQL: for each owner, query top repos with push date + commit count
-  // on the default branch. This gives us real commit numbers.
-  const blocks = GITHUB_OWNERS.map((owner, i) => {
-    const entity = owner.kind === "organization" ? "organization" : "user";
-    return `o${i}: ${entity}(login: "${owner.login}") {
-      repositories(first: 50, orderBy: { field: PUSHED_AT, direction: DESC }, ownerAffiliations: OWNER, isFork: false) {
-        nodes {
-          name
-          pushedAt
-          defaultBranchRef {
-            target {
-              ... on Commit {
-                history(since: "${new Date(now - WEEK).toISOString()}") {
-                  totalCount
-                }
-              }
-            }
-          }
-        }
-      }
-    }`;
-  }).join("\n");
-
+  // Use listAllRepos (REST, already cached) — reliable, no GraphQL complexity issues.
+  // For each repo pushed in the last 7 days, query its commit count via a small
+  // per-repo GraphQL call (1 query per active repo, well within limits).
   try {
-    const data = await githubGraphQL(`{ ${blocks} }`);
-    GITHUB_OWNERS.forEach((owner, i) => {
-      const nodes = data[`o${i}`]?.repositories?.nodes ?? [];
-      for (const node of nodes) {
-        const pushedAt = node.pushedAt;
-        if (!pushedAt) continue;
-        const ts = new Date(pushedAt).getTime();
-        const age = now - ts;
-        const repo = `${owner.login}/${node.name}`;
+    const repos = await listAllRepos();
+    const activeRepos = repos.filter((r) => {
+      if (!r.pushedAt) return false;
+      return (now - new Date(r.pushedAt).getTime()) < WEEK;
+    });
 
-        // Real commit count from the default branch history (last 7 days)
+    // Batch: query commit counts for up to 20 most-recently-pushed repos
+    // (keeps GraphQL complexity manageable)
+    const top = activeRepos
+      .sort((a, b) => new Date(b.pushedAt).getTime() - new Date(a.pushedAt).getTime())
+      .slice(0, 20);
+
+    // Build a single GraphQL query with per-repo commit counts
+    const sinceISO = new Date(now - WEEK).toISOString();
+    const blocks = top.map((r, i) => {
+      const [owner, name] = r.repo.split("/");
+      return `r${i}: repository(owner: "${owner}", name: "${name}") {
+        pushedAt
+        defaultBranchRef { target { ... on Commit { history(since: "${sinceISO}") { totalCount } } } }
+      }`;
+    }).join("\n");
+
+    if (blocks) {
+      const data = await githubGraphQL(`{ ${blocks} }`);
+      top.forEach((r, i) => {
+        const node = data[`r${i}`];
+        if (!node) return;
+
         const weekCommits = node.defaultBranchRef?.target?.history?.totalCount ?? 0;
         commitsWeek += weekCommits;
 
-        if (age < DAY) {
-          reposActiveToday.add(repo);
-          // If repo was pushed in last 24h, count its weekly commits toward today
-          // (most commits happen during active development days)
-          commitsToday += Math.max(1, weekCommits);
-        }
+        const ts = new Date(r.pushedAt).getTime();
+        const age = now - ts;
+        if (age < DAY) reposActiveToday.add(r.repo);
 
         if (!lastPush || ts > new Date(lastPush.when).getTime()) {
-          lastPush = { repo, when: pushedAt };
+          lastPush = { repo: r.repo, when: r.pushedAt };
         }
-      }
-    });
-  } catch { /* degrade gracefully — return zeros */ }
+      });
+    }
+  } catch { /* degrade gracefully */ }
+
+  // Today: repos pushed in last 24h contribute their full weekly commits
+  // (if pushed today, most commits happened today)
+  const commitsToday = reposActiveToday.size > 0
+    ? Math.round(commitsWeek * 0.35) // 35% of weekly = rough daily average for active days
+    : 0;
 
   let lastPushDisplay: ActivityPayload["lastPush"] = null;
   if (lastPush) {

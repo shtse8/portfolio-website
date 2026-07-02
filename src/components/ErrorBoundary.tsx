@@ -2,7 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { FaExclamationTriangle } from 'react-icons/fa';
+import { FaTriangleExclamation } from 'react-icons/fa6';
 
 interface Props {
   children: ReactNode;
@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
           >
             <div className="flex justify-center mb-4">
               <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-full">
-                <FaExclamationTriangle className="w-8 h-8 text-red-500 dark:text-red-400" />
+                <FaTriangleExclamation className="w-8 h-8 text-red-500 dark:text-red-400" />
               </div>
             </div>
 

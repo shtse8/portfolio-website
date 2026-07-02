@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FaGithub, FaLinkedin, FaStackOverflow } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaStackOverflow } from "react-icons/fa6";
 import { PERSONAL_INFO } from "@/data/personal";
 import { NAV_SECTIONS } from "@/config/sections";
 import DeepLink from "./DeepLink";
