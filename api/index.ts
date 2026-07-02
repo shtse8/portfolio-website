@@ -355,7 +355,7 @@ async function getActivity(): Promise<ActivityPayload> {
   const blocks = GITHUB_OWNERS.map((owner, i) => {
     const entity = owner.kind === "organization" ? "organization" : "user";
     return `o${i}: ${entity}(login: "${owner.login}") {
-      repositories(first: 15, orderBy: { field: PUSHED_AT, direction: DESC }, ownerAffiliations: OWNER, isFork: false) {
+      repositories(first: 50, orderBy: { field: PUSHED_AT, direction: DESC }, ownerAffiliations: OWNER, isFork: false) {
         nodes {
           name
           pushedAt
@@ -390,9 +390,9 @@ async function getActivity(): Promise<ActivityPayload> {
 
         if (age < DAY) {
           reposActiveToday.add(repo);
-          // Estimate today's share: repos pushed today get ~40% of their weekly commits
-          // (most commits happen on the day of a push)
-          commitsToday += Math.max(1, Math.round(weekCommits * 0.4));
+          // If repo was pushed in last 24h, count its weekly commits toward today
+          // (most commits happen during active development days)
+          commitsToday += Math.max(1, weekCommits);
         }
 
         if (!lastPush || ts > new Date(lastPush.when).getTime()) {
