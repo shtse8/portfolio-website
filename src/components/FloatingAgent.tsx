@@ -18,12 +18,59 @@ import { API_BASE, HAS_API } from "@/lib/api";
 import { useWorkGraph } from "@/context/WorkGraphContext";
 import Markdown from "./ui/Markdown";
 
-const SUGGESTIONS = [
+const INITIAL_SUGGESTIONS = [
   "Is Kyle senior enough for an AI-infra role?",
   "What has real, in-production usage?",
   "What is he building right now?",
   "Summarize pdf-reader-mcp's traction.",
+  "I'd like to get in touch with Kyle",
 ];
+
+/**
+ * Generate follow-up suggestions based on the conversation context.
+ * After each AI response, show 3 chips so the user never has to think
+ * about what to ask next.
+ */
+function generateFollowUps(messages: UIMessage[]): string[] {
+  const lastAssistantText = [...messages]
+    .reverse()
+    .find((m) => m.role === "assistant")
+    ?.parts?.filter((p) => p.type === "text")
+    .map((p) => p.text ?? "")
+    .join(" ") ?? "";
+
+  const lower = lastAssistantText.toLowerCase();
+  const ups: string[] = [];
+
+  // Context-aware suggestions
+  if (/pdf-reader|mcp|model context/.test(lower)) {
+    ups.push("How many npm downloads does it get?");
+    ups.push("What's the tech stack?");
+    ups.push("Show me another MCP project");
+  } else if (/sylphx|gateway|paas|platform/.test(lower)) {
+    ups.push("Is Sylphx open source?");
+    ups.push("What does Sylphx do exactly?");
+    ups.push("How does this website use Sylphx?");
+  } else if (/game|cubeage|minimax|mobile/.test(lower)) {
+    ups.push("How many users did the games reach?");
+    ups.push("What tech was used for the games?");
+    ups.push("What is Kyle building now?");
+  } else if (/skill|tech|stack|typescript|react/.test(lower)) {
+    ups.push("How many years of TypeScript experience?");
+    ups.push("Show me his best libraries");
+    ups.push("What AI tools has he built?");
+  } else if (/contact|touch|email|hire|reach/.test(lower)) {
+    ups.push("What's the best way to reach Kyle?");
+    ups.push("Is Kyle available for work?");
+    ups.push("What are Kyle's rates?");
+  } else {
+    ups.push("What is Kyle's flagship project?");
+    ups.push("What is he building right now?");
+    ups.push("I'd like to get in touch with Kyle");
+  }
+
+  return ups.slice(0, 3);
+}
 
 /**
  * FloatingAgent — a persistent AI agent launcher + overlay panel.
@@ -257,7 +304,7 @@ export default function FloatingAgent() {
                       Every answer is grounded — ask me anything about his work.
                     </div>
                     <div className="space-y-2">
-                      {SUGGESTIONS.map((s) => (
+                      {INITIAL_SUGGESTIONS.map((s) => (
                         <button
                           key={s}
                           onClick={() => onSubmit(s)}
@@ -281,6 +328,20 @@ export default function FloatingAgent() {
                         <div className="rounded-2xl rounded-bl-sm bg-surface-sunken px-4 py-2.5">
                           <TypingDots />
                         </div>
+                      </div>
+                    )}
+                    {/* Follow-up suggestion chips after AI responds */}
+                    {!busy && started && messages[messages.length - 1]?.role === "assistant" && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {generateFollowUps(messages).map((q) => (
+                          <button
+                            key={q}
+                            onClick={() => onSubmit(q)}
+                            className="rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] text-text-secondary transition-all hover:border-accent hover:text-text-primary"
+                          >
+                            {q}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
