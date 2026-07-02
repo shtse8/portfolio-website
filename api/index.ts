@@ -344,60 +344,62 @@ async function getActivity(): Promise<ActivityPayload> {
 
   const now = Date.now();
   const DAY = 86_400_000;
+  const WEEK = 7 * DAY;
 
   let commitsToday = 0, commitsWeek = 0;
   const reposActiveToday = new Set<string>();
   let lastPush: { repo: string; when: string } | null = null;
 
-  // Use listAllRepos (REST, cached) to find recently pushed repos,
-  // then fetch each repo's participation stats (REST) for real commit counts.
-  // participation = 52 weeks of commit counts (all committers, all branches).
+  // Use GitHub GraphQL contributionsCollection — this is the SAME data source
+  // as the green contribution graph on your GitHub profile. It counts ALL
+  // commits across ALL repos (owned + contributed to), accurately.
+  // Query per owner; sum up the contribution counts.
+  const todayStart = new Date(now - DAY).toISOString();
+  const weekStart = new Date(now - WEEK).toISOString();
+
   try {
-    const repos = await listAllRepos();
-    const recent = repos
-      .filter((r) => r.pushedAt && (now - new Date(r.pushedAt).getTime()) < 14 * DAY)
-      .sort((a, b) => new Date(b.pushedAt).getTime() - new Date(a.pushedAt).getTime())
-      .slice(0, 30); // top 30 recently active repos
+    const blocks = GITHUB_OWNERS.map((owner, i) => {
+      const entity = owner.kind === "organization" ? "organization" : "user";
+      return `o${i}: ${entity}(login: "${owner.login}") {
+        contributionsCollection(from: "${weekStart}", to: "${new Date(now).toISOString()}") {
+          totalCommitContributions
+          totalRepositoriesWithContributedCommits
+          commitContributionsByRepository(maxRepositories: 20) {
+            repository { nameWithOwner pushedAt }
+            contributions { totalCount }
+          }
+        }
+      }`;
+    }).join("\n");
 
-    // Fetch participation stats for each (parallel, cached 60s by GitHub CDN)
-    const stats = await Promise.allSettled(
-      recent.map(async (r) => {
-        const token = process.env.GITHUB_TOKEN;
-        const res = await fetchT(`https://api.github.com/repos/${r.repo}/stats/participation`, {
-          headers: {
-            "user-agent": "kylet-api",
-            accept: "application/vnd.github+json",
-            ...(token ? { authorization: `bearer ${token}` } : {}),
-          },
-        }, 5_000);
-        if (!res.ok) return null;
-        const data = await res.json() as { all: number[] };
-        return { repo: r.repo, pushedAt: r.pushedAt, all: data.all };
-      })
-    );
+    const data = await githubGraphQL(`{ ${blocks} }`);
 
-    for (const result of stats) {
-      if (result.status !== "fulfilled" || !result.value) continue;
-      const { repo, pushedAt, all } = result.value;
-      if (!all || all.length < 2) continue;
+    GITHUB_OWNERS.forEach((owner, i) => {
+      const cc = data[`o${i}`]?.contributionsCollection;
+      if (!cc) return;
 
-      // all[51] = current week (index 0 = 51 weeks ago, index 51 = this week)
-      const thisWeek = all[all.length - 1] ?? 0;
-      const lastWeek = all[all.length - 2] ?? 0;
+      commitsWeek += cc.totalCommitContributions ?? 0;
 
-      commitsWeek += thisWeek;
+      // Per-repo contributions
+      const byRepo = cc.commitContributionsByRepository ?? [];
+      for (const entry of byRepo) {
+        const repo = entry.repository?.nameWithOwner ?? "";
+        const count = entry.contributions?.totalCount ?? 0;
+        const pushedAt = entry.repository?.pushedAt;
 
-      const ts = new Date(pushedAt).getTime();
-      if (now - ts < DAY) {
-        reposActiveToday.add(repo);
-        // If pushed today, estimate today's commits as ~40% of this week
-        commitsToday += Math.max(1, Math.round(thisWeek * 0.4));
+        if (pushedAt) {
+          const ts = new Date(pushedAt).getTime();
+          if (now - ts < DAY) {
+            reposActiveToday.add(repo);
+            // If pushed today, most of its weekly commits are today
+            commitsToday += count;
+          }
+          if (!lastPush || ts > new Date(lastPush.when).getTime()) {
+            lastPush = { repo, when: pushedAt };
+          }
+        }
       }
-
-      if (!lastPush || ts > new Date(lastPush.when).getTime()) {
-        lastPush = { repo, when: pushedAt };
-      }
-    }
+    });
   } catch { /* degrade gracefully */ }
 
   let lastPushDisplay: ActivityPayload["lastPush"] = null;
