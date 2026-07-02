@@ -71,7 +71,7 @@ function toSummary(r: any): RepoSummary {
 let reposCache: { at: number; data: RepoSummary[] } | null = null;
 const REPOS_TTL_MS = 5 * 60 * 1000;
 
-async function listAllRepos(): Promise<RepoSummary[]> {
+export async function listAllRepos(): Promise<RepoSummary[]> {
   if (reposCache && Date.now() - reposCache.at < REPOS_TTL_MS) return reposCache.data;
   const out: RepoSummary[] = [];
   for (const owner of GH_OWNERS) {
