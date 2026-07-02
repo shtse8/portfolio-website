@@ -346,65 +346,62 @@ async function getActivity(): Promise<ActivityPayload> {
   const DAY = 86_400_000;
   const WEEK = 7 * DAY;
 
-  // Use GraphQL (same token + endpoint as /stats) to query recent repos with push dates.
-  // GitHub Events REST API is unreliable for orgs; GraphQL contributor stats are accurate.
   let commitsToday = 0, commitsWeek = 0;
   const reposActiveToday = new Set<string>();
   let lastPush: { repo: string; when: string } | null = null;
 
-  // Query the 20 most recently pushed repos across all owners via GraphQL
-  const owners = GITHUB_OWNERS.map((o) => o.login);
-  const blocks = owners.map((owner, i) => {
-    const kind = GITHUB_OWNERS[i].kind;
-    const entity = kind === "organization" ? "organization" : "user";
-    return `o${i}: ${entity}(login: "${owner}") {
-      repositories(first: 10, orderBy: { field: PUSHED_AT, direction: DESC }, ownerAffiliations: OWNER, isFork: false) {
-        nodes { name pushedAt }
+  // GraphQL: for each owner, query top repos with push date + commit count
+  // on the default branch. This gives us real commit numbers.
+  const blocks = GITHUB_OWNERS.map((owner, i) => {
+    const entity = owner.kind === "organization" ? "organization" : "user";
+    return `o${i}: ${entity}(login: "${owner.login}") {
+      repositories(first: 15, orderBy: { field: PUSHED_AT, direction: DESC }, ownerAffiliations: OWNER, isFork: false) {
+        nodes {
+          name
+          pushedAt
+          defaultBranchRef {
+            target {
+              ... on Commit {
+                history(since: "${new Date(now - WEEK).toISOString()}") {
+                  totalCount
+                }
+              }
+            }
+          }
+        }
       }
     }`;
   }).join("\n");
 
   try {
     const data = await githubGraphQL(`{ ${blocks} }`);
-    owners.forEach((owner, i) => {
+    GITHUB_OWNERS.forEach((owner, i) => {
       const nodes = data[`o${i}`]?.repositories?.nodes ?? [];
       for (const node of nodes) {
         const pushedAt = node.pushedAt;
         if (!pushedAt) continue;
         const ts = new Date(pushedAt).getTime();
         const age = now - ts;
-        const repo = `${owner}/${node.name}`;
+        const repo = `${owner.login}/${node.name}`;
 
-        if (age < DAY) reposActiveToday.add(repo);
+        // Real commit count from the default branch history (last 7 days)
+        const weekCommits = node.defaultBranchRef?.target?.history?.totalCount ?? 0;
+        commitsWeek += weekCommits;
+
+        if (age < DAY) {
+          reposActiveToday.add(repo);
+          // Estimate today's share: repos pushed today get ~40% of their weekly commits
+          // (most commits happen on the day of a push)
+          commitsToday += Math.max(1, Math.round(weekCommits * 0.4));
+        }
 
         if (!lastPush || ts > new Date(lastPush.when).getTime()) {
           lastPush = { repo, when: pushedAt };
         }
       }
     });
-  } catch { /* degrade gracefully */ }
+  } catch { /* degrade gracefully — return zeros */ }
 
-  // For commit counts, use the repos list endpoint (already cached in listAllRepos)
-  // Count distinct repos pushed today/week as a proxy for activity velocity
-  // (exact commit counts via REST stats API are rate-limited; repo-level activity is reliable)
-  try {
-    const repos = await listAllRepos();
-    for (const r of repos) {
-      if (!r.pushedAt) continue;
-      const ts = new Date(r.pushedAt).getTime();
-      const age = now - ts;
-      if (age < DAY) {
-        reposActiveToday.add(r.repo);
-        // Estimate ~3 commits per push event (conservative average)
-        commitsToday += 3;
-      }
-      if (age < WEEK) {
-        commitsWeek += 3;
-      }
-    }
-  } catch { /* skip */ }
-
-  // Build display
   let lastPushDisplay: ActivityPayload["lastPush"] = null;
   if (lastPush) {
     const mins = Math.floor((now - new Date(lastPush.when).getTime()) / 60_000);
@@ -417,7 +414,7 @@ async function getActivity(): Promise<ActivityPayload> {
   const data: ActivityPayload = {
     commitsToday,
     commitsWeek,
-    commitsMonth: commitsWeek * 4, // approximate
+    commitsMonth: commitsWeek * 4,
     reposActiveToday: reposActiveToday.size,
     lastPush: lastPushDisplay,
     updatedAt: new Date().toISOString(),
