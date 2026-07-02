@@ -344,63 +344,61 @@ async function getActivity(): Promise<ActivityPayload> {
 
   const now = Date.now();
   const DAY = 86_400_000;
-  const WEEK = 7 * DAY;
 
-  let commitsWeek = 0;
+  let commitsToday = 0, commitsWeek = 0;
   const reposActiveToday = new Set<string>();
   let lastPush: { repo: string; when: string } | null = null;
 
-  // Use listAllRepos (REST, already cached) — reliable, no GraphQL complexity issues.
-  // For each repo pushed in the last 7 days, query its commit count via a small
-  // per-repo GraphQL call (1 query per active repo, well within limits).
+  // Use listAllRepos (REST, cached) to find recently pushed repos,
+  // then fetch each repo's participation stats (REST) for real commit counts.
+  // participation = 52 weeks of commit counts (all committers, all branches).
   try {
     const repos = await listAllRepos();
-    const activeRepos = repos.filter((r) => {
-      if (!r.pushedAt) return false;
-      return (now - new Date(r.pushedAt).getTime()) < WEEK;
-    });
-
-    // Batch: query commit counts for up to 20 most-recently-pushed repos
-    // (keeps GraphQL complexity manageable)
-    const top = activeRepos
+    const recent = repos
+      .filter((r) => r.pushedAt && (now - new Date(r.pushedAt).getTime()) < 14 * DAY)
       .sort((a, b) => new Date(b.pushedAt).getTime() - new Date(a.pushedAt).getTime())
-      .slice(0, 20);
+      .slice(0, 30); // top 30 recently active repos
 
-    // Build a single GraphQL query with per-repo commit counts
-    const sinceISO = new Date(now - WEEK).toISOString();
-    const blocks = top.map((r, i) => {
-      const [owner, name] = r.repo.split("/");
-      return `r${i}: repository(owner: "${owner}", name: "${name}") {
-        pushedAt
-        defaultBranchRef { target { ... on Commit { history(since: "${sinceISO}") { totalCount } } } }
-      }`;
-    }).join("\n");
+    // Fetch participation stats for each (parallel, cached 60s by GitHub CDN)
+    const stats = await Promise.allSettled(
+      recent.map(async (r) => {
+        const token = process.env.GITHUB_TOKEN;
+        const res = await fetchT(`https://api.github.com/repos/${r.repo}/stats/participation`, {
+          headers: {
+            "user-agent": "kylet-api",
+            accept: "application/vnd.github+json",
+            ...(token ? { authorization: `bearer ${token}` } : {}),
+          },
+        }, 5_000);
+        if (!res.ok) return null;
+        const data = await res.json() as { all: number[] };
+        return { repo: r.repo, pushedAt: r.pushedAt, all: data.all };
+      })
+    );
 
-    if (blocks) {
-      const data = await githubGraphQL(`{ ${blocks} }`);
-      top.forEach((r, i) => {
-        const node = data[`r${i}`];
-        if (!node) return;
+    for (const result of stats) {
+      if (result.status !== "fulfilled" || !result.value) continue;
+      const { repo, pushedAt, all } = result.value;
+      if (!all || all.length < 2) continue;
 
-        const weekCommits = node.defaultBranchRef?.target?.history?.totalCount ?? 0;
-        commitsWeek += weekCommits;
+      // all[51] = current week (index 0 = 51 weeks ago, index 51 = this week)
+      const thisWeek = all[all.length - 1] ?? 0;
+      const lastWeek = all[all.length - 2] ?? 0;
 
-        const ts = new Date(r.pushedAt).getTime();
-        const age = now - ts;
-        if (age < DAY) reposActiveToday.add(r.repo);
+      commitsWeek += thisWeek;
 
-        if (!lastPush || ts > new Date(lastPush.when).getTime()) {
-          lastPush = { repo: r.repo, when: r.pushedAt };
-        }
-      });
+      const ts = new Date(pushedAt).getTime();
+      if (now - ts < DAY) {
+        reposActiveToday.add(repo);
+        // If pushed today, estimate today's commits as ~40% of this week
+        commitsToday += Math.max(1, Math.round(thisWeek * 0.4));
+      }
+
+      if (!lastPush || ts > new Date(lastPush.when).getTime()) {
+        lastPush = { repo, when: pushedAt };
+      }
     }
   } catch { /* degrade gracefully */ }
-
-  // Today: repos pushed in last 24h contribute their full weekly commits
-  // (if pushed today, most commits happened today)
-  const commitsToday = reposActiveToday.size > 0
-    ? Math.round(commitsWeek * 0.35) // 35% of weekly = rough daily average for active days
-    : 0;
 
   let lastPushDisplay: ActivityPayload["lastPush"] = null;
   if (lastPush) {
