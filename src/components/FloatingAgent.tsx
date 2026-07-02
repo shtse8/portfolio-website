@@ -76,7 +76,14 @@ export default function FloatingAgent() {
   // + Escape-to-close when panel is open
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const openHandler = () => setOpen(true);
+    const openHandler = (e: Event) => {
+      setOpen(true);
+      const detail = (e as CustomEvent).detail;
+      if (detail?.seed) {
+        // seed a conversation starter from the CTA
+        setTimeout(() => setInput(detail.seed), 200);
+      }
+    };
     const escapeHandler = (e: KeyboardEvent) => {
       if (e.key === "Escape" && open) setOpen(false);
     };

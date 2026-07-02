@@ -313,6 +313,96 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
 }
 
 // ── server ────────────────────────────────────────────────────────────────────
+
+// ── live commit activity (GitHub Events API) ─────────────────────────────────
+// Counts push events across all owners to derive commit velocity.
+// Cached 90s — frequent enough to feel live, cheap enough to not rate-limit.
+interface ActivityPayload {
+  commitsToday: number;
+  commitsWeek: number;
+  commitsMonth: number;
+  reposActiveToday: number;
+  lastPush: { repo: string; ago: string } | null;
+  updatedAt: string;
+}
+let activityCache: { at: number; data: ActivityPayload } | null = null;
+const ACTIVITY_TTL_MS = 90 * 1000;
+
+function ghApi(path: string): Promise<Response> {
+  const token = process.env.GITHUB_TOKEN;
+  return fetchT(`https://api.github.com${path}`, {
+    headers: {
+      "user-agent": "kylet-api",
+      accept: "application/vnd.github+json",
+      ...(token ? { authorization: `bearer ${token}` } : {}),
+    },
+  });
+}
+
+async function getActivity(): Promise<ActivityPayload> {
+  if (activityCache && Date.now() - activityCache.at < ACTIVITY_TTL_MS) return activityCache.data;
+
+  const now = Date.now();
+  const DAY = 86_400_000;
+  const WEEK = 7 * DAY;
+  const MONTH = 30 * DAY;
+
+  let commitsToday = 0, commitsWeek = 0, commitsMonth = 0;
+  const reposTodaySet = new Set<string>();
+  let lastPush: { repo: string; ago: string } | null = null;
+
+  // Fetch events from all owners (GitHub returns up to 300 recent events per user/org)
+  for (const owner of GITHUB_OWNERS.map(o => o.login)) {
+    try {
+      const res = await ghApi(`/users/${owner}/events?per_page=100`);
+      if (!res.ok) continue;
+      const events = await res.json() as any[];
+      for (const ev of events) {
+        if (ev.type !== "PushEvent") continue;
+        const ts = new Date(ev.created_at).getTime();
+        const age = now - ts;
+        const commits = ev.payload?.size ?? 0;
+        const repo = ev.repo?.name ?? "";
+
+        if (age < DAY) { commitsToday += commits; reposTodaySet.add(repo); }
+        if (age < WEEK) commitsWeek += commits;
+        if (age < MONTH) commitsMonth += commits;
+
+        if (!lastPush || ts > new Date(lastPush.ago).getTime() || (lastPush.ago === "" )) {
+          // track most recent push
+        }
+        // Find most recent push overall
+        if (!lastPush) {
+          lastPush = { repo, ago: ev.created_at };
+        } else {
+          const lastTs = new Date(lastPush.ago).getTime();
+          if (ts > lastTs) lastPush = { repo, ago: ev.created_at };
+        }
+      }
+    } catch { /* skip owner on error */ }
+  }
+
+  // Convert ISO to relative
+  let lastPushDisplay: ActivityPayload["lastPush"] = null;
+  if (lastPush) {
+    const mins = Math.floor((now - new Date(lastPush.ago).getTime()) / 60_000);
+    const hrs = Math.floor(mins / 60);
+    const days = Math.floor(hrs / 24);
+    const ago = days > 0 ? `${days}d ago` : hrs > 0 ? `${hrs}h ago` : mins > 0 ? `${mins}m ago` : "just now";
+    const repoShort = lastPush.repo.split("/")[1] ?? lastPush.repo;
+    lastPushDisplay = { repo: repoShort, ago };
+  }
+
+  const data: ActivityPayload = {
+    commitsToday, commitsWeek, commitsMonth,
+    reposActiveToday: reposTodaySet.size,
+    lastPush: lastPushDisplay,
+    updatedAt: new Date().toISOString(),
+  };
+  activityCache = { at: now, data };
+  return data;
+}
+
 Bun.serve({
   port: PORT,
   idleTimeout: 120,
@@ -372,6 +462,13 @@ Bun.serve({
       } catch (err) {
         console.error("api error:", err instanceof Error ? err.message : err);
         return json({ error: "live data is briefly unavailable — try again shortly." }, origin, 502);
+      }
+    }
+    if (url.pathname === "/activity" && req.method === "GET") {
+      try { return json(await getActivity(), origin, 200); }
+      catch (err) {
+        if (activityCache) return json({ ...activityCache.data, stale: true }, origin, 200);
+        return json({ error: "activity data briefly unavailable" }, origin, 502);
       }
     }
     if (url.pathname === "/chat" && req.method === "POST") return handleChat(req, origin);

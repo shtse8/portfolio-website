@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { FaArrowRight, FaGithub, FaBolt } from "react-icons/fa6";
 import { useCountUp } from "@/hooks/useCountUp";
+import LiveTicker from "./LiveTicker";
 import { PERSONAL_INFO } from "@/data/personal";
 import { STATS } from "@/lib/stats";
 import { useWorkGraph, type HighlightKind } from "@/context/WorkGraphContext";
@@ -101,6 +102,11 @@ export default function Hero() {
             <strong className="font-semibold text-text-primary">Sylphx</strong> — an AI-native PaaS with its own
             AI Gateway. Twenty years shipping before this; 10M+ app downloads at a Hong Kong gaming studio.
           </motion.p>
+
+          {/* Live commit ticker */}
+          <motion.div {...rise(0.2)} className="mt-6">
+            <LiveTicker />
+          </motion.div>
 
           <motion.div {...rise(0.22)} className="mt-8 flex flex-wrap items-center gap-3">
             <button onClick={() => jump("stars")} className="btn-primary btn-lg">
