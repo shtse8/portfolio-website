@@ -3,7 +3,6 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { PERSONAL_INFO } from "@/data/personal";
 import { SECTIONS } from "@/config/sections";
-import ModalPortal from "@/components/shared/ModalPortal";
 import { NavigationProvider } from "@/context/NavigationContext";
 import AppShell from "@/components/layout/AppShell";
 
@@ -139,7 +138,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NavigationProvider>
           <AppShell>{children}</AppShell>
         </NavigationProvider>
-        <ModalPortal />
       </body>
     </html>
   );
