@@ -352,9 +352,12 @@ async function getActivity(): Promise<ActivityPayload> {
   let lastPush: { repo: string; ago: string } | null = null;
 
   // Fetch events from all owners (GitHub returns up to 300 recent events per user/org)
-  for (const owner of GITHUB_OWNERS.map(o => o.login)) {
+  for (const owner of GITHUB_OWNERS) {
     try {
-      const res = await ghApi(`/users/${owner}/events?per_page=100`);
+      const path = owner.kind === "organization"
+        ? `/orgs/${owner.login}/events?per_page=100`
+        : `/users/${owner.login}/events?per_page=100`;
+      const res = await ghApi(path);
       if (!res.ok) continue;
       const events = await res.json() as any[];
       for (const ev of events) {
