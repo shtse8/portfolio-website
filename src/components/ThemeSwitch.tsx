@@ -117,7 +117,7 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
       <div className="space-y-4">
         <p className="text-text-secondary font-medium">Theme</p>
         <div className="grid grid-cols-3 gap-2">
-          <button
+          <button type="button"
             onClick={() => toggleTheme('light')}
             className={`flex flex-col items-center justify-center p-3 rounded-lg ${
               theme === 'light' 
@@ -129,7 +129,7 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
             <span className="text-sm">Light</span>
           </button>
           
-          <button
+          <button type="button"
             onClick={() => toggleTheme('dark')}
             className={`flex flex-col items-center justify-center p-3 rounded-lg ${
               theme === 'dark' 
@@ -141,7 +141,7 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
             <span className="text-sm">Dark</span>
           </button>
           
-          <button
+          <button type="button"
             onClick={() => toggleTheme('system')}
             className={`flex flex-col items-center justify-center p-3 rounded-lg ${
               theme === 'system' 
@@ -160,7 +160,7 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
   // Desktop view with dropdown
   return (
     <div className="theme-switch-container relative">
-      <button
+      <button type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Theme options"
         className="p-2 rounded-full border border-border bg-surface text-text-secondary hover:border-text-tertiary hover:bg-surface-sunken transition-colors"
@@ -170,7 +170,7 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
       
       {isOpen && (
         <div className="absolute top-full right-0 mt-2 p-2 bg-surface rounded-xl border border-border shadow-md z-50 min-w-[120px] animate-fade-in">
-          <button
+          <button type="button"
             onClick={() => toggleTheme('light')}
             className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
               theme === 'light' ? 'bg-accent-subtle text-accent' : 'hover:bg-surface-sunken'
@@ -180,7 +180,7 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
             Light
           </button>
           
-          <button
+          <button type="button"
             onClick={() => toggleTheme('dark')}
             className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
               theme === 'dark' ? 'bg-accent-subtle text-accent' : 'hover:bg-surface-sunken'
@@ -190,7 +190,7 @@ export default function ThemeSwitch({ isMobile = false, onThemeChange }: ThemeSw
             Dark
           </button>
           
-          <button
+          <button type="button"
             onClick={() => toggleTheme('system')}
             className={`flex items-center w-full px-3 py-2 text-left rounded-md ${
               theme === 'system' ? 'bg-accent-subtle text-accent' : 'hover:bg-surface-sunken'

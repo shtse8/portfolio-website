@@ -15,6 +15,15 @@ import { compact, sparkline, timeAgo, fetchDownloads, type TermRepo } from "@/li
 import SectionHeader from "./ui/SectionHeader";
 import Reveal from "./ui/Reveal";
 
+const SKELETON_CARD_KEYS = [
+  "skeleton-card-1",
+  "skeleton-card-2",
+  "skeleton-card-3",
+  "skeleton-card-4",
+  "skeleton-card-5",
+  "skeleton-card-6",
+];
+
 /**
  * WorkGraph — the heart of the site: projects, stars, downloads and activity as
  * ONE interconnected, live, explorable dataset (not three stacked sections).
@@ -57,7 +66,7 @@ export default function WorkGraph() {
       {/* the graph */}
       <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {loading && projects.length === 0
-          ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+          ? SKELETON_CARD_KEYS.map((key) => <SkeletonCard key={key} />)
           : shown.map((p) => (
               <ProjectNode key={p.repo} repo={p} dimmed={highlight !== null && !isHighlighted(p)} lit={highlight !== null && isHighlighted(p)} />
             ))}
@@ -72,7 +81,7 @@ export default function WorkGraph() {
 
 function FilterChip({ active, onClick, label, n }: { active: boolean; onClick: () => void; label: string; n: number }) {
   return (
-    <button
+    <button type="button"
       onClick={onClick}
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
         active
@@ -112,7 +121,7 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
         lit ? "ring-1 ring-accent shadow-lg shadow-accent/5" : ""
       }`}
     >
-      <button
+      <button type="button"
         onClick={() => setSelected(open ? null : repo.repo)}
         aria-expanded={open}
         aria-label={`${repo.name} — ${open ? "collapse" : "expand"} details`}
@@ -193,7 +202,7 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
                   `Why does ${repo.name} matter?`,
                   `How is ${repo.name} used in production?`,
                 ].map((q) => (
-                  <button
+                  <button type="button"
                     key={q}
                     onClick={() => ask(q)}
                     className="group flex items-center justify-between gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-left text-[12px] text-text-secondary transition-colors hover:border-accent hover:text-text-primary"

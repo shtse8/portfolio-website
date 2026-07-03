@@ -17,7 +17,7 @@
 
 import { SYSTEM_PROMPT } from "./persona";
 import { listProjects, getRepoDetail, recentActivity, searchProjects, npmRange, listAllRepos } from "./tools";
-import { streamText, convertToModelMessages, isStepCount, tool, type UIMessage } from "ai";
+import { streamText, convertToModelMessages, isStepCount, tool, type ModelMessage, type UIMessage } from "ai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { z } from "zod";
 
@@ -281,7 +281,7 @@ async function handleChat(req: Request, origin: string | null): Promise<Response
   const verdict = checkRateLimit(clientIp(req), now);
   if (!verdict.ok) return json({ error: verdict.error }, origin, verdict.status);
 
-  let modelMessages;
+  let modelMessages: ModelMessage[];
   try {
     modelMessages = await convertToModelMessages(messages);
   } catch {

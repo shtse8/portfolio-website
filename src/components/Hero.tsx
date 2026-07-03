@@ -109,13 +109,13 @@ export default function Hero() {
           </motion.div>
 
           <motion.div {...rise(0.22)} className="mt-8 flex flex-wrap items-center gap-3">
-            <button onClick={() => jump("stars")} className="btn-primary btn-lg">
+            <button type="button" onClick={() => jump("stars")} className="btn-primary btn-lg">
               Explore the work <FaArrowRight className="h-3.5 w-3.5" />
             </button>
             <a href={PERSONAL_INFO.social.github} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-lg">
               <FaGithub className="h-[18px] w-[18px]" /> GitHub
             </a>
-            <button
+            <button type="button"
               onClick={() => {
                 const ev = new CustomEvent("open-agent");
                 window.dispatchEvent(ev);
@@ -124,7 +124,7 @@ export default function Hero() {
             >
               <FaBolt className="h-3.5 w-3.5 text-accent" /> Ask my AI
             </button>
-            <button onClick={() => navigate("contact")} className="btn-ghost btn-lg">
+            <button type="button" onClick={() => navigate("contact")} className="btn-ghost btn-lg">
               Get in touch
             </button>
           </motion.div>
@@ -152,7 +152,7 @@ export default function Hero() {
             </div>
 
             {/* active-now pulse */}
-            <button
+            <button type="button"
               onClick={() => jump("stars")}
               className="flex w-full items-center gap-2 border-t border-border-subtle px-4 py-3 text-left transition-colors hover:bg-surface-sunken/50"
             >
@@ -194,7 +194,7 @@ function ProofNode({
   const animated = useCountUp(numeric ?? 0, 1500, true);
   const display = numeric ? animated.toLocaleString() : value;
   return (
-    <button
+    <button type="button"
       onMouseEnter={() => onHover(kind)}
       onMouseLeave={() => onHover(null)}
       onFocus={() => onHover(kind)}

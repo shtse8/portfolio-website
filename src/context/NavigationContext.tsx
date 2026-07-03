@@ -2,7 +2,6 @@
 
 import { create } from 'zustand';
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import { VALID_SECTIONS } from '@/lib/constants';
 
 // Add these type declarations at the top of the file
@@ -246,7 +245,6 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
  * (using Zustand store instead)
  */
 export function NavigationProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const { sections, setActiveSection, setupIntersectionObserver, setupPopStateListener, cleanup } = useNavigationStore();
   
   // Initialize - set active section based on current URL
@@ -274,7 +272,7 @@ export function NavigationProvider({ children }: { children: React.ReactNode }) 
     
     // Cleanup on unmount
     return cleanup;
-  }, [pathname, sections, setActiveSection, setupIntersectionObserver, setupPopStateListener, cleanup]);
+  }, [sections, setActiveSection, setupIntersectionObserver, setupPopStateListener, cleanup]);
   
   return <>{children}</>;
 }

@@ -1,5 +1,5 @@
 // Responsive utility functions
-import { RefObject } from 'react';
+import type { RefObject } from 'react';
 
 /**
  * Check if the current viewport is mobile or narrow width

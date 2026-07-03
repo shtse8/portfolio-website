@@ -1,4 +1,4 @@
-import { Role } from './types';
+import type { Role } from './types';
 
 /**
  * All Roles

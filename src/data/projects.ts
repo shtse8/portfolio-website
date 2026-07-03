@@ -1,4 +1,4 @@
-import { Project } from './types';
+import type { Project } from './types';
 
 export const PROJECT_CATEGORIES = [
   'All',

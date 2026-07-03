@@ -23,7 +23,7 @@ export function useCountUp(target: number, duration = 1200, start = true): numbe
     }
 
     startTime.current = null;
-    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // easeOutCubic
+    const ease = (t: number) => 1 - (1 - t) ** 3; // easeOutCubic
 
     const tick = (now: number) => {
       if (startTime.current === null) startTime.current = now;

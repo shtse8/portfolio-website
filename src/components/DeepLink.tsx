@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, ReactNode, useRef, AnchorHTMLAttributes } from 'react';
+import { useCallback, type ReactNode, useRef, type AnchorHTMLAttributes } from 'react';
 import { useNavigationStore } from '@/context/NavigationContext';
 
 type DeepLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'onClick'> & {

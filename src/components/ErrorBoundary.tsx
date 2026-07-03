@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { FaTriangleExclamation } from 'react-icons/fa6';
 
@@ -76,7 +76,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </details>
             )}
 
-            <button
+            <button type="button"
               onClick={this.handleReset}
               className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
             >

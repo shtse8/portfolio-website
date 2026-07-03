@@ -249,8 +249,8 @@ function EraChapterView({
             {/* Metric tiles */}
             {role.metrics.length > 0 && !scaleNumber && (
               <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                {role.metrics.slice(0, 4).map((m, idx) => (
-                  <div key={idx} className="rounded-xl border border-border-subtle bg-surface-sunken px-3.5 py-2.5">
+                {role.metrics.slice(0, 4).map((m) => (
+                  <div key={`${m.label ?? m.type ?? "metric"}-${m.unit ?? ""}-${typeof m.value === "number" ? m.value : String(m.value)}`} className="rounded-xl border border-border-subtle bg-surface-sunken px-3.5 py-2.5">
                     <span className="block font-mono text-lg font-semibold leading-none text-text-primary">
                       {typeof m.value === "number" ? formatNumber(m.value) : String(m.value)}
                     </span>
@@ -278,7 +278,7 @@ function EraChapterView({
               {role.skills?.slice(0, 4).map((s) => (
                 <span key={s} className="chip">{s}</span>
               ))}
-              <button
+              <button type="button"
                 onClick={() => ask(`Tell me more about Kyle's work at ${org.name}.`)}
                 className="ml-1 text-xs font-medium text-accent transition-colors hover:text-accent-hover"
               >
