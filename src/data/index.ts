@@ -10,7 +10,7 @@ export { PERSONAL_INFO, GITHUB_STATS } from './personal';
 export * from './philosophy';
 
 // Helper functions
-import { Project, Period, Metric } from './types';
+import type { Project, Period, Metric } from './types';
 
 /**
  * Format a Period object to a human-readable string

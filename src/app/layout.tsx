@@ -130,8 +130,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/og-icon-temp.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icons/icon-512x512.svg" />
         <link rel="manifest" href="/manifest.json" />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input. */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input. */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static theme-bootstrap IIFE string literal, not user input — standard Next.js flash-of-wrong-theme prevention pattern. */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-dvh antialiased">

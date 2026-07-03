@@ -93,7 +93,7 @@ export default function Header() {
               <FaGithub className="h-[18px] w-[18px]" />
             </Link>
             <ThemeSwitch />
-            <button
+            <button type="button"
               className="flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary md:hidden"
               onClick={() => setMenuOpen((v) => !v)}
               aria-expanded={menuOpen}

@@ -159,6 +159,7 @@ export default function FloatingAgent() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: messages is an intentional re-run trigger — scroll to bottom whenever the transcript changes.
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
@@ -179,8 +180,7 @@ export default function FloatingAgent() {
     ask(askSeed);
     clearAsk();
     setOpen(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [askSeed]);
+  }, [askSeed, ask, clearAsk]);
 
   // drain queued question
   useEffect(() => {
@@ -189,8 +189,7 @@ export default function FloatingAgent() {
       pendingSeed.current = null;
       sendMessage({ text: q });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status]);
+  }, [status, sendMessage]);
 
   function onSubmit(text: string) {
     const q = text.trim();
@@ -285,7 +284,7 @@ export default function FloatingAgent() {
                     </div>
                   </div>
                 </div>
-                <button
+                <button type="button"
                   onClick={() => setOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-surface-sunken hover:text-text-primary"
                   aria-label="Close"
@@ -305,7 +304,7 @@ export default function FloatingAgent() {
                     </div>
                     <div className="space-y-2">
                       {INITIAL_SUGGESTIONS.map((s) => (
-                        <button
+                        <button type="button"
                           key={s}
                           onClick={() => onSubmit(s)}
                           disabled={!HAS_API || busy}
@@ -334,7 +333,7 @@ export default function FloatingAgent() {
                     {!busy && started && messages[messages.length - 1]?.role === "assistant" && (
                       <div className="flex flex-wrap gap-2 pt-1">
                         {generateFollowUps(messages).map((q) => (
-                          <button
+                          <button type="button"
                             key={q}
                             onClick={() => onSubmit(q)}
                             className="rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] text-text-secondary transition-all hover:border-accent hover:text-text-primary"
@@ -418,9 +417,14 @@ function MessageBubble({ message }: { message: UIMessage }) {
 
   return (
     <div className="flex flex-col items-start gap-2">
-      {toolParts.map((tp, i) => (
-        <ToolCall key={`${tp.toolCallId ?? i}-${i}`} part={tp} />
-      ))}
+      {toolParts.map((tp, i) => {
+        // AI SDK may omit toolCallId for some part kinds; fall back to a
+        // toolName+state+index key (both are always present; index only
+        // disambiguates identical tool calls within one message).
+        const toolCallId = tp.toolCallId as string | undefined;
+        const fallback = `${(tp.toolName as string) ?? "tool"}-${(tp.state as string) ?? "x"}-${i}`;
+        return <ToolCall key={toolCallId ?? fallback} part={tp} />;
+      })}
       {text && (
         <div className="max-w-[92%] rounded-2xl rounded-bl-sm bg-surface-sunken px-4 py-2.5">
           <Markdown text={text} />

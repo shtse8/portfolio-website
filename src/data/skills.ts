@@ -1,4 +1,4 @@
-import { TechSkill } from './types';
+import type { TechSkill } from './types';
 import { calculateSkillExperience } from '../utils/skillExperience';
 
 // Cache for skill experience calculations

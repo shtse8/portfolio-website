@@ -1,4 +1,4 @@
-import { Organization } from './types';
+import type { Organization } from './types';
 
 /**
  * All Organizations

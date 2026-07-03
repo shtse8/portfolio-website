@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start -p 4311",
     "preview": "npx -y serve -s out -l 4311",
-    "lint": "next lint"
+    "lint": "biome lint src api package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
+    "format": "biome format --write src api package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
+    "format:check": "biome format src api package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.5",
@@ -26,12 +28,10 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.0",
+    "@biomejs/biome": "^2.4.16",
     "@types/node": "^22.16.1",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
-    "eslint": "^9.21.0",
-    "eslint-config-next": "^16.0.1",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "5.9.3"

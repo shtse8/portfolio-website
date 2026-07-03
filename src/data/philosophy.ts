@@ -1,4 +1,4 @@
-import { PhilosophyPrinciple } from './types';
+import type { PhilosophyPrinciple } from './types';
 
 /**
  * Philosophy principles data
