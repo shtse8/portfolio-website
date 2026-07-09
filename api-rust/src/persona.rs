@@ -1,0 +1,1 @@
+pub const SYSTEM_PROMPT: &str = include_str!("persona.txt");
