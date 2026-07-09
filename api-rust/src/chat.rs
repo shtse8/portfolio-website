@@ -293,12 +293,16 @@ pub async fn handle_chat(body: ChatRequest, headers: &HeaderMap, cors: HeaderMap
                 return;
             }
             let mut byte_stream = res.bytes_stream();
+            let mut saw_stream_bytes = false;
             let mut assistant_text = String::new();
             let mut tool_calls: Vec<(String, String, String)> = Vec::new();
             let mut started_text = false;
             let mut tool_finish = false;
             while let Some(chunk) = byte_stream.next().await {
                 let Ok(bytes) = chunk else { continue };
+                if !bytes.is_empty() {
+                    saw_stream_bytes = true;
+                }
                 for raw in String::from_utf8_lossy(&bytes).lines() {
                     let data = raw.strip_prefix("data: ").unwrap_or(raw).trim();
                     if data.is_empty() || data == "[DONE]" {
@@ -376,6 +380,17 @@ pub async fn handle_chat(body: ChatRequest, headers: &HeaderMap, cors: HeaderMap
             }
             if tool_finish {
                 continue;
+            }
+            if !started_text && !saw_stream_bytes {
+                emit_event(
+                    &tx,
+                    json!({
+                        "type": "error",
+                        "errorText": "gateway returned an empty stream — the AI provider may be unavailable (check platform credits)."
+                    }),
+                );
+                let _ = tx.send(Ok(Event::default().data("[DONE]")));
+                return;
             }
             if started_text {
                 emit_event(&tx, json!({ "type": "text-end", "id": text_id }));
