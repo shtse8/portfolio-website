@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package portfolio.v1;
+
+// Cross-boundary contract SSOT for kylet-api-rust (ADR-168).
+// REST handlers in api-rust mirror these messages; Connect codegen is the next slice.
+service PortfolioApiService {
+  rpc GetHealth(HealthRequest) returns (HealthResponse);
+  rpc GetStats(StatsRequest) returns (StatsResponse);
+  rpc GetActivity(ActivityRequest) returns (ActivityResponse);
+  rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
+  rpc GetRepo(GetRepoRequest) returns (GetRepoResponse);
+  rpc ListRecent(ListRecentRequest) returns (ListRecentResponse);
+  rpc GetDownloads(GetDownloadsRequest) returns (GetDownloadsResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+}
+
+message StatsRequest {}
+
+message StatsResponse {
+  uint64 github_stars = 1;
+  uint64 npm_downloads = 2;
+  uint64 flagship_stars = 3;
+  uint64 flagship_downloads = 4;
+  map<string, uint64> by_owner = 5;
+  uint64 repos = 6;
+  string updated_at = 7;
+}
+
+message ActivityRequest {}
+
+message ActivityResponse {
+  uint64 commits_today = 1;
+  uint64 commits_week = 2;
+  uint64 commits_month = 3;
+  uint64 repos_active_today = 4;
+  LastPush last_push = 5;
+  string updated_at = 6;
+}
+
+message LastPush {
+  string repo = 1;
+  string ago = 2;
+}
+
+message ListProjectsRequest {
+  uint32 limit = 1;
+}
+
+message ListProjectsResponse {
+  repeated RepoSummary projects = 1;
+  string updated_at = 2;
+}
+
+message GetRepoRequest {
+  string name = 1;
+}
+
+message GetRepoResponse {
+  RepoSummary repo = 1;
+  string updated_at = 2;
+}
+
+message ListRecentRequest {
+  uint32 limit = 1;
+}
+
+message ListRecentResponse {
+  repeated RepoSummary recent = 1;
+  string updated_at = 2;
+}
+
+message GetDownloadsRequest {
+  string pkg = 1;
+}
+
+message GetDownloadsResponse {
+  string pkg = 1;
+  repeated NpmDay series = 2;
+  uint64 total = 3;
+  string updated_at = 4;
+}
+
+message RepoSummary {
+  string repo = 1;
+  string name = 2;
+  string owner = 3;
+  uint64 stars = 4;
+  uint64 forks = 5;
+  string description = 6;
+  string language = 7;
+  repeated string topics = 8;
+  string homepage = 9;
+  string url = 10;
+  string pushed = 11;
+  string pushed_at = 12;
+}
+
+message NpmDay {
+  string day = 1;
+  uint64 downloads = 2;
+}

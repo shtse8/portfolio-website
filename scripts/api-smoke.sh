@@ -24,6 +24,11 @@ echo "$projects" | python3 -c "import json,sys; d=json.load(sys.stdin); assert i
   || fail "/projects: $projects"
 pass "/projects"
 
+activity="$(curl -fsS "$BASE_URL/activity")"
+echo "$activity" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'commitsToday' in d; assert 'commitsWeek' in d; assert 'reposActiveToday' in d" \
+  || fail "/activity: $activity"
+pass "/activity"
+
 chat_tmp="$(mktemp)"
 chat_code="$(curl -sS -m 45 -o "$chat_tmp" -w "%{http_code}" -X POST "$BASE_URL/chat" \
   -H "Content-Type: application/json" \

@@ -1,3 +1,4 @@
+mod activity;
 mod chat;
 mod cors;
 mod http_util;
@@ -132,6 +133,20 @@ async fn recent_handler(headers: HeaderMap, Query(q): Query<LimitQuery>) -> Resp
     )
 }
 
+async fn activity_handler(headers: HeaderMap) -> Response {
+    let origin = origin_from_headers(&headers);
+    match activity::get_activity().await {
+        Ok(data) => json_with_cors(data, origin.as_deref()),
+        Err(err) => {
+            tracing::error!("activity error: {err}");
+            json_with_cors(
+                json!({ "error": "activity data briefly unavailable" }),
+                origin.as_deref(),
+            )
+        }
+    }
+}
+
 async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) -> Response {
     let origin = origin_from_headers(&headers);
     let pkg = q.pkg.unwrap_or_default();
@@ -211,6 +226,7 @@ async fn method_router(
             recent_handler(headers, query_limit.unwrap_or(Query(LimitQuery { limit: None })))
                 .await
         }
+        ("GET", "/activity") => activity_handler(headers).await,
         ("GET", "/downloads") => {
             downloads_handler(headers, query_pkg.unwrap_or(Query(PkgQuery { pkg: None })))
                 .await
@@ -239,6 +255,7 @@ async fn main() {
         .route("/projects", get(projects_handler))
         .route("/repo", get(repo_handler))
         .route("/recent", get(recent_handler))
+        .route("/activity", get(activity_handler))
         .route("/downloads", get(downloads_handler))
         .route("/chat", post(chat_handler))
         .fallback(fallback);

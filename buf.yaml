@@ -1,0 +1,10 @@
+version: v2
+modules:
+  - path: proto
+    name: buf.build/shtse8/portfolio
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE

@@ -21,7 +21,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1", features = ["v4"] }
 futures = "0.3"
 tower-http = { version = "0.6", features = ["cors"] }
-time = { version = "0.3", features = ["formatting"] }
+time = { version = "0.3", features = ["formatting", "parsing"] }
 tokio-stream = "0.1"
 
 [dev-dependencies]
