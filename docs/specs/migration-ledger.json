@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 3,
+  "repo": "shtse8/portfolio-website",
+  "repoLedgerPath": "docs/specs/migration-ledger.json",
+  "lockedAt": "2026-07-10T21:30:00Z",
+  "programSpec": {
+    "id": "rust-first-fleet-migration",
+    "controlPlaneRepo": "SylphxAI/rust-first-fleet-control-plane",
+    "programSpecPath": "PROGRAM-SPEC.json",
+    "completionStandard": "COMPLETION-STANDARD.md",
+    "parityStandard": "PARITY-VERIFICATION-STANDARD.md"
+  },
+  "adrRefs": [
+    {
+      "path": "docs/adr/ADR-168-fleet-portfolio-api-rust-north-star.md",
+      "prNumber": 168,
+      "status": "accepted",
+      "note": "North Star ADR on disk; PR number pending Doctrine alignment per DECISION-003."
+    }
+  ],
+  "reauditRef": "rej-010",
+  "verificationRef": "verification/portfolio-differential-green.json",
+  "inventorySource": [
+    "manual"
+  ],
+  "inScopeBoundary": {
+    "includeGlobs": [
+      "api-rust/**",
+      "proto/portfolio/**",
+      "scripts/api-smoke.sh",
+      "scripts/run-portfolio-differential.sh",
+      "scripts/check-no-ts-backend.sh",
+      "scripts/differential/**",
+      "docs/specs/portfolio-api-parity-slice.json",
+      "buf.yaml"
+    ],
+    "excludeGlobs": [
+      "src/**",
+      "public/**",
+      "out/**",
+      ".next/**",
+      "api/**",
+      "api-rust/target/**"
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "proto-portfolio-contract",
+      "domain": "contracts",
+      "weight": 5,
+      "state": "authority_rust",
+      "rustSurface": "proto/portfolio/v1/api.proto; buf.yaml",
+      "parityTest": "buf.yaml lint STANDARD; proto/portfolio/v1/api.proto service+message SSOT",
+      "prodProbe": "buf.build/shtse8/portfolio module path",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "differential_green",
+        "baselineTsSha": "",
+        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "verifiedAt": "2026-07-10T10:42:14+00:00",
+        "verificationRef": "verification/portfolio-differential-green.json",
+        "dependencyGlobs": [
+          "proto/portfolio/**",
+          "buf.yaml",
+          "scripts/run-portfolio-differential.sh"
+        ],
+        "contractHash": "d3c3cf3cca9729052fc0c4deba0cafb8fdd5510f488d7f037124dba9788278f6"
+      },
+      "notes": "Protobuf+Buf contract stack; REST handlers mirror proto messages (Connect codegen next slice)."
+    },
+    {
+      "id": "api-health-ready",
+      "domain": "api-edge",
+      "weight": 2,
+      "state": "rust_impl",
+      "rustSurface": "api-rust/src/main.rs#/healthz; /readyz",
+      "parityTest": "api-rust/tests/http_smoke.rs#healthz_returns_ok_on_real_binary",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#health",
+      "prodProbe": "scripts/api-smoke.sh GET /healthz",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "differential_green",
+        "baselineTsSha": "",
+        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "verifiedAt": "2026-07-10T10:42:14+00:00",
+        "verificationRef": "verification/portfolio-differential-green.json",
+        "dependencyGlobs": [
+          "api-rust/src/main.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**"
+        ]
+      },
+      "notes": "kylet-api-rust binary on port 3001; health contract covered in differential corpus."
+    },
+    {
+      "id": "api-stats-github-npm",
+      "domain": "api-edge",
+      "weight": 5,
+      "state": "authority_rust",
+      "rustSurface": "api-rust/src/stats.rs#/stats",
+      "parityTest": "api-rust/tests/parity.rs; api-rust/tests/http_smoke.rs",
+      "prodProbe": "scripts/api-smoke.sh GET /stats",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: live upstream stats \u2014 full shadow differential deferred; prod smoke required",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "missing",
+        "dependencyGlobs": [
+          "api-rust/src/stats.rs"
+        ],
+        "staleReason": "rej-010 re-audit \u2014 prior ts_deleted lacked SHA-bound differential proof",
+        "verificationRef": "scripts/api-smoke.sh"
+      },
+      "notes": "GitHub GraphQL + npm aggregate stats with 10-minute TTL cache."
+    },
+    {
+      "id": "api-chat-agent-sse",
+      "domain": "api-edge",
+      "weight": 5,
+      "state": "authority_rust",
+      "rustSurface": "api-rust/src/chat.rs#/chat; api-rust/src/persona.rs",
+      "parityTest": "api-rust/tests/http_smoke.rs integration",
+      "prodProbe": "scripts/api-smoke.sh POST /chat SSE text-delta",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: Gateway-backed SSE \u2014 dedicated stream corpus slice deferred",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "missing",
+        "dependencyGlobs": [
+          "api-rust/src/chat.rs",
+          "api-rust/src/persona.rs"
+        ],
+        "staleReason": "rej-010 re-audit \u2014 prior ts_deleted lacked SHA-bound differential proof",
+        "verificationRef": "scripts/api-smoke.sh"
+      },
+      "notes": "AI SDK-compatible SSE stream via Sylphx AI Gateway."
+    },
+    {
+      "id": "api-terminal-tools",
+      "domain": "api-edge",
+      "weight": 4,
+      "state": "authority_rust",
+      "rustSurface": "api-rust/src/tools.rs; GET /projects, /repo, /recent, /downloads",
+      "parityTest": "api-rust/tests/parity.rs#pkg_validation_matches_bun_rules",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#pkgValidation",
+      "prodProbe": "scripts/api-smoke.sh GET /projects",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "differential_green",
+        "baselineTsSha": "",
+        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "verifiedAt": "2026-07-10T10:42:14+00:00",
+        "verificationRef": "verification/portfolio-differential-green.json",
+        "dependencyGlobs": [
+          "api-rust/src/tools.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**"
+        ]
+      },
+      "notes": "Terminal + agent tool surface; pkg validation in differential corpus."
+    },
+    {
+      "id": "api-activity-feed",
+      "domain": "api-edge",
+      "weight": 2,
+      "state": "authority_rust",
+      "rustSurface": "api-rust/src/activity.rs; api-rust/src/contract.rs; GET /activity",
+      "parityTest": "api-rust/tests/portfolio_differential.rs#activity",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#activity",
+      "prodProbe": "scripts/api-smoke.sh GET /activity; deploy digest readback (rej-002)",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-002+rej-010: differential_green at bound SHAs \u2014 prod deploy digest readback required before canary_green",
+        "rejectionRef": "rej-002",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "differential_green",
+        "baselineTsSha": "",
+        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "verifiedAt": "2026-07-10T10:42:14+00:00",
+        "verificationRef": "verification/portfolio-differential-green.json",
+        "dependencyGlobs": [
+          "api-rust/src/activity.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**",
+          "scripts/run-portfolio-differential.sh"
+        ]
+      },
+      "notes": "LiveTicker /activity \u2014 GraphQL contributionsCollection aggregation in contract SSOT; rej-002 blocks canary until deploy readback."
+    },
+    {
+      "id": "api-cors-rate-limit",
+      "domain": "api-edge",
+      "weight": 2,
+      "state": "authority_rust",
+      "rustSurface": "api-rust/src/cors.rs; api-rust/src/rate_limit.rs; api-rust/src/contract.rs",
+      "parityTest": "api-rust/src/rate_limit.rs#rate_limit_blocks_burst",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#cors|clientIp|rateLimitConstants",
+      "prodProbe": "api-rust cargo test; CORS headers on all JSON handlers",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "differential_green",
+        "baselineTsSha": "",
+        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
+        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
+        "verifiedAt": "2026-07-10T10:42:14+00:00",
+        "verificationRef": "verification/portfolio-differential-green.json",
+        "dependencyGlobs": [
+          "api-rust/src/cors.rs",
+          "api-rust/src/rate_limit.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**"
+        ]
+      },
+      "notes": "CORS allowlist + per-IP chat rate limit; contract helpers in differential corpus."
+    },
+    {
+      "id": "bun-api-authority",
+      "domain": "sunset",
+      "weight": 3,
+      "state": "rust_impl",
+      "tsSurface": "api/ (deleted \u2014 index.ts, tools.ts, persona.ts)",
+      "rustSurface": "api-rust/",
+      "parityTest": "scripts/check-no-ts-backend.sh",
+      "prodProbe": "api/ absent; sylphx.toml watch_paths api-rust/** only",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: Bun api/ absent \u2014 awaiting canary_green after differential+prod gates",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "missing",
+        "dependencyGlobs": [
+          "api-rust/**",
+          "scripts/check-no-ts-backend.sh"
+        ],
+        "staleReason": "rej-010 re-audit \u2014 prior ts_deleted lacked SHA-bound differential proof",
+        "verificationRef": "scripts/check-no-ts-backend.sh"
+      },
+      "notes": "Bun api/ directory absent; sole production authority is kylet-api-rust."
+    }
+  ],
+  "sliceStatus": {
+    "S0": {
+      "label": "Protobuf + Buf contract stack",
+      "status": "authority_rust",
+      "capabilities": [
+        "proto-portfolio-contract"
+      ],
+      "proof": [
+        "buf.yaml",
+        "proto/portfolio/v1/api.proto"
+      ],
+      "blockers": [
+        "rej-010 prod_audit_pass"
+      ]
+    },
+    "S1": {
+      "label": "Stats + chat + terminal tools + activity on Rust",
+      "status": "authority_rust",
+      "capabilities": [
+        "api-health-ready",
+        "api-stats-github-npm",
+        "api-chat-agent-sse",
+        "api-terminal-tools",
+        "api-activity-feed",
+        "api-cors-rate-limit"
+      ],
+      "proof": [
+        "scripts/run-portfolio-differential.sh (harness landed)",
+        "api-rust/tests/portfolio_differential.rs"
+      ],
+      "blockers": [
+        "rej-010 prod_audit_pass",
+        "rej-002 activity prod readback"
+      ]
+    },
+    "S2": {
+      "label": "Production deploy on Rust image",
+      "status": "held",
+      "capabilities": [
+        "api-health-ready",
+        "api-stats-github-npm",
+        "api-chat-agent-sse",
+        "api-activity-feed"
+      ],
+      "proof": [
+        "sylphx deploy dpl_01kx472jh9e3f9k3yx8x7m9pn0 triggered 2026-07-09",
+        "gitCommit 090d04b on main"
+      ],
+      "blockers": [
+        "rej-002 /activity deploy digest readback",
+        "rej-010 canary_green"
+      ]
+    },
+    "S3": {
+      "label": "Bun api/ authority retirement",
+      "status": "rust_impl",
+      "capabilities": [
+        "bun-api-authority"
+      ],
+      "proof": [
+        "scripts/check-no-ts-backend.sh",
+        "api/ directory absent"
+      ],
+      "blockers": [
+        "rej-010 canary_green"
+      ]
+    }
+  },
+  "summary": {
+    "total": 8,
+    "ts_only": 0,
+    "contracted": 0,
+    "rust_impl": 2,
+    "parity_proven": 0,
+    "authority_rust": 6,
+    "ts_deleted": 0,
+    "proof_stale": 0,
+    "proof_missing": 3,
+    "completion_progress": 0,
+    "authority_progress": 0.75,
+    "verified_authority_progress": 0,
+    "weighted_progress": 0.8929,
+    "summaryNote": "rej-010/rej-011 \u2014 differential_green recorded for activity-api|backend-caps harness slice (5 caps); promotion_hold until prod_audit_pass; rej-002 /activity prod readback still open",
+    "cycle50_delta": {
+      "rust_impl_verified": 1,
+      "slice": "activity-api|backend-caps",
+      "verificationRef": "verification/portfolio-cycle50-activity-api-backend-caps-rust-impl.json",
+      "notes": "rej-010 rust_impl ONLY \u2014 cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
+    },
+    "deliveryProof": {
+      "gitSha": "090d04b0237a4eaf067428502144f9c9d7b4533a",
+      "deployId": "dpl_01kx472jh9e3f9k3yx8x7m9pn0",
+      "prodUrl": "https://slim-pal-0k3stq.sylphx.app",
+      "imageDigest": null,
+      "activityReadback": "pending \u2014 rej-002"
+    }
+  },
+  "priorClaims": {
+    "ts_deleted": 8,
+    "completion_progress": 1.0,
+    "authority_progress": 1.0,
+    "revertedAt": "2026-07-10T21:30:00Z",
+    "reason": "rej-010 promotion freeze \u2014 0 capabilities with differential_green or canary_green proof"
+  },
+  "rej010Reaudit": {
+    "appliedAt": "2026-07-10T21:30:00Z",
+    "harness": "scripts/run-portfolio-differential.sh",
+    "differentialTest": "api-rust/tests/portfolio_differential.rs",
+    "oracle": "scripts/differential/portfolio-api-oracle.ts",
+    "behaviorSpec": "scripts/differential/fixtures/portfolio-api-corpus.json",
+    "capabilitiesDowngraded": 8,
+    "capabilitiesWithDifferentialHarness": 4,
+    "rej002Blocker": "api-activity-feed prod deploy digest readback"
+  },
+  "cycle46Slice": "activity-api|backend-caps \u2014 portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle46": {
+    "boundedSlice": "activity-api|backend-caps",
+    "status": "rust_impl_on_disk_verified",
+    "reauditRef": "rej-010",
+    "verificationRef": "verification/portfolio-cycle46-backend-caps-rust-impl.json",
+    "deliverables": [
+      "scripts/run-portfolio-differential.sh",
+      "api-rust/tests/portfolio_differential.rs",
+      "scripts/differential/portfolio-api-oracle.ts",
+      "scripts/differential/fixtures/portfolio-api-corpus.json",
+      "docs/specs/portfolio-api-parity-slice.json"
+    ],
+    "caseCounts": {
+      "total": 21
+    },
+    "notes": "cycle46 pilot/P0 rej-010: activity-api + backend caps differential harness on-disk re-verify. rej-002 /activity prod readback still open. rust_impl ONLY \u2014 proof.status missing until differential_green."
+  },
+  "cycle50Slice": "activity-api|backend-caps \u2014 portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle50": {
+    "boundedSlice": "activity-api|backend-caps",
+    "status": "differential_green",
+    "reauditRef": "rej-010",
+    "verificationRef": "verification/portfolio-cycle50-activity-api-backend-caps-rust-impl.json",
+    "harnessPath": "scripts/run-portfolio-differential.sh",
+    "deliverables": [
+      "scripts/run-portfolio-differential.sh",
+      "api-rust/tests/portfolio_differential.rs",
+      "scripts/differential/portfolio-api-oracle.ts",
+      "scripts/differential/fixtures/portfolio-api-corpus.json",
+      "docs/specs/portfolio-api-parity-slice.json"
+    ],
+    "caseCounts": {
+      "total": 21
+    },
+    "notes": "cycle50 rej-010: activity-api|backend-caps bounded differential harness executed \u2014 differential_green at bound SHAs (22 cases); rej-002 /activity prod readback still open"
+  },
+  "differentialGreen": {
+    "boundedSlice": "activity-api|backend-caps",
+    "status": "differential_green",
+    "reauditRef": "rej-010",
+    "verificationRef": "verification/portfolio-differential-green.json",
+    "harnessPath": "scripts/run-portfolio-differential.sh",
+    "caseCounts": {
+      "total": 22
+    },
+    "capabilitiesProven": [
+      "api-activity-feed",
+      "api-cors-rate-limit",
+      "api-health-ready",
+      "api-terminal-tools",
+      "proto-portfolio-contract"
+    ],
+    "notes": "pilot harness executed \u2014 differential_green at SHA a798369; promotion_hold until prod_audit_pass"
+  }
+}
