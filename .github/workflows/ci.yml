@@ -15,7 +15,8 @@ concurrency:
 jobs:
   rust-api:
     name: Rust API + differential (ADR-168)
-    runs-on: [self-hosted, sylphx, linux, standard]
+    # Canonical Sylphx Platform JIT profile (legacy 4-label set matches 0 online runners)
+    runs-on: sylphx-linux-standard
     steps:
       - uses: actions/checkout@v4
 
