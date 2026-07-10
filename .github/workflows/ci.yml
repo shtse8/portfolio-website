@@ -26,9 +26,12 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Test api-rust
+      # Differential integration tests spawn `bun` (or require PORTFOLIO_ORACLE_JSON).
+      # Run them only via the harness after Bun is installed — avoids spawn ENOENT
+      # on plain `cargo test` when bun is not yet on PATH.
+      - name: Test api-rust (unit/contract; skip differential spawn path)
         working-directory: api-rust
-        run: cargo test
+        run: cargo test -- --skip differential_matches_ts_oracle
 
       - name: No TS backend authority (ADR-168 S3)
         run: bash scripts/check-no-ts-backend.sh

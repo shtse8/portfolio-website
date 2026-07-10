@@ -44,13 +44,29 @@ fn load_oracle_corpus() -> OracleCorpus {
         return serde_json::from_str(&raw).expect("oracle artifact must be valid JSON");
     }
 
-    let script = repo_root().join("scripts/differential/portfolio-api-oracle.ts");
+    // Prefer pre-materialized oracle (harness sets PORTFOLIO_ORACLE_JSON). Fallback:
+    // spawn bun on the workspace-relative oracle script under repo root.
+    let root = repo_root();
+    let script = root.join("scripts/differential/portfolio-api-oracle.ts");
+    assert!(
+        script.is_file(),
+        "TS oracle missing at {} (repo_root={}). Set PORTFOLIO_ORACLE_JSON or ensure scripts/differential/portfolio-api-oracle.ts is present.",
+        script.display(),
+        root.display()
+    );
+
     let output = Command::new("bun")
         .arg("run")
         .arg(&script)
-        .current_dir(repo_root())
+        .current_dir(&root)
         .output()
-        .unwrap_or_else(|error| panic!("spawn TS oracle at {}: {error}", script.display()));
+        .unwrap_or_else(|error| {
+            panic!(
+                "spawn bun for TS oracle failed (is bun on PATH?): bun run {} (cwd={}): {error}",
+                script.display(),
+                root.display()
+            )
+        });
 
     assert!(
         output.status.success(),
