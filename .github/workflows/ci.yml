@@ -15,8 +15,11 @@ concurrency:
 jobs:
   rust-api:
     name: Rust API + differential (ADR-168)
-    # Canonical Sylphx Platform JIT profile (legacy 4-label set matches 0 online runners)
-    runs-on: sylphx-linux-standard
+    # shtse8 personal repo: 0 repo self-hosted runners; SylphxAI org runners
+    # (sylphx-linux-standard) cannot pick up jobs outside the org. Legacy
+    # [self-hosted,sylphx,linux,standard] matched nothing. GitHub-hosted is
+    # the only runnable profile for this public personal repo's GHA jobs.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
