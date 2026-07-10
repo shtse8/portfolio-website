@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+    types: [checks_requested]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-api:
+    name: Rust API + differential (ADR-168)
+    # shtse8 personal repo: 0 repo self-hosted runners; SylphxAI org runners
+    # (sylphx-linux-standard) cannot pick up jobs outside the org. Legacy
+    # [self-hosted,sylphx,linux,standard] matched nothing. GitHub-hosted is
+    # the only runnable profile for this public personal repo's GHA jobs.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # Differential integration tests spawn `bun` (or require PORTFOLIO_ORACLE_JSON).
+      # Run them only via the harness after Bun is installed — avoids spawn ENOENT
+      # on plain `cargo test` when bun is not yet on PATH.
+      - name: Test api-rust (unit/contract; skip differential spawn path)
+        working-directory: api-rust
+        run: cargo test -- --skip differential_matches_ts_oracle
+
+      - name: No TS backend authority (ADR-168 S3)
+        run: bash scripts/check-no-ts-backend.sh
+
+      - name: Setup Bun (differential oracle)
+        uses: oven-sh/setup-bun@v2
+
+      - name: Differential parity (rej-010 portfolio backend caps)
+        run: bash scripts/run-portfolio-differential.sh
