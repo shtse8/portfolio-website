@@ -6,11 +6,16 @@ rust-version = "1.75"
 description = "Rust drop-in authority for kylet.se live API (stats, terminal data, AI chat)"
 license = "MIT"
 
+[lib]
+name = "kylet_api_rust"
+path = "src/lib.rs"
+
 [[bin]]
 name = "kylet-api-rust"
 path = "src/main.rs"
 
 [dependencies]
+sha2 = "0.10"
 axum = { version = "0.8", features = ["json"] }
 tokio = { version = "1", features = ["full"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }

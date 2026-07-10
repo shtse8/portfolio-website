@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "repo": "shtse8/portfolio-website",
+  "slice": "portfolio-api-backend-caps",
+  "harness": "scripts/run-portfolio-differential.sh",
+  "oracle": "scripts/differential/portfolio-api-oracle.ts",
+  "behaviorSpec": "scripts/differential/fixtures/portfolio-api-corpus.json",
+  "differentialTest": "api-rust/tests/portfolio_differential.rs",
+  "contractSsot": "api-rust/src/contract.rs",
+  "boundedSlices": {
+    "health": "api-rust/tests/portfolio_differential.rs#health_differential_matches_ts_oracle",
+    "pkgValidation": "api-rust/tests/portfolio_differential.rs#pkg_validation_differential_matches_ts_oracle",
+    "cors": "api-rust/tests/portfolio_differential.rs#cors_differential_matches_ts_oracle",
+    "clientIp": "api-rust/tests/portfolio_differential.rs#client_ip_differential_matches_ts_oracle",
+    "rateLimitConstants": "api-rust/tests/portfolio_differential.rs#rate_limit_constants_differential_matches_ts_oracle",
+    "activity": "api-rust/tests/portfolio_differential.rs#activity_differential_matches_ts_oracle",
+    "proto-contract": "api-rust/tests/portfolio_differential.rs#proto_contract_differential_matches_ts_oracle"
+  },
+  "capabilities": [
+    "api-health-ready",
+    "api-terminal-tools",
+    "api-cors-rate-limit",
+    "api-activity-feed",
+    "proto-portfolio-contract"
+  ],
+  "notes": "Pure-policy differential for deleted Bun api/ semantics vs api-rust contract SSOT. Live upstream stats/chat slices deferred to api-smoke prod probes."
+}

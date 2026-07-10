@@ -1,4 +1,3 @@
-mod activity;
 mod chat;
 mod cors;
 mod http_util;
@@ -135,12 +134,18 @@ async fn recent_handler(headers: HeaderMap, Query(q): Query<LimitQuery>) -> Resp
 
 async fn activity_handler(headers: HeaderMap) -> Response {
     let origin = origin_from_headers(&headers);
-    match activity::get_activity().await {
+    match kylet_api_rust::activity::get_activity().await {
         Ok(data) => json_with_cors(data, origin.as_deref()),
         Err(err) => {
-            tracing::error!("activity error: {err}");
-            json_with_cors(
-                json!({ "error": "activity data briefly unavailable" }),
+            tracing::error!(
+                error = %err,
+                upstream = "github_graphql",
+                route = "/activity",
+                "activity upstream failure"
+            );
+            error_json(
+                StatusCode::BAD_GATEWAY,
+                "activity data briefly unavailable",
                 origin.as_deref(),
             )
         }
@@ -150,7 +155,7 @@ async fn activity_handler(headers: HeaderMap) -> Response {
 async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) -> Response {
     let origin = origin_from_headers(&headers);
     let pkg = q.pkg.unwrap_or_default();
-    let valid = regex_pkg(&pkg);
+    let valid = kylet_api_rust::contract::valid_pkg(&pkg);
     let series = if valid {
         tools::npm_range(&pkg).await
     } else {
@@ -161,35 +166,6 @@ async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) -> Res
         json!({ "pkg": pkg, "series": series, "total": total, "updatedAt": iso_now() }),
         origin.as_deref(),
     )
-}
-
-fn regex_pkg(pkg: &str) -> bool {
-    if pkg.len() > 80 {
-        return false;
-    }
-    regex_simple(pkg)
-}
-
-fn regex_simple(pkg: &str) -> bool {
-    let mut chars = pkg.chars();
-    if pkg.starts_with('@') {
-        let scope: String = chars.by_ref().take_while(|c| *c != '/').collect();
-        if !scope.starts_with('@') || scope.len() < 2 {
-            return false;
-        }
-        if chars.next() != Some('/') {
-            return false;
-        }
-    }
-    let name: String = chars.collect();
-    !name.is_empty()
-        && name
-            .chars()
-            .next()
-            .is_some_and(|c| c.is_ascii_alphanumeric())
-        && name
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
 }
 
 async fn chat_handler(headers: HeaderMap, Json(body): Json<chat::ChatRequest>) -> Response {

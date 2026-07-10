@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+    types: [checks_requested]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-api:
+    name: Rust API + differential (ADR-168)
+    runs-on: [self-hosted, sylphx, linux, standard]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Test api-rust
+        working-directory: api-rust
+        run: cargo test
+
+      - name: No TS backend authority (ADR-168 S3)
+        run: bash scripts/check-no-ts-backend.sh
+
+      - name: Setup Bun (differential oracle)
+        uses: oven-sh/setup-bun@v2
+
+      - name: Differential parity (rej-010 portfolio backend caps)
+        run: bash scripts/run-portfolio-differential.sh
