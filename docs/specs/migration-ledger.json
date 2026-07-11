@@ -54,28 +54,29 @@
       "prodProbe": "buf.build/shtse8/portfolio module path",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "reason": "rej-010/rej-011 freezes stay \u2014 canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
       "proof": {
-        "status": "differential_green",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "verifiedAt": "2026-07-10T10:42:14+00:00",
-        "verificationRef": "verification/portfolio-differential-green.json",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
         "dependencyGlobs": [
           "proto/portfolio/**",
           "buf.yaml",
           "scripts/run-portfolio-differential.sh"
         ],
-        "contractHash": "d3c3cf3cca9729052fc0c4deba0cafb8fdd5510f488d7f037124dba9788278f6"
+        "contractHash": "358313c76d9b3dc55f8cb4a0ce6d0d06073a834e815d4c18b334f4aef431b324",
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
       },
-      "notes": "Protobuf+Buf contract stack; REST handlers mirror proto messages (Connect codegen next slice)."
+      "notes": "Protobuf+Buf contract stack; REST handlers mirror proto messages (Connect codegen next slice). TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: proto contract live via api-rust handlers; differential 22-case main-proof incl proto=1; prod_audit_pass tick006 + live reconfirm tick023."
     },
     {
       "id": "api-health-ready",
@@ -88,27 +89,28 @@
       "prodProbe": "scripts/api-smoke.sh GET /healthz",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "reason": "rej-010/rej-011 freezes stay \u2014 canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
       "proof": {
-        "status": "differential_green",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "verifiedAt": "2026-07-10T10:42:14+00:00",
-        "verificationRef": "verification/portfolio-differential-green.json",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
         "dependencyGlobs": [
           "api-rust/src/main.rs",
           "api-rust/src/contract.rs",
           "scripts/differential/**"
-        ]
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
       },
-      "notes": "kylet-api-rust binary on port 3001; health contract covered in differential corpus."
+      "notes": "kylet-api-rust binary on port 3001; health contract covered in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /healthz 200 ok; GET /readyz 200 ok @ 2026-07-11T11:06:19Z."
     },
     {
       "id": "api-stats-github-npm",
@@ -120,7 +122,7 @@
       "prodProbe": "scripts/api-smoke.sh GET /stats",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010: live upstream stats \u2014 full shadow differential deferred; prod smoke required",
+        "reason": "rej-010 hold \u2014 not canary-admitted in tick023: prod smoke green but proof.status remains missing \u2014 no SHA-bound differential corpus (scorecard residual #2)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -144,7 +146,7 @@
       "prodProbe": "scripts/api-smoke.sh POST /chat SSE text-delta",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010: Gateway-backed SSE \u2014 dedicated stream corpus slice deferred",
+        "reason": "rej-010 hold \u2014 not canary-admitted in tick023: SSE chat not prod-smoked this packet; proof.status remains missing (scorecard residual #2)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -170,27 +172,28 @@
       "prodProbe": "scripts/api-smoke.sh GET /projects",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "reason": "rej-010/rej-011 freezes stay \u2014 canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
       "proof": {
-        "status": "differential_green",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "verifiedAt": "2026-07-10T10:42:14+00:00",
-        "verificationRef": "verification/portfolio-differential-green.json",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
         "dependencyGlobs": [
           "api-rust/src/tools.rs",
           "api-rust/src/contract.rs",
           "scripts/differential/**"
-        ]
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
       },
-      "notes": "Terminal + agent tool surface; pkg validation in differential corpus."
+      "notes": "Terminal + agent tool surface; pkg validation in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /projects 200 projects[] n=12 @ 2026-07-11T11:06:19Z."
     },
     {
       "id": "api-activity-feed",
@@ -203,28 +206,29 @@
       "prodProbe": "scripts/api-smoke.sh GET /activity; deploy digest readback (rej-002)",
       "promotionHold": {
         "active": true,
-        "reason": "rej-002+rej-010: differential_green at bound SHAs \u2014 prod deploy digest readback required before canary_green",
-        "rejectionRef": "rej-002",
+        "reason": "rej-010/rej-011 freezes stay \u2014 canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
+        "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
       "proof": {
-        "status": "differential_green",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "verifiedAt": "2026-07-10T10:42:14+00:00",
-        "verificationRef": "verification/portfolio-differential-green.json",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
         "dependencyGlobs": [
           "api-rust/src/activity.rs",
           "api-rust/src/contract.rs",
           "scripts/differential/**",
           "scripts/run-portfolio-differential.sh"
-        ]
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
       },
-      "notes": "LiveTicker /activity \u2014 GraphQL contributionsCollection aggregation in contract SSOT; rej-002 blocks canary until deploy readback."
+      "notes": "LiveTicker /activity \u2014 GraphQL contributionsCollection aggregation in contract SSOT; rej-002 blocks canary until deploy readback. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /activity 200 ActivityPayload (commitsToday/Week/Month, reposActiveToday, updatedAt) no error envelope @ 2026-07-11T11:06:19Z; rej-002 closed."
     },
     {
       "id": "api-cors-rate-limit",
@@ -237,28 +241,29 @@
       "prodProbe": "api-rust cargo test; CORS headers on all JSON handlers",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010: differential_green at bound SHAs \u2014 promotion_hold until prod_audit_pass",
+        "reason": "rej-010/rej-011 freezes stay \u2014 canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
       "proof": {
-        "status": "differential_green",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "lastComparedMainSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "mergeGroupSha": "a798369549dfe5da7d0a83e9a1a1f9a483d394c6",
-        "behaviorSpecHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "fixtureCorpusHash": "beaa2c9410898e182782875191b79b04e35ca9683ad3268dcf2d44cf1498d07b",
-        "verifiedAt": "2026-07-10T10:42:14+00:00",
-        "verificationRef": "verification/portfolio-differential-green.json",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
         "dependencyGlobs": [
           "api-rust/src/cors.rs",
           "api-rust/src/rate_limit.rs",
           "api-rust/src/contract.rs",
           "scripts/differential/**"
-        ]
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
       },
-      "notes": "CORS allowlist + per-IP chat rate limit; contract helpers in differential corpus."
+      "notes": "CORS allowlist + per-IP chat rate limit; contract helpers in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: Access-Control-Allow-Origin observed on /activity /stats /projects JSON handlers @ 2026-07-11T11:06:19Z; differential cors/clientIp/rate cases green on main."
     },
     {
       "id": "bun-api-authority",
@@ -271,7 +276,7 @@
       "prodProbe": "api/ absent; sylphx.toml watch_paths api-rust/** only",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010: Bun api/ absent \u2014 awaiting canary_green after differential+prod gates",
+        "reason": "rej-010 hold \u2014 not canary-admitted in tick023: api/ absent + check-no-ts PASS substance; formal canary/ts_deleted bind deferred to residual #3/#4",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -319,7 +324,7 @@
       ],
       "blockers": [
         "rej-010 prod_audit_pass",
-        "rej-002 activity prod readback"
+        "stats/chat proof_missing residual"
       ]
     },
     "S2": {
@@ -336,8 +341,8 @@
         "gitCommit 090d04b on main"
       ],
       "blockers": [
-        "rej-002 /activity deploy digest readback",
-        "rej-010 canary_green"
+        "rej-010 canary_green",
+        "tick023: canary_green admitted for dg caps \u2014 ts_deleted still held"
       ]
     },
     "S3": {
@@ -351,7 +356,8 @@
         "api/ directory absent"
       ],
       "blockers": [
-        "rej-010 canary_green"
+        "rej-010 canary_green",
+        "tick023: canary_green admitted for dg caps \u2014 ts_deleted still held"
       ]
     }
   },
@@ -367,9 +373,9 @@
     "proof_missing": 3,
     "completion_progress": 0,
     "authority_progress": 0.75,
-    "verified_authority_progress": 0,
+    "verified_authority_progress": 0.5,
     "weighted_progress": 0.8929,
-    "summaryNote": "rej-010/rej-011 \u2014 differential_green recorded for activity-api|backend-caps harness slice (5 caps); promotion_hold until prod_audit_pass; rej-002 /activity prod readback still open",
+    "summaryNote": "TICK023 canary admission: 5/8 caps proof.status=canary_green + imageDigest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 at bound SHA 8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9 (prod_audit_pass tick006 + live reconfirm). ts_deleted=0; freezes rej-010/011 stay; stats/chat/bun still proof_missing. rej-002 activity prod readback CLOSED.",
     "cycle50_delta": {
       "rust_impl_verified": 1,
       "slice": "activity-api|backend-caps",
@@ -377,11 +383,16 @@
       "notes": "rej-010 rust_impl ONLY \u2014 cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
     },
     "deliveryProof": {
-      "gitSha": "090d04b0237a4eaf067428502144f9c9d7b4533a",
-      "deployId": "dpl_01kx472jh9e3f9k3yx8x7m9pn0",
+      "gitSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+      "deployId": "dpl_01kx6z7wqae7mvmh4rz2t6m6jr",
+      "buildId": "019f4df3-f2e0-7755-a66a-e3e1987cec46",
+      "platformDeploymentUuid": "019f4df7-056a-7cad-a4be-5a87202e7798",
       "prodUrl": "https://slim-pal-0k3stq.sylphx.app",
-      "imageDigest": null,
-      "activityReadback": "pending \u2014 rej-002"
+      "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+      "activityReadback": "pass \u2014 ActivityPayload fields present (tick006 + tick023 reconfirm)",
+      "webImageDigest": "sha256:28f82024b7fdcbfd22315362b397edab8d9a4f5907675ff33834361d5bccf232",
+      "boundAt": "2026-07-11T11:06:19Z",
+      "packetId": "PORTFOLIO-ADMISSION-LADDER-TICK023"
     }
   },
   "priorClaims": {
@@ -454,6 +465,71 @@
       "api-terminal-tools",
       "proto-portfolio-contract"
     ],
-    "notes": "pilot harness executed \u2014 differential_green at SHA a798369; promotion_hold until prod_audit_pass"
+    "notes": "main-bound differential_green at 8a36e3d (22 cases); TICK023 elevated 5 proven caps to canary_green with live imageDigest",
+    "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9"
+  },
+  "tick023": {
+    "packetId": "PORTFOLIO-ADMISSION-LADDER-TICK023",
+    "status": "canary_green_admitted_partial",
+    "conflictKey": "portfolio-writer",
+    "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+    "boundSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+    "deployId": "dpl_01kx6z7wqae7mvmh4rz2t6m6jr",
+    "prodUrl": "https://slim-pal-0k3stq.sylphx.app",
+    "liveReconfirmAt": "2026-07-11T11:06:19Z",
+    "k8s": {
+      "context": "admin@talos-production",
+      "namespace": "portfolio-website",
+      "deployment": "api",
+      "ready": "1/1",
+      "pod": "api-68d9cfdbfc-bfbrl",
+      "SYLPHX_GIT_COMMIT_SHA": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+      "SYLPHX_IMAGE_DIGEST": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+      "podImageID": "registry.sylphx.com/shtse8/open-tilt-8seu-api@sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
+    },
+    "smoke": {
+      "baseUrl": "https://slim-pal-0k3stq.sylphx.app",
+      "result": "PASS",
+      "executedAt": "2026-07-11T11:06:19Z",
+      "checks": [
+        "GET /healthz 200 ok",
+        "GET /readyz 200 ok",
+        "GET /activity 200 ActivityPayload",
+        "GET /stats 200 stats payload",
+        "GET /projects 200 projects n=12",
+        "CORS ACAO present on JSON handlers"
+      ]
+    },
+    "prodAuditRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json",
+    "readinessRef": "rust-first-fleet-control-plane/implementer/receipts/PASS-REPOS-AF-READINESS-TICK022/scorecards/shtse8__portfolio-website.json",
+    "capsCanaryGreen": [
+      "api-activity-feed",
+      "api-cors-rate-limit",
+      "api-health-ready",
+      "api-terminal-tools",
+      "proto-portfolio-contract"
+    ],
+    "capsNotCanary": [
+      "api-chat-agent-sse",
+      "api-stats-github-npm",
+      "bun-api-authority"
+    ],
+    "tsDeleted": 0,
+    "promotionHoldActive": true,
+    "freezeLift": false,
+    "honestyNotes": {
+      "canaryBar": "COMPLETION-STANDARD: production deploy probe + digest readback; multi-week soak NOT required",
+      "partial": "Only dg+prod-readback caps admitted; stats/chat/bun deferred per scorecard residual order",
+      "rej002": "activity prod readback closed",
+      "noTsDeleted": true,
+      "noFreezeLift": true
+    },
+    "mustNot": [
+      "ts_deleted",
+      "lift_rej-010",
+      "lift_rej-011",
+      "REPO_COMPLETE",
+      "cluster_mutation"
+    ]
   }
 }
