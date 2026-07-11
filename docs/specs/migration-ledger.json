@@ -21,7 +21,8 @@
   "reauditRef": "rej-010",
   "verificationRef": "verification/portfolio-differential-green.json",
   "inventorySource": [
-    "manual"
+    "manual",
+    "negspace-tick026"
   ],
   "inScopeBoundary": {
     "includeGlobs": [
@@ -290,6 +291,22 @@
         "verificationRef": "scripts/check-no-ts-backend.sh"
       },
       "notes": "Bun api/ directory absent; sole production authority is kylet-api-rust."
+    },
+    {
+      "id": "proto-chat-rpc-missing",
+      "domain": "contracts",
+      "weight": 4,
+      "state": "ts_only",
+      "tsSurface": "api-rust/src/chat.rs#POST /chat",
+      "notes": "TICK026: live POST /chat lacks PortfolioApiService Chat RPC/messages; inventory obligation for contract coverage."
+    },
+    {
+      "id": "chat-tool-function-schemas",
+      "domain": "api-edge",
+      "weight": 3,
+      "state": "ts_only",
+      "tsSurface": "api-rust/src/chat.rs#tool_functions",
+      "notes": "TICK026: agent tool-call schemas (list_projects,get_repo,recent_activity,search_projects,npm_downloads) distinct from HTTP terminal routes."
     }
   ],
   "sliceStatus": {
@@ -362,8 +379,8 @@
     }
   },
   "summary": {
-    "total": 8,
-    "ts_only": 0,
+    "total": 10,
+    "ts_only": 2,
     "contracted": 0,
     "rust_impl": 2,
     "parity_proven": 0,
@@ -371,10 +388,10 @@
     "ts_deleted": 0,
     "proof_stale": 0,
     "proof_missing": 3,
-    "completion_progress": 0,
-    "authority_progress": 0.75,
+    "completion_progress": 0.0,
+    "authority_progress": 0.6,
     "verified_authority_progress": 0.5,
-    "weighted_progress": 0.8929,
+    "weighted_progress": 0.6629,
     "summaryNote": "TICK023 canary admission: 5/8 caps proof.status=canary_green + imageDigest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 at bound SHA 8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9 (prod_audit_pass tick006 + live reconfirm). ts_deleted=0; freezes rej-010/011 stay; stats/chat/bun still proof_missing. rej-002 activity prod readback CLOSED.",
     "cycle50_delta": {
       "rust_impl_verified": 1,
@@ -393,6 +410,16 @@
       "webImageDigest": "sha256:28f82024b7fdcbfd22315362b397edab8d9a4f5907675ff33834361d5bccf232",
       "boundAt": "2026-07-11T11:06:19Z",
       "packetId": "PORTFOLIO-ADMISSION-LADDER-TICK023"
+    },
+    "negspace_tick026": {
+      "packetId": "NEGSPACE-SAMPLE-INTO-GATES-TICK026",
+      "addedTsOnly": 2,
+      "addedIds": [
+        "proto-chat-rpc-missing",
+        "chat-tool-function-schemas"
+      ],
+      "promotions": 0,
+      "policy": "map TICK024 highSignalUnmapped as ts_only only; no promotions"
     }
   },
   "priorClaims": {
