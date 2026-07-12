@@ -55,7 +55,7 @@
       "prodProbe": "buf.build/shtse8/portfolio module path",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010 promotion freeze \u2014 incomplete differential proof; honesty demoted authority_rust\u2192rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -78,7 +78,7 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "Protobuf+Buf contract stack; REST handlers mirror proto messages (Connect codegen next slice). TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: proto contract live via api-rust handlers; differential 22-case main-proof incl proto=1; prod_audit_pass tick006 + live reconfirm tick023. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust\u2192rust_impl (invalid/missing v2 proof)."
+      "notes": "Protobuf+Buf contract stack; REST handlers mirror proto messages (Connect codegen next slice). TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: proto contract live via api-rust handlers; differential 22-case main-proof incl proto=1; prod_audit_pass tick006 + live reconfirm tick023. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
     },
     {
       "id": "api-health-ready",
@@ -91,7 +91,7 @@
       "prodProbe": "scripts/api-smoke.sh GET /healthz",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010/rej-011 freezes stay \u2014 canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
+        "reason": "rej-010/rej-011 freezes stay — canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -124,7 +124,7 @@
       "prodProbe": "scripts/api-smoke.sh GET /stats",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010 promotion freeze \u2014 incomplete differential proof; honesty demoted authority_rust\u2192rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -136,7 +136,7 @@
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
         "verificationRef": "scripts/api-smoke.sh"
       },
-      "notes": "GitHub GraphQL + npm aggregate stats with 10-minute TTL cache. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust\u2192rust_impl (invalid/missing v2 proof)."
+      "notes": "GitHub GraphQL + npm aggregate stats with 10-minute TTL cache. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
     },
     {
       "id": "api-chat-agent-sse",
@@ -148,7 +148,7 @@
       "prodProbe": "scripts/api-smoke.sh POST /chat SSE text-delta",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010 promotion freeze \u2014 incomplete differential proof; honesty demoted authority_rust\u2192rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -161,7 +161,7 @@
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
         "verificationRef": "scripts/api-smoke.sh"
       },
-      "notes": "AI SDK-compatible SSE stream via Sylphx AI Gateway. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust\u2192rust_impl (invalid/missing v2 proof)."
+      "notes": "AI SDK-compatible SSE stream via Sylphx AI Gateway. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
     },
     {
       "id": "api-terminal-tools",
@@ -174,7 +174,7 @@
       "prodProbe": "scripts/api-smoke.sh GET /projects",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010 promotion freeze \u2014 incomplete differential proof; honesty demoted authority_rust\u2192rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -196,7 +196,7 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "Terminal + agent tool surface; pkg validation in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /projects 200 projects[] n=12 @ 2026-07-11T11:06:19Z. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust\u2192rust_impl (invalid/missing v2 proof)."
+      "notes": "Terminal + agent tool surface; pkg validation in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /projects 200 projects[] n=12 @ 2026-07-11T11:06:19Z. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
     },
     {
       "id": "api-activity-feed",
@@ -209,7 +209,7 @@
       "prodProbe": "scripts/api-smoke.sh GET /activity; deploy digest readback (rej-002)",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010 promotion freeze \u2014 incomplete differential proof; honesty demoted authority_rust\u2192rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -232,7 +232,7 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "LiveTicker /activity \u2014 GraphQL contributionsCollection aggregation in contract SSOT; rej-002 blocks canary until deploy readback. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /activity 200 ActivityPayload (commitsToday/Week/Month, reposActiveToday, updatedAt) no error envelope @ 2026-07-11T11:06:19Z; rej-002 closed. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust\u2192rust_impl (invalid/missing v2 proof)."
+      "notes": "LiveTicker /activity — GraphQL contributionsCollection aggregation in contract SSOT; rej-002 blocks canary until deploy readback. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /activity 200 ActivityPayload (commitsToday/Week/Month, reposActiveToday, updatedAt) no error envelope @ 2026-07-11T11:06:19Z; rej-002 closed. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
     },
     {
       "id": "api-cors-rate-limit",
@@ -245,7 +245,7 @@
       "prodProbe": "api-rust cargo test; CORS headers on all JSON handlers",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010 promotion freeze \u2014 incomplete differential proof; honesty demoted authority_rust\u2192rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -268,20 +268,20 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "CORS allowlist + per-IP chat rate limit; contract helpers in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: Access-Control-Allow-Origin observed on /activity /stats /projects JSON handlers @ 2026-07-11T11:06:19Z; differential cors/clientIp/rate cases green on main. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust\u2192rust_impl (invalid/missing v2 proof)."
+      "notes": "CORS allowlist + per-IP chat rate limit; contract helpers in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: Access-Control-Allow-Origin observed on /activity /stats /projects JSON handlers @ 2026-07-11T11:06:19Z; differential cors/clientIp/rate cases green on main. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
     },
     {
       "id": "bun-api-authority",
       "domain": "sunset",
       "weight": 3,
       "state": "rust_impl",
-      "tsSurface": "api/ (deleted \u2014 index.ts, tools.ts, persona.ts)",
+      "tsSurface": "api/ (deleted — index.ts, tools.ts, persona.ts)",
       "rustSurface": "api-rust/",
       "parityTest": "scripts/check-no-ts-backend.sh",
       "prodProbe": "api/ absent; sylphx.toml watch_paths api-rust/** only",
       "promotionHold": {
         "active": true,
-        "reason": "rej-010 hold \u2014 not canary-admitted in tick023: api/ absent + check-no-ts PASS substance; formal canary/ts_deleted bind deferred to residual #3/#4",
+        "reason": "rej-010 hold — not canary-admitted in tick023: api/ absent + check-no-ts PASS substance; formal canary/ts_deleted bind deferred to residual #3/#4",
         "rejectionRef": "rej-010",
         "since": "2026-07-10T21:30:00Z"
       },
@@ -291,7 +291,7 @@
           "api-rust/**",
           "scripts/check-no-ts-backend.sh"
         ],
-        "staleReason": "rej-010 re-audit \u2014 prior ts_deleted lacked SHA-bound differential proof",
+        "staleReason": "rej-010 re-audit — prior ts_deleted lacked SHA-bound differential proof",
         "verificationRef": "scripts/check-no-ts-backend.sh"
       },
       "notes": "Bun api/ directory absent; sole production authority is kylet-api-rust."
@@ -300,17 +300,41 @@
       "id": "proto-chat-rpc-missing",
       "domain": "contracts",
       "weight": 4,
-      "state": "ts_only",
+      "state": "rust_impl",
       "tsSurface": "api-rust/src/chat.rs#POST /chat",
-      "notes": "TICK026: live POST /chat lacks PortfolioApiService Chat RPC/messages; inventory obligation for contract coverage."
+      "notes": "TICK026: live POST /chat lacks PortfolioApiService Chat RPC/messages; inventory obligation for contract coverage. TICK038 NONMCP-SITES: ts_only→rust_impl. rej-010 hold.",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: rust_impl only — no parity_proven/authority_rust/ts_deleted",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-12T03:02:48Z"
+      },
+      "rustSurface": "proto/portfolio/v1/api.proto#Chat,ListChatTools; api-rust/src/chat.rs#POST /chat",
+      "parityTest": "proto/portfolio/v1/api.proto ChatRequest/ChatResponse + ListChatTools",
+      "proof": {
+        "status": "missing",
+        "notes": "rust_impl unit coverage; differential_green pending"
+      }
     },
     {
       "id": "chat-tool-function-schemas",
       "domain": "api-edge",
       "weight": 3,
-      "state": "ts_only",
+      "state": "rust_impl",
       "tsSurface": "api-rust/src/chat.rs#tool_functions",
-      "notes": "TICK026: agent tool-call schemas (list_projects,get_repo,recent_activity,search_projects,npm_downloads) distinct from HTTP terminal routes."
+      "notes": "TICK026: agent tool-call schemas (list_projects,get_repo,recent_activity,search_projects,npm_downloads) distinct from HTTP terminal routes. TICK038 NONMCP-SITES: ts_only→rust_impl. rej-010 hold.",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: rust_impl only — no parity_proven/authority_rust/ts_deleted",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-12T03:02:48Z"
+      },
+      "rustSurface": "api-rust/src/tool_schemas.rs#tools_schema; api-rust/src/chat.rs#tools_schema",
+      "parityTest": "api-rust/src/tool_schemas.rs unit tests (5 tools)",
+      "proof": {
+        "status": "missing",
+        "notes": "rust_impl unit coverage; differential_green pending"
+      }
     }
   ],
   "sliceStatus": {
@@ -363,7 +387,7 @@
       ],
       "blockers": [
         "rej-010 canary_green",
-        "tick023: canary_green admitted for dg caps \u2014 ts_deleted still held"
+        "tick023: canary_green admitted for dg caps — ts_deleted still held"
       ]
     },
     "S3": {
@@ -378,7 +402,7 @@
       ],
       "blockers": [
         "rej-010 canary_green",
-        "tick023: canary_green admitted for dg caps \u2014 ts_deleted still held"
+        "tick023: canary_green admitted for dg caps — ts_deleted still held"
       ]
     }
   },
@@ -401,7 +425,7 @@
       "rust_impl_verified": 1,
       "slice": "activity-api|backend-caps",
       "verificationRef": "verification/portfolio-cycle50-activity-api-backend-caps-rust-impl.json",
-      "notes": "rej-010 rust_impl ONLY \u2014 cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
+      "notes": "rej-010 rust_impl ONLY — cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
     },
     "deliveryProof": {
       "gitSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
@@ -410,7 +434,7 @@
       "platformDeploymentUuid": "019f4df7-056a-7cad-a4be-5a87202e7798",
       "prodUrl": "https://slim-pal-0k3stq.sylphx.app",
       "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
-      "activityReadback": "pass \u2014 ActivityPayload fields present (tick006 + tick023 reconfirm)",
+      "activityReadback": "pass — ActivityPayload fields present (tick006 + tick023 reconfirm)",
       "webImageDigest": "sha256:28f82024b7fdcbfd22315362b397edab8d9a4f5907675ff33834361d5bccf232",
       "boundAt": "2026-07-11T11:06:19Z",
       "packetId": "PORTFOLIO-ADMISSION-LADDER-TICK023"
@@ -433,7 +457,7 @@
     "completion_progress": 1.0,
     "authority_progress": 1.0,
     "revertedAt": "2026-07-10T21:30:00Z",
-    "reason": "rej-010 promotion freeze \u2014 0 capabilities with differential_green or canary_green proof"
+    "reason": "rej-010 promotion freeze — 0 capabilities with differential_green or canary_green proof"
   },
   "rej010Reaudit": {
     "appliedAt": "2026-07-10T21:30:00Z",
@@ -445,7 +469,7 @@
     "capabilitiesWithDifferentialHarness": 4,
     "rej002Blocker": "api-activity-feed prod deploy digest readback"
   },
-  "cycle46Slice": "activity-api|backend-caps \u2014 portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle46Slice": "activity-api|backend-caps — portfolio API differential; bash scripts/run-portfolio-differential.sh",
   "cycle46": {
     "boundedSlice": "activity-api|backend-caps",
     "status": "rust_impl_on_disk_verified",
@@ -461,9 +485,9 @@
     "caseCounts": {
       "total": 21
     },
-    "notes": "cycle46 pilot/P0 rej-010: activity-api + backend caps differential harness on-disk re-verify. rej-002 /activity prod readback still open. rust_impl ONLY \u2014 proof.status missing until differential_green."
+    "notes": "cycle46 pilot/P0 rej-010: activity-api + backend caps differential harness on-disk re-verify. rej-002 /activity prod readback still open. rust_impl ONLY — proof.status missing until differential_green."
   },
-  "cycle50Slice": "activity-api|backend-caps \u2014 portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle50Slice": "activity-api|backend-caps — portfolio API differential; bash scripts/run-portfolio-differential.sh",
   "cycle50": {
     "boundedSlice": "activity-api|backend-caps",
     "status": "differential_green",
@@ -480,7 +504,7 @@
     "caseCounts": {
       "total": 21
     },
-    "notes": "cycle50 rej-010: activity-api|backend-caps bounded differential harness executed \u2014 differential_green at bound SHAs (22 cases); rej-002 /activity prod readback still open"
+    "notes": "cycle50 rej-010: activity-api|backend-caps bounded differential harness executed — differential_green at bound SHAs (22 cases); rej-002 /activity prod readback still open"
   },
   "differentialGreen": {
     "boundedSlice": "activity-api|backend-caps",
@@ -600,5 +624,13 @@
         "to": "rust_impl"
       }
     ]
+  },
+  "tick038Slice": {
+    "packet": "NONMCP-SITES-TICK038",
+    "capabilities": [
+      "proto-chat-rpc-missing",
+      "chat-tool-function-schemas"
+    ],
+    "at": "2026-07-12T03:02:48Z"
   }
 }
