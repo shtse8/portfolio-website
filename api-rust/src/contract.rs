@@ -1060,6 +1060,31 @@ mod fleet_web_finish_wave7_tests {
     }
 }
 
+
+/// FLEET-BULK-v1 pure residual: seconds→ms.
+#[must_use]
+pub fn secs_to_ms(secs: u64) -> u64 {
+    secs.saturating_mul(1000)
+}
+
+/// FLEET-BULK-v1 pure residual: minutes→ms.
+#[must_use]
+pub fn mins_to_ms(mins: u64) -> u64 {
+    mins.saturating_mul(60_000)
+}
+
+/// FLEET-BULK-v1 pure residual: true when origin string is https.
+#[must_use]
+pub fn origin_is_https(origin: &str) -> bool {
+    origin.starts_with("https://")
+}
+
+/// FLEET-BULK-v1 pure residual: strip trailing slash from origin.
+#[must_use]
+pub fn normalize_origin(origin: &str) -> &str {
+    origin.strip_suffix('/').unwrap_or(origin)
+}
+
 #[cfg(test)]
 mod fleet_web_finish_wave8_tests {
     use super::*;
@@ -1207,5 +1232,22 @@ mod fleet_web_finish_wave8_tests {
         let d = allowed_origin(Some("https://not-on-list.example"));
         assert_ne!(d, "https://not-on-list.example");
         assert!(!d.is_empty());
+    }
+
+
+    #[test]
+    fn fleet_bulk_v1_time_origin_helpers() {
+        assert_eq!(secs_to_ms(1), 1000);
+        assert_eq!(secs_to_ms(u64::MAX / 1000 + 1), u64::MAX);
+        assert_eq!(mins_to_ms(1), 60_000);
+        assert_eq!(mins_to_ms(0), 0);
+        assert!(origin_is_https("https://shtse8.com"));
+        assert!(!origin_is_https("http://shtse8.com"));
+        assert_eq!(normalize_origin("https://x.com/"), "https://x.com");
+        assert_eq!(normalize_origin("https://x.com"), "https://x.com");
+        assert!(!valid_pkg(""));
+        assert!(!valid_pkg(".hidden"));
+        let s = format_ago(1_700_000_000_000, "");
+        assert!(!s.is_empty());
     }
 }
