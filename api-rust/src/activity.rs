@@ -1,54 +1,22 @@
+use crate::contract::{
+    aggregate_activity_from_graphql, build_org_activity_graphql_block,
+    build_user_activity_graphql_block, normalize_activity_graphql_response, ActivityPayload,
+    GITHUB_OWNERS, WEEK_MS,
+};
 use crate::upstream;
 use reqwest::Client;
-use serde::Serialize;
 use std::env;
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-const ACTIVITY_TTL_MS: u64 = 90 * 1000;
-const DAY_MS: u64 = 86_400_000;
-const WEEK_MS: u64 = 7 * DAY_MS;
+const DEFAULT_ACTIVITY_TTL_MS: u64 = 90 * 1000;
 
-struct GithubOwner {
-    login: &'static str,
-    kind: &'static str,
-}
-
-const GITHUB_OWNERS: &[GithubOwner] = &[
-    GithubOwner {
-        login: "shtse8",
-        kind: "user",
-    },
-    GithubOwner {
-        login: "SylphxAI",
-        kind: "organization",
-    },
-    GithubOwner {
-        login: "Cubeage",
-        kind: "organization",
-    },
-    GithubOwner {
-        login: "EpiowAI",
-        kind: "organization",
-    },
-];
-
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct LastPush {
-    pub repo: String,
-    pub ago: String,
-}
-
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ActivityPayload {
-    pub commits_today: u64,
-    pub commits_week: u64,
-    pub commits_month: u64,
-    pub repos_active_today: u64,
-    pub last_push: Option<LastPush>,
-    pub updated_at: String,
+fn activity_ttl_ms() -> u64 {
+    env::var("ACTIVITY_TTL_MS")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .filter(|&v| v > 0)
+        .unwrap_or(DEFAULT_ACTIVITY_TTL_MS)
 }
 
 static CACHE: std::sync::OnceLock<Mutex<Option<(u64, ActivityPayload)>>> =
@@ -72,8 +40,16 @@ fn client() -> Client {
         .unwrap_or_else(|_| Client::new())
 }
 
-async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
+fn github_token() -> Result<String, String> {
     let token = env::var("GITHUB_TOKEN").map_err(|_| "GITHUB_TOKEN not set".to_string())?;
+    if token.is_empty() {
+        return Err("GITHUB_TOKEN empty".to_string());
+    }
+    Ok(token)
+}
+
+pub async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
+    let token = github_token()?;
     let res = client()
         .post(upstream::github_graphql_url())
         .header("authorization", format!("bearer {token}"))
@@ -82,151 +58,34 @@ async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
         .json(&serde_json::json!({ "query": query }))
         .send()
         .await
-        .map_err(|e| e.to_string())?;
-    if !res.status().is_success() {
-        return Err(format!("github graphql {}", res.status()));
+        .map_err(|e| format!("github graphql transport: {e}"))?;
+    let status = res.status();
+    if !status.is_success() {
+        let body = res.text().await.unwrap_or_default();
+        return Err(format!(
+            "github graphql http {status}: {}",
+            body.chars().take(200).collect::<String>()
+        ));
     }
-    let body: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
+    let body: serde_json::Value = res
+        .json()
+        .await
+        .map_err(|e| format!("github graphql decode: {e}"))?;
     if let Some(errors) = body.get("errors") {
         return Err(format!(
-            "github graphql: {}",
-            errors.to_string().chars().take(200).collect::<String>()
+            "github graphql errors: {}",
+            errors.to_string().chars().take(300).collect::<String>()
         ));
     }
     body.get("data")
         .cloned()
-        .ok_or_else(|| "missing data".to_string())
-}
-
-fn format_ago(now: u64, when: &str) -> String {
-    let when_ms = chrono_like_parse(when);
-    let diff = now.saturating_sub(when_ms);
-    let mins = diff / 60_000;
-    let hrs = mins / 60;
-    let days = hrs / 24;
-    if days > 0 {
-        format!("{days}d ago")
-    } else if hrs > 0 {
-        format!("{hrs}h ago")
-    } else if mins > 0 {
-        format!("{mins}m ago")
-    } else {
-        "just now".to_string()
-    }
-}
-
-fn chrono_like_parse(iso: &str) -> u64 {
-    time::OffsetDateTime::parse(iso, &time::format_description::well_known::Rfc3339)
-        .ok()
-        .map(|dt| (dt.unix_timestamp_nanos() / 1_000_000) as u64)
-        .unwrap_or(0)
+        .ok_or_else(|| "github graphql missing data".to_string())
 }
 
 fn iso_now() -> String {
     time::OffsetDateTime::now_utc()
         .format(&time::format_description::well_known::Rfc3339)
         .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
-}
-
-async fn compute_activity() -> Result<ActivityPayload, String> {
-    let now = now_ms();
-    let week_start = iso_from_ms(now.saturating_sub(WEEK_MS));
-    let now_iso = iso_now();
-
-    let blocks: String = GITHUB_OWNERS
-        .iter()
-        .enumerate()
-        .map(|(i, o)| {
-            let entity = if o.kind == "organization" {
-                "organization"
-            } else {
-                "user"
-            };
-            format!(
-                "o{i}: {entity}(login: \"{}\") {{
-          contributionsCollection(from: \"{week_start}\", to: \"{now_iso}\") {{
-            totalCommitContributions
-            commitContributionsByRepository(maxRepositories: 20) {{
-              repository {{ nameWithOwner pushedAt }}
-              contributions {{ totalCount }}
-            }}
-          }}
-        }}",
-                o.login
-            )
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-
-    let data = github_graphql(&format!("{{ {blocks} }}")).await?;
-
-    let mut commits_today = 0u64;
-    let mut commits_week = 0u64;
-    let mut repos_active_today = std::collections::HashSet::new();
-    let mut last_push: Option<(String, String)> = None;
-
-    for (i, _) in GITHUB_OWNERS.iter().enumerate() {
-        let cc = data
-            .get(format!("o{i}"))
-            .and_then(|v| v.get("contributionsCollection"));
-        let Some(cc) = cc else { continue };
-
-        commits_week += cc
-            .get("totalCommitContributions")
-            .and_then(|v| v.as_u64())
-            .unwrap_or(0);
-
-        let by_repo = cc
-            .get("commitContributionsByRepository")
-            .and_then(|v| v.as_array());
-
-        if let Some(entries) = by_repo {
-            for entry in entries {
-                let repo = entry
-                    .get("repository")
-                    .and_then(|r| r.get("nameWithOwner"))
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("");
-                let count = entry
-                    .get("contributions")
-                    .and_then(|c| c.get("totalCount"))
-                    .and_then(|v| v.as_u64())
-                    .unwrap_or(0);
-                let pushed_at = entry
-                    .get("repository")
-                    .and_then(|r| r.get("pushedAt"))
-                    .and_then(|v| v.as_str());
-
-                if let Some(pushed_at) = pushed_at {
-                    let ts = chrono_like_parse(pushed_at);
-                    if now.saturating_sub(ts) < DAY_MS {
-                        repos_active_today.insert(repo.to_string());
-                        commits_today += count;
-                    }
-                    if last_push.as_ref().is_none_or(|(_, when)| ts > chrono_like_parse(when)) {
-                        last_push = Some((repo.to_string(), pushed_at.to_string()));
-                    }
-                }
-            }
-        }
-    }
-
-    let last_push_display = last_push.map(|(repo, when)| {
-        let short = repo.split('/').nth(1).unwrap_or(&repo).to_string();
-        LastPush {
-            repo: short,
-            ago: format_ago(now, &when),
-        }
-    });
-
-    Ok(ActivityPayload {
-        commits_today,
-        commits_week,
-        commits_month: commits_week.saturating_mul(4),
-        repos_active_today: repos_active_today.len() as u64,
-        last_push: last_push_display,
-        updated_at: iso_now(),
-    })
 }
 
 fn iso_from_ms(ms: u64) -> String {
@@ -240,11 +99,81 @@ fn iso_from_ms(ms: u64) -> String {
         .unwrap_or_else(|| "1970-01-01T00:00:00Z".to_string())
 }
 
+pub fn build_activity_graphql_query(week_start: &str, now_iso: &str) -> String {
+    let blocks: String = GITHUB_OWNERS
+        .iter()
+        .enumerate()
+        .map(|(i, (login, kind))| {
+            if *kind == "organization" {
+                build_org_activity_graphql_block(i, login, week_start)
+            } else {
+                build_user_activity_graphql_block(i, login, week_start, now_iso)
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    format!("{{ {blocks} }}")
+}
+
+pub async fn compute_activity() -> Result<ActivityPayload, String> {
+    let now = now_ms();
+    let week_start = iso_from_ms(now.saturating_sub(WEEK_MS));
+    let now_iso = iso_now();
+    let query = build_activity_graphql_query(&week_start, &now_iso);
+    let data = github_graphql(&query).await?;
+    let normalized = normalize_activity_graphql_response(&data);
+    let owner_keys: Vec<String> = (0..GITHUB_OWNERS.len()).map(|i| format!("o{i}")).collect();
+    Ok(aggregate_activity_from_graphql(
+        &normalized,
+        &owner_keys,
+        now,
+        &iso_now(),
+    ))
+}
+
+pub async fn get_activity() -> Result<ActivityPayload, String> {
+    let now = now_ms();
+    let stale = cache()
+        .lock()
+        .ok()
+        .and_then(|guard| guard.as_ref().map(|(_, data)| data.clone()));
+
+    if let Ok(guard) = cache().lock() {
+        if let Some((at, data)) = guard.as_ref() {
+            if now.saturating_sub(*at) < activity_ttl_ms() {
+                return Ok(data.clone());
+            }
+        }
+    }
+
+    match compute_activity().await {
+        Ok(data) => {
+            if let Ok(mut guard) = cache().lock() {
+                *guard = Some((now, data.clone()));
+            }
+            Ok(data)
+        }
+        Err(err) => {
+            if let Some(cached) = stale {
+                tracing::warn!(
+                    error = %err,
+                    upstream = "github_graphql",
+                    route = "/activity",
+                    "activity upstream failed; serving stale cache"
+                );
+                return Ok(cached);
+            }
+            Err(err)
+        }
+    }
+}
+
+#[doc(hidden)]
 pub fn cached_snapshot() -> Option<ActivityPayload> {
     let now = now_ms();
     if let Ok(guard) = cache().lock() {
         if let Some((at, data)) = guard.as_ref() {
-            if now.saturating_sub(*at) < ACTIVITY_TTL_MS {
+            if now.saturating_sub(*at) < activity_ttl_ms() {
                 return Some(data.clone());
             }
         }
@@ -252,25 +181,31 @@ pub fn cached_snapshot() -> Option<ActivityPayload> {
     None
 }
 
-pub async fn get_activity() -> Result<ActivityPayload, String> {
-    let now = now_ms();
-    if let Ok(guard) = cache().lock() {
-        if let Some((at, data)) = guard.as_ref() {
-            if now.saturating_sub(*at) < ACTIVITY_TTL_MS {
-                return Ok(data.clone());
-            }
-        }
-    }
-    let data = compute_activity().await?;
-    if let Ok(mut guard) = cache().lock() {
-        *guard = Some((now, data.clone()));
-    }
-    Ok(data)
-}
-
 #[doc(hidden)]
 pub fn reset_cache_for_tests() {
     if let Ok(mut guard) = cache().lock() {
         *guard = None;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::build_activity_graphql_query;
+
+    #[test]
+    fn activity_query_uses_user_contributions_for_users_only() {
+        let query = build_activity_graphql_query("2026-07-01T00:00:00Z", "2026-07-10T00:00:00Z");
+        assert!(query.contains("o0: user(login: \"shtse8\")"));
+        assert!(query.contains("contributionsCollection(from: \"2026-07-01T00:00:00Z\""));
+        assert!(!query.contains("organization(login: \"shtse8\")"));
+    }
+
+    #[test]
+    fn activity_query_uses_org_repositories_not_contributions_collection() {
+        let query = build_activity_graphql_query("2026-07-01T00:00:00Z", "2026-07-10T00:00:00Z");
+        assert!(query.contains("o1: organization(login: \"SylphxAI\")"));
+        assert!(query.contains("repositories(first: 50"));
+        let org_section = query.split("o1: organization").nth(1).expect("org section");
+        assert!(!org_section.contains("contributionsCollection"));
     }
 }

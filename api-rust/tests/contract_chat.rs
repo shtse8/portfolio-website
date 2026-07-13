@@ -1,4 +1,4 @@
-use kylet_api_rust::contract::parse_stream_chat_request;
+use kylet_api_rust::rest_projection::parse_stream_chat_request;
 use serde_json::json;
 
 #[test]

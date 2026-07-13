@@ -17,7 +17,6 @@ use crate::http_util;
 use crate::stats;
 use crate::tools;
 use crate::stats::iso_now;
-use crate::validation;
 use std::env;
 use tracing_subscriber::EnvFilter;
 
@@ -91,11 +90,11 @@ pub async fn healthz() -> &'static str {
 pub async fn stats_handler(headers: HeaderMap) -> Response {
     let origin = origin_from_headers(&headers);
     match stats::get_stats().await {
-        Ok(data) => json_value_with_cors(contract::stats_json(&data), origin.as_deref()),
+        Ok(data) => json_value_with_cors(crate::rest_projection::stats_json(&data), origin.as_deref()),
         Err(err) => {
             tracing::error!("stats error: {err}");
             if let Some(stale) = stats::cached_snapshot() {
-                return json_value_with_cors(contract::stats_json_stale(&stale), origin.as_deref());
+                return json_value_with_cors(crate::rest_projection::stats_json_stale(&stale), origin.as_deref());
             }
             json_value_with_cors(
                 json!({ "error": "live data is briefly unavailable — try again shortly." }),
@@ -114,7 +113,7 @@ pub async fn projects_handler(headers: HeaderMap, Query(q): Query<LimitQuery>) -
     }
     .await
     {
-        Ok(projects) => json_value_with_cors(contract::list_projects_json(&projects, &iso_now()), origin.as_deref()),
+        Ok(projects) => json_value_with_cors(crate::rest_projection::list_projects_json(&projects, &iso_now()), origin.as_deref()),
         Err(_) => error_json(
             StatusCode::BAD_GATEWAY,
             "live data is briefly unavailable — try again shortly.",
@@ -127,7 +126,7 @@ pub async fn repo_handler(headers: HeaderMap, Query(q): Query<RepoQuery>) -> Res
     let origin = origin_from_headers(&headers);
     let name = q.name.unwrap_or_default();
     match tools::get_repo_detail(&name).await {
-        Some(repo) => json_value_with_cors(contract::get_repo_json(&repo, &iso_now()), origin.as_deref()),
+        Some(repo) => json_value_with_cors(crate::rest_projection::get_repo_json(&repo, &iso_now()), origin.as_deref()),
         None => error_json(
             StatusCode::NOT_FOUND,
             &format!("no such repo under Kyle's owners: {}", name.chars().take(60).collect::<String>()),
@@ -140,17 +139,17 @@ pub async fn recent_handler(headers: HeaderMap, Query(q): Query<LimitQuery>) -> 
     let origin = origin_from_headers(&headers);
     let limit = q.limit.unwrap_or(6) as usize;
     let recent = tools::recent_activity(limit).await;
-    json_value_with_cors(contract::list_recent_json(&recent, &iso_now()), origin.as_deref())
+    json_value_with_cors(crate::rest_projection::list_recent_json(&recent, &iso_now()), origin.as_deref())
 }
 
 pub async fn activity_handler(headers: HeaderMap) -> Response {
     let origin = origin_from_headers(&headers);
     match activity::get_activity().await {
-        Ok(data) => json_value_with_cors(contract::activity_json(&data), origin.as_deref()),
+        Ok(data) => json_value_with_cors(crate::rest_projection::activity_json(&data), origin.as_deref()),
         Err(err) => {
             tracing::error!("activity error: {err}");
             if let Some(stale) = activity::cached_snapshot() {
-                return json_value_with_cors(contract::activity_json_stale(&stale), origin.as_deref());
+                return json_value_with_cors(crate::rest_projection::activity_json_stale(&stale), origin.as_deref());
             }
             json_value_with_cors(
                 json!({ "error": "activity data briefly unavailable" }),
@@ -163,14 +162,14 @@ pub async fn activity_handler(headers: HeaderMap) -> Response {
 pub async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) -> Response {
     let origin = origin_from_headers(&headers);
     let pkg = q.pkg.unwrap_or_default();
-    let valid = validation::valid_npm_pkg(&pkg);
+    let valid = contract::valid_pkg(&pkg);
     let series = if valid {
         tools::npm_range(&pkg).await
     } else {
         Vec::new()
     };
     let total: u64 = series.iter().map(|d| d.downloads).sum();
-    json_value_with_cors(contract::downloads_json(&pkg, &series, total, &iso_now()), origin.as_deref())
+    json_value_with_cors(crate::rest_projection::downloads_json(&pkg, &series, total, &iso_now()), origin.as_deref())
 }
 
 pub async fn chat_handler(headers: HeaderMap, Json(body): Json<chat::ChatRequest>) -> Response {

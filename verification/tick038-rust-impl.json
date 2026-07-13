@@ -1,0 +1,17 @@
+{
+  "packet": "NONMCP-SITES-TICK038",
+  "at": "2026-07-12T03:07:10Z",
+  "transition": "ts_only\u2192rust_impl",
+  "capabilities": [
+    "chat-tool-function-schemas",
+    "proto-chat-rpc-missing"
+  ],
+  "localTests": "cargo test --lib tool_schemas \u2192 2 passed",
+  "claims": {
+    "rust_impl": true,
+    "parity_proven": false,
+    "authority_rust": false,
+    "ts_deleted": false
+  },
+  "notes": "proto Chat+ListChatTools + tool_schemas module rej-010 hold; cloud CI via PR; no Docker."
+}

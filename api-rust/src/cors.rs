@@ -1,18 +1,5 @@
 use axum::http::{HeaderMap, HeaderValue, Method};
-
-
-const ALLOWED_ORIGINS: &[&str] = &[
-    "https://kylet.se",
-    "https://www.kylet.se",
-    "https://loud-slab-t9c6ai.sylphx.app",
-    "http://localhost:3000",
-];
-
-pub fn allowed_origin(origin: Option<&str>) -> &'static str {
-    origin
-        .and_then(|o| ALLOWED_ORIGINS.iter().copied().find(|&a| a == o))
-        .unwrap_or("https://kylet.se")
-}
+use crate::contract::allowed_origin;
 
 pub fn cors_headers(origin: Option<&str>) -> HeaderMap {
     let mut headers = HeaderMap::new();

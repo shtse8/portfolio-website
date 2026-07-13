@@ -122,13 +122,7 @@ fn ui_messages_to_openai(messages: &[UIMessage]) -> Vec<Value> {
 }
 
 fn tools_schema() -> Vec<Value> {
-    vec![
-        json!({"type":"function","function":{"name":"list_projects","description":"List Kyle's top projects by live GitHub stars.","parameters":{"type":"object","properties":{"limit":{"type":"number"}}}}}),
-        json!({"type":"function","function":{"name":"get_repo","description":"Get live details for a specific repository.","parameters":{"type":"object","properties":{"name":{"type":"string"}},"required":["name"]}}}),
-        json!({"type":"function","function":{"name":"recent_activity","description":"Show Kyle's most recently shipped repos.","parameters":{"type":"object","properties":{"limit":{"type":"number"}}}}}),
-        json!({"type":"function","function":{"name":"search_projects","description":"Search Kyle's repos by keyword.","parameters":{"type":"object","properties":{"query":{"type":"string"}},"required":["query"]}}}),
-        json!({"type":"function","function":{"name":"npm_downloads","description":"Get npm download counts for a package.","parameters":{"type":"object","properties":{"pkg":{"type":"string"}},"required":["pkg"]}}}),
-    ]
+    crate::tool_schemas::tools_schema()
 }
 
 async fn run_tool(name: &str, args: &Value) -> Value {

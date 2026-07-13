@@ -1,0 +1,225 @@
+{
+  "corpusVersion": 1,
+  "cases": [
+    {
+      "id": "health-healthz",
+      "slice": "health",
+      "domain": "healthz",
+      "input": { "path": "/healthz" }
+    },
+    {
+      "id": "pkg-scoped",
+      "slice": "pkgValidation",
+      "domain": "validPkg",
+      "input": { "pkg": "@sylphx/pdf-reader-mcp" }
+    },
+    {
+      "id": "pkg-unscoped",
+      "slice": "pkgValidation",
+      "domain": "validPkg",
+      "input": { "pkg": "lodash" }
+    },
+    {
+      "id": "pkg-invalid-spaces",
+      "slice": "pkgValidation",
+      "domain": "validPkg",
+      "input": { "pkg": "not valid spaces" }
+    },
+    {
+      "id": "pkg-empty",
+      "slice": "pkgValidation",
+      "domain": "validPkg",
+      "input": { "pkg": "" }
+    },
+    {
+      "id": "pkg-too-long",
+      "slice": "pkgValidation",
+      "domain": "validPkg",
+      "input": {
+        "pkg": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "id": "cors-kylet",
+      "slice": "cors",
+      "domain": "allowedOrigin",
+      "input": { "origin": "https://kylet.se" }
+    },
+    {
+      "id": "cors-www",
+      "slice": "cors",
+      "domain": "allowedOrigin",
+      "input": { "origin": "https://www.kylet.se" }
+    },
+    {
+      "id": "cors-localhost",
+      "slice": "cors",
+      "domain": "allowedOrigin",
+      "input": { "origin": "http://localhost:3000" }
+    },
+    {
+      "id": "cors-unknown-default",
+      "slice": "cors",
+      "domain": "allowedOrigin",
+      "input": { "origin": "https://evil.example" }
+    },
+    {
+      "id": "cors-headers-kylet",
+      "slice": "cors",
+      "domain": "corsHeaders",
+      "input": { "origin": "https://kylet.se" }
+    },
+    {
+      "id": "ip-xff",
+      "slice": "clientIp",
+      "domain": "clientIp",
+      "input": { "headers": [["x-forwarded-for", "203.0.113.1, 198.51.100.2"]] }
+    },
+    {
+      "id": "ip-real",
+      "slice": "clientIp",
+      "domain": "clientIp",
+      "input": { "headers": [["x-real-ip", "203.0.113.9"]] }
+    },
+    {
+      "id": "ip-cf",
+      "slice": "clientIp",
+      "domain": "clientIp",
+      "input": { "headers": [["cf-connecting-ip", "203.0.113.7"]] }
+    },
+    {
+      "id": "ip-unknown",
+      "slice": "clientIp",
+      "domain": "clientIp",
+      "input": { "headers": [] }
+    },
+    {
+      "id": "rate-constants",
+      "slice": "rateLimitConstants",
+      "domain": "constants",
+      "input": {}
+    },
+    {
+      "id": "rate-burst-block",
+      "slice": "rateLimitConstants",
+      "domain": "burst",
+      "input": { "ip": "203.0.113.1", "base": 1700000000000 }
+    },
+    {
+      "id": "activity-activity-multi-owner",
+      "slice": "activity",
+      "domain": "aggregate",
+      "input": {
+        "graphql": {
+          "o0": {
+            "contributionsCollection": {
+              "totalCommitContributions": 5,
+              "commitContributionsByRepository": [
+                {
+                  "repository": {
+                    "nameWithOwner": "shtse8/portfolio-website",
+                    "pushedAt": "2023-11-14T20:00:00Z"
+                  },
+                  "contributions": { "totalCount": 3 }
+                }
+              ]
+            }
+          },
+          "o1": {
+            "contributionsCollection": {
+              "totalCommitContributions": 7,
+              "commitContributionsByRepository": [
+                {
+                  "repository": {
+                    "nameWithOwner": "SylphxAI/gateway",
+                    "pushedAt": "2023-11-14T21:00:00Z"
+                  },
+                  "contributions": { "totalCount": 2 }
+                }
+              ]
+            }
+          }
+        },
+        "nowMs": 1700000000000,
+        "updatedAt": "2023-11-14T22:13:20Z",
+        "ownerKeys": ["o0", "o1"]
+      }
+    },
+    {
+      "id": "activity-activity-stale-push",
+      "slice": "activity",
+      "domain": "aggregate",
+      "input": {
+        "graphql": {
+          "o0": {
+            "contributionsCollection": {
+              "totalCommitContributions": 2,
+              "commitContributionsByRepository": [
+                {
+                  "repository": {
+                    "nameWithOwner": "shtse8/old-repo",
+                    "pushedAt": "2023-11-01T10:00:00Z"
+                  },
+                  "contributions": { "totalCount": 2 }
+                }
+              ]
+            }
+          }
+        },
+        "nowMs": 1700000000000,
+        "updatedAt": "2023-11-14T22:13:20Z",
+        "ownerKeys": ["o0"]
+      }
+    },
+    {
+      "id": "activity-activity-empty-collection",
+      "slice": "activity",
+      "domain": "aggregate",
+      "input": {
+        "graphql": {
+          "o0": {
+            "contributionsCollection": {
+              "totalCommitContributions": 0,
+              "commitContributionsByRepository": []
+            }
+          }
+        },
+        "nowMs": 1700000000000,
+        "updatedAt": "2023-11-14T22:13:20Z",
+        "ownerKeys": ["o0"]
+      }
+    },
+    {
+      "id": "activity-activity-just-now",
+      "slice": "activity",
+      "domain": "aggregate",
+      "input": {
+        "graphql": {
+          "o0": {
+            "contributionsCollection": {
+              "totalCommitContributions": 1,
+              "commitContributionsByRepository": [
+                {
+                  "repository": {
+                    "nameWithOwner": "shtse8/fresh",
+                    "pushedAt": "2023-11-14T22:12:00Z"
+                  },
+                  "contributions": { "totalCount": 1 }
+                }
+              ]
+            }
+          }
+        },
+        "nowMs": 1700000000000,
+        "updatedAt": "2023-11-14T22:13:20Z",
+        "ownerKeys": ["o0"]
+      }
+    },
+    {
+      "id": "proto-service-present",
+      "slice": "proto-contract",
+      "domain": "service",
+      "input": { "path": "proto/portfolio/v1/api.proto" }
+    }
+  ]
+}

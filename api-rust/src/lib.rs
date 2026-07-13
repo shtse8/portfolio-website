@@ -7,9 +7,10 @@ pub mod http_util;
 pub mod persona;
 pub mod proto;
 pub mod rate_limit;
+pub mod rest_projection;
 pub mod stats;
+pub mod tool_schemas;
 pub mod tools;
-pub mod validation;
 pub mod upstream;
 #[doc(hidden)]
 pub mod testing;

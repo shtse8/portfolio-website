@@ -1,0 +1,636 @@
+{
+  "schemaVersion": 3,
+  "repo": "shtse8/portfolio-website",
+  "repoLedgerPath": "docs/specs/migration-ledger.json",
+  "lockedAt": "2026-07-10T21:30:00Z",
+  "programSpec": {
+    "id": "rust-first-fleet-migration",
+    "controlPlaneRepo": "SylphxAI/rust-first-fleet-control-plane",
+    "programSpecPath": "PROGRAM-SPEC.json",
+    "completionStandard": "COMPLETION-STANDARD.md",
+    "parityStandard": "PARITY-VERIFICATION-STANDARD.md"
+  },
+  "adrRefs": [
+    {
+      "path": "docs/adr/ADR-168-fleet-portfolio-api-rust-north-star.md",
+      "prNumber": 168,
+      "status": "accepted",
+      "note": "North Star ADR on disk; PR number pending Doctrine alignment per DECISION-003."
+    }
+  ],
+  "reauditRef": "rej-010",
+  "verificationRef": "verification/portfolio-differential-green.json",
+  "inventorySource": [
+    "manual",
+    "negspace-tick026"
+  ],
+  "inScopeBoundary": {
+    "includeGlobs": [
+      "api-rust/**",
+      "proto/portfolio/**",
+      "scripts/api-smoke.sh",
+      "scripts/run-portfolio-differential.sh",
+      "scripts/check-no-ts-backend.sh",
+      "scripts/differential/**",
+      "docs/specs/portfolio-api-parity-slice.json",
+      "buf.yaml"
+    ],
+    "excludeGlobs": [
+      "src/**",
+      "public/**",
+      "out/**",
+      ".next/**",
+      "api/**",
+      "api-rust/target/**"
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "proto-portfolio-contract",
+      "domain": "contracts",
+      "weight": 5,
+      "state": "rust_impl",
+      "rustSurface": "proto/portfolio/v1/api.proto; buf.yaml",
+      "parityTest": "buf.yaml lint STANDARD; proto/portfolio/v1/api.proto service+message SSOT",
+      "prodProbe": "buf.build/shtse8/portfolio module path",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "stale",
+        "baselineTsSha": "",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "dependencyGlobs": [
+          "proto/portfolio/**",
+          "buf.yaml",
+          "scripts/run-portfolio-differential.sh"
+        ],
+        "contractHash": "358313c76d9b3dc55f8cb4a0ce6d0d06073a834e815d4c18b334f4aef431b324",
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+        "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
+      },
+      "notes": "Protobuf+Buf contract stack; REST handlers mirror proto messages (Connect codegen next slice). TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: proto contract live via api-rust handlers; differential 22-case main-proof incl proto=1; prod_audit_pass tick006 + live reconfirm tick023. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+    },
+    {
+      "id": "api-health-ready",
+      "domain": "api-edge",
+      "weight": 2,
+      "state": "rust_impl",
+      "rustSurface": "api-rust/src/main.rs#/healthz; /readyz",
+      "parityTest": "api-rust/tests/http_smoke.rs#healthz_returns_ok_on_real_binary",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#health",
+      "prodProbe": "scripts/api-smoke.sh GET /healthz",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010/rej-011 freezes stay — canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "canary_green",
+        "baselineTsSha": "",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "dependencyGlobs": [
+          "api-rust/src/main.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**"
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
+      },
+      "notes": "kylet-api-rust binary on port 3001; health contract covered in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /healthz 200 ok; GET /readyz 200 ok @ 2026-07-11T11:06:19Z."
+    },
+    {
+      "id": "api-stats-github-npm",
+      "domain": "api-edge",
+      "weight": 5,
+      "state": "rust_impl",
+      "rustSurface": "api-rust/src/stats.rs#/stats",
+      "parityTest": "api-rust/tests/parity.rs; api-rust/tests/http_smoke.rs",
+      "prodProbe": "scripts/api-smoke.sh GET /stats",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "stale",
+        "dependencyGlobs": [
+          "api-rust/src/stats.rs"
+        ],
+        "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
+        "verificationRef": "scripts/api-smoke.sh"
+      },
+      "notes": "GitHub GraphQL + npm aggregate stats with 10-minute TTL cache. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+    },
+    {
+      "id": "api-chat-agent-sse",
+      "domain": "api-edge",
+      "weight": 5,
+      "state": "rust_impl",
+      "rustSurface": "api-rust/src/chat.rs#/chat; api-rust/src/persona.rs",
+      "parityTest": "api-rust/tests/http_smoke.rs integration",
+      "prodProbe": "scripts/api-smoke.sh POST /chat SSE text-delta",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "stale",
+        "dependencyGlobs": [
+          "api-rust/src/chat.rs",
+          "api-rust/src/persona.rs"
+        ],
+        "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
+        "verificationRef": "scripts/api-smoke.sh"
+      },
+      "notes": "AI SDK-compatible SSE stream via Sylphx AI Gateway. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+    },
+    {
+      "id": "api-terminal-tools",
+      "domain": "api-edge",
+      "weight": 4,
+      "state": "rust_impl",
+      "rustSurface": "api-rust/src/tools.rs; GET /projects, /repo, /recent, /downloads",
+      "parityTest": "api-rust/tests/parity.rs#pkg_validation_matches_bun_rules",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#pkgValidation",
+      "prodProbe": "scripts/api-smoke.sh GET /projects",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "stale",
+        "baselineTsSha": "",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "dependencyGlobs": [
+          "api-rust/src/tools.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**"
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+        "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
+      },
+      "notes": "Terminal + agent tool surface; pkg validation in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /projects 200 projects[] n=12 @ 2026-07-11T11:06:19Z. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+    },
+    {
+      "id": "api-activity-feed",
+      "domain": "api-edge",
+      "weight": 2,
+      "state": "rust_impl",
+      "rustSurface": "api-rust/src/activity.rs; api-rust/src/contract.rs; GET /activity",
+      "parityTest": "api-rust/tests/portfolio_differential.rs#activity",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#activity",
+      "prodProbe": "scripts/api-smoke.sh GET /activity; deploy digest readback (rej-002)",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "stale",
+        "baselineTsSha": "",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "dependencyGlobs": [
+          "api-rust/src/activity.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**",
+          "scripts/run-portfolio-differential.sh"
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+        "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
+      },
+      "notes": "LiveTicker /activity — GraphQL contributionsCollection aggregation in contract SSOT; rej-002 blocks canary until deploy readback. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /activity 200 ActivityPayload (commitsToday/Week/Month, reposActiveToday, updatedAt) no error envelope @ 2026-07-11T11:06:19Z; rej-002 closed. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+    },
+    {
+      "id": "api-cors-rate-limit",
+      "domain": "api-edge",
+      "weight": 2,
+      "state": "rust_impl",
+      "rustSurface": "api-rust/src/cors.rs; api-rust/src/rate_limit.rs; api-rust/src/contract.rs",
+      "parityTest": "api-rust/src/rate_limit.rs#rate_limit_blocks_burst",
+      "differentialTest": "api-rust/tests/portfolio_differential.rs#cors|clientIp|rateLimitConstants",
+      "prodProbe": "api-rust cargo test; CORS headers on all JSON handlers",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "stale",
+        "baselineTsSha": "",
+        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
+        "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
+        "verifiedAt": "2026-07-11T11:06:19Z",
+        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "dependencyGlobs": [
+          "api-rust/src/cors.rs",
+          "api-rust/src/rate_limit.rs",
+          "api-rust/src/contract.rs",
+          "scripts/differential/**"
+        ],
+        "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+        "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
+      },
+      "notes": "CORS allowlist + per-IP chat rate limit; contract helpers in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: Access-Control-Allow-Origin observed on /activity /stats /projects JSON handlers @ 2026-07-11T11:06:19Z; differential cors/clientIp/rate cases green on main. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+    },
+    {
+      "id": "bun-api-authority",
+      "domain": "sunset",
+      "weight": 3,
+      "state": "rust_impl",
+      "tsSurface": "api/ (deleted — index.ts, tools.ts, persona.ts)",
+      "rustSurface": "api-rust/",
+      "parityTest": "scripts/check-no-ts-backend.sh",
+      "prodProbe": "api/ absent; sylphx.toml watch_paths api-rust/** only",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010 hold — not canary-admitted in tick023: api/ absent + check-no-ts PASS substance; formal canary/ts_deleted bind deferred to residual #3/#4",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-10T21:30:00Z"
+      },
+      "proof": {
+        "status": "missing",
+        "dependencyGlobs": [
+          "api-rust/**",
+          "scripts/check-no-ts-backend.sh"
+        ],
+        "staleReason": "rej-010 re-audit — prior ts_deleted lacked SHA-bound differential proof",
+        "verificationRef": "scripts/check-no-ts-backend.sh"
+      },
+      "notes": "Bun api/ directory absent; sole production authority is kylet-api-rust."
+    },
+    {
+      "id": "proto-chat-rpc-missing",
+      "domain": "contracts",
+      "weight": 4,
+      "state": "rust_impl",
+      "tsSurface": "api-rust/src/chat.rs#POST /chat",
+      "notes": "TICK026: live POST /chat lacks PortfolioApiService Chat RPC/messages; inventory obligation for contract coverage. TICK038 NONMCP-SITES: ts_only→rust_impl. rej-010 hold.",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: rust_impl only — no parity_proven/authority_rust/ts_deleted",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-12T03:02:48Z"
+      },
+      "rustSurface": "proto/portfolio/v1/api.proto#Chat,ListChatTools; api-rust/src/chat.rs#POST /chat",
+      "parityTest": "proto/portfolio/v1/api.proto ChatRequest/ChatResponse + ListChatTools",
+      "proof": {
+        "status": "missing",
+        "notes": "rust_impl unit coverage; differential_green pending"
+      }
+    },
+    {
+      "id": "chat-tool-function-schemas",
+      "domain": "api-edge",
+      "weight": 3,
+      "state": "rust_impl",
+      "tsSurface": "api-rust/src/chat.rs#tool_functions",
+      "notes": "TICK026: agent tool-call schemas (list_projects,get_repo,recent_activity,search_projects,npm_downloads) distinct from HTTP terminal routes. TICK038 NONMCP-SITES: ts_only→rust_impl. rej-010 hold.",
+      "promotionHold": {
+        "active": true,
+        "reason": "rej-010: rust_impl only — no parity_proven/authority_rust/ts_deleted",
+        "rejectionRef": "rej-010",
+        "since": "2026-07-12T03:02:48Z"
+      },
+      "rustSurface": "api-rust/src/tool_schemas.rs#tools_schema; api-rust/src/chat.rs#tools_schema",
+      "parityTest": "api-rust/src/tool_schemas.rs unit tests (5 tools)",
+      "proof": {
+        "status": "missing",
+        "notes": "rust_impl unit coverage; differential_green pending"
+      }
+    }
+  ],
+  "sliceStatus": {
+    "S0": {
+      "label": "Protobuf + Buf contract stack",
+      "status": "authority_rust",
+      "capabilities": [
+        "proto-portfolio-contract"
+      ],
+      "proof": [
+        "buf.yaml",
+        "proto/portfolio/v1/api.proto"
+      ],
+      "blockers": [
+        "rej-010 prod_audit_pass"
+      ]
+    },
+    "S1": {
+      "label": "Stats + chat + terminal tools + activity on Rust",
+      "status": "authority_rust",
+      "capabilities": [
+        "api-health-ready",
+        "api-stats-github-npm",
+        "api-chat-agent-sse",
+        "api-terminal-tools",
+        "api-activity-feed",
+        "api-cors-rate-limit"
+      ],
+      "proof": [
+        "scripts/run-portfolio-differential.sh (harness landed)",
+        "api-rust/tests/portfolio_differential.rs"
+      ],
+      "blockers": [
+        "rej-010 prod_audit_pass",
+        "stats/chat proof_missing residual"
+      ]
+    },
+    "S2": {
+      "label": "Production deploy on Rust image",
+      "status": "held",
+      "capabilities": [
+        "api-health-ready",
+        "api-stats-github-npm",
+        "api-chat-agent-sse",
+        "api-activity-feed"
+      ],
+      "proof": [
+        "sylphx deploy dpl_01kx472jh9e3f9k3yx8x7m9pn0 triggered 2026-07-09",
+        "gitCommit 090d04b on main"
+      ],
+      "blockers": [
+        "rej-010 canary_green",
+        "tick023: canary_green admitted for dg caps — ts_deleted still held"
+      ]
+    },
+    "S3": {
+      "label": "Bun api/ authority retirement",
+      "status": "rust_impl",
+      "capabilities": [
+        "bun-api-authority"
+      ],
+      "proof": [
+        "scripts/check-no-ts-backend.sh",
+        "api/ directory absent"
+      ],
+      "blockers": [
+        "rej-010 canary_green",
+        "tick023: canary_green admitted for dg caps — ts_deleted still held"
+      ]
+    }
+  },
+  "summary": {
+    "total": 10,
+    "ts_only": 2,
+    "contracted": 0,
+    "rust_impl": 8,
+    "parity_proven": 0,
+    "authority_rust": 6,
+    "ts_deleted": 0,
+    "proof_stale": 0,
+    "proof_missing": 3,
+    "completion_progress": 0.0,
+    "authority_progress": 0.6,
+    "verified_authority_progress": 0.5,
+    "weighted_progress": 0.6629,
+    "summaryNote": "TICK023 canary admission: 5/8 caps proof.status=canary_green + imageDigest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 at bound SHA 8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9 (prod_audit_pass tick006 + live reconfirm). ts_deleted=0; freezes rej-010/011 stay; stats/chat/bun still proof_missing. rej-002 activity prod readback CLOSED.",
+    "cycle50_delta": {
+      "rust_impl_verified": 1,
+      "slice": "activity-api|backend-caps",
+      "verificationRef": "verification/portfolio-cycle50-activity-api-backend-caps-rust-impl.json",
+      "notes": "rej-010 rust_impl ONLY — cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
+    },
+    "deliveryProof": {
+      "gitSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+      "deployId": "dpl_01kx6z7wqae7mvmh4rz2t6m6jr",
+      "buildId": "019f4df3-f2e0-7755-a66a-e3e1987cec46",
+      "platformDeploymentUuid": "019f4df7-056a-7cad-a4be-5a87202e7798",
+      "prodUrl": "https://slim-pal-0k3stq.sylphx.app",
+      "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+      "activityReadback": "pass — ActivityPayload fields present (tick006 + tick023 reconfirm)",
+      "webImageDigest": "sha256:28f82024b7fdcbfd22315362b397edab8d9a4f5907675ff33834361d5bccf232",
+      "boundAt": "2026-07-11T11:06:19Z",
+      "packetId": "PORTFOLIO-ADMISSION-LADDER-TICK023"
+    },
+    "negspace_tick026": {
+      "packetId": "NEGSPACE-SAMPLE-INTO-GATES-TICK026",
+      "addedTsOnly": 2,
+      "addedIds": [
+        "proto-chat-rpc-missing",
+        "chat-tool-function-schemas"
+      ],
+      "promotions": 0,
+      "policy": "map TICK024 highSignalUnmapped as ts_only only; no promotions"
+    },
+    "updatedAt": "2026-07-11T14:07:29Z",
+    "lastMutation": "PROOF-GAP-58-WAVE-TICK026"
+  },
+  "priorClaims": {
+    "ts_deleted": 8,
+    "completion_progress": 1.0,
+    "authority_progress": 1.0,
+    "revertedAt": "2026-07-10T21:30:00Z",
+    "reason": "rej-010 promotion freeze — 0 capabilities with differential_green or canary_green proof"
+  },
+  "rej010Reaudit": {
+    "appliedAt": "2026-07-10T21:30:00Z",
+    "harness": "scripts/run-portfolio-differential.sh",
+    "differentialTest": "api-rust/tests/portfolio_differential.rs",
+    "oracle": "scripts/differential/portfolio-api-oracle.ts",
+    "behaviorSpec": "scripts/differential/fixtures/portfolio-api-corpus.json",
+    "capabilitiesDowngraded": 8,
+    "capabilitiesWithDifferentialHarness": 4,
+    "rej002Blocker": "api-activity-feed prod deploy digest readback"
+  },
+  "cycle46Slice": "activity-api|backend-caps — portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle46": {
+    "boundedSlice": "activity-api|backend-caps",
+    "status": "rust_impl_on_disk_verified",
+    "reauditRef": "rej-010",
+    "verificationRef": "verification/portfolio-cycle46-backend-caps-rust-impl.json",
+    "deliverables": [
+      "scripts/run-portfolio-differential.sh",
+      "api-rust/tests/portfolio_differential.rs",
+      "scripts/differential/portfolio-api-oracle.ts",
+      "scripts/differential/fixtures/portfolio-api-corpus.json",
+      "docs/specs/portfolio-api-parity-slice.json"
+    ],
+    "caseCounts": {
+      "total": 21
+    },
+    "notes": "cycle46 pilot/P0 rej-010: activity-api + backend caps differential harness on-disk re-verify. rej-002 /activity prod readback still open. rust_impl ONLY — proof.status missing until differential_green."
+  },
+  "cycle50Slice": "activity-api|backend-caps — portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle50": {
+    "boundedSlice": "activity-api|backend-caps",
+    "status": "differential_green",
+    "reauditRef": "rej-010",
+    "verificationRef": "verification/portfolio-cycle50-activity-api-backend-caps-rust-impl.json",
+    "harnessPath": "scripts/run-portfolio-differential.sh",
+    "deliverables": [
+      "scripts/run-portfolio-differential.sh",
+      "api-rust/tests/portfolio_differential.rs",
+      "scripts/differential/portfolio-api-oracle.ts",
+      "scripts/differential/fixtures/portfolio-api-corpus.json",
+      "docs/specs/portfolio-api-parity-slice.json"
+    ],
+    "caseCounts": {
+      "total": 21
+    },
+    "notes": "cycle50 rej-010: activity-api|backend-caps bounded differential harness executed — differential_green at bound SHAs (22 cases); rej-002 /activity prod readback still open"
+  },
+  "differentialGreen": {
+    "boundedSlice": "activity-api|backend-caps",
+    "status": "differential_green",
+    "reauditRef": "rej-010",
+    "verificationRef": "verification/portfolio-differential-green.json",
+    "harnessPath": "scripts/run-portfolio-differential.sh",
+    "caseCounts": {
+      "total": 22
+    },
+    "capabilitiesProven": [
+      "api-activity-feed",
+      "api-cors-rate-limit",
+      "api-health-ready",
+      "api-terminal-tools",
+      "proto-portfolio-contract"
+    ],
+    "notes": "main-bound differential_green at 8a36e3d (22 cases); TICK023 elevated 5 proven caps to canary_green with live imageDigest",
+    "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9"
+  },
+  "tick023": {
+    "packetId": "PORTFOLIO-ADMISSION-LADDER-TICK023",
+    "status": "canary_green_admitted_partial",
+    "conflictKey": "portfolio-writer",
+    "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+    "boundSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+    "deployId": "dpl_01kx6z7wqae7mvmh4rz2t6m6jr",
+    "prodUrl": "https://slim-pal-0k3stq.sylphx.app",
+    "liveReconfirmAt": "2026-07-11T11:06:19Z",
+    "k8s": {
+      "context": "admin@talos-production",
+      "namespace": "portfolio-website",
+      "deployment": "api",
+      "ready": "1/1",
+      "pod": "api-68d9cfdbfc-bfbrl",
+      "SYLPHX_GIT_COMMIT_SHA": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+      "SYLPHX_IMAGE_DIGEST": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
+      "podImageID": "registry.sylphx.com/shtse8/open-tilt-8seu-api@sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
+    },
+    "smoke": {
+      "baseUrl": "https://slim-pal-0k3stq.sylphx.app",
+      "result": "PASS",
+      "executedAt": "2026-07-11T11:06:19Z",
+      "checks": [
+        "GET /healthz 200 ok",
+        "GET /readyz 200 ok",
+        "GET /activity 200 ActivityPayload",
+        "GET /stats 200 stats payload",
+        "GET /projects 200 projects n=12",
+        "CORS ACAO present on JSON handlers"
+      ]
+    },
+    "prodAuditRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json",
+    "readinessRef": "rust-first-fleet-control-plane/implementer/receipts/PASS-REPOS-AF-READINESS-TICK022/scorecards/shtse8__portfolio-website.json",
+    "capsCanaryGreen": [
+      "api-activity-feed",
+      "api-cors-rate-limit",
+      "api-health-ready",
+      "api-terminal-tools",
+      "proto-portfolio-contract"
+    ],
+    "capsNotCanary": [
+      "api-chat-agent-sse",
+      "api-stats-github-npm",
+      "bun-api-authority"
+    ],
+    "tsDeleted": 0,
+    "promotionHoldActive": true,
+    "freezeLift": false,
+    "honestyNotes": {
+      "canaryBar": "COMPLETION-STANDARD: production deploy probe + digest readback; multi-week soak NOT required",
+      "partial": "Only dg+prod-readback caps admitted; stats/chat/bun deferred per scorecard residual order",
+      "rej002": "activity prod readback closed",
+      "noTsDeleted": true,
+      "noFreezeLift": true
+    },
+    "mustNot": [
+      "ts_deleted",
+      "lift_rej-010",
+      "lift_rej-011",
+      "REPO_COMPLETE",
+      "cluster_mutation"
+    ]
+  },
+  "rej010HonestyDemote": {
+    "packetId": "PROOF-GAP-58-WAVE-TICK026",
+    "appliedAt": "2026-07-11T14:07:29Z",
+    "demoted": [
+      {
+        "id": "proto-portfolio-contract",
+        "from": "authority_rust",
+        "to": "rust_impl"
+      },
+      {
+        "id": "api-stats-github-npm",
+        "from": "authority_rust",
+        "to": "rust_impl"
+      },
+      {
+        "id": "api-chat-agent-sse",
+        "from": "authority_rust",
+        "to": "rust_impl"
+      },
+      {
+        "id": "api-terminal-tools",
+        "from": "authority_rust",
+        "to": "rust_impl"
+      },
+      {
+        "id": "api-activity-feed",
+        "from": "authority_rust",
+        "to": "rust_impl"
+      },
+      {
+        "id": "api-cors-rate-limit",
+        "from": "authority_rust",
+        "to": "rust_impl"
+      }
+    ]
+  },
+  "tick038Slice": {
+    "packet": "NONMCP-SITES-TICK038",
+    "capabilities": [
+      "proto-chat-rpc-missing",
+      "chat-tool-function-schemas"
+    ],
+    "at": "2026-07-12T03:02:48Z"
+  }
+}

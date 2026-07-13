@@ -19,7 +19,10 @@ pub fn npm_api_base() -> String {
 }
 
 pub fn github_graphql_url() -> String {
-    format!("{}/graphql", github_api_base())
+    env::var("GITHUB_GRAPHQL_URL")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| format!("{}/graphql", github_api_base()))
 }
 
 pub fn github_rest_url(path: &str) -> String {

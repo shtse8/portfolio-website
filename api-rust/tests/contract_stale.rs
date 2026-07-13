@@ -1,5 +1,5 @@
-use kylet_api_rust::activity::{ActivityPayload, LastPush};
-use kylet_api_rust::contract::{activity_json_stale, stats_json_stale};
+use kylet_api_rust::contract::{ActivityPayload, LastPush};
+use kylet_api_rust::rest_projection::{activity_json_stale, stats_json_stale};
 use kylet_api_rust::stats::StatsPayload;
 use std::collections::HashMap;
 
