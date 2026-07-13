@@ -754,3 +754,46 @@ mod portfolio_bulk_residual_tests {
     }
 
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave5_tests {
+    use super::*;
+
+    #[test]
+    fn graphql_user_block_embeds_login_and_window() {
+        let block = build_user_activity_graphql_block(0, "shtse8", "2026-07-01T00:00:00Z", "2026-07-10T00:00:00Z");
+        assert!(block.contains("o0:"));
+        assert!(block.contains("user(login: \"shtse8\")"));
+        assert!(block.contains("contributionsCollection"));
+        assert!(block.contains("2026-07-01T00:00:00Z"));
+        assert!(block.contains("2026-07-10T00:00:00Z"));
+    }
+
+    #[test]
+    fn graphql_org_block_uses_repositories_not_contributions() {
+        let block = build_org_activity_graphql_block(1, "SylphxAI", "2026-07-01T00:00:00Z");
+        assert!(block.contains("o1:"));
+        assert!(block.contains("organization(login: \"SylphxAI\")"));
+        assert!(block.contains("repositories("));
+        assert!(!block.contains("contributionsCollection"));
+    }
+
+    #[test]
+    fn github_owners_four_expected() {
+        assert_eq!(GITHUB_OWNERS.len(), 4);
+        let logins: Vec<&str> = GITHUB_OWNERS.iter().map(|(l, _)| *l).collect();
+        assert!(logins.contains(&"shtse8"));
+        assert!(logins.contains(&"SylphxAI"));
+        assert!(logins.contains(&"Cubeage"));
+        assert!(logins.contains(&"EpiowAI"));
+    }
+
+    #[test]
+    fn rate_limit_constants_json_shape() {
+        let v = rate_limit_constants();
+        assert_eq!(v["ipWindowMs"], IP_WINDOW_MS);
+        assert_eq!(v["ipMaxInWindow"], IP_MAX_IN_WINDOW);
+        assert_eq!(v["ipMaxPerDay"], IP_MAX_PER_DAY);
+        assert_eq!(v["globalMaxPerDay"], GLOBAL_MAX_PER_DAY);
+    }
+}

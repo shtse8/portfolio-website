@@ -244,3 +244,54 @@ mod tests {
         assert_eq!(message_payload_len(&[]), 0);
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave5_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn urlencoding_encodes_space_and_plus() {
+        assert_eq!(urlencoding_encode("a b"), "a%20b");
+        assert_eq!(urlencoding_encode("a+b"), "a%2Bb");
+        assert_eq!(urlencoding_encode(""), "");
+    }
+
+    #[test]
+    fn sanitize_repo_name_accepts_underscore_and_dot() {
+        assert_eq!(sanitize_repo_name("my_repo.name").as_deref(), Some("my_repo.name"));
+        assert_eq!(sanitize_repo_name("/leading/slash").as_deref(), Some("slash"));
+        assert_eq!(sanitize_repo_name("..."), None); // empty after trim
+    }
+
+    #[test]
+    fn message_payload_len_parts_only_without_content() {
+        let msgs = vec![UIMessage {
+            role: "user".into(),
+            content: None,
+            parts: Some(vec![
+                UIPart {
+                    kind: "text".into(),
+                    text: Some("ab".into()),
+                },
+                UIPart {
+                    kind: "text".into(),
+                    text: Some("cd".into()),
+                },
+            ]),
+        }];
+        assert_eq!(message_payload_len(&msgs), 4);
+    }
+
+    #[test]
+    fn ui_messages_skips_empty_user_content_without_parts() {
+        let msgs = vec![UIMessage {
+            role: "user".into(),
+            content: Some(json!("")),
+            parts: None,
+        }];
+        // empty string content for user is filtered (see existing content tests)
+        let out = ui_messages_to_openai(&msgs);
+        assert!(out.is_empty() || out.iter().all(|m| m["content"] != ""));
+    }
+}

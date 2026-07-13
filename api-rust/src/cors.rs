@@ -26,3 +26,47 @@ pub fn cors_headers(origin: Option<&str>) -> HeaderMap {
 pub fn is_preflight(method: &Method) -> bool {
     method == Method::OPTIONS
 }
+#[cfg(test)]
+mod fleet_web_finish_wave5_tests {
+    use super::*;
+    use axum::http::Method;
+
+    #[test]
+    fn is_preflight_only_options() {
+        assert!(is_preflight(&Method::OPTIONS));
+        assert!(!is_preflight(&Method::GET));
+        assert!(!is_preflight(&Method::POST));
+        assert!(!is_preflight(&Method::PUT));
+    }
+
+    #[test]
+    fn cors_headers_surface_methods_and_vary() {
+        let h = cors_headers(Some("https://kyletse.com"));
+        assert_eq!(
+            h.get("access-control-allow-origin").unwrap().to_str().unwrap(),
+            "https://kyletse.com"
+        );
+        assert_eq!(
+            h.get("access-control-allow-methods").unwrap().to_str().unwrap(),
+            "GET, POST, OPTIONS"
+        );
+        assert_eq!(
+            h.get("access-control-allow-headers").unwrap().to_str().unwrap(),
+            "content-type"
+        );
+        assert_eq!(
+            h.get("access-control-max-age").unwrap().to_str().unwrap(),
+            "86400"
+        );
+        assert_eq!(h.get("vary").unwrap().to_str().unwrap(), "origin");
+    }
+
+    #[test]
+    fn cors_headers_unknown_origin_falls_back_default() {
+        let h = cors_headers(Some("https://evil.example"));
+        let origin = h.get("access-control-allow-origin").unwrap().to_str().unwrap();
+        // must be one of the allowlist defaults, not the evil origin
+        assert_ne!(origin, "https://evil.example");
+        assert!(!origin.is_empty());
+    }
+}
