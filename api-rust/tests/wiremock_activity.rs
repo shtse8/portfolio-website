@@ -12,6 +12,7 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[serial]
 async fn activity_endpoint_aggregates_wiremock_graphql() {
     let server = MockServer::start().await;
+    // GITHUB_API_BASE override must pin GraphQL (GHA injects GITHUB_GRAPHQL_URL).
     unsafe {
         std::env::set_var("GITHUB_API_BASE", server.uri());
         std::env::set_var("GITHUB_TOKEN", "wiremock-token");
@@ -45,7 +46,11 @@ async fn activity_endpoint_aggregates_wiremock_graphql() {
     assert_eq!(res.status(), StatusCode::OK);
     let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
     let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["commitsWeek"], 5);
+    assert!(
+        v.get("error").is_none(),
+        "activity must not be error payload under wiremock: {v}"
+    );
+    assert_eq!(v["commitsWeek"], 5, "body={v}");
     assert!(v.get("commitsToday").is_some());
     assert!(v.get("lastPush").is_some());
 }
