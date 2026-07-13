@@ -6,7 +6,7 @@
     "lifecycle": "production",
     "layer": "application",
     "policyPool": "webpool",
-    "summary": "Static TypeScript Next.js portfolio (kylet.se) with a Rust live API for stats, terminal data, and Sylphx Gateway chat.",
+    "summary": "Static TypeScript Next.js portfolio (kylet.se) with a Rust live API for stats, terminal data, and Sylphx Gateway chat. Protobuf types generated in api-rust via prost-build. Protobuf types generated in api-rust via prost-build.",
     "goals": [
       "Ship the public portfolio as a static Next.js export.",
       "Operate live stats and agent chat through Rust api-rust per ADR-168 and doctrine ADR-167 Rust-first backends."
@@ -113,20 +113,30 @@
   },
   "commercial": {
     "status": "not-applicable",
-    "decisionHome": "not-applicable — personal portfolio site",
+    "decisionHome": "not-applicable \u2014 personal portfolio site",
     "pricingSourceOfTruth": "not-applicable",
     "metricsSourceOfTruth": "not-applicable",
-    "requiredRecords": ["none"],
-    "guardrails": ["No paid product surface in this repository."]
+    "requiredRecords": [
+      "none"
+    ],
+    "guardrails": [
+      "No paid product surface in this repository."
+    ]
   },
   "adoption": {
     "status": "adopted",
     "gaps": [
       {
-        "id": "proto-codegen-rust",
-        "description": "Generate Rust types/handlers from proto/portfolio/v1 instead of hand-mirrored serde structs.",
+        "id": "connect-rpc-internal",
+        "description": "Optional Connect/gRPC server for internal consumers; REST remains browser projection.",
         "owner": "shtse8/portfolio-website",
-        "target": "post-S3 slice"
+        "target": "when multi-service consumer exists"
+      },
+      {
+        "id": "wiremock-upstream-suite",
+        "description": "GitHub/npm/Gateway wiremock integration tests for compute_stats and chat tool loop.",
+        "owner": "shtse8/portfolio-website",
+        "target": "next hardening slice"
       }
     ]
   }

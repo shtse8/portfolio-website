@@ -226,6 +226,18 @@ pub fn iso_now() -> String {
         .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
 }
 
+pub fn cached_snapshot() -> Option<StatsPayload> {
+    let now = now_ms();
+    if let Ok(guard) = cache().lock() {
+        if let Some((at, data)) = guard.as_ref() {
+            if now.saturating_sub(*at) < STATS_TTL_MS {
+                return Some(data.clone());
+            }
+        }
+    }
+    None
+}
+
 pub async fn get_stats() -> Result<StatsPayload, String> {
     let now = now_ms();
     if let Ok(guard) = cache().lock() {

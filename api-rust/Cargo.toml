@@ -6,6 +6,10 @@ rust-version = "1.75"
 description = "Rust drop-in authority for kylet.se live API (stats, terminal data, AI chat)"
 license = "MIT"
 
+[lib]
+name = "kylet_api_rust"
+path = "src/lib.rs"
+
 [[bin]]
 name = "kylet-api-rust"
 path = "src/main.rs"
@@ -23,10 +27,16 @@ futures = "0.3"
 tower-http = { version = "0.6", features = ["cors"] }
 time = { version = "0.3", features = ["formatting", "parsing"] }
 tokio-stream = "0.1"
+prost = "0.13"
+
+[build-dependencies]
+prost-build = "0.13"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 wiremock = "0.6"
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }

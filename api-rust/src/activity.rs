@@ -239,6 +239,18 @@ fn iso_from_ms(ms: u64) -> String {
         .unwrap_or_else(|| "1970-01-01T00:00:00Z".to_string())
 }
 
+pub fn cached_snapshot() -> Option<ActivityPayload> {
+    let now = now_ms();
+    if let Ok(guard) = cache().lock() {
+        if let Some((at, data)) = guard.as_ref() {
+            if now.saturating_sub(*at) < ACTIVITY_TTL_MS {
+                return Some(data.clone());
+            }
+        }
+    }
+    None
+}
+
 pub async fn get_activity() -> Result<ActivityPayload, String> {
     let now = now_ms();
     if let Ok(guard) = cache().lock() {

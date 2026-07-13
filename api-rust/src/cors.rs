@@ -39,3 +39,18 @@ pub fn cors_headers(origin: Option<&str>) -> HeaderMap {
 pub fn is_preflight(method: &Method) -> bool {
     method == Method::OPTIONS
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn allowed_origins_match_bun_baseline() {
+        assert_eq!(allowed_origin(Some("https://kylet.se")), "https://kylet.se");
+        assert_eq!(
+            allowed_origin(Some("https://loud-slab-t9c6ai.sylphx.app")),
+            "https://loud-slab-t9c6ai.sylphx.app"
+        );
+        assert_eq!(allowed_origin(Some("https://evil.example")), "https://kylet.se");
+    }
+}
