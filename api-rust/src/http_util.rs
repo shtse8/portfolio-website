@@ -40,3 +40,29 @@ mod fleet_web_finish_wave5_tests {
         );
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave6_tests {
+    use super::*;
+    use axum::http::HeaderMap;
+
+    #[test]
+    fn content_type_constants_stable() {
+        assert_eq!(json_content_type().to_str().unwrap(), "application/json");
+        assert!(event_stream_content_type()
+            .to_str()
+            .unwrap()
+            .contains("text/event-stream"));
+        assert!(no_cache().to_str().unwrap().to_ascii_lowercase().contains("no-cache")
+            || no_cache().to_str().unwrap().to_ascii_lowercase().contains("no-store"));
+    }
+
+    #[test]
+    fn apply_json_headers_sets_content_type() {
+        let mut h = HeaderMap::new();
+        apply_json_headers(&mut h);
+        assert!(h.contains_key(axum::http::header::CONTENT_TYPE));
+        let ct = h.get(axum::http::header::CONTENT_TYPE).unwrap().to_str().unwrap();
+        assert!(ct.contains("json"));
+    }
+}

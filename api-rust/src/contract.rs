@@ -797,3 +797,89 @@ mod fleet_web_finish_wave5_tests {
         assert_eq!(v["globalMaxPerDay"], GLOBAL_MAX_PER_DAY);
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave6_tests {
+    use super::*;
+
+    #[test]
+    fn format_ago_exact_buckets() {
+        let when = "2026-07-01T00:00:00Z";
+        let base = parse_iso_ms(when);
+        assert!(base > 0);
+        assert_eq!(format_ago(base, when), "just now");
+        assert_eq!(format_ago(base + 60_000, when), "1m ago");
+        assert_eq!(format_ago(base + 3_600_000, when), "1h ago");
+        assert_eq!(format_ago(base + 86_400_000, when), "1d ago");
+        // saturating: past now still just now
+        assert_eq!(format_ago(base.saturating_sub(10_000), when), "just now");
+    }
+
+    #[test]
+    fn valid_pkg_length_and_chars() {
+        assert!(valid_pkg("a"));
+        assert!(valid_pkg("A-b_c.1"));
+        assert!(!valid_pkg(&"a".repeat(81)));
+        assert!(valid_pkg(&"a".repeat(80)));
+        assert!(!valid_pkg("-leading-dash"));
+        assert!(!valid_pkg(".leading-dot"));
+        assert!(!valid_pkg("@scope/"));
+        assert!(valid_pkg("@scope/name-ok"));
+        assert!(!valid_pkg("@scope/bad name"));
+    }
+
+    #[test]
+    fn client_ip_priority_cf_and_truncate() {
+        // cf-connecting-ip only
+        let cf = vec![("cf-connecting-ip".into(), "198.51.100.50".into())];
+        assert_eq!(client_ip(&cf), "198.51.100.50");
+        // x-envoy preferred over cf when both present? order: xff, real, envoy, cf
+        let envoy = vec![
+            ("cf-connecting-ip".into(), "1.1.1.1".into()),
+            ("x-envoy-external-address".into(), "2.2.2.2".into()),
+        ];
+        assert_eq!(client_ip(&envoy), "2.2.2.2");
+        // truncate to 45
+        let long = "9".repeat(60);
+        let got = client_ip(&[("x-real-ip".into(), long)]);
+        assert_eq!(got.len(), 45);
+        // unknown when empty
+        assert_eq!(client_ip(&[]), "unknown");
+        // case-insensitive header names
+        let mixed = vec![("X-Real-IP".into(), "10.0.0.7".into())];
+        assert_eq!(client_ip(&mixed), "10.0.0.7");
+    }
+
+    #[test]
+    fn rate_limit_unknown_ip_skips_ip_caps() {
+        let mut state = RateLimitState::default();
+        let base = 300 * DAY_MS;
+        // unknown IP never trips DailyIp/TooFast — only global
+        for i in 0..IP_MAX_IN_WINDOW + 5 {
+            let v = check_rate_limit_isolated("unknown", base + i as u64, &mut state);
+            assert_eq!(v.as_str(), "ok", "iter {i}");
+        }
+    }
+
+    #[test]
+    fn simulate_burst_ends_too_fast() {
+        let (verdicts, final_v) = simulate_burst_verdicts("203.0.113.8", 1_800_000_000_000);
+        assert_eq!(verdicts.len(), IP_MAX_IN_WINDOW + 1);
+        assert_eq!(final_v, "tooFast");
+        assert!(verdicts.iter().take(IP_MAX_IN_WINDOW).all(|v| v == "ok"));
+    }
+
+    #[test]
+    fn cors_header_map_default_origin_not_reflected() {
+        let m = cors_header_map(Some("https://evil.example"));
+        assert_eq!(
+            m.get("access-control-allow-origin").map(String::as_str),
+            Some("https://kylet.se")
+        );
+        assert_eq!(
+            m.get("access-control-allow-headers").map(String::as_str),
+            Some("content-type")
+        );
+        assert_eq!(m.get("vary").map(String::as_str), Some("origin"));
+    }
+}

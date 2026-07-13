@@ -422,7 +422,7 @@
     "authority_progress": 0.0,
     "verified_authority_progress": 0.0,
     "weighted_progress": 0.6629,
-    "summaryNote": "TICK023 canary admission: 5/8 caps proof.status=canary_green + imageDigest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 at bound SHA 8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9 (prod_audit_pass tick006 + live reconfirm). ts_deleted=0; freezes rej-010/011 stay; stats/chat/bun still proof_missing. rej-002 activity prod readback CLOSED. | PORTFOLIO-BULK-RESIDUAL honesty: summary recomputed from cap states (authority_rust=0, rust_impl=10, ts_only=0, proof_stale=6, proof_missing=3); sliceStatus S0/S1 demoted authority_rust->rust_impl; NO authority/ts_deleted promotion. | FLEET-WEB-SITES-WAVE2: pure residual deepen (chat_messages SSOT + contract edges); honesty reconfirm authority=0 rust_impl=10; NO promotion | FLEET-WEB-MEDIA-WAVE4: pure residual deepen + honesty reaffirm; authority_rust=false ts_deleted=false; NO PR | FLEET-WEB-FINISH-WAVE5 pure residual offline; authority_rust=0; NOT FCP",
+    "summaryNote": "TICK023 canary admission: 5/8 caps proof.status=canary_green + imageDigest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 at bound SHA 8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9 (prod_audit_pass tick006 + live reconfirm). ts_deleted=0; freezes rej-010/011 stay; stats/chat/bun still proof_missing. rej-002 activity prod readback CLOSED. | PORTFOLIO-BULK-RESIDUAL honesty: summary recomputed from cap states (authority_rust=0, rust_impl=10, ts_only=0, proof_stale=6, proof_missing=3); sliceStatus S0/S1 demoted authority_rust->rust_impl; NO authority/ts_deleted promotion. | FLEET-WEB-SITES-WAVE2: pure residual deepen (chat_messages SSOT + contract edges); honesty reconfirm authority=0 rust_impl=10; NO promotion | FLEET-WEB-MEDIA-WAVE4: pure residual deepen + honesty reaffirm; authority_rust=false ts_deleted=false; NO PR | FLEET-WEB-FINISH-WAVE5 pure residual offline; authority_rust=0; NOT FCP | FLEET-WEB-FINISH-WAVE6 pure residual; NOT FCP",
     "cycle50_delta": {
       "rust_impl_verified": 1,
       "slice": "activity-api|backend-caps",
@@ -725,7 +725,10 @@
     "authority_rust": false,
     "ts_deleted": false,
     "goal_complete": false,
-    "strongestTruthfulState": "rust_impl_majority_proof_partial_rej010_hold"
+    "strongestTruthfulState": "rust_impl_majority_proof_partial_rej010_hold",
+    "lastWave": "FLEET-WEB-FINISH-WAVE6",
+    "note": "Pure residual deepen only; authority_rust=false; ts_deleted=false; NOT fleet FCP; freezes rej-010/011/013 remain ON.",
+    "fleet_fcp": false
   },
   "portfolioWebFinishWave5": {
     "at": "2026-07-13T01:25:05Z",

@@ -295,3 +295,61 @@ mod fleet_web_finish_wave5_tests {
         assert!(out.is_empty() || out.iter().all(|m| m["content"] != ""));
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave6_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn ui_messages_maps_roles_and_skips_tool_noise() {
+        let msgs = vec![
+            UIMessage {
+                role: "system".into(),
+                content: Some(json!("s")),
+                parts: None,
+            },
+            UIMessage {
+                role: "user".into(),
+                content: Some(json!("u")),
+                parts: None,
+            },
+            UIMessage {
+                role: "assistant".into(),
+                content: Some(json!("a")),
+                parts: None,
+            },
+        ];
+        let out = ui_messages_to_openai(&msgs);
+        assert_eq!(out.len(), 3);
+        assert_eq!(out[0]["role"], "system");
+        assert_eq!(out[1]["role"], "user");
+        assert_eq!(out[2]["role"], "assistant");
+    }
+
+    #[test]
+    fn message_payload_len_sums_content_when_no_parts() {
+        let msgs = vec![UIMessage {
+            role: "user".into(),
+            content: Some(json!("hello")),
+            parts: None,
+        }];
+        let expected = json!("hello").to_string().len();
+        assert_eq!(message_payload_len(&msgs), expected);
+    }
+
+    #[test]
+    fn urlencoding_percent_encodes_unicode_and_slash() {
+        assert_eq!(urlencoding_encode("a/b"), "a%2Fb");
+        assert_eq!(urlencoding_encode("100%"), "100%25");
+        assert_eq!(urlencoding_encode("ok-_.~"), "ok-_.~");
+    }
+
+    #[test]
+    fn sanitize_repo_name_strips_path_and_rejects_control() {
+        assert_eq!(sanitize_repo_name("owner/repo").as_deref(), Some("repo"));
+        assert_eq!(sanitize_repo_name("////x").as_deref(), Some("x"));
+        assert_eq!(sanitize_repo_name("repo\nname"), None);
+        assert_eq!(sanitize_repo_name("repo@name"), None);
+    }
+}

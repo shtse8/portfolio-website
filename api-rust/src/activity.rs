@@ -225,3 +225,24 @@ mod tests {
         assert!(query.contains("EpiowAI"));
     }
 }
+#[cfg(test)]
+mod fleet_web_finish_wave6_tests {
+    use super::build_activity_graphql_query;
+
+    #[test]
+    fn activity_query_wrapped_in_braces() {
+        let q = build_activity_graphql_query("2026-01-01T00:00:00Z", "2026-01-08T00:00:00Z");
+        let t = q.trim();
+        assert!(t.starts_with('{'));
+        assert!(t.ends_with('}'));
+        assert!(q.contains("shtse8"));
+        assert!(q.contains("EpiowAI"));
+    }
+
+    #[test]
+    fn activity_query_user_window_bounds() {
+        let q = build_activity_graphql_query("2026-06-01T00:00:00Z", "2026-06-08T12:00:00Z");
+        assert!(q.contains("from: \"2026-06-01T00:00:00Z\""));
+        assert!(q.contains("to: \"2026-06-08T12:00:00Z\""));
+    }
+}

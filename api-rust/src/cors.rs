@@ -70,3 +70,30 @@ mod fleet_web_finish_wave5_tests {
         assert!(!origin.is_empty());
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave6_tests {
+    use super::*;
+    use axum::http::Method;
+
+    #[test]
+    fn is_preflight_only_options() {
+        assert!(is_preflight(&Method::OPTIONS));
+        assert!(!is_preflight(&Method::GET));
+        assert!(!is_preflight(&Method::POST));
+        assert!(!is_preflight(&Method::PUT));
+        assert!(!is_preflight(&Method::DELETE));
+        assert!(!is_preflight(&Method::HEAD));
+    }
+
+    #[test]
+    fn cors_headers_never_reflect_unknown_origin() {
+        let h = cors_headers(Some("https://attacker.example"));
+        let origin = h
+            .get(axum::http::header::ACCESS_CONTROL_ALLOW_ORIGIN)
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("");
+        assert_ne!(origin, "https://attacker.example");
+        assert!(!origin.is_empty());
+    }
+}

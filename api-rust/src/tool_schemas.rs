@@ -194,3 +194,52 @@ mod tests {
         let _ = sorted;
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave6_tests {
+    use super::*;
+
+    #[test]
+    fn tool_descriptions_non_empty_and_names_stable() {
+        let schema = tools_schema();
+        assert_eq!(schema.len(), 5);
+        for t in &schema {
+            let desc = t["function"]["description"].as_str().unwrap_or("");
+            assert!(!desc.is_empty(), "empty description for {:?}", t["function"]["name"]);
+        }
+        assert_eq!(
+            tool_names(),
+            vec![
+                "list_projects",
+                "get_repo",
+                "recent_activity",
+                "search_projects",
+                "npm_downloads"
+            ]
+        );
+    }
+
+    #[test]
+    fn list_and_recent_limit_is_number_type() {
+        let schema = tools_schema();
+        let by_name: std::collections::BTreeMap<_, _> = schema
+            .iter()
+            .filter_map(|t| {
+                let name = t["function"]["name"].as_str()?.to_string();
+                Some((name, t.clone()))
+            })
+            .collect();
+        assert_eq!(
+            by_name["list_projects"]["function"]["parameters"]["properties"]["limit"]["type"],
+            "number"
+        );
+        assert_eq!(
+            by_name["recent_activity"]["function"]["parameters"]["properties"]["limit"]["type"],
+            "number"
+        );
+        assert_eq!(
+            by_name["search_projects"]["function"]["parameters"]["properties"]["query"]["type"],
+            "string"
+        );
+    }
+}
