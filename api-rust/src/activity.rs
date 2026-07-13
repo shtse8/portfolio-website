@@ -92,7 +92,8 @@ fn iso_now() -> String {
         .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
 }
 
-fn iso_from_ms(ms: u64) -> String {
+/// Pure: unix-ms → RFC3339 UTC (activity week window). Exposed for residual unit tests.
+pub(crate) fn iso_from_ms(ms: u64) -> String {
     let secs = (ms / 1000) as i64;
     time::OffsetDateTime::from_unix_timestamp(secs)
         .ok()
@@ -181,7 +182,7 @@ pub fn reset_cache_for_tests() {
 
 #[cfg(test)]
 mod tests {
-    use super::build_activity_graphql_query;
+    use super::{build_activity_graphql_query, iso_from_ms};
 
     #[test]
     fn activity_query_uses_user_contributions_for_users_only() {
@@ -198,5 +199,29 @@ mod tests {
         assert!(query.contains("repositories(first: 50"));
         let org_section = query.split("o1: organization").nth(1).expect("org section");
         assert!(!org_section.contains("contributionsCollection"));
+    }
+
+    // --- WAVE3 pure residual deepen ---
+
+    #[test]
+    fn iso_from_ms_epoch_and_known_instant() {
+        assert_eq!(iso_from_ms(0), "1970-01-01T00:00:00Z");
+        // 1_000 ms → 1970-01-01T00:00:01Z (secs truncation)
+        assert_eq!(iso_from_ms(1_000), "1970-01-01T00:00:01Z");
+        // round-trip shape: non-zero ms yields RFC3339 with Z
+        let s = iso_from_ms(1_700_000_000_000);
+        assert!(s.ends_with('Z'), "got {s}");
+        assert!(s.contains('T'), "got {s}");
+        assert_eq!(s.len(), "1970-01-01T00:00:00Z".len());
+    }
+
+    #[test]
+    fn activity_query_embeds_all_four_owners() {
+        let query = build_activity_graphql_query("2026-07-01T00:00:00Z", "2026-07-10T00:00:00Z");
+        for key in ["o0:", "o1:", "o2:", "o3:"] {
+            assert!(query.contains(key), "missing {key}");
+        }
+        assert!(query.contains("Cubeage"));
+        assert!(query.contains("EpiowAI"));
     }
 }

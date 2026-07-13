@@ -701,5 +701,22 @@
     "authority_rust": false,
     "ts_deleted": false,
     "at": "2026-07-13T00:47:43Z"
+  },
+  "portfolioWebWave3": {
+    "at": "2026-07-13T00:58:44Z",
+    "packet": "FLEET-WEB-WAVE3",
+    "residualClass": "pure_residual_deepen + honesty_reconfirm",
+    "authority_rust": false,
+    "ts_deleted": false,
+    "strongestTruthfulState": "rust_impl_majority_proof_partial_rej010_hold",
+    "explicitNonClaims": [
+      "authority_rust",
+      "ts_deleted",
+      "parity_proven promotion",
+      "canary_green newly admitted",
+      "REPO_COMPLETE",
+      "prod cutover"
+    ],
+    "notes": "WAVE3 pure unit deepen on activity iso_from_ms/query owners, chat_messages sanitize edges, contract format_ago/rate_limit globalDaily/aggregate empty, tool_schemas recent_activity. No promotion. NO PR."
   }
 }

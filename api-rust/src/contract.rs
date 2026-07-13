@@ -618,4 +618,66 @@ mod portfolio_bulk_residual_tests {
         assert_eq!(summary["rpcCount"], 2);
         assert_eq!(summary["protoHash"].as_str().unwrap().len(), 64);
     }
+
+    // --- WAVE3 pure residual deepen ---
+
+    #[test]
+    fn format_ago_sub_minute_is_just_now() {
+        let when = "2026-07-13T00:00:00Z";
+        let base = parse_iso_ms(when);
+        assert_eq!(format_ago(base + 59_000, when), "just now");
+        assert_eq!(format_ago(base + 60_000, when), "1m ago");
+    }
+
+    #[test]
+    fn normalize_activity_empty_nodes_yields_zero_commits() {
+        let raw = json!({
+            "o0": { "repositories": { "nodes": [] } }
+        });
+        let norm = normalize_activity_graphql_response(&raw);
+        assert_eq!(
+            norm["o0"]["contributionsCollection"]["totalCommitContributions"],
+            0
+        );
+    }
+
+    #[test]
+    fn aggregate_activity_empty_owners_is_zero_payload() {
+        let payload = aggregate_activity_from_graphql(
+            &json!({}),
+            &[],
+            1_784_880_000_000,
+            "2026-07-13T00:00:00Z",
+        );
+        assert_eq!(payload.commits_week, 0);
+        assert_eq!(payload.commits_today, 0);
+        assert_eq!(payload.repos_active_today, 0);
+        assert!(payload.last_push.is_none());
+    }
+
+    #[test]
+    fn rate_limit_global_daily_trips_after_cap() {
+        // Same timestamp for distinct IPs stays inside one day and avoids TooFast.
+        let base = 200 * DAY_MS;
+        let mut state = RateLimitState::default();
+        for i in 0..GLOBAL_MAX_PER_DAY {
+            let ip = format!("10.0.{}.{}", i / 250, i % 250);
+            let v = check_rate_limit_isolated(&ip, base, &mut state);
+            assert_eq!(v.as_str(), "ok", "seed {i}");
+        }
+        let blocked = check_rate_limit_isolated("203.0.113.99", base, &mut state);
+        assert_eq!(blocked.as_str(), "globalDaily");
+    }
+
+    #[test]
+    fn allowed_origin_www_accepted_and_unknown_defaults() {
+        assert_eq!(
+            allowed_origin(Some("https://www.kylet.se")),
+            "https://www.kylet.se"
+        );
+        assert_eq!(
+            allowed_origin(Some("https://not-on-allowlist.example")),
+            "https://kylet.se"
+        );
+    }
 }

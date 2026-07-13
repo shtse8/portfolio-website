@@ -152,4 +152,31 @@ mod tests {
         );
     }
 
+    // --- WAVE3 pure residual deepen ---
+
+    #[test]
+    fn recent_activity_has_no_required_and_npm_pkg_string() {
+        let schema = tools_schema();
+        let by_name: std::collections::BTreeMap<_, _> = schema
+            .iter()
+            .filter_map(|t| {
+                let name = t["function"]["name"].as_str()?.to_string();
+                Some((name, t.clone()))
+            })
+            .collect();
+        assert!(
+            by_name["recent_activity"]["function"]["parameters"]
+                .get("required")
+                .is_none()
+        );
+        assert_eq!(
+            by_name["npm_downloads"]["function"]["parameters"]["properties"]["pkg"]["type"],
+            "string"
+        );
+        assert_eq!(
+            by_name["get_repo"]["function"]["parameters"]["properties"]["name"]["type"],
+            "string"
+        );
+    }
+
 }

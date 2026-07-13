@@ -212,4 +212,35 @@ mod tests {
         assert_eq!(sanitize_repo_name("has spaces"), None);
         assert_eq!(sanitize_repo_name("org/name").as_deref(), Some("name"));
     }
+
+    // --- WAVE3 pure residual deepen ---
+
+    #[test]
+    fn sanitize_repo_name_rejects_too_long_and_leading_dots_trim() {
+        assert_eq!(sanitize_repo_name("...ok").as_deref(), Some("ok"));
+        assert_eq!(sanitize_repo_name(&"a".repeat(101)), None);
+        let long = "a".repeat(100);
+        assert_eq!(sanitize_repo_name(&long).as_deref(), Some(long.as_str()));
+        assert_eq!(sanitize_repo_name("bad!name"), None);
+    }
+
+    #[test]
+    fn ui_messages_parts_take_priority_over_content() {
+        let msgs = vec![UIMessage {
+            role: "user".into(),
+            content: Some(json!("ignored-content")),
+            parts: Some(vec![UIPart {
+                kind: "text".into(),
+                text: Some("from-parts".into()),
+            }]),
+        }];
+        let out = ui_messages_to_openai(&msgs);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0]["content"], "from-parts");
+    }
+
+    #[test]
+    fn message_payload_len_empty_messages_is_zero() {
+        assert_eq!(message_payload_len(&[]), 0);
+    }
 }
