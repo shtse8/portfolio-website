@@ -12,12 +12,17 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 #[serial]
 async fn activity_endpoint_aggregates_wiremock_graphql() {
     let server = MockServer::start().await;
-    // GITHUB_API_BASE override must pin GraphQL (GHA injects GITHUB_GRAPHQL_URL).
-    unsafe {
-        std::env::set_var("GITHUB_API_BASE", server.uri());
-        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
-    }
-    testing::reset_all();
+    // GHA injects GITHUB_GRAPHQL_URL; EnvGuard clears it so GITHUB_API_BASE pins GraphQL.
+    let env = testing::EnvGuard::acquire(&[
+        "GITHUB_API_BASE",
+        "GITHUB_TOKEN",
+        "GITHUB_GRAPHQL_URL",
+    ]);
+    env.set("GITHUB_API_BASE", &server.uri());
+    env.set("GITHUB_TOKEN", "wiremock-token");
+    // Explicitly drop any GHA GraphQL override (removed via EnvGuard keys on drop too).
+    unsafe { std::env::remove_var("GITHUB_GRAPHQL_URL") };
+    let _env = env;
 
     Mock::given(method("POST"))
         .and(path("/graphql"))
@@ -43,14 +48,20 @@ async fn activity_endpoint_aggregates_wiremock_graphql() {
         .oneshot(Request::builder().uri("/activity").body(Body::empty()).unwrap())
         .await
         .unwrap();
-    assert_eq!(res.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
+    assert_eq!(
+        res.status(),
+        StatusCode::OK,
+        "activity must succeed against wiremock upstream"
+    );
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
     let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
     assert!(
         v.get("error").is_none(),
         "activity must not be error payload under wiremock: {v}"
     );
     assert_eq!(v["commitsWeek"], 5, "body={v}");
-    assert!(v.get("commitsToday").is_some());
-    assert!(v.get("lastPush").is_some());
+    assert_eq!(v["commitsToday"], 2, "body={v}");
+    assert!(v.get("lastPush").is_some(), "body={v}");
 }

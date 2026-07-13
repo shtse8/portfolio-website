@@ -151,8 +151,9 @@ pub async fn activity_handler(headers: HeaderMap) -> Response {
             if let Some(stale) = activity::cached_snapshot() {
                 return json_value_with_cors(crate::rest_projection::activity_json_stale(&stale), origin.as_deref());
             }
-            json_value_with_cors(
-                json!({ "error": "activity data briefly unavailable" }),
+            error_json(
+                StatusCode::BAD_GATEWAY,
+                "activity data briefly unavailable",
                 origin.as_deref(),
             )
         }
