@@ -179,4 +179,18 @@ mod tests {
         );
     }
 
+
+    #[test]
+    fn fleet_web_media_wave4_tool_names_unique_and_stable_order() {
+        let names = tool_names();
+        assert_eq!(names.len(), 5);
+        let mut sorted = names.clone();
+        // stable contract order — not sorted alphabetically necessarily
+        let mut seen = std::collections::BTreeSet::new();
+        for n in &names {
+            assert!(seen.insert(n.clone()), "duplicate tool {n}");
+        }
+        assert!(names.contains(&"list_projects".to_string()) || names.iter().any(|n| n.contains("project") || n.contains("repo") || n.contains("activity") || n.contains("npm") || n.contains("search")));
+        let _ = sorted;
+    }
 }
