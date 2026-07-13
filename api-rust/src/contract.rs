@@ -883,3 +883,179 @@ mod fleet_web_finish_wave6_tests {
         assert_eq!(m.get("vary").map(String::as_str), Some("origin"));
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave7_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn parse_iso_ms_invalid_and_empty_zero() {
+        assert_eq!(parse_iso_ms(""), 0);
+        assert_eq!(parse_iso_ms("not-a-date"), 0);
+        assert_eq!(parse_iso_ms("2026-13-99T00:00:00Z"), 0);
+        let ok = parse_iso_ms("2026-07-13T12:00:00Z");
+        assert!(ok > 1_700_000_000_000);
+    }
+
+    #[test]
+    fn rate_limit_day_rollover_clears_ip_and_global() {
+        let mut state = RateLimitState::default();
+        let day0 = 100 * DAY_MS;
+        // burn some window hits
+        for i in 0..IP_MAX_IN_WINDOW {
+            let v = check_rate_limit_isolated("1.2.3.4", day0 + i as u64, &mut state);
+            assert_eq!(v.as_str(), "ok");
+        }
+        // next day: counters reset
+        let day1 = day0 + DAY_MS;
+        let v = check_rate_limit_isolated("1.2.3.4", day1, &mut state);
+        assert_eq!(v.as_str(), "ok");
+        // still room for a full window again
+        for i in 1..IP_MAX_IN_WINDOW {
+            let v = check_rate_limit_isolated("1.2.3.4", day1 + i as u64, &mut state);
+            assert_eq!(v.as_str(), "ok", "iter {i}");
+        }
+    }
+
+    #[test]
+    fn rate_limit_daily_ip_and_global() {
+        let mut state = RateLimitState::default();
+        let base = 400 * DAY_MS;
+        // exhaust IP daily
+        for i in 0..IP_MAX_PER_DAY {
+            // space hits outside window so TooFast never trips
+            let t = base + (i as u64) * (IP_WINDOW_MS + 1);
+            let v = check_rate_limit_isolated("9.9.9.9", t, &mut state);
+            assert_eq!(v.as_str(), "ok", "daily fill {i}");
+        }
+        let t_block = base + (IP_MAX_PER_DAY as u64) * (IP_WINDOW_MS + 1);
+        assert_eq!(
+            check_rate_limit_isolated("9.9.9.9", t_block, &mut state).as_str(),
+            "dailyIp"
+        );
+
+        // global daily on fresh day + unknown ip (skips IP caps)
+        let mut g = RateLimitState::default();
+        let gbase = 500 * DAY_MS;
+        for i in 0..GLOBAL_MAX_PER_DAY {
+            let v = check_rate_limit_isolated("unknown", gbase + i as u64, &mut g);
+            assert_eq!(v.as_str(), "ok", "global fill {i}");
+        }
+        assert_eq!(
+            check_rate_limit_isolated("unknown", gbase + GLOBAL_MAX_PER_DAY as u64, &mut g)
+                .as_str(),
+            "globalDaily"
+        );
+    }
+
+    #[test]
+    fn normalize_org_repos_to_contributions_shape() {
+        let raw = json!({
+            "o1": {
+                "repositories": {
+                    "nodes": [
+                        {
+                            "nameWithOwner": "SylphxAI/gateway",
+                            "pushedAt": "2026-07-13T00:00:00Z",
+                            "defaultBranchRef": {
+                                "target": { "history": { "totalCount": 3 } }
+                            }
+                        },
+                        {
+                            "nameWithOwner": "SylphxAI/flux",
+                            "pushedAt": "2026-07-12T00:00:00Z",
+                            "defaultBranchRef": { "target": { "history": { "totalCount": 2 } } }
+                        }
+                    ]
+                }
+            },
+            "o0": {
+                "contributionsCollection": {
+                    "totalCommitContributions": 7,
+                    "commitContributionsByRepository": []
+                }
+            }
+        });
+        let n = normalize_activity_graphql_response(&raw);
+        assert_eq!(
+            n["o1"]["contributionsCollection"]["totalCommitContributions"],
+            5
+        );
+        let by = n["o1"]["contributionsCollection"]["commitContributionsByRepository"]
+            .as_array()
+            .unwrap();
+        assert_eq!(by.len(), 2);
+        assert_eq!(by[0]["repository"]["nameWithOwner"], "SylphxAI/gateway");
+        assert_eq!(by[0]["contributions"]["totalCount"], 3);
+        // passthrough user shape
+        assert_eq!(n["o0"]["contributionsCollection"]["totalCommitContributions"], 7);
+        // non-object passthrough
+        assert_eq!(normalize_activity_graphql_response(&json!([1, 2])), json!([1, 2]));
+    }
+
+    #[test]
+    fn aggregate_activity_today_window_and_last_push_repo_short() {
+        let now = parse_iso_ms("2026-07-13T12:00:00Z");
+        assert!(now > 0);
+        let g = json!({
+            "o0": {
+                "contributionsCollection": {
+                    "totalCommitContributions": 10,
+                    "commitContributionsByRepository": [
+                        {
+                            "repository": {
+                                "nameWithOwner": "shtse8/portfolio-website",
+                                "pushedAt": "2026-07-13T11:00:00Z"
+                            },
+                            "contributions": { "totalCount": 4 }
+                        },
+                        {
+                            "repository": {
+                                "nameWithOwner": "shtse8/old",
+                                "pushedAt": "2026-07-01T00:00:00Z"
+                            },
+                            "contributions": { "totalCount": 6 }
+                        }
+                    ]
+                }
+            }
+        });
+        let payload = aggregate_activity_from_graphql(
+            &g,
+            &["o0".into()],
+            now,
+            "2026-07-13T12:00:00Z",
+        );
+        assert_eq!(payload.commits_week, 10);
+        assert_eq!(payload.commits_today, 4);
+        assert_eq!(payload.repos_active_today, 1);
+        assert_eq!(payload.commits_month, 40);
+        let lp = payload.last_push.expect("last_push");
+        assert_eq!(lp.repo, "portfolio-website");
+        assert_eq!(lp.ago, "1h ago");
+        assert_eq!(payload.updated_at, "2026-07-13T12:00:00Z");
+    }
+
+    #[test]
+    fn allowed_origins_allowlist_exact_and_default() {
+        for o in ALLOWED_ORIGINS {
+            assert_eq!(allowed_origin(Some(o)), *o);
+        }
+        assert_eq!(allowed_origin(None), "https://kylet.se");
+        assert_eq!(allowed_origin(Some("")), "https://kylet.se");
+        assert_eq!(
+            allowed_origin(Some("https://kylet.se.evil.com")),
+            "https://kylet.se"
+        );
+    }
+
+    #[test]
+    fn graphql_user_block_indexes_and_escapes_login_literal() {
+        let b = build_user_activity_graphql_block(3, "shtse8", "W", "N");
+        assert!(b.starts_with("o3:"));
+        assert!(b.contains("user(login: \"shtse8\")"));
+        assert!(b.contains("from: \"W\""));
+        assert!(b.contains("to: \"N\""));
+    }
+}

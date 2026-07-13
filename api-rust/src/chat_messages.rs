@@ -353,3 +353,91 @@ mod fleet_web_finish_wave6_tests {
         assert_eq!(sanitize_repo_name("repo@name"), None);
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave7_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn empty_assistant_kept_empty_user_dropped() {
+        let msgs = vec![
+            UIMessage {
+                role: "assistant".into(),
+                content: Some(json!("")),
+                parts: None,
+            },
+            UIMessage {
+                role: "user".into(),
+                content: Some(json!("")),
+                parts: None,
+            },
+            UIMessage {
+                role: "tool".into(),
+                content: Some(json!("noise")),
+                parts: None,
+            },
+        ];
+        let out = ui_messages_to_openai(&msgs);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0]["role"], "assistant");
+        assert_eq!(out[0]["content"], "");
+    }
+
+    #[test]
+    fn content_array_text_parts_joined() {
+        let msgs = vec![UIMessage {
+            role: "user".into(),
+            content: Some(json!([
+                {"type": "text", "text": "hello"},
+                {"type": "image", "text": "ignore"},
+                {"type": "text", "text": " world"}
+            ])),
+            parts: None,
+        }];
+        let out = ui_messages_to_openai(&msgs);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0]["content"], "hello world");
+    }
+
+    #[test]
+    fn parts_prefer_over_content_and_join() {
+        let msgs = vec![UIMessage {
+            role: "user".into(),
+            content: Some(json!("IGNORED_WHEN_PARTS")),
+            parts: Some(vec![
+                UIPart {
+                    kind: "text".into(),
+                    text: Some("a".into()),
+                },
+                UIPart {
+                    kind: "image".into(),
+                    text: Some("skip".into()),
+                },
+                UIPart {
+                    kind: "text".into(),
+                    text: Some("b".into()),
+                },
+            ]),
+        }];
+        let out = ui_messages_to_openai(&msgs);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0]["content"], "ab");
+    }
+
+    #[test]
+    fn sanitize_repo_name_length_and_trim_dots() {
+        assert_eq!(sanitize_repo_name("...repo").as_deref(), Some("repo"));
+        assert_eq!(sanitize_repo_name("  good-name  ").as_deref(), Some("good-name"));
+        assert_eq!(sanitize_repo_name(&"a".repeat(101)), None);
+        assert_eq!(sanitize_repo_name(&"a".repeat(100)).as_deref(), Some(&*"a".repeat(100)));
+        assert_eq!(sanitize_repo_name("."), None); // trim dots leaves empty
+    }
+
+    #[test]
+    fn urlencoding_space_and_plus() {
+        assert_eq!(urlencoding_encode("a b"), "a%20b");
+        assert_eq!(urlencoding_encode("a+b"), "a%2Bb");
+        assert_eq!(urlencoding_encode(""), "");
+    }
+}

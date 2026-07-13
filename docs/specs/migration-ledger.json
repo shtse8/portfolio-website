@@ -739,5 +739,14 @@
     "ts_deleted": false,
     "strongestTruthfulState": "rust_impl_majority_proof_partial_rej010_hold",
     "note": "Offline pure residual only; rej-010 hold; NO PR; NOT fleet FCP"
+  },
+  "fleetWebFinishWave7": {
+    "at": "2026-07-13T01:50:09Z",
+    "packet": "FLEET-WEB-FINISH-WAVE7",
+    "pureLibTests": 77,
+    "authority_rust": false,
+    "ts_deleted": false,
+    "fleet_fcp": false,
+    "strongestTruthfulState": "rust_impl_majority_proof_partial_rej010_hold"
   }
 }
