@@ -17,6 +17,7 @@ use crate::http_util;
 use crate::stats;
 use crate::tools;
 use crate::stats::iso_now;
+use crate::validation;
 use std::env;
 use tracing_subscriber::EnvFilter;
 
@@ -162,7 +163,7 @@ pub async fn activity_handler(headers: HeaderMap) -> Response {
 pub async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) -> Response {
     let origin = origin_from_headers(&headers);
     let pkg = q.pkg.unwrap_or_default();
-    let valid = regex_pkg(&pkg);
+    let valid = validation::valid_npm_pkg(&pkg);
     let series = if valid {
         tools::npm_range(&pkg).await
     } else {
@@ -170,35 +171,6 @@ pub async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) ->
     };
     let total: u64 = series.iter().map(|d| d.downloads).sum();
     json_value_with_cors(contract::downloads_json(&pkg, &series, total, &iso_now()), origin.as_deref())
-}
-
-fn regex_pkg(pkg: &str) -> bool {
-    if pkg.len() > 80 {
-        return false;
-    }
-    regex_simple(pkg)
-}
-
-fn regex_simple(pkg: &str) -> bool {
-    let mut chars = pkg.chars();
-    if pkg.starts_with('@') {
-        let scope: String = chars.by_ref().take_while(|c| *c != '/').collect();
-        if !scope.starts_with('@') || scope.len() < 2 {
-            return false;
-        }
-        if chars.next() != Some('/') {
-            return false;
-        }
-    }
-    let name: String = chars.collect();
-    !name.is_empty()
-        && name
-            .chars()
-            .next()
-            .is_some_and(|c| c.is_ascii_alphanumeric())
-        && name
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
 }
 
 pub async fn chat_handler(headers: HeaderMap, Json(body): Json<chat::ChatRequest>) -> Response {

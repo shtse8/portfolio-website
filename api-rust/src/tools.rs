@@ -1,3 +1,4 @@
+use crate::upstream;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -89,7 +90,7 @@ fn to_summary(r: GhRepo) -> RepoSummary {
 }
 
 async fn gh_get(path: &str) -> Result<reqwest::Response, reqwest::Error> {
-    let mut req = client().get(format!("https://api.github.com{path}")).header(
+    let mut req = client().get(upstream::github_rest_url(path)).header(
         "user-agent",
         "kylet-api-rust",
     );
@@ -219,10 +220,10 @@ pub struct NpmDay {
 }
 
 pub async fn npm_range(pkg: &str) -> Vec<NpmDay> {
-    let url = format!(
-        "https://api.npmjs.org/downloads/range/last-month/{}",
+    let url = upstream::npm_url(&format!(
+        "/downloads/range/last-month/{}",
         urlencoding_encode(pkg)
-    );
+    ));
     match client().get(&url).send().await {
         Ok(res) if res.status().is_success() => res
             .json::<serde_json::Value>()
@@ -263,5 +264,12 @@ mod tests {
             .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
             && !raw.is_empty()
             && raw.len() <= 100
+    }
+}
+
+#[doc(hidden)]
+pub fn reset_repos_cache_for_tests() {
+    if let Ok(mut guard) = repos_cache().lock() {
+        *guard = None;
     }
 }

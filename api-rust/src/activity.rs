@@ -1,3 +1,4 @@
+use crate::upstream;
 use reqwest::Client;
 use serde::Serialize;
 use std::env;
@@ -74,7 +75,7 @@ fn client() -> Client {
 async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
     let token = env::var("GITHUB_TOKEN").map_err(|_| "GITHUB_TOKEN not set".to_string())?;
     let res = client()
-        .post("https://api.github.com/graphql")
+        .post(upstream::github_graphql_url())
         .header("authorization", format!("bearer {token}"))
         .header("content-type", "application/json")
         .header("user-agent", "kylet-api-rust")
@@ -265,4 +266,11 @@ pub async fn get_activity() -> Result<ActivityPayload, String> {
         *guard = Some((now, data.clone()));
     }
     Ok(data)
+}
+
+#[doc(hidden)]
+pub fn reset_cache_for_tests() {
+    if let Ok(mut guard) = cache().lock() {
+        *guard = None;
+    }
 }

@@ -131,12 +131,6 @@
         "description": "Optional Connect/gRPC server for internal consumers; REST remains browser projection.",
         "owner": "shtse8/portfolio-website",
         "target": "when multi-service consumer exists"
-      },
-      {
-        "id": "wiremock-upstream-suite",
-        "description": "GitHub/npm/Gateway wiremock integration tests for compute_stats and chat tool loop.",
-        "owner": "shtse8/portfolio-website",
-        "target": "next hardening slice"
       }
     ]
   }

@@ -115,6 +115,16 @@ fn maybe_prune(guard: &mut RateState, now: u64) {
     guard.ip_day.retain(|_, d| d.day == day);
 }
 
+#[doc(hidden)]
+pub fn reset_state_for_tests() {
+    if let Ok(mut guard) = state().lock() {
+        guard.ip_hits.clear();
+        guard.ip_day.clear();
+        guard.global_day = DayCount { day: -1, n: 0 };
+        guard.last_prune = 0;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
