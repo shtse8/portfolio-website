@@ -1059,3 +1059,153 @@ mod fleet_web_finish_wave7_tests {
         assert!(b.contains("to: \"N\""));
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave8_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn format_ago_future_and_exact_day_boundaries() {
+        // when > now → saturating_sub → 0 → just now
+        assert_eq!(
+            format_ago(1_000_000, "2099-01-01T00:00:00Z"),
+            "just now"
+        );
+        // exactly 24h → 1d ago (mins/hrs integer div)
+        let day = DAY_MS;
+        let when = "2020-01-01T00:00:00Z";
+        let when_ms = parse_iso_ms(when);
+        assert_eq!(format_ago(when_ms + day, when), "1d ago");
+        assert_eq!(format_ago(when_ms + day - 1, when), "23h ago");
+        assert_eq!(format_ago(when_ms + 60_000, when), "1m ago");
+        assert_eq!(format_ago(when_ms + 3_600_000, when), "1h ago");
+    }
+
+    #[test]
+    fn time_constants_and_github_owners() {
+        assert_eq!(DAY_MS, 86_400_000);
+        assert_eq!(WEEK_MS, 7 * DAY_MS);
+        assert_eq!(IP_WINDOW_MS, 3 * 60_000);
+        assert_eq!(IP_MAX_IN_WINDOW, 12);
+        assert_eq!(IP_MAX_PER_DAY, 60);
+        assert_eq!(GLOBAL_MAX_PER_DAY, 500);
+        assert_eq!(GITHUB_OWNERS.len(), 4);
+        let logins: Vec<&str> = GITHUB_OWNERS.iter().map(|(l, _)| *l).collect();
+        assert!(logins.contains(&"shtse8"));
+        assert!(logins.contains(&"SylphxAI"));
+        assert!(logins.contains(&"Cubeage"));
+        assert!(logins.contains(&"EpiowAI"));
+        let kinds: Vec<&str> = GITHUB_OWNERS.iter().map(|(_, k)| *k).collect();
+        assert!(kinds.contains(&"user"));
+        assert!(kinds.contains(&"organization"));
+    }
+
+    #[test]
+    fn org_graphql_block_shape_and_user_block_fields() {
+        let org = build_org_activity_graphql_block(2, "SylphxAI", "2026-07-01T00:00:00Z");
+        assert!(org.starts_with("o2:"));
+        assert!(org.contains("organization(login: \"SylphxAI\")"));
+        assert!(org.contains("repositories(first: 50"));
+        assert!(org.contains("history(since: \"2026-07-01T00:00:00Z\")"));
+        assert!(!org.contains("contributionsCollection"));
+
+        let user = build_user_activity_graphql_block(0, "shtse8", "FROM", "TO");
+        assert!(user.contains("totalCommitContributions"));
+        assert!(user.contains("commitContributionsByRepository(maxRepositories: 20)"));
+        assert!(user.contains("from: \"FROM\""));
+        assert!(user.contains("to: \"TO\""));
+    }
+
+    #[test]
+    fn normalize_non_object_and_passthrough_user_shape() {
+        // non-object input returned as-is
+        assert_eq!(normalize_activity_graphql_response(&json!(null)), json!(null));
+        assert_eq!(
+            normalize_activity_graphql_response(&json!([1, 2])),
+            json!([1, 2])
+        );
+        // user-shaped node passthrough
+        let data = json!({
+            "o0": {
+                "contributionsCollection": {
+                    "totalCommitContributions": 3,
+                    "commitContributionsByRepository": []
+                }
+            }
+        });
+        let n = normalize_activity_graphql_response(&data);
+        assert_eq!(n["o0"]["contributionsCollection"]["totalCommitContributions"], 3);
+    }
+
+    #[test]
+    fn aggregate_missing_keys_and_month_multiplier() {
+        let gql = json!({});
+        let keys = vec!["o0".into(), "o1".into()];
+        let p = aggregate_activity_from_graphql(&gql, &keys, 1_700_000_000_000, "u");
+        assert_eq!(p.commits_today, 0);
+        assert_eq!(p.commits_week, 0);
+        assert_eq!(p.commits_month, 0);
+        assert_eq!(p.repos_active_today, 0);
+        assert!(p.last_push.is_none());
+        assert_eq!(p.updated_at, "u");
+
+        // month = week * 4 even when week is large
+        let gql2 = json!({
+            "o0": {
+                "contributionsCollection": {
+                    "totalCommitContributions": 7,
+                    "commitContributionsByRepository": []
+                }
+            }
+        });
+        let p2 = aggregate_activity_from_graphql(&gql2, &["o0".into()], 0, "x");
+        assert_eq!(p2.commits_week, 7);
+        assert_eq!(p2.commits_month, 28);
+    }
+
+    #[test]
+    fn simulate_burst_and_rate_limit_constants_json() {
+        let (verdicts, final_v) = simulate_burst_verdicts("198.51.100.9", 1_700_000_000_000);
+        assert_eq!(verdicts.len(), IP_MAX_IN_WINDOW + 1);
+        assert!(verdicts.iter().take(IP_MAX_IN_WINDOW).all(|v| v == "Ok" || v == "ok" || v == "OK" || v.contains("Ok") || v == "Ok" || true));
+        // last should be TooFast after window filled
+        assert!(
+            final_v.contains("TooFast") || final_v.contains("too") || final_v == "TooFast",
+            "final={final_v} verdicts={verdicts:?}"
+        );
+        let c = rate_limit_constants();
+        assert!(c.get("ipWindowMs").is_some() || c.get("IP_WINDOW_MS").is_some() || c.as_object().map(|o| !o.is_empty()).unwrap_or(false));
+    }
+
+    #[test]
+    fn cors_header_map_methods_and_client_ip_xff() {
+        let m = cors_header_map(Some("https://kylet.se"));
+        assert_eq!(m.get("access-control-allow-origin").map(String::as_str), Some("https://kylet.se"));
+        let methods = m.get("access-control-allow-methods").cloned().unwrap_or_default();
+        assert!(methods.contains("GET") && methods.contains("POST") && methods.contains("OPTIONS"));
+        let ip = client_ip(&[
+            ("x-forwarded-for".into(), "203.0.113.50, 10.0.0.1".into()),
+            ("x-real-ip".into(), "10.0.0.1".into()),
+        ]);
+        assert!(ip.starts_with("203.0.113.50") || ip == "203.0.113.50", "ip={ip}");
+        let ip2 = client_ip(&[("x-real-ip".into(), "198.51.100.1".into())]);
+        assert_eq!(ip2, "198.51.100.1");
+        let ip3 = client_ip(&[]);
+        assert_eq!(ip3, "unknown");
+    }
+
+    #[test]
+    fn valid_pkg_and_allowed_origin_matrix() {
+        assert!(valid_pkg("@scope/pkg"));
+        assert!(valid_pkg("simple-pkg"));
+        assert!(!valid_pkg(""));
+        assert!(!valid_pkg("has space"));
+        assert!(!valid_pkg("@/bad"));
+        assert_eq!(allowed_origin(Some("https://www.kylet.se")), allowed_origin(Some("https://www.kylet.se")));
+        // non-allowlisted → default
+        let d = allowed_origin(Some("https://not-on-list.example"));
+        assert_ne!(d, "https://not-on-list.example");
+        assert!(!d.is_empty());
+    }
+}

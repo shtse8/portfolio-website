@@ -244,3 +244,69 @@ mod tests {
         assert!(sanitize_repo_name("has spaces").is_none());
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave8_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn to_summary_maps_full_repo_and_defaults() {
+        let raw = json!({
+            "full_name": "shtse8/portfolio-website",
+            "name": "portfolio-website",
+            "owner": {"login": "shtse8"},
+            "stargazers_count": 12,
+            "forks_count": 3,
+            "description": "site",
+            "language": "TypeScript",
+            "topics": ["rust", "portfolio"],
+            "homepage": "https://kylet.se",
+            "html_url": "https://github.com/shtse8/portfolio-website",
+            "pushed_at": "2026-07-10T12:34:56Z",
+            "fork": false,
+            "archived": false
+        });
+        let gh: GhRepo = serde_json::from_value(raw).expect("ghrepo");
+        let s = to_summary(gh);
+        assert_eq!(s.repo, "shtse8/portfolio-website");
+        assert_eq!(s.name, "portfolio-website");
+        assert_eq!(s.owner, "shtse8");
+        assert_eq!(s.stars, 12);
+        assert_eq!(s.forks, 3);
+        assert_eq!(s.description.as_deref(), Some("site"));
+        assert_eq!(s.language.as_deref(), Some("TypeScript"));
+        assert_eq!(s.topics, vec!["rust", "portfolio"]);
+        assert_eq!(s.homepage.as_deref(), Some("https://kylet.se"));
+        assert_eq!(s.url, "https://github.com/shtse8/portfolio-website");
+        assert_eq!(s.pushed, "2026-07-10");
+        assert_eq!(s.pushed_at, "2026-07-10T12:34:56Z");
+    }
+
+    #[test]
+    fn to_summary_defaults_empty_fields_and_empty_homepage() {
+        let raw = json!({
+            "full_name": "org/repo",
+            "homepage": "",
+            "topics": null,
+            "stargazers_count": null
+        });
+        let gh: GhRepo = serde_json::from_value(raw).expect("ghrepo");
+        let s = to_summary(gh);
+        assert_eq!(s.repo, "org/repo");
+        assert_eq!(s.name, "repo");
+        assert_eq!(s.owner, "org");
+        assert_eq!(s.stars, 0);
+        assert_eq!(s.forks, 0);
+        assert!(s.topics.is_empty());
+        assert!(s.homepage.is_none());
+        assert_eq!(s.pushed, "");
+    }
+
+    #[test]
+    fn gh_owners_constant_matches_contract_set() {
+        assert_eq!(GH_OWNERS.len(), 4);
+        assert_eq!(GH_OWNERS[0], "shtse8");
+        assert!(GH_OWNERS.contains(&"SylphxAI"));
+    }
+}

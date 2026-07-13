@@ -57,3 +57,22 @@ mod tests {
         );
     }
 }
+#[cfg(test)]
+mod fleet_web_finish_wave8_tests {
+    use super::*;
+
+    #[test]
+    fn client_ip_delegates_to_contract() {
+        let ip = client_ip(&[("x-forwarded-for".into(), "192.0.2.1".into())]);
+        assert_eq!(ip, "192.0.2.1");
+    }
+
+    #[test]
+    fn limit_verdict_from_contract_mapping() {
+        use kylet_api_rust::contract::LimitVerdict as C;
+        assert_eq!(LimitVerdict::from(C::Ok), LimitVerdict::Ok);
+        assert_eq!(LimitVerdict::from(C::TooFast), LimitVerdict::TooFast);
+        assert_eq!(LimitVerdict::from(C::DailyIp), LimitVerdict::DailyIp);
+        assert_eq!(LimitVerdict::from(C::GlobalDaily), LimitVerdict::GlobalDaily);
+    }
+}

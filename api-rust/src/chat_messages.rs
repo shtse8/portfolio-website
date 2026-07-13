@@ -441,3 +441,94 @@ mod fleet_web_finish_wave7_tests {
         assert_eq!(urlencoding_encode(""), "");
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave8_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn system_empty_content_kept_like_assistant() {
+        // empty non-assistant is dropped; system with empty is dropped (only assistant kept empty)
+        let msgs = vec![
+            UIMessage {
+                role: "system".into(),
+                content: Some(json!("")),
+                parts: None,
+            },
+            UIMessage {
+                role: "assistant".into(),
+                content: None,
+                parts: Some(vec![UIPart {
+                    kind: "text".into(),
+                    text: Some("".into()),
+                }]),
+            },
+        ];
+        let out = ui_messages_to_openai(&msgs);
+        // system empty dropped; assistant empty kept
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0]["role"], "assistant");
+    }
+
+    #[test]
+    fn message_payload_len_empty_and_multi() {
+        assert_eq!(message_payload_len(&[]), 0);
+        let msgs = vec![
+            UIMessage {
+                role: "user".into(),
+                content: Some(json!("ab")),
+                parts: None,
+            },
+            UIMessage {
+                role: "user".into(),
+                content: None,
+                parts: Some(vec![UIPart {
+                    kind: "text".into(),
+                    text: Some("xyz".into()),
+                }]),
+            },
+        ];
+        let expected = json!("ab").to_string().len() + 3;
+        assert_eq!(message_payload_len(&msgs), expected);
+    }
+
+    #[test]
+    fn sanitize_rejects_path_chars_and_unicode() {
+        assert!(sanitize_repo_name("repo/name").is_some()); // strips to name
+        assert_eq!(sanitize_repo_name("repo/name").as_deref(), Some("name"));
+        assert!(sanitize_repo_name("café").is_none());
+        assert!(sanitize_repo_name("repo!").is_none());
+        assert!(sanitize_repo_name("a_b-c.d").is_some());
+    }
+
+    #[test]
+    fn urlencoding_tilde_and_percent_hex_upper() {
+        assert_eq!(urlencoding_encode("~ok"), "~ok");
+        assert_eq!(urlencoding_encode("#"), "%23");
+        assert_eq!(urlencoding_encode("?"), "%3F");
+        // multi-byte char encoded as single-byte cast honesty
+        let enc = urlencoding_encode("\n");
+        assert_eq!(enc, "%0A");
+    }
+
+    #[test]
+    fn ui_messages_unknown_role_dropped_system_kept() {
+        let msgs = vec![
+            UIMessage {
+                role: "developer".into(),
+                content: Some(json!("nope")),
+                parts: None,
+            },
+            UIMessage {
+                role: "system".into(),
+                content: Some(json!("rules")),
+                parts: None,
+            },
+        ];
+        let out = ui_messages_to_openai(&msgs);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0]["role"], "system");
+        assert_eq!(out[0]["content"], "rules");
+    }
+}

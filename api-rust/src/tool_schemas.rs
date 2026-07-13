@@ -243,3 +243,65 @@ mod fleet_web_finish_wave6_tests {
         );
     }
 }
+
+#[cfg(test)]
+mod fleet_web_finish_wave8_tests {
+    use super::*;
+
+    #[test]
+    fn npm_downloads_and_get_repo_required_fields() {
+        let schema = tools_schema();
+        let by: std::collections::BTreeMap<_, _> = schema
+            .iter()
+            .filter_map(|t| {
+                let n = t["function"]["name"].as_str()?.to_string();
+                Some((n, t.clone()))
+            })
+            .collect();
+        // required field names follow the schema SSOT (pkg / name, not package)
+        let npm_req = by["npm_downloads"]["function"]["parameters"]["required"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default();
+        let npm_props = by["npm_downloads"]["function"]["parameters"]["properties"]
+            .as_object()
+            .cloned()
+            .unwrap_or_default();
+        assert!(
+            npm_req.iter().any(|v| matches!(v.as_str(), Some("package") | Some("pkg")))
+                || npm_props.contains_key("package")
+                || npm_props.contains_key("pkg"),
+            "npm required/props={npm_req:?} keys={:?}",
+            npm_props.keys().collect::<Vec<_>>()
+        );
+        let get_req = by["get_repo"]["function"]["parameters"]["required"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default();
+        let get_props = by["get_repo"]["function"]["parameters"]["properties"]
+            .as_object()
+            .cloned()
+            .unwrap_or_default();
+        assert!(
+            get_req.iter().any(|v| matches!(v.as_str(), Some("name") | Some("repo")))
+                || get_props.contains_key("name")
+                || get_props.contains_key("repo"),
+            "get_repo required={get_req:?}"
+        );
+        for name in tool_names() {
+            assert_eq!(
+                by[&name]["function"]["parameters"]["type"],
+                "object",
+                "params type for {name}"
+            );
+        }
+    }
+
+    #[test]
+    fn tools_schema_function_type_is_function() {
+        for t in tools_schema() {
+            assert_eq!(t["type"], "function");
+            assert!(t["function"]["name"].as_str().unwrap().len() > 0);
+        }
+    }
+}
