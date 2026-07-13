@@ -22,6 +22,9 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Install protoc (prost-build)
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
       - name: Buf lint (proto SSOT)
         uses: bufbuild/buf-setup-action@v1
       - run: buf lint
