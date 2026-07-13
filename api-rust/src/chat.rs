@@ -1,4 +1,5 @@
 use crate::http_util::{event_stream_content_type, no_cache};
+use kylet_api_rust::chat_messages::{self, UIMessage};
 use crate::persona::SYSTEM_PROMPT;
 use crate::rate_limit::{check_rate_limit, client_ip, LimitVerdict};
 use crate::tools;
@@ -32,19 +33,8 @@ pub struct ChatRequest {
     pub messages: Option<Vec<UIMessage>>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct UIMessage {
-    pub role: String,
-    pub parts: Option<Vec<UIPart>>,
-    pub content: Option<Value>,
-}
+// UIMessage/UIPart: pure SSOT in kylet_api_rust::chat_messages
 
-#[derive(Debug, Deserialize)]
-pub struct UIPart {
-    #[serde(rename = "type")]
-    pub kind: String,
-    pub text: Option<String>,
-}
 
 pub fn resolve_ai() -> AiConfig {
     let override_base = env::var("AI_GATEWAY_BASE_URL")
@@ -80,49 +70,11 @@ pub fn resolve_ai() -> AiConfig {
 }
 
 fn ui_messages_to_openai(messages: &[UIMessage]) -> Vec<Value> {
-    messages
-        .iter()
-        .filter_map(|m| {
-            let role = m.role.as_str();
-            if role != "user" && role != "assistant" && role != "system" {
-                return None;
-            }
-            let text: String = if let Some(parts) = &m.parts {
-                parts
-                    .iter()
-                    .filter(|p| p.kind == "text")
-                    .filter_map(|p| p.text.clone())
-                    .collect::<Vec<_>>()
-                    .join("")
-            } else if let Some(c) = &m.content {
-                if let Some(s) = c.as_str() {
-                    s.to_string()
-                } else if let Some(arr) = c.as_array() {
-                    arr.iter()
-                        .filter_map(|p| {
-                            p.get("type")
-                                .and_then(|t| t.as_str())
-                                .filter(|t| *t == "text")
-                                .and_then(|_| p.get("text").and_then(|t| t.as_str()))
-                        })
-                        .collect::<Vec<_>>()
-                        .join("")
-                } else {
-                    String::new()
-                }
-            } else {
-                String::new()
-            };
-            if text.is_empty() && role != "assistant" {
-                return None;
-            }
-            Some(json!({ "role": role, "content": text }))
-        })
-        .collect()
+    chat_messages::ui_messages_to_openai(messages)
 }
 
 fn tools_schema() -> Vec<Value> {
-    crate::tool_schemas::tools_schema()
+    kylet_api_rust::tool_schemas::tools_schema()
 }
 
 async fn run_tool(name: &str, args: &Value) -> Value {
@@ -155,21 +107,7 @@ async fn run_tool(name: &str, args: &Value) -> Value {
 }
 
 fn message_payload_len(messages: &[UIMessage]) -> usize {
-    messages
-        .iter()
-        .map(|m| {
-            m.parts
-                .as_ref()
-                .map(|p| {
-                    p.iter()
-                        .filter_map(|x| x.text.as_ref())
-                        .map(|t| t.len())
-                        .sum::<usize>()
-                })
-                .unwrap_or(0)
-                + m.content.as_ref().map(|c| c.to_string().len()).unwrap_or(0)
-        })
-        .sum()
+    chat_messages::message_payload_len(messages)
 }
 
 fn emit_event(tx: &tokio::sync::mpsc::UnboundedSender<Result<Event, std::convert::Infallible>>, chunk: Value) {

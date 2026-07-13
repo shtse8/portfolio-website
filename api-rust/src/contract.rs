@@ -529,4 +529,93 @@ mod portfolio_bulk_residual_tests {
         assert!(verdicts.len() > 1);
         assert_eq!(final_v, "tooFast");
     }
+
+    // --- WAVE2 pure residual deepen ---
+
+    #[test]
+    fn parse_iso_ms_rejects_garbage_and_accepts_rfc3339() {
+        assert_eq!(parse_iso_ms(""), 0);
+        assert_eq!(parse_iso_ms("not-a-date"), 0);
+        assert!(parse_iso_ms("2026-07-13T00:00:00Z") > 0);
+        assert!(parse_iso_ms("2026-07-13T00:00:00+00:00") > 0);
+    }
+
+    #[test]
+    fn cors_header_map_sets_allowlist_and_methods() {
+        let headers = cors_header_map(Some("https://kylet.se"));
+        assert_eq!(
+            headers.get("access-control-allow-origin").map(String::as_str),
+            Some("https://kylet.se")
+        );
+        assert_eq!(
+            headers.get("access-control-allow-methods").map(String::as_str),
+            Some("GET, POST, OPTIONS")
+        );
+        assert_eq!(headers.get("vary").map(String::as_str), Some("origin"));
+        let denied = cors_header_map(Some("https://evil.example"));
+        assert_eq!(
+            denied.get("access-control-allow-origin").map(String::as_str),
+            Some("https://kylet.se")
+        );
+    }
+
+    #[test]
+    fn client_ip_cf_envoy_and_truncation() {
+        let headers = vec![("cf-connecting-ip".into(), "8.8.8.8".into())];
+        assert_eq!(client_ip(&headers), "8.8.8.8");
+        let headers = vec![("x-envoy-external-address".into(), "7.7.7.7".into())];
+        assert_eq!(client_ip(&headers), "7.7.7.7");
+        let long = "9".repeat(60);
+        let headers = vec![("x-real-ip".into(), long)];
+        assert_eq!(client_ip(&headers).len(), 45);
+    }
+
+    #[test]
+    fn graphql_activity_blocks_include_login_and_window() {
+        let user = build_user_activity_graphql_block(0, "shtse8", "2026-07-01T00:00:00Z", "2026-07-10T00:00:00Z");
+        assert!(user.contains("o0: user(login: \"shtse8\")"));
+        assert!(user.contains("contributionsCollection(from: \"2026-07-01T00:00:00Z\", to: \"2026-07-10T00:00:00Z\")"));
+        let org = build_org_activity_graphql_block(1, "SylphxAI", "2026-07-01T00:00:00Z");
+        assert!(org.contains("o1: organization(login: \"SylphxAI\")"));
+        assert!(org.contains("history(since: \"2026-07-01T00:00:00Z\")"));
+        assert!(!org.contains("contributionsCollection"));
+    }
+
+    #[test]
+    fn rate_limit_daily_ip_and_unknown_skips_ip_window() {
+        // Anchor at day boundary so spaced hits never roll global_day / clear ip_day.
+        let base = 100 * DAY_MS;
+        let mut state = RateLimitState::default();
+        for i in 0..20 {
+            let v = check_rate_limit_isolated("unknown", base + i, &mut state);
+            assert_eq!(v.as_str(), "ok", "unknown should not IP-limit at {i}");
+        }
+        let mut state = RateLimitState::default();
+        let mut last_ok = 0u64;
+        for i in 0..IP_MAX_PER_DAY {
+            let t = base + (i as u64) * (IP_WINDOW_MS + 1);
+            assert!(t / DAY_MS == base / DAY_MS, "test fixture rolled day at i={i}");
+            let v = check_rate_limit_isolated("2.2.2.2", t, &mut state);
+            assert_eq!(v.as_str(), "ok", "expected ok for hit {i}");
+            last_ok = t;
+        }
+        let blocked = check_rate_limit_isolated("2.2.2.2", last_ok + IP_WINDOW_MS + 1, &mut state);
+        assert_eq!(blocked.as_str(), "dailyIp");
+    }
+
+    #[test]
+    fn proto_contract_summary_counts_rpc_and_hashes() {
+        let dir = std::env::temp_dir().join("portfolio-wave2-proto");
+        let _ = std::fs::create_dir_all(&dir);
+        let path = dir.join("api.proto");
+        std::fs::write(
+            &path,
+            "service PortfolioApiService { rpc Health (H) returns (H); rpc Stats (S) returns (S); }",
+        )
+        .unwrap();
+        let summary = proto_contract_summary(&path);
+        assert_eq!(summary["service"], "PortfolioApiService");
+        assert_eq!(summary["rpcCount"], 2);
+        assert_eq!(summary["protoHash"].as_str().unwrap().len(), 64);
+    }
 }

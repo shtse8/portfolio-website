@@ -2,6 +2,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::time::Duration;
+use kylet_api_rust::chat_messages::{sanitize_repo_name, urlencoding_encode};
 
 const GH_OWNERS: &[&str] = &["shtse8", "SylphxAI", "Cubeage", "EpiowAI"];
 const UPSTREAM_TIMEOUT: Duration = Duration::from_secs(8);
@@ -150,16 +151,9 @@ pub async fn list_projects(limit: usize) -> Vec<RepoSummary> {
 }
 
 pub async fn get_repo_detail(name_raw: &str) -> Option<RepoSummary> {
-    let raw = name_raw.trim().trim_start_matches(['/', '.']);
-    let raw = raw.rsplit('/').next().unwrap_or(raw);
-    if !raw
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
-        || raw.is_empty()
-        || raw.len() > 100
-    {
+    let Some(raw) = sanitize_repo_name(name_raw) else {
         return None;
-    }
+    };
     for owner in GH_OWNERS {
         if let Ok(res) = gh_get(&format!("/repos/{owner}/{raw}")).await {
             if res.status().is_success() {
@@ -236,32 +230,17 @@ pub async fn npm_range(pkg: &str) -> Vec<NpmDay> {
     }
 }
 
-fn urlencoding_encode(s: &str) -> String {
-    s.chars()
-        .map(|c| match c {
-            'A'..='Z' | 'a'..='z' | '0'..='9' | '-' | '_' | '.' | '~' => c.to_string(),
-            _ => format!("%{:02X}", c as u8),
-        })
-        .collect()
-}
+// urlencoding_encode: pure SSOT in kylet_api_rust::chat_messages
 
 #[cfg(test)]
 mod tests {
+    use kylet_api_rust::chat_messages::sanitize_repo_name;
+
     #[test]
     fn repo_name_validation_matches_bun_sanitization() {
-        // Bun strips to the last path segment before validating.
-        assert!(get_repo_detail_sync_name("../../etc"));
-        assert!(get_repo_detail_sync_name("valid-repo"));
-        assert!(!get_repo_detail_sync_name(""));
-        assert!(!get_repo_detail_sync_name("has spaces"));
-    }
-
-    fn get_repo_detail_sync_name(name: &str) -> bool {
-        let raw = name.trim().trim_start_matches(|c: char| c == '/' || c == '.');
-        let raw = raw.rsplit('/').next().unwrap_or(raw);
-        raw.chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
-            && !raw.is_empty()
-            && raw.len() <= 100
+        assert!(sanitize_repo_name("../../etc").is_some());
+        assert!(sanitize_repo_name("valid-repo").is_some());
+        assert!(sanitize_repo_name("").is_none());
+        assert!(sanitize_repo_name("has spaces").is_none());
     }
 }
