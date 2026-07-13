@@ -119,4 +119,37 @@ mod tests {
             assert!(tool["function"]["parameters"]["type"] == "object");
         }
     }
+
+    #[test]
+    fn required_fields_match_contract() {
+        let schema = tools_schema();
+        let by_name: std::collections::BTreeMap<_, _> = schema
+            .iter()
+            .filter_map(|t| {
+                let name = t["function"]["name"].as_str()?.to_string();
+                Some((name, t.clone()))
+            })
+            .collect();
+        assert!(by_name["get_repo"]["function"]["parameters"]["required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v == "name"));
+        assert!(by_name["search_projects"]["function"]["parameters"]["required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v == "query"));
+        assert!(by_name["npm_downloads"]["function"]["parameters"]["required"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v == "pkg"));
+        assert!(
+            by_name["list_projects"]["function"]["parameters"]
+                .get("required")
+                .is_none()
+        );
+    }
+
 }

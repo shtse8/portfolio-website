@@ -397,3 +397,136 @@ fn sha256_hex(content: &str) -> String {
     let digest = Sha256::digest(content.as_bytes());
     digest.iter().map(|byte| format!("{byte:02x}")).collect()
 }
+
+#[cfg(test)]
+mod portfolio_bulk_residual_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn valid_pkg_accepts_scoped_and_simple() {
+        assert!(valid_pkg("lodash"));
+        assert!(valid_pkg("@sylphx/pdf-reader-mcp"));
+        assert!(valid_pkg("a.b-c_d"));
+    }
+
+    #[test]
+    fn valid_pkg_rejects_empty_spaces_and_bad_scope() {
+        assert!(!valid_pkg(""));
+        assert!(!valid_pkg("not valid spaces"));
+        assert!(!valid_pkg("@scopeonly"));
+        assert!(!valid_pkg("@/name"));
+        assert!(!valid_pkg(&"x".repeat(81)));
+    }
+
+    #[test]
+    fn allowed_origin_allowlist_and_default() {
+        assert_eq!(allowed_origin(Some("https://kylet.se")), "https://kylet.se");
+        assert_eq!(
+            allowed_origin(Some("https://evil.example")),
+            "https://kylet.se"
+        );
+        assert_eq!(allowed_origin(None), "https://kylet.se");
+    }
+
+    #[test]
+    fn client_ip_precedence_xff_then_real_ip() {
+        let headers = vec![
+            ("x-forwarded-for".into(), " 1.2.3.4, 5.6.7.8 ".into()),
+            ("x-real-ip".into(), "9.9.9.9".into()),
+        ];
+        assert_eq!(client_ip(&headers), "1.2.3.4");
+        let headers2 = vec![("x-real-ip".into(), "9.9.9.9".into())];
+        assert_eq!(client_ip(&headers2), "9.9.9.9");
+        assert_eq!(client_ip(&[]), "unknown");
+    }
+
+    #[test]
+    fn format_ago_buckets() {
+        let when = "2026-07-13T00:00:00Z";
+        let base = parse_iso_ms(when);
+        assert_ne!(base, 0);
+        assert_eq!(format_ago(base, when), "just now");
+        assert_eq!(format_ago(base + 5 * 60_000, when), "5m ago");
+        assert_eq!(format_ago(base + 3 * 60 * 60_000, when), "3h ago");
+        assert_eq!(format_ago(base + 2 * 24 * 60 * 60_000, when), "2d ago");
+    }
+
+    #[test]
+    fn normalize_activity_org_repos_to_contributions_shape() {
+        let raw = json!({
+            "o0": {
+                "repositories": {
+                    "nodes": [
+                        {
+                            "nameWithOwner": "shtse8/portfolio-website",
+                            "pushedAt": "2026-07-13T00:00:00Z",
+                            "defaultBranchRef": {
+                                "target": { "history": { "totalCount": 3 } }
+                            }
+                        }
+                    ]
+                }
+            }
+        });
+        let norm = normalize_activity_graphql_response(&raw);
+        assert_eq!(
+            norm["o0"]["contributionsCollection"]["totalCommitContributions"],
+            3
+        );
+        assert_eq!(
+            norm["o0"]["contributionsCollection"]["commitContributionsByRepository"][0]
+                ["repository"]["nameWithOwner"],
+            "shtse8/portfolio-website"
+        );
+    }
+
+    #[test]
+    fn aggregate_activity_counts_today_and_last_push() {
+        let when = "2026-07-13T12:00:00Z";
+        let now = parse_iso_ms(when);
+        let gql = json!({
+            "o0": {
+                "contributionsCollection": {
+                    "totalCommitContributions": 7,
+                    "commitContributionsByRepository": [
+                        {
+                            "repository": {
+                                "nameWithOwner": "shtse8/portfolio-website",
+                                "pushedAt": "2026-07-13T11:00:00Z"
+                            },
+                            "contributions": { "totalCount": 2 }
+                        }
+                    ]
+                }
+            }
+        });
+        let payload = aggregate_activity_from_graphql(
+            &gql,
+            &["o0".to_string()],
+            now,
+            "2026-07-13T12:00:00Z",
+        );
+        assert_eq!(payload.commits_week, 7);
+        assert_eq!(payload.commits_today, 2);
+        assert_eq!(payload.repos_active_today, 1);
+        assert_eq!(payload.commits_month, 28);
+        let lp = payload.last_push.expect("last_push");
+        assert_eq!(lp.repo, "portfolio-website");
+        assert_eq!(lp.ago, "1h ago");
+    }
+
+    #[test]
+    fn rate_limit_constants_are_positive() {
+        let c = rate_limit_constants();
+        assert!(c["ipWindowMs"].as_u64().unwrap_or(0) > 0);
+        assert!(c["ipMaxInWindow"].as_u64().unwrap_or(0) > 0);
+    }
+
+    #[test]
+    fn simulate_burst_final_is_too_fast() {
+        let (verdicts, final_v) = simulate_burst_verdicts("1.1.1.1", 1_000_000);
+        assert!(verdicts.len() > 1);
+        assert_eq!(final_v, "tooFast");
+    }
+}
