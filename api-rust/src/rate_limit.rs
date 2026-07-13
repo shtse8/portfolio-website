@@ -1,5 +1,6 @@
-use kylet_api_rust::contract::{
-    client_ip as contract_client_ip, check_rate_limit_isolated, RateLimitState,
+use crate::contract::{
+    client_ip as contract_client_ip, check_rate_limit_isolated, LimitVerdict as ContractLimitVerdict,
+    RateLimitState,
 };
 use std::sync::Mutex;
 
@@ -11,13 +12,13 @@ pub enum LimitVerdict {
     GlobalDaily,
 }
 
-impl From<kylet_api_rust::contract::LimitVerdict> for LimitVerdict {
-    fn from(value: kylet_api_rust::contract::LimitVerdict) -> Self {
+impl From<ContractLimitVerdict> for LimitVerdict {
+    fn from(value: ContractLimitVerdict) -> Self {
         match value {
-            kylet_api_rust::contract::LimitVerdict::Ok => Self::Ok,
-            kylet_api_rust::contract::LimitVerdict::TooFast => Self::TooFast,
-            kylet_api_rust::contract::LimitVerdict::DailyIp => Self::DailyIp,
-            kylet_api_rust::contract::LimitVerdict::GlobalDaily => Self::GlobalDaily,
+            ContractLimitVerdict::Ok => Self::Ok,
+            ContractLimitVerdict::TooFast => Self::TooFast,
+            ContractLimitVerdict::DailyIp => Self::DailyIp,
+            ContractLimitVerdict::GlobalDaily => Self::GlobalDaily,
         }
     }
 }
@@ -39,10 +40,17 @@ pub fn check_rate_limit(ip: &str, now: u64) -> LimitVerdict {
     check_rate_limit_isolated(ip, now, &mut guard).into()
 }
 
+#[doc(hidden)]
+pub fn reset_state_for_tests() {
+    if let Ok(mut guard) = state().lock() {
+        *guard = RateLimitState::default();
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kylet_api_rust::contract::IP_MAX_IN_WINDOW;
+    use crate::contract::IP_MAX_IN_WINDOW;
 
     #[test]
     fn rate_limit_blocks_burst() {

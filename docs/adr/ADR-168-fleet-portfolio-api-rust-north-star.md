@@ -18,7 +18,7 @@ Rust-first backends, Protobuf+Buf SSOT, Connect/gRPC default where cross-boundar
 contracts exist. The public HTTP surface stays REST-compatible for the static site's
 `fetch` calls — a derived projection, not a second SSOT.
 
-Fleet cutover registry lists this repo as **in progress** toward `api-rust/` drop-in parity.
+Fleet cutover registry: **api-rust adopted** as sole API authority; static web remains TypeScript.
 
 ## Decision
 
@@ -79,3 +79,15 @@ Fleet cutover registry lists this repo as **in progress** toward `api-rust/` dro
 - `/chat` SSE/stream contract unchanged for Terminal and site agent UI
 - CORS preflight passes for production and preview origins
 - Sylphx deploy digest readback + health green on API service after flip
+
+## Implementation status (2026-07-13)
+
+| Slice | Status | Evidence |
+| --- | --- | --- |
+| S0 `/stats` parity | **Done** | `api-rust/src/stats.rs`, `cargo test` |
+| S1 `/chat` + tools | **Done** | `api-rust/src/chat.rs`, `api-rust/src/tools.rs`, prod SSE smoke |
+| S2 Sylphx API deploy | **Done** | `sylphx.toml` builds `api-rust/Dockerfile`; preview base `slim-pal-0k3stq.sylphx.app` |
+| S3 Sunset Bun `api/` | **Done** | Removed in commit `177ffa9`; Rust is sole API authority |
+| Proto SSOT | **Adopted (REST slice)** | `proto/portfolio/v1/{api,chat}.proto` + `prost-build` + `contract` REST projection; Connect optional |
+
+Fleet registry row for this repo should read **adopted** for API authority (Rust), with frontend remaining TypeScript static export.

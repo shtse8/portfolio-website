@@ -3,6 +3,7 @@ use crate::contract::{
     build_user_activity_graphql_block, normalize_activity_graphql_response, ActivityPayload,
     GITHUB_OWNERS, WEEK_MS,
 };
+use crate::upstream;
 use reqwest::Client;
 use std::env;
 use std::sync::Mutex;
@@ -39,11 +40,6 @@ fn client() -> Client {
         .unwrap_or_else(|_| Client::new())
 }
 
-fn graphql_url() -> String {
-    env::var("GITHUB_GRAPHQL_URL")
-        .unwrap_or_else(|_| "https://api.github.com/graphql".to_string())
-}
-
 fn github_token() -> Result<String, String> {
     let token = env::var("GITHUB_TOKEN").map_err(|_| "GITHUB_TOKEN not set".to_string())?;
     if token.is_empty() {
@@ -55,7 +51,7 @@ fn github_token() -> Result<String, String> {
 pub async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
     let token = github_token()?;
     let res = client()
-        .post(graphql_url())
+        .post(upstream::github_graphql_url())
         .header("authorization", format!("bearer {token}"))
         .header("content-type", "application/json")
         .header("user-agent", "kylet-api-rust")
@@ -170,6 +166,19 @@ pub async fn get_activity() -> Result<ActivityPayload, String> {
             Err(err)
         }
     }
+}
+
+#[doc(hidden)]
+pub fn cached_snapshot() -> Option<ActivityPayload> {
+    let now = now_ms();
+    if let Ok(guard) = cache().lock() {
+        if let Some((at, data)) = guard.as_ref() {
+            if now.saturating_sub(*at) < activity_ttl_ms() {
+                return Some(data.clone());
+            }
+        }
+    }
+    None
 }
 
 #[doc(hidden)]

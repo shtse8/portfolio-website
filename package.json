@@ -10,7 +10,9 @@
     "lint": "biome check .",
     "format": "biome format --write src package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
     "format:check": "biome format src package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
-    "lint:fix": "biome check --write ."
+    "lint:fix": "biome check --write .",
+    "test:api": "cd api-rust && cargo test --locked",
+    "lint:proto": "buf lint"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.5",

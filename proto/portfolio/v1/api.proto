@@ -5,9 +5,9 @@ package portfolio.v1;
 // Cross-boundary contract SSOT for kylet-api-rust (ADR-168).
 // REST handlers in api-rust mirror these messages; Connect codegen is the next slice.
 service PortfolioApiService {
-  rpc GetHealth(HealthRequest) returns (HealthResponse);
-  rpc GetStats(StatsRequest) returns (StatsResponse);
-  rpc GetActivity(ActivityRequest) returns (ActivityResponse);
+  rpc GetHealth(GetHealthRequest) returns (GetHealthResponse);
+  rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+  rpc GetActivity(GetActivityRequest) returns (GetActivityResponse);
   rpc ListProjects(ListProjectsRequest) returns (ListProjectsResponse);
   rpc GetRepo(GetRepoRequest) returns (GetRepoResponse);
   rpc ListRecent(ListRecentRequest) returns (ListRecentResponse);
@@ -17,15 +17,15 @@ service PortfolioApiService {
   rpc ListChatTools(ListChatToolsRequest) returns (ListChatToolsResponse);
 }
 
-message HealthRequest {}
+message GetHealthRequest {}
 
-message HealthResponse {
+message GetHealthResponse {
   string status = 1;
 }
 
-message StatsRequest {}
+message GetStatsRequest {}
 
-message StatsResponse {
+message GetStatsResponse {
   uint64 github_stars = 1;
   uint64 npm_downloads = 2;
   uint64 flagship_stars = 3;
@@ -35,9 +35,9 @@ message StatsResponse {
   string updated_at = 7;
 }
 
-message ActivityRequest {}
+message GetActivityRequest {}
 
-message ActivityResponse {
+message GetActivityResponse {
   uint64 commits_today = 1;
   uint64 commits_week = 2;
   uint64 commits_month = 3;
@@ -95,10 +95,10 @@ message RepoSummary {
   string owner = 3;
   uint64 stars = 4;
   uint64 forks = 5;
-  string description = 6;
-  string language = 7;
+  optional string description = 6;
+  optional string language = 7;
   repeated string topics = 8;
-  string homepage = 9;
+  optional string homepage = 9;
   string url = 10;
   string pushed = 11;
   string pushed_at = 12;

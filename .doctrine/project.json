@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "project": {
+    "repo": "shtse8/portfolio-website",
+    "name": "Portfolio Website",
+    "lifecycle": "production",
+    "layer": "application",
+    "policyPool": "webpool",
+    "summary": "Static TypeScript Next.js portfolio (kylet.se) with a Rust live API for stats, terminal data, and Sylphx Gateway chat. Protobuf types generated in api-rust via prost-build. Protobuf types generated in api-rust via prost-build.",
+    "goals": [
+      "Ship the public portfolio as a static Next.js export.",
+      "Operate live stats and agent chat through Rust api-rust per ADR-168 and doctrine ADR-167 Rust-first backends."
+    ],
+    "nonGoals": [
+      "Rust SSR for the marketing site (static export stays TypeScript).",
+      "Owning Sylphx Platform cluster internals or model-provider credentials."
+    ],
+    "links": [
+      {
+        "url": "https://kylet.se",
+        "type": "production",
+        "title": "Portfolio site"
+      },
+      {
+        "url": "https://slim-pal-0k3stq.sylphx.app",
+        "type": "production",
+        "title": "Live API (Sylphx preview)"
+      }
+    ]
+  },
+  "boundaries": {
+    "owns": [
+      {
+        "name": "static-web",
+        "description": "Next.js static export, content, design system, and client fetch wiring in src/."
+      },
+      {
+        "name": "live-api",
+        "description": "Rust api-rust service: /stats, /chat, terminal endpoints, persona/tools, CORS, rate limits."
+      },
+      {
+        "name": "api-contract",
+        "description": "Protobuf + Buf SSOT in proto/portfolio/v1 with REST JSON projection for browser fetch."
+      }
+    ],
+    "doesNotOwn": [
+      "Sylphx AI Gateway routing and usage accounting (SylphxAI/sylphx-ai).",
+      "Cluster deploy reconciler and ingress policy (SylphxAI/platform)."
+    ],
+    "publicSurfaces": [
+      {
+        "type": "http",
+        "name": "Portfolio live API (REST)",
+        "location": "api-rust/src/main.rs"
+      },
+      {
+        "type": "schema",
+        "name": "Portfolio API protobuf contract",
+        "location": "proto/portfolio/v1/api.proto"
+      },
+      {
+        "type": "docs",
+        "name": "Architecture ADR",
+        "location": "docs/adr/ADR-168-fleet-portfolio-api-rust-north-star.md"
+      }
+    ],
+    "allowedDependencies": [
+      {
+        "repo": "SylphxAI/sylphx-ai",
+        "surface": "Sylphx AI Gateway OpenAI-compatible HTTP API",
+        "direction": "downward"
+      },
+      {
+        "repo": "SylphxAI/platform",
+        "surface": "sylphx.toml service manifest and deploy bindings",
+        "direction": "downward"
+      }
+    ],
+    "forbiddenCouplings": [
+      "Import platform or gateway repository internals into this repo.",
+      "Add a TypeScript/Bun server runtime as API authority after ADR-168 S3 sunset."
+    ]
+  },
+  "documentation": {
+    "adr": {
+      "path": "docs/adr/",
+      "status": "present"
+    },
+    "specs": {
+      "path": "proto/",
+      "status": "present"
+    },
+    "catalog": {
+      "path": ".doctrine/project.json",
+      "status": "present"
+    },
+    "runbooks": {
+      "path": "scripts/",
+      "status": "present"
+    },
+    "generatedReferences": {
+      "path": "docs/adr/",
+      "status": "present"
+    }
+  },
+  "delivery": {
+    "ciModel": "repo-local",
+    "requiredContexts": [],
+    "deployPath": "Sylphx manifest (sylphx.toml): web static image + api-rust Docker service.",
+    "productionProof": "scripts/api-smoke.sh against deployed API base URL; /healthz /stats /projects /activity /chat SSE.",
+    "recoveryClass": "source-revertable",
+    "deployable": true
+  },
+  "commercial": {
+    "status": "not-applicable",
+    "decisionHome": "not-applicable \u2014 personal portfolio site",
+    "pricingSourceOfTruth": "not-applicable",
+    "metricsSourceOfTruth": "not-applicable",
+    "requiredRecords": [
+      "none"
+    ],
+    "guardrails": [
+      "No paid product surface in this repository."
+    ]
+  },
+  "adoption": {
+    "status": "adopted",
+    "gaps": [
+      {
+        "id": "connect-rpc-internal",
+        "description": "Optional Connect/gRPC server for internal consumers; REST remains browser projection.",
+        "owner": "shtse8/portfolio-website",
+        "target": "when multi-service consumer exists"
+      }
+    ]
+  }
+}

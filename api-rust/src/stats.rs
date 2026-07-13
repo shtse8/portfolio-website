@@ -1,3 +1,4 @@
+use crate::upstream;
 use reqwest::Client;
 use serde::Serialize;
 use std::env;
@@ -81,7 +82,7 @@ fn client() -> Client {
 async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
     let token = env::var("GITHUB_TOKEN").map_err(|_| "GITHUB_TOKEN not set".to_string())?;
     let res = client()
-        .post("https://api.github.com/graphql")
+        .post(upstream::github_graphql_url())
         .header("authorization", format!("bearer {token}"))
         .header("content-type", "application/json")
         .header("user-agent", "kylet-api-rust")
@@ -152,10 +153,10 @@ async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, 
 }
 
 async fn npm_monthly(pkg: &str) -> u64 {
-    let url = format!(
-        "https://api.npmjs.org/downloads/point/last-month/{}",
+    let url = upstream::npm_url(&format!(
+        "/downloads/point/last-month/{}",
         pkg.replace('@', "%40").replace('/', "%2F")
-    );
+    ));
     match client().get(&url).send().await {
         Ok(res) if res.status().is_success() => res
             .json::<serde_json::Value>()
@@ -185,7 +186,7 @@ async fn fetch_npm_downloads() -> (u64, u64) {
 async fn fetch_flagship_stars() -> u64 {
     let token = env::var("GITHUB_TOKEN").ok();
     let mut req = client()
-        .get(format!("https://api.github.com/repos/{FLAGSHIP_REPO}"))
+        .get(upstream::github_rest_url(&format!("/repos/{FLAGSHIP_REPO}")))
         .header("user-agent", "kylet-api-rust");
     if let Some(t) = token {
         req = req.header("authorization", format!("bearer {t}"));
@@ -226,6 +227,18 @@ pub fn iso_now() -> String {
         .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
 }
 
+pub fn cached_snapshot() -> Option<StatsPayload> {
+    let now = now_ms();
+    if let Ok(guard) = cache().lock() {
+        if let Some((at, data)) = guard.as_ref() {
+            if now.saturating_sub(*at) < STATS_TTL_MS {
+                return Some(data.clone());
+            }
+        }
+    }
+    None
+}
+
 pub async fn get_stats() -> Result<StatsPayload, String> {
     let now = now_ms();
     if let Ok(guard) = cache().lock() {
@@ -242,3 +255,11 @@ pub async fn get_stats() -> Result<StatsPayload, String> {
     Ok(data)
 }
 
+
+
+#[doc(hidden)]
+pub fn reset_cache_for_tests() {
+    if let Ok(mut guard) = cache().lock() {
+        *guard = None;
+    }
+}

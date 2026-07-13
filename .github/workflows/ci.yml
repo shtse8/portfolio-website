@@ -15,10 +15,6 @@ concurrency:
 jobs:
   rust-api:
     name: Rust API + differential (ADR-168)
-    # shtse8 personal repo: 0 repo self-hosted runners; SylphxAI org runners
-    # (sylphx-linux-standard) cannot pick up jobs outside the org. Legacy
-    # [self-hosted,sylphx,linux,standard] matched nothing. GitHub-hosted is
-    # the only runnable profile for this public personal repo's GHA jobs.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,12 +22,16 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      # Differential integration tests spawn `bun` (or require PORTFOLIO_ORACLE_JSON).
-      # Run them only via the harness after Bun is installed — avoids spawn ENOENT
-      # on plain `cargo test` when bun is not yet on PATH.
-      - name: Test api-rust (unit/contract; skip differential spawn path)
+      - name: Install protoc (prost-build)
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
+      - name: Buf lint (proto SSOT)
+        uses: bufbuild/buf-setup-action@v1
+      - run: buf lint
+
+      - name: Test api-rust (unit/contract/wiremock; skip differential spawn path)
         working-directory: api-rust
-        run: cargo test -- --skip differential_matches_ts_oracle
+        run: cargo test --locked -- --test-threads=1 --skip differential_matches_ts_oracle
 
       - name: No TS backend authority (ADR-168 S3)
         run: bash scripts/check-no-ts-backend.sh

@@ -28,10 +28,17 @@ futures = "0.3"
 tower-http = { version = "0.6", features = ["cors"] }
 time = { version = "0.3", features = ["formatting", "parsing"] }
 tokio-stream = "0.1"
+prost = "0.13"
+
+[build-dependencies]
+prost-build = "0.13"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 wiremock = "0.6"
+serial_test = "3"
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }
