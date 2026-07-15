@@ -1,20 +1,25 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useId, useState } from "react";
 import {
   FaArrowRightLong,
   FaArrowUpRightFromSquare,
   FaGithub,
+  FaXmark,
 } from "react-icons/fa6";
 import {
   CAPABILITY_LABEL,
   CAPABILITY_ORDER,
-  type Capability,
   REPO_NPM,
   repoCapabilities,
   useWorkGraph,
 } from "@/context/WorkGraphContext";
+import {
+  catalogForRepoName,
+  type ProjectCatalogEntry,
+} from "@/data/project-catalog";
 import {
   compact,
   fetchDownloads,
@@ -35,14 +40,8 @@ const SKELETON_CARD_KEYS = [
 ];
 
 /**
- * WorkGraph — the heart of the site: projects, stars, downloads and activity as
- * ONE interconnected, live, explorable dataset (not three stacked sections).
- *
- * Hover a number in the hero → the repos that compose it light up here. Filter
- * by capability → the same data narrows (it doesn't reset). Click a project →
- * it opens with its live download trend, links, and questions that hand the
- * thread to the AI panel. Every figure is fetched live; the visitor can always
- * trace it back to GitHub / npm.
+ * WorkGraph — visual product grid with deep project detail.
+ * Each open-source product has ambient art + a full intro panel on open.
  */
 export default function WorkGraph() {
   const {
@@ -52,6 +51,8 @@ export default function WorkGraph() {
     setCapability,
     isHighlighted,
     highlight,
+    selected,
+    setSelected,
   } = useWorkGraph();
 
   const counts = CAPABILITY_ORDER.map((c) => ({
@@ -63,21 +64,39 @@ export default function WorkGraph() {
     ? projects.filter((p) => repoCapabilities(p).includes(capability))
     : projects;
 
+  const selectedRepo = selected
+    ? (projects.find((p) => p.repo === selected) ?? null)
+    : null;
+
+  // Escape closes detail
+  useEffect(() => {
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelected(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selected, setSelected]);
+
+  // Lock body scroll while detail open
+  useEffect(() => {
+    if (!selected) return;
+    const prev = document.documentElement.classList.contains("modal-open");
+    document.documentElement.classList.add("modal-open");
+    return () => {
+      if (!prev) document.documentElement.classList.remove("modal-open");
+    };
+  }, [selected]);
+
   return (
     <div className="container-wide">
       <SectionHeader
         index="02"
         eyebrow="The work · live"
-        title={
-          <>
-            Everything here is real,
-            <br className="hidden sm:block" /> and connected
-          </>
-        }
-        description="Open-source projects with live GitHub stars and npm downloads — hover a number above to trace what it's made of, filter by capability, or open a project to see its download trend and ask the AI about it."
+        title="Products with proof — open them."
+        description="Open-source tools with live GitHub stars and npm downloads. Every card has product art and a deep intro — click through for the full story, trends, and links."
       />
 
-      {/* capability filter — narrows the same graph */}
       <Reveal delay={0.05}>
         <div className="mt-8 flex flex-wrap items-center gap-2">
           <FilterChip
@@ -98,16 +117,17 @@ export default function WorkGraph() {
         </div>
       </Reveal>
 
-      {/* the graph */}
-      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {loading && projects.length === 0
           ? SKELETON_CARD_KEYS.map((key) => <SkeletonCard key={key} />)
-          : shown.map((p) => (
-              <ProjectNode
+          : shown.map((p, i) => (
+              <ProjectCard
                 key={p.repo}
                 repo={p}
+                index={i}
                 dimmed={highlight !== null && !isHighlighted(p)}
                 lit={highlight !== null && isHighlighted(p)}
+                onOpen={() => setSelected(p.repo)}
               />
             ))}
       </div>
@@ -117,6 +137,16 @@ export default function WorkGraph() {
           No projects match that filter yet.
         </p>
       )}
+
+      <AnimatePresence>
+        {selectedRepo && (
+          <ProjectDetail
+            repo={selectedRepo}
+            catalog={catalogForRepoName(selectedRepo.name)}
+            onClose={() => setSelected(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -138,13 +168,13 @@ function FilterChip({
       onClick={onClick}
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
         active
-          ? "border-accent bg-accent text-white"
+          ? "border-accent bg-accent text-accent-contrast"
           : "border-border bg-surface text-text-secondary hover:border-accent hover:text-text-primary"
       }`}
     >
       {label}
       <span
-        className={`font-mono text-[10px] ${active ? "text-white/70" : "text-text-tertiary"}`}
+        className={`font-mono text-[10px] ${active ? "text-accent-contrast/70" : "text-text-tertiary"}`}
       >
         {n}
       </span>
@@ -152,24 +182,118 @@ function FilterChip({
   );
 }
 
-function ProjectNode({
+function ProjectCard({
   repo,
+  index,
   dimmed,
   lit,
+  onOpen,
 }: {
   repo: TermRepo;
+  index: number;
   dimmed: boolean;
   lit: boolean;
+  onOpen: () => void;
 }) {
-  const { selected, setSelected, ask } = useWorkGraph();
-  const open = selected === repo.repo;
+  const catalog = catalogForRepoName(repo.name);
   const caps = repoCapabilities(repo);
-  const npm = REPO_NPM[repo.name];
+  const art = catalog?.art;
+  const title = catalog?.title ?? repo.name;
+  const tagline = catalog?.tagline ?? repo.description ?? "";
 
-  // live 30-day download trend, fetched lazily when the card opens
+  return (
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-6% 0px" }}
+      transition={{ duration: 0.45, delay: Math.min(index * 0.04, 0.24) }}
+      animate={{ opacity: dimmed ? 0.4 : 1 }}
+      className={`card group relative flex flex-col overflow-hidden transition-shadow duration-300 hover:shadow-md ${
+        lit ? "ring-1 ring-accent" : ""
+      }`}
+    >
+      <button
+        type="button"
+        onClick={onOpen}
+        className="flex flex-1 flex-col text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/60"
+        aria-label={`Open ${title}`}
+      >
+        <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-sunken">
+          {art ? (
+            <Image
+              src={art}
+              alt=""
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              loading="lazy"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/15 via-surface-sunken to-surface" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="truncate font-mono text-sm font-semibold text-text-primary drop-shadow-sm">
+                  {title}
+                </span>
+                {catalog?.flagship && (
+                  <span className="rounded bg-accent px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent-contrast">
+                    flagship
+                  </span>
+                )}
+              </div>
+            </div>
+            <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-text-primary">
+              {compact(repo.stars)}★
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-1 flex-col p-4">
+          <p className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
+            {tagline}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            {caps.map((c) => (
+              <span
+                key={c}
+                className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary"
+              >
+                {CAPABILITY_LABEL[c]}
+              </span>
+            ))}
+            <span className="ml-auto font-mono text-[10.5px] text-text-tertiary">
+              {timeAgo(repo.pushedAt)}
+            </span>
+          </div>
+          <div className="mt-3 font-mono text-[11px] font-medium text-accent opacity-0 transition-opacity group-hover:opacity-100">
+            Open product →
+          </div>
+        </div>
+      </button>
+    </motion.article>
+  );
+}
+
+function ProjectDetail({
+  repo,
+  catalog,
+  onClose,
+}: {
+  repo: TermRepo;
+  catalog?: ProjectCatalogEntry;
+  onClose: () => void;
+}) {
+  const { ask } = useWorkGraph();
+  const titleId = useId();
+  const npm = catalog?.npm ?? REPO_NPM[repo.name];
   const [spark, setSpark] = useState<{ s: string; total: number } | null>(null);
+
   useEffect(() => {
-    if (!open || !npm || spark) return;
+    if (!npm) return;
     let alive = true;
     fetchDownloads(npm)
       .then((d) => {
@@ -183,81 +307,125 @@ function ProjectNode({
     return () => {
       alive = false;
     };
-  }, [open, npm, spark]);
+  }, [npm]);
+
+  const title = catalog?.title ?? repo.name;
+  const intro =
+    catalog?.intro ??
+    repo.description ??
+    "Open-source work shipping in production.";
+  const highlights = catalog?.highlights ?? [];
+  const art = catalog?.art;
 
   return (
     <motion.div
-      layout
-      animate={{ opacity: dimmed ? 0.4 : 1 }}
-      transition={{ duration: 0.25 }}
-      className={`card card-hover group flex flex-col p-4 sm:p-5 ${open ? "sm:col-span-2 lg:col-span-3" : ""} ${
-        lit ? "ring-1 ring-accent" : ""
-      }`}
+      className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
     >
       <button
         type="button"
-        onClick={() => setSelected(open ? null : repo.repo)}
-        aria-expanded={open}
-        aria-label={`${repo.name} — ${open ? "collapse" : "expand"} details`}
-        className="flex items-start justify-between gap-3 rounded text-left outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+        className="absolute inset-0 bg-background/70 backdrop-blur-md"
+        aria-label="Close product detail"
+        onClick={onClose}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 28, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 16, scale: 0.98 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-[1] flex max-h-[min(92svh,880px)] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-lg sm:rounded-3xl"
       >
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="truncate font-mono text-sm font-semibold text-text-primary">
-              {repo.name}
-            </span>
-            {/pdf-reader-mcp/i.test(repo.name) && (
-              <span className="rounded bg-accent-subtle px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent ring-1 ring-accent/20">
-                flagship
-              </span>
-            )}
-          </div>
-          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
-            {repo.description}
-          </p>
-        </div>
-        <div className="shrink-0 text-right">
-          <div className="font-mono text-sm font-semibold tabular-nums text-text-primary transition-colors group-hover:text-accent">
-            {compact(repo.stars)}★
-          </div>
-          {repo.language && (
-            <div className="mt-0.5 text-[10.5px] text-text-tertiary">
-              {repo.language}
-            </div>
+        {/* Hero art band */}
+        <div className="relative h-44 shrink-0 overflow-hidden sm:h-52">
+          {art ? (
+            <Image
+              src={art}
+              alt={catalog?.artAlt ?? ""}
+              fill
+              className="object-cover"
+              sizes="768px"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-surface-sunken to-surface" />
           )}
-        </div>
-      </button>
-
-      {/* compact footer always visible */}
-      <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        {caps.map((c) => (
-          <span
-            key={c}
-            className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary"
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-surface/80 text-text-secondary backdrop-blur-sm transition-colors hover:text-text-primary"
+            aria-label="Close"
           >
-            {CAPABILITY_LABEL[c]}
-          </span>
-        ))}
-        <span className="ml-auto font-mono text-[10.5px] text-text-tertiary">
-          {timeAgo(repo.pushedAt)}
-        </span>
-      </div>
+            <FaXmark className="h-4 w-4" />
+          </button>
+        </div>
 
-      {/* expanded detail — live trend, links, hand-off to AI */}
-      {open && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          className="mt-4 border-t border-border-subtle pt-4"
-        >
-          <div className="grid gap-5 sm:grid-cols-[1.4fr_1fr]">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-6 pt-1 sm:px-8 sm:pb-8">
+          <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3
+                  id={titleId}
+                  className="font-display text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl"
+                >
+                  {title}
+                </h3>
+                {catalog?.flagship && (
+                  <span className="rounded bg-accent-subtle px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
+                    flagship
+                  </span>
+                )}
+              </div>
+              {catalog?.tagline && (
+                <p className="mt-1 text-sm text-text-secondary">
+                  {catalog.tagline}
+                </p>
+              )}
+            </div>
+            <div className="text-right">
+              <div className="font-mono text-xl font-semibold tabular-nums text-text-primary">
+                {compact(repo.stars)}★
+              </div>
+              {repo.language && (
+                <div className="mt-0.5 font-mono text-[11px] text-text-tertiary">
+                  {repo.language}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-text-secondary">
+            {intro}
+          </p>
+
+          {highlights.length > 0 && (
+            <ul className="mt-5 space-y-2">
+              {highlights.map((h) => (
+                <li
+                  key={h}
+                  className="flex items-start gap-2.5 text-sm text-text-secondary"
+                >
+                  <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+                  {h}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-border-subtle bg-surface-sunken/50 p-4">
+              <div className="font-mono text-[10.5px] uppercase tracking-wide text-text-tertiary">
+                npm · last 30 days
+              </div>
               {npm ? (
-                <div>
-                  <div className="font-mono text-[11px] text-text-tertiary">
-                    npm · last 30 days
-                  </div>
-                  <div className="mt-1.5 flex items-baseline gap-3">
+                <>
+                  <div className="mt-2 flex items-baseline gap-3">
                     <span className="font-mono text-lg text-accent">
                       {spark?.s ?? "▁▁▁▁▁▁▁▁▁▁"}
                     </span>
@@ -268,84 +436,98 @@ function ProjectNode({
                   <div className="mt-1 font-mono text-[10px] text-text-tertiary">
                     {npm}
                   </div>
-                </div>
+                </>
               ) : (
-                <div className="font-mono text-[11px] text-text-tertiary">
-                  No npm package — source-only project.
-                </div>
+                <p className="mt-2 text-sm text-text-tertiary">
+                  Source-only project — no npm package.
+                </p>
               )}
+            </div>
 
-              {repo.topics.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-1.5">
-                  {repo.topics.slice(0, 8).map((t) => (
-                    <span
-                      key={t}
-                      className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="rounded-xl border border-border-subtle bg-surface-sunken/50 p-4">
+              <div className="font-mono text-[10.5px] uppercase tracking-wide text-text-tertiary">
+                Links
+              </div>
+              <div className="mt-2 flex flex-col gap-2">
                 <a
                   href={repo.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-[12px] text-text-secondary transition-colors hover:text-accent"
+                  className="inline-flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-accent"
                 >
                   <FaGithub className="h-3.5 w-3.5" /> {repo.repo}
                 </a>
-                {repo.homepage && (
+                {(catalog?.docsUrl || repo.homepage) && (
                   <a
-                    href={repo.homepage}
+                    href={catalog?.docsUrl || repo.homepage || undefined}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[12px] text-text-secondary transition-colors hover:text-accent"
+                    className="inline-flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-accent"
                   >
-                    <FaArrowUpRightFromSquare className="h-3 w-3" /> site
+                    <FaArrowUpRightFromSquare className="h-3 w-3" />{" "}
+                    {catalog?.docsUrl ? "npm / docs" : "homepage"}
                   </a>
                 )}
-              </div>
-            </div>
-
-            {/* hand the thread to the AI navigator */}
-            <div className="rounded-lg border border-border-subtle bg-surface-sunken/40 p-3.5">
-              <div className="font-mono text-[10.5px] uppercase tracking-wide text-text-tertiary">
-                Ask about this
-              </div>
-              <div className="mt-2 flex flex-col gap-1.5">
-                {[
-                  `Why does ${repo.name} matter?`,
-                  `How is ${repo.name} used in production?`,
-                ].map((q) => (
-                  <button
-                    type="button"
-                    key={q}
-                    onClick={() => ask(q)}
-                    className="group flex items-center justify-between gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-left text-[12px] text-text-secondary transition-colors hover:border-accent hover:text-text-primary"
-                  >
-                    {q}
-                    <FaArrowRightLong className="h-3 w-3 shrink-0 text-text-tertiary group-hover:text-accent" />
-                  </button>
-                ))}
+                <div className="font-mono text-[10.5px] text-text-tertiary">
+                  Updated {timeAgo(repo.pushedAt)}
+                </div>
               </div>
             </div>
           </div>
-        </motion.div>
-      )}
+
+          {repo.topics.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-1.5">
+              {repo.topics.slice(0, 12).map((t) => (
+                <span
+                  key={t}
+                  className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-6 rounded-xl border border-border bg-surface p-4">
+            <div className="font-mono text-[10.5px] uppercase tracking-wide text-text-tertiary">
+              Ask the AI about this product
+            </div>
+            <div className="mt-2 flex flex-col gap-1.5">
+              {[
+                `Why does ${title} matter?`,
+                `How is ${repo.name} used in production?`,
+                `What should I try first with ${repo.name}?`,
+              ].map((q) => (
+                <button
+                  type="button"
+                  key={q}
+                  onClick={() => {
+                    ask(q);
+                    onClose();
+                  }}
+                  className="group flex items-center justify-between gap-2 rounded-lg border border-border-subtle bg-surface-sunken/40 px-3 py-2 text-left text-[13px] text-text-secondary transition-colors hover:border-accent hover:text-text-primary"
+                >
+                  {q}
+                  <FaArrowRightLong className="h-3 w-3 shrink-0 text-text-tertiary group-hover:text-accent" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
 
 function SkeletonCard() {
   return (
-    <div className="card animate-pulse p-4">
-      <div className="h-4 w-1/2 rounded bg-surface-sunken" />
-      <div className="mt-3 h-3 w-full rounded bg-surface-sunken" />
-      <div className="mt-2 h-3 w-2/3 rounded bg-surface-sunken" />
-      <div className="mt-4 h-3 w-1/3 rounded bg-surface-sunken" />
+    <div className="card animate-pulse overflow-hidden">
+      <div className="aspect-[16/10] bg-surface-sunken" />
+      <div className="space-y-2 p-4">
+        <div className="h-3 w-2/3 rounded bg-surface-sunken" />
+        <div className="h-3 w-full rounded bg-surface-sunken" />
+        <div className="h-3 w-1/2 rounded bg-surface-sunken" />
+      </div>
     </div>
   );
 }
