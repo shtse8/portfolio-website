@@ -38,7 +38,7 @@ describe("controlPlanePublic mapping", () => {
         commitsMonth: 40,
         d30IsNotWeekTimesFour: true,
       }),
-    ).toThrow(/week×4/);
+    ).toThrow(/dual-authority bug|commitsMonth equals commitsWeek/);
   });
 
   it("does not invent lastPush private identity from CP path", () => {
