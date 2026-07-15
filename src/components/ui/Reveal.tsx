@@ -4,13 +4,13 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 /**
- * Cinematic scroll-reveal: soft blur + rise, once.
- * Under prefers-reduced-motion we render children directly — no opacity gating.
+ * Soft scroll-reveal: short fade + rise, once.
+ * Under prefers-reduced-motion, render children directly.
  */
 export default function Reveal({
   children,
   delay = 0,
-  y = 28,
+  y = 18,
   className,
   as = "div",
 }: {
@@ -31,10 +31,10 @@ export default function Reveal({
   return (
     <MotionTag
       className={className}
-      initial={{ opacity: 0, y, filter: "blur(4px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, margin: "0px 0px -12% 0px" }}
-      transition={{ duration: 0.85, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+      transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </MotionTag>

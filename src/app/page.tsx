@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
-import FilmGrain from "@/components/cinematic/FilmGrain";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -26,9 +25,6 @@ const StoryArc = dynamic(() => import("@/components/StoryArc"), {
 const FloatingAgent = dynamic(() => import("@/components/FloatingAgent"), {
   ssr: false,
 });
-const ScrollProgress = dynamic(() => import("@/components/ScrollProgress"), {
-  ssr: false,
-});
 const Contact = dynamic(() => import("@/components/Contact"), {
   loading: () => sectionFallback,
 });
@@ -37,7 +33,7 @@ interface HomeProps {
   initialSection?: string;
 }
 
-const PAD = "scroll-mt-20 py-28 sm:py-36";
+const PAD = "scroll-mt-20 py-20 sm:py-24";
 
 function Section({
   id,
@@ -49,7 +45,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={cn(PAD, "scene-cut", className)}>
+    <section
+      id={id}
+      className={cn(PAD, "border-t border-border-subtle", className)}
+    >
       <ErrorBoundary>{children}</ErrorBoundary>
     </section>
   );
@@ -79,8 +78,7 @@ export default function Home({ initialSection }: HomeProps) {
 
   return (
     <WorkGraphProvider>
-      <FilmGrain />
-      <ScrollProgress />
+      {/* Single chrome only — no global scroll progress bar, no film grain overlay */}
       <Header />
 
       <section id="hero" className="scroll-mt-0">

@@ -46,7 +46,7 @@ export default function Contact() {
   }
 
   return (
-    <div className="container-cinema">
+    <div className="container-wide">
       <SectionHeader
         index="03"
         eyebrow="Get in touch"
@@ -62,7 +62,7 @@ export default function Contact() {
             onClick={openAgent}
             whileHover={reduce ? undefined : { scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-3 rounded-full bg-accent px-10 py-5 text-base font-semibold text-accent-contrast shadow-glow transition-shadow hover:shadow-[0_0_64px_-12px_oklch(var(--accent)/0.55)] sm:text-lg"
+            className="group flex items-center gap-3 rounded-full bg-accent px-8 py-3.5 text-[15px] font-semibold text-accent-contrast transition-shadow hover:shadow-md sm:px-9 sm:py-4 sm:text-base"
           >
             <FaWandMagicSparkles className="h-5 w-5" />
             Talk to my AI

@@ -64,7 +64,7 @@ export default function WorkGraph() {
     : projects;
 
   return (
-    <div className="container-cinema">
+    <div className="container-wide">
       <SectionHeader
         index="02"
         eyebrow="The work · live"
@@ -190,8 +190,8 @@ function ProjectNode({
       layout
       animate={{ opacity: dimmed ? 0.4 : 1 }}
       transition={{ duration: 0.25 }}
-      className={`card group flex flex-col p-5 transition-all duration-300 hover:-translate-y-1 hover:border-text-tertiary/35 hover:shadow-cinema ${open ? "sm:col-span-2 lg:col-span-3" : ""} ${
-        lit ? "ring-1 ring-accent shadow-glow" : ""
+      className={`card card-hover group flex flex-col p-4 sm:p-5 ${open ? "sm:col-span-2 lg:col-span-3" : ""} ${
+        lit ? "ring-1 ring-accent" : ""
       }`}
     >
       <button

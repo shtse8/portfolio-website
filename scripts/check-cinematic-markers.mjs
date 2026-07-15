@@ -1,17 +1,15 @@
 #!/usr/bin/env bun
 /**
- * Structural gate: cinematic portfolio surface is present in source and (when
- * present) the static export. Runs against real shipped paths — no hard-coded
- * "expected pass" stubs.
+ * Structural gate for the Signal & Craft portfolio surface.
+ * Checks source (and optional export) for design markers that prove the
+ * shipped redesign is present — not cinema gimmicks.
  *
  * Usage:
  *   bun scripts/check-cinematic-markers.mjs
- *   bun scripts/check-cinematic-markers.mjs --with-export   # also require out/
- *
- * Exit 0 only when every required marker is found.
+ *   bun scripts/check-cinematic-markers.mjs --with-export
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
 const withExport = process.argv.includes("--with-export");
@@ -24,34 +22,41 @@ const SOURCE_CHECKS = [
     patterns: [/from "next\/font\/google"/, /Syne/, /--font-display/],
   },
   {
-    id: "globals-cinematic-tokens",
+    id: "globals-signal-craft",
     path: "src/app/globals.css",
-    patterns: [/CINEMATIC EDITORIAL/, /--font-display/, /\.text-display-xl/, /--ease-cinematic/],
+    patterns: [/SIGNAL & CRAFT/, /--font-display/, /\.text-display/, /\.art-frame/],
   },
   {
-    id: "page-filmgrain",
+    id: "page-no-progress-chrome",
     path: "src/app/page.tsx",
-    patterns: [/FilmGrain/, /from "@\/components\/cinematic\/FilmGrain"/],
+    patterns: [
+      /data-design|Header/,
+      // must NOT import progress or film grain
+    ],
   },
   {
-    id: "hero-display-xl",
+    id: "hero-signal",
     path: "src/components/Hero.tsx",
-    patterns: [/text-display-xl/, /AmbientField/, /ScrollCue/, /data-cinematic-hero/, /Act 01/],
+    patterns: [
+      /data-design="signal-craft"/,
+      /text-display/,
+      /hero-infra\.jpg/,
+      /art-frame/,
+    ],
   },
   {
-    id: "story-sticky-scenes",
+    id: "story-cards-not-sticky",
     path: "src/components/StoryArc.tsx",
-    patterns: [/sticky/, /min-h-\[140vh\]|min-h-\[160vh\]/, /text-year-watermark|Scene/, /useScroll/],
+    patterns: [
+      /art-frame/,
+      /era-web\.jpg|era-social\.jpg|era-mobile\.jpg|era-ai\.jpg/,
+      /EraCard/,
+    ],
   },
   {
-    id: "filmgrain-component",
-    path: "src/components/cinematic/FilmGrain.tsx",
-    patterns: [/export default function FilmGrain/, /fractalNoise|feTurbulence/],
-  },
-  {
-    id: "ambient-field-component",
-    path: "src/components/cinematic/AmbientField.tsx",
-    patterns: [/export default function AmbientField/, /blur-\[/],
+    id: "hero-art-asset",
+    path: "public/art/hero-infra.jpg",
+    patterns: [], // existence only
   },
 ];
 
@@ -73,85 +78,105 @@ function read(rel) {
   return readFileSync(abs, "utf8");
 }
 
-function walkHtml(dir, acc = []) {
+function walk(dir, acc = []) {
   if (!existsSync(dir)) return acc;
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     const st = statSync(p);
-    if (st.isDirectory()) walkHtml(p, acc);
-    else if (name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".js")) acc.push(p);
+    if (st.isDirectory()) walk(p, acc);
+    else if (name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".js"))
+      acc.push(p);
   }
   return acc;
 }
 
-console.log(`cinematic-markers check · root=${root} · withExport=${withExport}`);
+console.log(`design-markers check · root=${root} · withExport=${withExport}`);
 
-for (const check of SOURCE_CHECKS) {
-  const body = read(check.path);
-  if (body == null) continue;
-  const missing = check.patterns.filter((re) => !re.test(body));
-  if (missing.length) {
-    fail(`${check.id} (${check.path}): missing ${missing.map((r) => r.source).join(", ")}`);
-  } else {
-    ok(`${check.id}`);
+// Negative checks on page.tsx
+{
+  const page = read("src/app/page.tsx");
+  if (page) {
+    if (/ScrollProgress/.test(page)) fail("page still imports ScrollProgress");
+    else ok("page-no-ScrollProgress");
+    if (/FilmGrain/.test(page)) fail("page still imports FilmGrain");
+    else ok("page-no-FilmGrain");
   }
 }
 
-// Export surface (optional unless --with-export)
-const outIndex = join(root, "out/index.html");
+// Story must not use sticky full-viewport holds
+{
+  const story = read("src/components/StoryArc.tsx");
+  if (story) {
+    if (/min-h-\[140vh\]|min-h-\[160vh\]|ReelProgress/.test(story)) {
+      fail("story still uses sticky reel / tall holds");
+    } else {
+      ok("story-no-sticky-reel");
+    }
+  }
+}
+
+for (const check of SOURCE_CHECKS) {
+  const abs = join(root, check.path);
+  if (!existsSync(abs)) {
+    fail(`missing ${check.path}`);
+    continue;
+  }
+  if (check.patterns.length === 0) {
+    ok(`${check.id} (exists)`);
+    continue;
+  }
+  const body = readFileSync(abs, "utf8");
+  const missing = check.patterns.filter((re) => !re.test(body));
+  if (missing.length) {
+    fail(`${check.id}: missing ${missing.map((r) => r.source).join(", ")}`);
+  } else {
+    ok(check.id);
+  }
+}
+
+// Art assets
+for (const f of [
+  "public/art/hero-infra.jpg",
+  "public/art/era-web.jpg",
+  "public/art/era-social.jpg",
+  "public/art/era-mobile.jpg",
+  "public/art/era-ai.jpg",
+]) {
+  if (!existsSync(join(root, f))) fail(`missing ${f}`);
+  else ok(`asset ${f}`);
+}
+
 if (withExport) {
+  const outIndex = join(root, "out/index.html");
   if (!existsSync(outIndex)) {
     fail("out/index.html missing — run bun run build first");
   } else {
     const html = readFileSync(outIndex, "utf8");
-    const exportMarkers = [
-      { id: "export-font-display-css-var", re: /--font-display|font-display|syne/i },
-      { id: "export-has-stylesheet", re: /_next\/static/ },
-    ];
-    for (const m of exportMarkers) {
-      if (!m.re.test(html)) fail(`export ${m.id}: not found in out/index.html`);
-      else ok(`export ${m.id}`);
-    }
-
-    // Scan CSS/JS chunks for cinematic class residue shipped to browser
-    const assets = walkHtml(join(root, "out/_next"));
-    const blob = assets
-      .slice(0, 400)
-      .map((p) => {
-        try {
-          return readFileSync(p, "utf8");
-        } catch {
-          return "";
-        }
-      })
-      .join("\n");
-    const chunkMarkers = [
-      { id: "chunk-text-display-xl", re: /text-display-xl/ },
-      { id: "chunk-year-watermark-or-scene", re: /text-year-watermark|Scene 0|min-h-\[140vh\]|sticky/ },
-      { id: "chunk-cinematic-or-film", re: /cinematic|FilmGrain|fractalNoise|feTurbulence/i },
-    ];
-    for (const m of chunkMarkers) {
-      if (!m.re.test(blob) && !m.re.test(html)) {
-        // sticky may minify differently — require at least display-xl + one atmosphere marker
-        if (m.id === "chunk-year-watermark-or-scene") {
-          if (!/text-year-watermark|140vh|160vh/.test(blob) && !/text-year-watermark|140vh|160vh/.test(html)) {
-            fail(`export ${m.id}: not found in out assets`);
-          } else ok(`export ${m.id}`);
-        } else {
-          fail(`export ${m.id}: not found in out assets`);
-        }
-      } else {
-        ok(`export ${m.id}`);
-      }
-    }
-    ok(`export scanned ${assets.length} assets under out/_next`);
+    if (!/signal-craft|hero-infra|syne_/i.test(html)) {
+      fail("export missing signal-craft / hero-infra / syne markers");
+    } else ok("export signal markers");
+    if (!/art\/hero-infra|hero-infra\.jpg/.test(html)) {
+      // may be in JS chunk
+      const assets = walk(join(root, "out/_next"));
+      const blob = assets
+        .slice(0, 400)
+        .map((p) => {
+          try {
+            return readFileSync(p, "utf8");
+          } catch {
+            return "";
+          }
+        })
+        .join("\n");
+      if (!/hero-infra/.test(blob) && !/hero-infra/.test(html)) {
+        fail("export missing hero-infra asset reference");
+      } else ok("export hero-infra ref");
+    } else ok("export hero-infra in html");
   }
-} else if (existsSync(outIndex)) {
-  ok("out/index.html present (export not required this run)");
 }
 
 if (process.exitCode && process.exitCode !== 0) {
-  console.error("cinematic-markers: FAILED");
+  console.error("design-markers: FAILED");
   process.exit(process.exitCode);
 }
-console.log("cinematic-markers: PASSED");
+console.log("design-markers: PASSED");

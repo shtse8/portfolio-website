@@ -25,7 +25,7 @@ export default function Footer() {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"
       />
-      <div className="container-cinema py-16 sm:py-20">
+      <div className="container-wide py-14 sm:py-16">
         {/* Closing CTA */}
         <div className="mb-16 text-center">
           <h2 className="text-h2 text-text-primary">

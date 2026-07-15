@@ -1,6 +1,6 @@
 import Reveal from "./Reveal";
 
-/** Cinematic section intro: mono act index, display title, lead. */
+/** Section intro: mono index + title + lead — balanced proportions. */
 export default function SectionHeader({
   index,
   eyebrow,
@@ -17,7 +17,7 @@ export default function SectionHeader({
   return (
     <div
       className={
-        align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"
+        align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"
       }
     >
       <Reveal
@@ -26,15 +26,15 @@ export default function SectionHeader({
         }
       >
         <span className="text-accent">{index}</span>
-        <span className="h-px w-8 bg-gradient-to-r from-accent/60 to-transparent" />
+        <span className="h-px w-6 bg-border" />
         {eyebrow}
       </Reveal>
-      <Reveal as="div" delay={0.08}>
+      <Reveal as="div" delay={0.05}>
         <h2 className="text-h2 text-text-primary">{title}</h2>
       </Reveal>
       {description && (
-        <Reveal delay={0.16}>
-          <p className="lead mt-5 max-w-2xl">{description}</p>
+        <Reveal delay={0.1}>
+          <p className="lead mt-3">{description}</p>
         </Reveal>
       )}
     </div>

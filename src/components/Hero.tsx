@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import { FaArrowRight, FaBolt, FaGithub } from "react-icons/fa6";
 import { useNavigationStore } from "@/context/NavigationContext";
 import { type HighlightKind, useWorkGraph } from "@/context/WorkGraphContext";
@@ -8,16 +9,11 @@ import { PERSONAL_INFO } from "@/data/personal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { STATS } from "@/lib/stats";
 import { compact, timeAgo } from "@/lib/terminal";
-import AmbientField from "./cinematic/AmbientField";
-import ScrollCue from "./cinematic/ScrollCue";
 import LiveTicker from "./LiveTicker";
 
 /**
- * Hero — cinematic opening frame.
- *
- * Full-viewport first act: display-type headline with line-by-line rise,
- * ambient light field, glass proof board as the only "prop." Scroll cue
- * invites the next scene. Evidence still answers credibility in one glance.
+ * Hero — clear first impression, balanced type, live proof, related abstract art.
+ * No forced theater chrome, no progress bars, no sticky holds.
  */
 export default function Hero() {
   const reduce = useReducedMotion();
@@ -32,18 +28,18 @@ export default function Hero() {
   } = useWorkGraph();
   const navigate = useNavigationStore((s) => s.navigateToSection);
 
-  const rise = (delay: number, y = 28) =>
+  const rise = (delay: number, y = 16) =>
     reduce
       ? {
           initial: { opacity: 0 },
           animate: { opacity: 1 },
-          transition: { duration: 0.35, delay },
+          transition: { duration: 0.25, delay },
         }
       : {
-          initial: { opacity: 0, y, filter: "blur(6px)" },
-          animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+          initial: { opacity: 0, y },
+          animate: { opacity: 1, y: 0 },
           transition: {
-            duration: 0.95,
+            duration: 0.55,
             delay,
             ease: [0.22, 1, 0.36, 1] as const,
           },
@@ -54,6 +50,7 @@ export default function Hero() {
   const flagStars = stats ? compact(stats.flagshipStars) : "800+";
   const flagDl = stats ? compact(stats.flagshipDownloads) : "24K+";
   const lastShip = recent[0];
+  const liveLabel = loading ? "loading" : live ? "live" : "cached";
 
   function jump(highlight: HighlightKind) {
     setSelected(null);
@@ -61,95 +58,71 @@ export default function Hero() {
     navigate("work");
   }
 
-  const liveLabel = loading ? "loading" : live ? "live" : "cached";
-
   return (
     <section
-      data-cinematic-hero="v2"
-      className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-28 pt-32 sm:px-8 sm:pb-32 sm:pt-36"
+      data-design="signal-craft"
+      className="relative flex min-h-[min(100svh,920px)] items-center overflow-hidden px-5 pb-16 pt-24 sm:px-8 sm:pb-20 sm:pt-28"
     >
-      {/* Theater stage — forced dark frame so the opening is unmistakable in light or dark theme */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-[oklch(0.09_0.015_268)]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-3 bg-black sm:h-4"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-3 bg-black sm:h-4"
-      />
-      <AmbientField variant="hero" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-grid mask-fade-b opacity-25 dark:opacity-30" />
+        <div className="absolute -left-24 top-10 h-[42vh] w-[42vh] rounded-full bg-accent/10 blur-[100px]" />
+        <div className="absolute -right-16 bottom-0 h-[36vh] w-[36vh] rounded-full bg-accent/8 blur-[90px]" />
+      </div>
 
-      <div className="container-cinema relative z-[1] grid w-full items-center gap-x-14 gap-y-14 lg:grid-cols-[1.15fr_0.85fr]">
-        {/* ── left: opening monologue ── */}
+      <div className="container-wide grid w-full items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
         <div>
           <motion.div
-            {...rise(0.02, 12)}
-            className="mb-6 font-mono text-[11px] uppercase tracking-[0.35em] text-white/45"
+            {...rise(0.02)}
+            className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2"
           >
-            Act 01 · Opening · kylet.se
-          </motion.div>
-
-          <motion.div
-            {...rise(0.05, 16)}
-            className="mb-7 flex flex-wrap items-center gap-x-4 gap-y-2"
-          >
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300">
+            <span className="inline-flex items-center gap-2 rounded-full border border-positive/30 bg-positive-subtle px-3 py-1 text-xs font-medium text-positive">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 animate-ping-soft" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
               </span>
               Open to new ventures
             </span>
-            <span className="font-mono text-xs uppercase tracking-[0.22em] text-white/40">
-              {PERSONAL_INFO.location.base}
-            </span>
+            <span className="eyebrow">{PERSONAL_INFO.location.base}</span>
           </motion.div>
 
           <motion.div
-            {...rise(0.12, 18)}
-            className="mb-5 font-mono text-sm text-white/55"
+            {...rise(0.06)}
+            className="mb-3 font-mono text-sm text-text-secondary"
           >
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-text-primary">
               {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
             </span>
-            <span className="mx-2 text-white/30">·</span>
-            <span className="text-white/45">AI infrastructure engineer</span>
+            <span className="mx-2 text-text-tertiary">·</span>
+            <span className="text-text-tertiary">
+              AI infrastructure engineer
+            </span>
           </motion.div>
 
-          {/* Line-by-line cinematic headline — pure white / accent on theater stage */}
-          <h1 className="text-display-xl max-w-[13ch] text-white">
-            <motion.span {...rise(0.18)} className="block">
-              I build the
-            </motion.span>
-            <motion.span {...rise(0.28)} className="block">
-              infrastructure
-            </motion.span>
-            <motion.span {...rise(0.38)} className="block text-[oklch(0.78_0.16_268)]">
-              AI agents run on.
-            </motion.span>
-          </h1>
+          <motion.h1
+            {...rise(0.1)}
+            className="text-display max-w-[18ch] text-text-primary"
+          >
+            I build the infrastructure{" "}
+            <span className="text-accent">AI agents</span> run on.
+          </motion.h1>
 
           <motion.p
-            {...rise(0.5, 20)}
-            className="mt-8 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg"
+            {...rise(0.16)}
+            className="mt-5 max-w-xl text-[15px] leading-relaxed text-text-secondary sm:text-base"
           >
             Open-source MCP servers and AI-native developer tools, plus{" "}
-            <strong className="font-semibold text-white">Sylphx</strong> — an
-            AI-native PaaS with its own AI Gateway. Twenty years shipping before
-            this; 10M+ app downloads at a Hong Kong gaming studio.
+            <strong className="font-semibold text-text-primary">Sylphx</strong>{" "}
+            — an AI-native PaaS with its own AI Gateway. Twenty years shipping
+            before this; 10M+ app downloads at a Hong Kong gaming studio.
           </motion.p>
 
-          <motion.div {...rise(0.58, 16)} className="mt-7">
+          <motion.div {...rise(0.2)} className="mt-5">
             <LiveTicker />
           </motion.div>
 
           <motion.div
-            {...rise(0.66, 16)}
-            className="mt-9 flex flex-wrap items-center gap-3"
+            {...rise(0.24)}
+            className="mt-7 flex flex-wrap items-center gap-2.5"
           >
             <button
               type="button"
@@ -162,51 +135,70 @@ export default function Hero() {
               href={PERSONAL_INFO.social.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-base font-medium text-white hover:bg-white/10"
+              className="btn-secondary btn-lg"
             >
               <FaGithub className="h-[18px] w-[18px]" /> GitHub
             </a>
             <button
               type="button"
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent("open-agent"));
-              }}
-              className="btn inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-medium text-white/75 hover:bg-white/5 hover:text-white"
+              onClick={() =>
+                window.dispatchEvent(new CustomEvent("open-agent"))
+              }
+              className="btn-ghost btn-lg"
             >
-              <FaBolt className="h-3.5 w-3.5 text-[oklch(0.78_0.16_268)]" /> Ask
-              my AI
+              <FaBolt className="h-3.5 w-3.5 text-accent" /> Ask my AI
             </button>
             <button
               type="button"
               onClick={() => navigate("contact")}
-              className="btn inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-medium text-white/75 hover:bg-white/5 hover:text-white"
+              className="btn-ghost btn-lg"
             >
               Get in touch
             </button>
           </motion.div>
         </div>
 
-        {/* ── right: glass proof board ── */}
-        <motion.div {...rise(0.42, 32)} className="lg:justify-self-end">
-          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-cinema backdrop-blur-xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
-              <span className="font-mono text-[11px] text-white/45">
+        <motion.div
+          {...rise(0.14, 20)}
+          className="space-y-4 lg:justify-self-end"
+        >
+          {/* Related abstract art — AI infrastructure mesh */}
+          <div className="art-frame aspect-[16/10] w-full max-w-lg shadow-md">
+            <Image
+              src="/art/hero-infra.jpg"
+              alt="Abstract visualization of AI agent infrastructure as a luminous network of nodes"
+              width={1280}
+              height={800}
+              priority
+              className="h-full w-full object-cover"
+              sizes="(max-width: 1024px) 100vw, 520px"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent"
+            />
+          </div>
+
+          {/* Live proof board */}
+          <div className="card w-full max-w-lg overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border-subtle px-4 py-2.5">
+              <span className="font-mono text-[11px] text-text-tertiary">
                 live · from GitHub &amp; npm
               </span>
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-white/45">
+              <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-text-tertiary">
                 <span className="relative flex h-1.5 w-1.5">
                   {live && (
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 animate-ping-soft" />
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
                   )}
                   <span
-                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${live ? "bg-emerald-400" : "bg-white/30"}`}
+                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${live ? "bg-positive" : "bg-text-tertiary"}`}
                   />
                 </span>
                 {liveLabel}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-px bg-border-subtle/80">
+            <div className="grid grid-cols-2 gap-px bg-border-subtle">
               <ProofNode
                 label="GitHub stars"
                 value={stars}
@@ -243,17 +235,17 @@ export default function Hero() {
             <button
               type="button"
               onClick={() => jump("stars")}
-              className="flex w-full items-center gap-2 border-t border-white/10 px-4 py-3 text-left transition-colors hover:bg-white/5"
+              className="flex w-full items-center gap-2 border-t border-border-subtle px-4 py-3 text-left transition-colors hover:bg-surface-sunken/50"
             >
               <span className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-[oklch(0.78_0.16_268)]/60 animate-ping-soft" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[oklch(0.78_0.16_268)]" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-accent/60 animate-ping-soft" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
-              <span className="truncate font-mono text-[12px] text-white/55">
+              <span className="truncate font-mono text-[12px] text-text-secondary">
                 {lastShip ? (
                   <>
                     shipped{" "}
-                    <span className="text-white">{lastShip.name}</span> ·{" "}
+                    <span className="text-text-primary">{lastShip.name}</span> ·{" "}
                     {timeAgo(lastShip.pushedAt)}
                   </>
                 ) : (
@@ -265,14 +257,11 @@ export default function Hero() {
               </span>
             </button>
           </div>
-          <p className="mt-4 px-1 text-center font-mono text-[11px] text-white/35 lg:text-right">
-            Nothing here is a claim — hover a number to see what it&apos;s made
-            of.
+          <p className="px-1 text-center font-mono text-[11px] text-text-tertiary lg:text-right">
+            Hover a number to see what it&apos;s made of.
           </p>
         </motion.div>
       </div>
-
-      <ScrollCue label="Enter" />
     </section>
   );
 }
@@ -298,7 +287,7 @@ function ProofNode({
   wide?: boolean;
   numeric?: number;
 }) {
-  const animated = useCountUp(numeric ?? 0, 1600, true);
+  const animated = useCountUp(numeric ?? 0, 1400, true);
   const display = numeric ? animated.toLocaleString() : value;
   return (
     <button
@@ -308,16 +297,16 @@ function ProofNode({
       onFocus={() => onHover(kind)}
       onBlur={() => onHover(null)}
       onClick={() => onClick(kind)}
-      className={`group bg-black/25 px-4 py-5 text-left transition-all hover:bg-white/10 ${wide ? "col-span-2" : ""}`}
+      className={`group bg-surface px-4 py-4 text-left transition-colors hover:bg-accent-subtle/40 ${wide ? "col-span-2" : ""}`}
     >
-      <div className="flex items-baseline gap-1 font-mono text-2xl font-semibold tracking-tight text-white tabular-nums transition-colors group-hover:text-[oklch(0.78_0.16_268)] sm:text-3xl">
+      <div className="flex items-baseline gap-1 font-mono text-xl font-semibold tracking-tight text-text-primary tabular-nums transition-colors group-hover:text-accent sm:text-2xl">
         {display}
-        <span className="text-base text-white/40 group-hover:text-[oklch(0.78_0.16_268)]">
+        <span className="text-sm text-text-tertiary group-hover:text-accent">
           {suffix}
         </span>
       </div>
-      <div className="mt-1.5 text-xs text-white/45">{label}</div>
-      <div className="mt-0.5 font-mono text-[10.5px] text-white/30 group-hover:text-white/55">
+      <div className="mt-1 text-xs text-text-tertiary">{label}</div>
+      <div className="mt-0.5 font-mono text-[10.5px] text-text-tertiary/70 group-hover:text-text-secondary">
         {hint}
       </div>
     </button>
