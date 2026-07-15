@@ -36,7 +36,7 @@ const SOURCE_CHECKS = [
   {
     id: "hero-display-xl",
     path: "src/components/Hero.tsx",
-    patterns: [/text-display-xl/, /AmbientField/, /ScrollCue/],
+    patterns: [/text-display-xl/, /AmbientField/, /ScrollCue/, /data-cinematic-hero/, /Act 01/],
   },
   {
     id: "story-sticky-scenes",

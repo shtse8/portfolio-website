@@ -64,60 +64,83 @@ export default function Hero() {
   const liveLabel = loading ? "loading" : live ? "live" : "cached";
 
   return (
-    <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-24 pt-28 sm:px-8 sm:pb-28 sm:pt-32">
+    <section
+      data-cinematic-hero="v2"
+      className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-28 pt-32 sm:px-8 sm:pb-32 sm:pt-36"
+    >
+      {/* Theater stage — forced dark frame so the opening is unmistakable in light or dark theme */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-20 bg-[oklch(0.09_0.015_268)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-3 bg-black sm:h-4"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-3 bg-black sm:h-4"
+      />
       <AmbientField variant="hero" />
 
-      <div className="container-cinema grid w-full items-center gap-x-14 gap-y-14 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="container-cinema relative z-[1] grid w-full items-center gap-x-14 gap-y-14 lg:grid-cols-[1.15fr_0.85fr]">
         {/* ── left: opening monologue ── */}
         <div>
+          <motion.div
+            {...rise(0.02, 12)}
+            className="mb-6 font-mono text-[11px] uppercase tracking-[0.35em] text-white/45"
+          >
+            Act 01 · Opening · kylet.se
+          </motion.div>
+
           <motion.div
             {...rise(0.05, 16)}
             className="mb-7 flex flex-wrap items-center gap-x-4 gap-y-2"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-positive/30 bg-positive-subtle px-3 py-1 text-xs font-medium text-positive">
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-xs font-medium text-emerald-300">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 animate-ping-soft" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
               Open to new ventures
             </span>
-            <span className="eyebrow">{PERSONAL_INFO.location.base}</span>
+            <span className="font-mono text-xs uppercase tracking-[0.22em] text-white/40">
+              {PERSONAL_INFO.location.base}
+            </span>
           </motion.div>
 
           <motion.div
             {...rise(0.12, 18)}
-            className="mb-5 font-mono text-sm text-text-secondary"
+            className="mb-5 font-mono text-sm text-white/55"
           >
-            <span className="font-semibold text-text-primary">
+            <span className="font-semibold text-white">
               {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
             </span>
-            <span className="mx-2 text-text-tertiary">·</span>
-            <span className="text-text-tertiary">
-              AI infrastructure engineer
-            </span>
+            <span className="mx-2 text-white/30">·</span>
+            <span className="text-white/45">AI infrastructure engineer</span>
           </motion.div>
 
-          {/* Line-by-line cinematic headline */}
-          <h1 className="text-display-xl max-w-[13ch] text-text-primary">
+          {/* Line-by-line cinematic headline — pure white / accent on theater stage */}
+          <h1 className="text-display-xl max-w-[13ch] text-white">
             <motion.span {...rise(0.18)} className="block">
               I build the
             </motion.span>
             <motion.span {...rise(0.28)} className="block">
               infrastructure
             </motion.span>
-            <motion.span {...rise(0.38)} className="block text-accent">
+            <motion.span {...rise(0.38)} className="block text-[oklch(0.78_0.16_268)]">
               AI agents run on.
             </motion.span>
           </h1>
 
           <motion.p
             {...rise(0.5, 20)}
-            className="mt-8 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg"
+            className="mt-8 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg"
           >
             Open-source MCP servers and AI-native developer tools, plus{" "}
-            <strong className="font-semibold text-text-primary">Sylphx</strong>{" "}
-            — an AI-native PaaS with its own AI Gateway. Twenty years shipping
-            before this; 10M+ app downloads at a Hong Kong gaming studio.
+            <strong className="font-semibold text-white">Sylphx</strong> — an
+            AI-native PaaS with its own AI Gateway. Twenty years shipping before
+            this; 10M+ app downloads at a Hong Kong gaming studio.
           </motion.p>
 
           <motion.div {...rise(0.58, 16)} className="mt-7">
@@ -139,7 +162,7 @@ export default function Hero() {
               href={PERSONAL_INFO.social.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary btn-lg"
+              className="btn inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-base font-medium text-white hover:bg-white/10"
             >
               <FaGithub className="h-[18px] w-[18px]" /> GitHub
             </a>
@@ -148,14 +171,15 @@ export default function Hero() {
               onClick={() => {
                 window.dispatchEvent(new CustomEvent("open-agent"));
               }}
-              className="btn-ghost btn-lg"
+              className="btn inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-medium text-white/75 hover:bg-white/5 hover:text-white"
             >
-              <FaBolt className="h-3.5 w-3.5 text-accent" /> Ask my AI
+              <FaBolt className="h-3.5 w-3.5 text-[oklch(0.78_0.16_268)]" /> Ask
+              my AI
             </button>
             <button
               type="button"
               onClick={() => navigate("contact")}
-              className="btn-ghost btn-lg"
+              className="btn inline-flex items-center gap-2 rounded-full px-6 py-3 text-base font-medium text-white/75 hover:bg-white/5 hover:text-white"
             >
               Get in touch
             </button>
@@ -164,18 +188,18 @@ export default function Hero() {
 
         {/* ── right: glass proof board ── */}
         <motion.div {...rise(0.42, 32)} className="lg:justify-self-end">
-          <div className="card-glass w-full max-w-md overflow-hidden shadow-cinema">
-            <div className="flex items-center justify-between border-b border-border-subtle px-4 py-2.5">
-              <span className="font-mono text-[11px] text-text-tertiary">
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-cinema backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+              <span className="font-mono text-[11px] text-white/45">
                 live · from GitHub &amp; npm
               </span>
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-text-tertiary">
+              <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-white/45">
                 <span className="relative flex h-1.5 w-1.5">
                   {live && (
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 animate-ping-soft" />
                   )}
                   <span
-                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${live ? "bg-positive" : "bg-text-tertiary"}`}
+                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${live ? "bg-emerald-400" : "bg-white/30"}`}
                   />
                 </span>
                 {liveLabel}
@@ -219,17 +243,17 @@ export default function Hero() {
             <button
               type="button"
               onClick={() => jump("stars")}
-              className="flex w-full items-center gap-2 border-t border-border-subtle px-4 py-3 text-left transition-colors hover:bg-surface-sunken/40"
+              className="flex w-full items-center gap-2 border-t border-white/10 px-4 py-3 text-left transition-colors hover:bg-white/5"
             >
               <span className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-accent/60 animate-ping-soft" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[oklch(0.78_0.16_268)]/60 animate-ping-soft" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[oklch(0.78_0.16_268)]" />
               </span>
-              <span className="truncate font-mono text-[12px] text-text-secondary">
+              <span className="truncate font-mono text-[12px] text-white/55">
                 {lastShip ? (
                   <>
                     shipped{" "}
-                    <span className="text-text-primary">{lastShip.name}</span> ·{" "}
+                    <span className="text-white">{lastShip.name}</span> ·{" "}
                     {timeAgo(lastShip.pushedAt)}
                   </>
                 ) : (
@@ -241,7 +265,7 @@ export default function Hero() {
               </span>
             </button>
           </div>
-          <p className="mt-4 px-1 text-center font-mono text-[11px] text-text-tertiary lg:text-right">
+          <p className="mt-4 px-1 text-center font-mono text-[11px] text-white/35 lg:text-right">
             Nothing here is a claim — hover a number to see what it&apos;s made
             of.
           </p>
@@ -284,16 +308,16 @@ function ProofNode({
       onFocus={() => onHover(kind)}
       onBlur={() => onHover(null)}
       onClick={() => onClick(kind)}
-      className={`group bg-surface/60 px-4 py-5 text-left transition-all hover:bg-accent-subtle/50 ${wide ? "col-span-2" : ""}`}
+      className={`group bg-black/25 px-4 py-5 text-left transition-all hover:bg-white/10 ${wide ? "col-span-2" : ""}`}
     >
-      <div className="flex items-baseline gap-1 font-mono text-2xl font-semibold tracking-tight text-text-primary tabular-nums transition-colors group-hover:text-accent sm:text-3xl">
+      <div className="flex items-baseline gap-1 font-mono text-2xl font-semibold tracking-tight text-white tabular-nums transition-colors group-hover:text-[oklch(0.78_0.16_268)] sm:text-3xl">
         {display}
-        <span className="text-base text-text-tertiary group-hover:text-accent">
+        <span className="text-base text-white/40 group-hover:text-[oklch(0.78_0.16_268)]">
           {suffix}
         </span>
       </div>
-      <div className="mt-1.5 text-xs text-text-tertiary">{label}</div>
-      <div className="mt-0.5 font-mono text-[10.5px] text-text-tertiary/70 group-hover:text-text-secondary">
+      <div className="mt-1.5 text-xs text-white/45">{label}</div>
+      <div className="mt-0.5 font-mono text-[10.5px] text-white/30 group-hover:text-white/55">
         {hint}
       </div>
     </button>
