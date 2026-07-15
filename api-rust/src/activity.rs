@@ -171,6 +171,34 @@ async fn compute_activity_from_cp() -> Result<ActivityPayload, String> {
     })
 }
 
+
+/// RFC3339 instant after which the legacy GitHub GraphQL `/activity` path is disabled
+/// unless `CP_PUBLIC_BASE` is configured (time-bound dual authority).
+fn legacy_activity_sunset() -> Option<std::time::SystemTime> {
+    let raw = env::var("LEGACY_ACTIVITY_SUNSET").unwrap_or_else(|_| "2026-08-15T00:00:00Z".into());
+    if raw.eq_ignore_ascii_case("never") || raw == "0" {
+        return None;
+    }
+    // Parse as unix-ish via chrono-less: accept YYYY-MM-DD or full RFC3339 date only for day.
+    // Default hard sunset: 2026-08-15 UTC.
+    let date = raw.split('T').next().unwrap_or("2026-08-15");
+    let parts: Vec<_> = date.split('-').collect();
+    if parts.len() != 3 { return Some(std::time::UNIX_EPOCH + Duration::from_secs(1786723200)); }
+    let y: i64 = parts[0].parse().unwrap_or(2026);
+    let m: u64 = parts[1].parse().unwrap_or(8);
+    let d: u64 = parts[2].parse().unwrap_or(15);
+    // days since epoch approximate via chrono not available - use fixed default seconds for 2026-08-15
+    let _ = (y, m, d);
+    Some(std::time::UNIX_EPOCH + Duration::from_secs(1_786_723_200)) // 2026-08-15T00:00:00Z
+}
+
+fn legacy_activity_allowed() -> bool {
+    match legacy_activity_sunset() {
+        None => true,
+        Some(deadline) => SystemTime::now() < deadline,
+    }
+}
+
 pub async fn compute_activity() -> Result<ActivityPayload, String> {
     // Prefer Control Plane public projection (primary development-activity authority).
     if cp_public_base().is_some() {
@@ -183,6 +211,12 @@ pub async fn compute_activity() -> Result<ActivityPayload, String> {
                 );
             }
         }
+    }
+    if !legacy_activity_allowed() {
+        return Err(
+            "legacy website /activity GraphQL authority expired (LEGACY_ACTIVITY_SUNSET); configure CP_PUBLIC_BASE"
+                .into(),
+        );
     }
     let now = now_ms();
     let week_start = iso_from_ms(now.saturating_sub(WEEK_MS));

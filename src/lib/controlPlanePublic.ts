@@ -1,3 +1,4 @@
+/** Mirrors packages/public-client (CP public.profile.v1). GENERATED_FROM control-plane contract. */
 /**
  * Control Plane Public Profile client (anonymous).
  *

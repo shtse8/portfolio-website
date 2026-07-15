@@ -50,7 +50,8 @@ export default function LiveTicker() {
           }
         }
 
-        // 2) Legacy website-owned activity — only if CP public not configured/reachable.
+        // 2) Time-bound legacy website-owned activity (sunset 2026-08-15 UTC unless
+        //    LEGACY_ACTIVITY_SUNSET=never on the API). Prefer CP public exclusively in prod.
         const res = await fetch(`${API_BASE}/activity`);
         if (!res.ok) {
           if (alive) setUnavailable(true);
