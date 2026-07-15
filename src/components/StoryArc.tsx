@@ -60,14 +60,14 @@ const ERA_META: Record<
   "epiow-cto": {
     era: "Consultancy",
     headline: "Building for clients",
-    image: "/art/era-ai.jpg",
-    imageAlt: "Ambient visual for consultancy / product engineering work",
+    image: "/art/era-consulting.jpg",
+    imageAlt: "Ambient visual derived from Epiow brand mark and product identity",
   },
   "sylphx-founder": {
     era: "AI · Open Source",
     headline: "The infrastructure AI agents run on",
     image: "/art/era-ai.jpg",
-    imageAlt: "Ambient visual for Sylphx AI infrastructure and open source",
+    imageAlt: "Ambient visual derived from Sylphx brand mark and AI platform identity",
   },
 };
 

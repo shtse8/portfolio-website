@@ -49,7 +49,7 @@ const SOURCE_CHECKS = [
     id: "story-cards-not-sticky",
     path: "src/components/StoryArc.tsx",
     patterns: [
-      /era-web\.jpg|era-social\.jpg|era-mobile\.jpg|era-ai\.jpg/,
+      /era-web\.jpg|era-social\.jpg|era-mobile\.jpg|era-ai\.jpg|era-consulting\.jpg/,
       /EraCard/,
       /from-surface via-surface/,
     ],
@@ -142,6 +142,9 @@ for (const f of [
   "public/art/era-social.jpg",
   "public/art/era-mobile.jpg",
   "public/art/era-ai.jpg",
+  "public/art/era-consulting.jpg",
+  "public/companys/sylphx.png",
+  "public/companys/epiow.png",
 ]) {
   if (!existsSync(join(root, f))) fail(`missing ${f}`);
   else ok(`asset ${f}`);
