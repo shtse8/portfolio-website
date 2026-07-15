@@ -44,6 +44,12 @@ const config: Config = {
 
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: [
+          "var(--font-display)",
+          "var(--font-sans)",
+          "system-ui",
+          "sans-serif",
+        ],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
 
@@ -74,22 +80,43 @@ const config: Config = {
         DEFAULT: "0 2px 8px -2px rgb(0 0 0 / 0.08)",
         md: "0 8px 24px -8px rgb(0 0 0 / 0.14)",
         lg: "0 24px 48px -16px rgb(0 0 0 / 0.20)",
+        cinema:
+          "0 32px 64px -24px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.04)",
+        glow: "0 0 48px -12px oklch(var(--accent) / 0.4)",
       },
 
       maxWidth: {
         content: "1024px",
+        cinema: "72rem",
       },
 
       keyframes: {
         "fade-in": { "0%": { opacity: "0" }, "100%": { opacity: "1" } },
         "slide-up": {
-          "0%": { transform: "translateY(10px)", opacity: "0" },
+          "0%": { transform: "translateY(16px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "cinema-rise": {
+          "0%": {
+            transform: "translateY(28px)",
+            opacity: "0",
+            filter: "blur(4px)",
+          },
+          "100%": {
+            transform: "translateY(0)",
+            opacity: "1",
+            filter: "blur(0)",
+          },
         },
       },
       animation: {
-        "fade-in": "fade-in 0.3s var(--ease-out)",
-        "slide-up": "slide-up 0.4s var(--ease-out)",
+        "fade-in": "fade-in 0.4s var(--ease-out)",
+        "slide-up": "slide-up 0.55s var(--ease-out)",
+        "cinema-rise": "cinema-rise 0.9s var(--ease-cinematic)",
+      },
+      transitionTimingFunction: {
+        cinematic: "cubic-bezier(0.22, 1, 0.36, 1)",
+        film: "cubic-bezier(0.65, 0, 0.35, 1)",
       },
     },
   },

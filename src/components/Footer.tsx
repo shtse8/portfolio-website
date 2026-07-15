@@ -2,14 +2,18 @@
 
 import Link from "next/link";
 import { FaGithub, FaLinkedin, FaStackOverflow } from "react-icons/fa6";
-import { PERSONAL_INFO } from "@/data/personal";
 import { NAV_SECTIONS } from "@/config/sections";
+import { PERSONAL_INFO } from "@/data/personal";
 import DeepLink from "./DeepLink";
 
 const SOCIALS = [
   { href: PERSONAL_INFO.social.github, label: "GitHub", Icon: FaGithub },
   { href: PERSONAL_INFO.social.linkedin, label: "LinkedIn", Icon: FaLinkedin },
-  { href: PERSONAL_INFO.social.stackoverflow, label: "Stack Overflow", Icon: FaStackOverflow },
+  {
+    href: PERSONAL_INFO.social.stackoverflow,
+    label: "Stack Overflow",
+    Icon: FaStackOverflow,
+  },
 ];
 
 export default function Footer() {
@@ -17,19 +21,33 @@ export default function Footer() {
   return (
     <footer className="relative border-t border-border bg-surface-sunken">
       {/* gradient accent at top of footer */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent" />
-      <div className="container-content py-14">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"
+      />
+      <div className="container-cinema py-16 sm:py-20">
         {/* Closing CTA */}
-        <div className="mb-14 text-center">
-          <h2 className="text-h2 text-text-primary">Let&apos;s build something.</h2>
+        <div className="mb-16 text-center">
+          <h2 className="text-h2 text-text-primary">
+            Let&apos;s build something.
+          </h2>
           <p className="mx-auto mt-3 max-w-md text-text-secondary">
-            Whether it&apos;s MCP integrations, AI infrastructure, or scaling a platform to millions — I&apos;m open to it.
+            Whether it&apos;s MCP integrations, AI infrastructure, or scaling a
+            platform to millions — I&apos;m open to it.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <a href={`mailto:${PERSONAL_INFO.email}`} className="btn-primary btn-lg">
+            <a
+              href={`mailto:${PERSONAL_INFO.email}`}
+              className="btn-primary btn-lg"
+            >
               {PERSONAL_INFO.email}
             </a>
-            <a href={PERSONAL_INFO.social.github} target="_blank" rel="noopener noreferrer" className="btn-secondary btn-lg">
+            <a
+              href={PERSONAL_INFO.social.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary btn-lg"
+            >
               <FaGithub className="h-[18px] w-[18px]" /> GitHub
             </a>
           </div>
@@ -47,15 +65,22 @@ export default function Footer() {
               </span>
             </DeepLink>
             <p className="mt-4 text-sm text-text-secondary">
-              Technical founder & builder. {PERSONAL_INFO.location.base} · {PERSONAL_INFO.location.remote}.
+              Technical founder & builder. {PERSONAL_INFO.location.base} ·{" "}
+              {PERSONAL_INFO.location.remote}.
             </p>
-            <a href={`mailto:${PERSONAL_INFO.email}`} className="link mt-3 inline-block font-mono text-sm">
+            <a
+              href={`mailto:${PERSONAL_INFO.email}`}
+              className="link mt-3 inline-block font-mono text-sm"
+            >
               {PERSONAL_INFO.email}
             </a>
           </div>
 
           {/* Nav */}
-          <nav className="grid grid-cols-2 gap-x-12 gap-y-2.5" aria-label="Footer">
+          <nav
+            className="grid grid-cols-2 gap-x-12 gap-y-2.5"
+            aria-label="Footer"
+          >
             {NAV_SECTIONS.map((s) => (
               <DeepLink
                 key={s.id}
@@ -70,8 +95,17 @@ export default function Footer() {
 
         <div className="mt-12 flex flex-col-reverse items-start justify-between gap-6 border-t border-border pt-6 sm:flex-row sm:items-center">
           <p className="font-mono text-xs text-text-tertiary">
-            © {year} {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}. Built with Next.js · Powered by{" "}
-            <a href="https://sylphx.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Sylphx</a>.
+            © {year} {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}. Built
+            with Next.js · Powered by{" "}
+            <a
+              href="https://sylphx.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:underline"
+            >
+              Sylphx
+            </a>
+            .
           </p>
           <div className="flex items-center gap-2">
             {SOCIALS.map(({ href, label, Icon }) => (

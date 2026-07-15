@@ -1,7 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { FaGithub, FaLinkedin, FaStackOverflow, FaEnvelope, FaWandMagicSparkles, FaArrowRight } from "react-icons/fa6";
+import {
+  FaArrowRight,
+  FaEnvelope,
+  FaGithub,
+  FaLinkedin,
+  FaStackOverflow,
+  FaWandMagicSparkles,
+} from "react-icons/fa6";
 import { PERSONAL_INFO } from "@/data/personal";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
@@ -11,7 +18,11 @@ const { email, social, location } = PERSONAL_INFO;
 const SOCIALS = [
   { href: social.github, label: "GitHub", Icon: FaGithub },
   { href: social.linkedin, label: "LinkedIn", Icon: FaLinkedin },
-  { href: social.stackoverflow, label: "Stack Overflow", Icon: FaStackOverflow },
+  {
+    href: social.stackoverflow,
+    label: "Stack Overflow",
+    Icon: FaStackOverflow,
+  },
   { href: `mailto:${email}`, label: email, Icon: FaEnvelope },
 ];
 
@@ -27,26 +38,31 @@ export default function Contact() {
   const reduce = useReducedMotion();
 
   function openAgent() {
-    window.dispatchEvent(new CustomEvent("open-agent", { detail: { seed: "I'd like to get in touch with Kyle" } }));
+    window.dispatchEvent(
+      new CustomEvent("open-agent", {
+        detail: { seed: "I'd like to get in touch with Kyle" },
+      }),
+    );
   }
 
   return (
-    <div className="container-content">
+    <div className="container-cinema">
       <SectionHeader
         index="03"
         eyebrow="Get in touch"
         title="Let's talk."
         description="No forms to fill — just tell my AI what you need. It'll ask the right questions and draft the email for you."
+        align="center"
       />
 
       <Reveal delay={0.1}>
-        <div className="mt-10 flex flex-col items-center gap-8 py-8 text-center">
+        <div className="mt-12 flex flex-col items-center gap-8 py-10 text-center">
           {/* AI CTA */}
           <motion.button
             onClick={openAgent}
-            whileHover={reduce ? undefined : { scale: 1.02 }}
+            whileHover={reduce ? undefined : { scale: 1.03 }}
             whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-3 rounded-full bg-accent px-8 py-4 text-base font-semibold text-accent-contrast shadow-lg shadow-accent/20 transition-shadow hover:shadow-xl hover:shadow-accent/30"
+            className="group flex items-center gap-3 rounded-full bg-accent px-10 py-5 text-base font-semibold text-accent-contrast shadow-glow transition-shadow hover:shadow-[0_0_64px_-12px_oklch(var(--accent)/0.55)] sm:text-lg"
           >
             <FaWandMagicSparkles className="h-5 w-5" />
             Talk to my AI
@@ -54,8 +70,8 @@ export default function Contact() {
           </motion.button>
 
           <p className="max-w-md text-sm text-text-tertiary">
-            The agent asks your name, what you need, and composes a ready-to-send email.
-            Powered by Sylphx AI Gateway.
+            The agent asks your name, what you need, and composes a
+            ready-to-send email. Powered by Sylphx AI Gateway.
           </p>
 
           {/* Social links */}
@@ -65,7 +81,9 @@ export default function Contact() {
                 key={label}
                 href={href}
                 target={href.startsWith("mailto") ? undefined : "_blank"}
-                rel={href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+                rel={
+                  href.startsWith("mailto") ? undefined : "noopener noreferrer"
+                }
                 className="flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text-secondary transition-all hover:border-accent hover:text-text-primary"
               >
                 <Icon className="h-4 w-4" />

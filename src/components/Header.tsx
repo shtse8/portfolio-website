@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { FaGithub } from "react-icons/fa";
-import { PERSONAL_INFO } from "@/data";
-import ThemeSwitch from "./ThemeSwitch";
-import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
-import DeepLink from "./DeepLink";
 import { NAV_SECTIONS } from "@/config/sections";
 import { useNavigationStore } from "@/context/NavigationContext";
+import { PERSONAL_INFO } from "@/data";
+import { cn } from "@/lib/utils";
+import DeepLink from "./DeepLink";
+import ThemeSwitch from "./ThemeSwitch";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,12 +29,16 @@ export default function Header() {
   // Lock body + close menu on Escape while the mobile menu is open
   useEffect(() => {
     if (!menuOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    const onKey = (e: KeyboardEvent) =>
+      e.key === "Escape" && setMenuOpen(false);
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [menuOpen]);
 
-  const isActive = useCallback((id: string) => activeSection === id, [activeSection]);
+  const isActive = useCallback(
+    (id: string) => activeSection === id,
+    [activeSection],
+  );
 
   if (!mounted) return null;
 
@@ -45,29 +49,38 @@ export default function Header() {
           "fixed inset-x-0 top-0 z-40 transition-all duration-300",
           isScrolled
             ? "border-b border-border/70 bg-background/75 backdrop-blur-xl"
-            : "border-b border-transparent bg-transparent"
+            : "border-b border-transparent bg-transparent",
         )}
       >
         <div className="container-wide flex h-16 items-center justify-between gap-4">
           {/* Wordmark */}
-          <DeepLink to="hero" className="group flex items-center gap-2.5" aria-label="Home">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-mono text-sm font-semibold text-accent-contrast">
+          <DeepLink
+            to="hero"
+            className="group flex items-center gap-2.5"
+            aria-label="Home"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-display text-sm font-semibold text-accent-contrast">
               KT
             </span>
-            <span className="hidden font-medium tracking-tight text-text-primary sm:block">
+            <span className="hidden font-display font-medium tracking-tight text-text-primary sm:block">
               {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
             </span>
           </DeepLink>
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+          <nav
+            className="hidden items-center gap-1 md:flex"
+            aria-label="Primary"
+          >
             {NAV_SECTIONS.map((s) => (
               <DeepLink
                 key={s.id}
                 to={s.id}
                 className={cn(
                   "relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors duration-150",
-                  isActive(s.id) ? "text-text-primary" : "text-text-secondary hover:text-text-primary"
+                  isActive(s.id)
+                    ? "text-text-primary"
+                    : "text-text-secondary hover:text-text-primary",
                 )}
               >
                 {isActive(s.id) && (
@@ -93,16 +106,32 @@ export default function Header() {
               <FaGithub className="h-[18px] w-[18px]" />
             </Link>
             <ThemeSwitch />
-            <button type="button"
+            <button
+              type="button"
               className="flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary md:hidden"
               onClick={() => setMenuOpen((v) => !v)}
               aria-expanded={menuOpen}
               aria-label="Toggle menu"
             >
               <div className="flex h-4 w-5 flex-col justify-between">
-                <span className={cn("h-0.5 w-5 rounded-full bg-current transition-all duration-200", menuOpen && "translate-y-[7px] rotate-45")} />
-                <span className={cn("h-0.5 w-5 rounded-full bg-current transition-all duration-200", menuOpen && "opacity-0")} />
-                <span className={cn("h-0.5 w-5 rounded-full bg-current transition-all duration-200", menuOpen && "-translate-y-[7px] -rotate-45")} />
+                <span
+                  className={cn(
+                    "h-0.5 w-5 rounded-full bg-current transition-all duration-200",
+                    menuOpen && "translate-y-[7px] rotate-45",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "h-0.5 w-5 rounded-full bg-current transition-all duration-200",
+                    menuOpen && "opacity-0",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "h-0.5 w-5 rounded-full bg-current transition-all duration-200",
+                    menuOpen && "-translate-y-[7px] -rotate-45",
+                  )}
+                />
               </div>
             </button>
           </div>
@@ -134,7 +163,9 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   className={cn(
                     "block rounded-xl px-4 py-3 text-sm font-medium transition-colors",
-                    isActive(s.id) ? "bg-accent-subtle text-accent" : "text-text-secondary hover:bg-surface-sunken hover:text-text-primary"
+                    isActive(s.id)
+                      ? "bg-accent-subtle text-accent"
+                      : "text-text-secondary hover:bg-surface-sunken hover:text-text-primary",
                   )}
                 >
                   {s.label}

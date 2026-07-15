@@ -1,19 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FaGithub, FaArrowUpRightFromSquare, FaArrowRightLong } from "react-icons/fa6";
+import { useEffect, useState } from "react";
 import {
-  useWorkGraph,
-  repoCapabilities,
+  FaArrowRightLong,
+  FaArrowUpRightFromSquare,
+  FaGithub,
+} from "react-icons/fa6";
+import {
   CAPABILITY_LABEL,
   CAPABILITY_ORDER,
-  REPO_NPM,
   type Capability,
+  REPO_NPM,
+  repoCapabilities,
+  useWorkGraph,
 } from "@/context/WorkGraphContext";
-import { compact, sparkline, timeAgo, fetchDownloads, type TermRepo } from "@/lib/terminal";
-import SectionHeader from "./ui/SectionHeader";
+import {
+  compact,
+  fetchDownloads,
+  sparkline,
+  type TermRepo,
+  timeAgo,
+} from "@/lib/terminal";
 import Reveal from "./ui/Reveal";
+import SectionHeader from "./ui/SectionHeader";
 
 const SKELETON_CARD_KEYS = [
   "skeleton-card-1",
@@ -35,30 +45,55 @@ const SKELETON_CARD_KEYS = [
  * trace it back to GitHub / npm.
  */
 export default function WorkGraph() {
-  const { projects, loading, capability, setCapability, isHighlighted, highlight } = useWorkGraph();
+  const {
+    projects,
+    loading,
+    capability,
+    setCapability,
+    isHighlighted,
+    highlight,
+  } = useWorkGraph();
 
   const counts = CAPABILITY_ORDER.map((c) => ({
     c,
     n: projects.filter((p) => repoCapabilities(p).includes(c)).length,
   })).filter((x) => x.n > 0);
 
-  const shown = capability ? projects.filter((p) => repoCapabilities(p).includes(capability)) : projects;
+  const shown = capability
+    ? projects.filter((p) => repoCapabilities(p).includes(capability))
+    : projects;
 
   return (
-    <div className="container-content">
+    <div className="container-cinema">
       <SectionHeader
         index="02"
         eyebrow="The work · live"
-        title="Everything here is real, and connected"
+        title={
+          <>
+            Everything here is real,
+            <br className="hidden sm:block" /> and connected
+          </>
+        }
         description="Open-source projects with live GitHub stars and npm downloads — hover a number above to trace what it's made of, filter by capability, or open a project to see its download trend and ask the AI about it."
       />
 
       {/* capability filter — narrows the same graph */}
       <Reveal delay={0.05}>
         <div className="mt-8 flex flex-wrap items-center gap-2">
-          <FilterChip active={capability === null} onClick={() => setCapability(null)} label="All" n={projects.length} />
+          <FilterChip
+            active={capability === null}
+            onClick={() => setCapability(null)}
+            label="All"
+            n={projects.length}
+          />
           {counts.map(({ c, n }) => (
-            <FilterChip key={c} active={capability === c} onClick={() => setCapability(c)} label={CAPABILITY_LABEL[c]} n={n} />
+            <FilterChip
+              key={c}
+              active={capability === c}
+              onClick={() => setCapability(c)}
+              label={CAPABILITY_LABEL[c]}
+              n={n}
+            />
           ))}
         </div>
       </Reveal>
@@ -68,20 +103,38 @@ export default function WorkGraph() {
         {loading && projects.length === 0
           ? SKELETON_CARD_KEYS.map((key) => <SkeletonCard key={key} />)
           : shown.map((p) => (
-              <ProjectNode key={p.repo} repo={p} dimmed={highlight !== null && !isHighlighted(p)} lit={highlight !== null && isHighlighted(p)} />
+              <ProjectNode
+                key={p.repo}
+                repo={p}
+                dimmed={highlight !== null && !isHighlighted(p)}
+                lit={highlight !== null && isHighlighted(p)}
+              />
             ))}
       </div>
 
       {!loading && shown.length === 0 && (
-        <p className="mt-8 text-sm text-text-tertiary">No projects match that filter yet.</p>
+        <p className="mt-8 text-sm text-text-tertiary">
+          No projects match that filter yet.
+        </p>
       )}
     </div>
   );
 }
 
-function FilterChip({ active, onClick, label, n }: { active: boolean; onClick: () => void; label: string; n: number }) {
+function FilterChip({
+  active,
+  onClick,
+  label,
+  n,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  n: number;
+}) {
   return (
-    <button type="button"
+    <button
+      type="button"
       onClick={onClick}
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
         active
@@ -90,12 +143,24 @@ function FilterChip({ active, onClick, label, n }: { active: boolean; onClick: (
       }`}
     >
       {label}
-      <span className={`font-mono text-[10px] ${active ? "text-white/70" : "text-text-tertiary"}`}>{n}</span>
+      <span
+        className={`font-mono text-[10px] ${active ? "text-white/70" : "text-text-tertiary"}`}
+      >
+        {n}
+      </span>
     </button>
   );
 }
 
-function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; lit: boolean }) {
+function ProjectNode({
+  repo,
+  dimmed,
+  lit,
+}: {
+  repo: TermRepo;
+  dimmed: boolean;
+  lit: boolean;
+}) {
   const { selected, setSelected, ask } = useWorkGraph();
   const open = selected === repo.repo;
   const caps = repoCapabilities(repo);
@@ -107,9 +172,17 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
     if (!open || !npm || spark) return;
     let alive = true;
     fetchDownloads(npm)
-      .then((d) => { if (alive) setSpark({ s: sparkline(d.series.map((x) => x.downloads)), total: d.total }); })
+      .then((d) => {
+        if (alive)
+          setSpark({
+            s: sparkline(d.series.map((x) => x.downloads)),
+            total: d.total,
+          });
+      })
       .catch(() => {});
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [open, npm, spark]);
 
   return (
@@ -117,11 +190,12 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
       layout
       animate={{ opacity: dimmed ? 0.4 : 1 }}
       transition={{ duration: 0.25 }}
-      className={`card group flex flex-col p-4 transition-all hover:-translate-y-0.5 hover:border-text-tertiary/30 hover:shadow-md ${open ? "sm:col-span-2 lg:col-span-3" : ""} ${
-        lit ? "ring-1 ring-accent shadow-lg shadow-accent/5" : ""
+      className={`card group flex flex-col p-5 transition-all duration-300 hover:-translate-y-1 hover:border-text-tertiary/35 hover:shadow-cinema ${open ? "sm:col-span-2 lg:col-span-3" : ""} ${
+        lit ? "ring-1 ring-accent shadow-glow" : ""
       }`}
     >
-      <button type="button"
+      <button
+        type="button"
         onClick={() => setSelected(open ? null : repo.repo)}
         aria-expanded={open}
         aria-label={`${repo.name} — ${open ? "collapse" : "expand"} details`}
@@ -129,27 +203,44 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
       >
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <span className="truncate font-mono text-sm font-semibold text-text-primary">{repo.name}</span>
+            <span className="truncate font-mono text-sm font-semibold text-text-primary">
+              {repo.name}
+            </span>
             {/pdf-reader-mcp/i.test(repo.name) && (
-              <span className="rounded bg-accent-subtle px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent ring-1 ring-accent/20">flagship</span>
+              <span className="rounded bg-accent-subtle px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent ring-1 ring-accent/20">
+                flagship
+              </span>
             )}
           </div>
-          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-text-secondary">{repo.description}</p>
+          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
+            {repo.description}
+          </p>
         </div>
         <div className="shrink-0 text-right">
-          <div className="font-mono text-sm font-semibold tabular-nums text-text-primary transition-colors group-hover:text-accent">{compact(repo.stars)}★</div>
-          {repo.language && <div className="mt-0.5 text-[10.5px] text-text-tertiary">{repo.language}</div>}
+          <div className="font-mono text-sm font-semibold tabular-nums text-text-primary transition-colors group-hover:text-accent">
+            {compact(repo.stars)}★
+          </div>
+          {repo.language && (
+            <div className="mt-0.5 text-[10.5px] text-text-tertiary">
+              {repo.language}
+            </div>
+          )}
         </div>
       </button>
 
       {/* compact footer always visible */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         {caps.map((c) => (
-          <span key={c} className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary">
+          <span
+            key={c}
+            className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary"
+          >
             {CAPABILITY_LABEL[c]}
           </span>
         ))}
-        <span className="ml-auto font-mono text-[10.5px] text-text-tertiary">{timeAgo(repo.pushedAt)}</span>
+        <span className="ml-auto font-mono text-[10.5px] text-text-tertiary">
+          {timeAgo(repo.pushedAt)}
+        </span>
       </div>
 
       {/* expanded detail — live trend, links, hand-off to AI */}
@@ -163,31 +254,56 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
             <div>
               {npm ? (
                 <div>
-                  <div className="font-mono text-[11px] text-text-tertiary">npm · last 30 days</div>
-                  <div className="mt-1.5 flex items-baseline gap-3">
-                    <span className="font-mono text-lg text-accent">{spark?.s ?? "▁▁▁▁▁▁▁▁▁▁"}</span>
-                    <span className="font-mono text-sm text-text-primary">{spark ? `${compact(spark.total)} dl` : "…"}</span>
+                  <div className="font-mono text-[11px] text-text-tertiary">
+                    npm · last 30 days
                   </div>
-                  <div className="mt-1 font-mono text-[10px] text-text-tertiary">{npm}</div>
+                  <div className="mt-1.5 flex items-baseline gap-3">
+                    <span className="font-mono text-lg text-accent">
+                      {spark?.s ?? "▁▁▁▁▁▁▁▁▁▁"}
+                    </span>
+                    <span className="font-mono text-sm text-text-primary">
+                      {spark ? `${compact(spark.total)} dl` : "…"}
+                    </span>
+                  </div>
+                  <div className="mt-1 font-mono text-[10px] text-text-tertiary">
+                    {npm}
+                  </div>
                 </div>
               ) : (
-                <div className="font-mono text-[11px] text-text-tertiary">No npm package — source-only project.</div>
+                <div className="font-mono text-[11px] text-text-tertiary">
+                  No npm package — source-only project.
+                </div>
               )}
 
               {repo.topics.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {repo.topics.slice(0, 8).map((t) => (
-                    <span key={t} className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary">{t}</span>
+                    <span
+                      key={t}
+                      className="rounded border border-border-subtle px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary"
+                    >
+                      {t}
+                    </span>
                   ))}
                 </div>
               )}
 
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <a href={repo.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[12px] text-text-secondary transition-colors hover:text-accent">
+                <a
+                  href={repo.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[12px] text-text-secondary transition-colors hover:text-accent"
+                >
                   <FaGithub className="h-3.5 w-3.5" /> {repo.repo}
                 </a>
                 {repo.homepage && (
-                  <a href={repo.homepage} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[12px] text-text-secondary transition-colors hover:text-accent">
+                  <a
+                    href={repo.homepage}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[12px] text-text-secondary transition-colors hover:text-accent"
+                  >
                     <FaArrowUpRightFromSquare className="h-3 w-3" /> site
                   </a>
                 )}
@@ -196,13 +312,16 @@ function ProjectNode({ repo, dimmed, lit }: { repo: TermRepo; dimmed: boolean; l
 
             {/* hand the thread to the AI navigator */}
             <div className="rounded-lg border border-border-subtle bg-surface-sunken/40 p-3.5">
-              <div className="font-mono text-[10.5px] uppercase tracking-wide text-text-tertiary">Ask about this</div>
+              <div className="font-mono text-[10.5px] uppercase tracking-wide text-text-tertiary">
+                Ask about this
+              </div>
               <div className="mt-2 flex flex-col gap-1.5">
                 {[
                   `Why does ${repo.name} matter?`,
                   `How is ${repo.name} used in production?`,
                 ].map((q) => (
-                  <button type="button"
+                  <button
+                    type="button"
                     key={q}
                     onClick={() => ask(q)}
                     className="group flex items-center justify-between gap-2 rounded-md border border-border bg-surface px-2.5 py-1.5 text-left text-[12px] text-text-secondary transition-colors hover:border-accent hover:text-text-primary"

@@ -1,16 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Syne } from "next/font/google";
 import "./globals.css";
-import { PERSONAL_INFO } from "@/data/personal";
+import AppShell from "@/components/layout/AppShell";
 import { SECTIONS } from "@/config/sections";
 import { NavigationProvider } from "@/context/NavigationContext";
-import AppShell from "@/components/layout/AppShell";
+import { PERSONAL_INFO } from "@/data/personal";
 
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-sans",
-  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+  fallback: [
+    "system-ui",
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "Segoe UI",
+    "sans-serif",
+  ],
+});
+
+/** Display face for cinematic headlines — geometric, high presence. */
+const syne = Syne({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -76,7 +90,14 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     siteName: `${fullName} — Portfolio`,
-    images: [{ url: "/og-image.jpeg", width: 1200, height: 630, alt: `${fullName} — AI infrastructure builder` }],
+    images: [
+      {
+        url: "/og-image.jpeg",
+        width: 1200,
+        height: 630,
+        alt: `${fullName} — AI infrastructure builder`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -95,8 +116,16 @@ const personJsonLd = {
   jobTitle: "AI Infrastructure Builder",
   description: DESCRIPTION,
   email: `mailto:${PERSONAL_INFO.email}`,
-  sameAs: [PERSONAL_INFO.social.github, PERSONAL_INFO.social.linkedin, PERSONAL_INFO.social.stackoverflow],
-  worksFor: { "@type": "Organization", name: PERSONAL_INFO.company, url: "https://sylphx.com" },
+  sameAs: [
+    PERSONAL_INFO.social.github,
+    PERSONAL_INFO.social.linkedin,
+    PERSONAL_INFO.social.stackoverflow,
+  ],
+  worksFor: {
+    "@type": "Organization",
+    name: PERSONAL_INFO.company,
+    url: "https://sylphx.com",
+  },
   knowsAbout: [
     "Model Context Protocol",
     "AI Agents & Tooling",
@@ -115,7 +144,11 @@ const siteJsonLd = {
   name: `${fullName} — Portfolio`,
   url: PERSONAL_INFO.portfolioUrl,
   description: DESCRIPTION,
-  author: { "@type": "Person", name: fullName, url: PERSONAL_INFO.portfolioUrl },
+  author: {
+    "@type": "Person",
+    name: fullName,
+    url: PERSONAL_INFO.portfolioUrl,
+  },
   hasPart: SECTIONS.filter((s) => s.id !== "hero").map((s) => ({
     "@type": "WebPageElement",
     name: s.label,
@@ -123,17 +156,31 @@ const siteJsonLd = {
   })),
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${syne.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
         <link rel="icon" href="/og-icon-temp.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/icons/icon-512x512.svg" />
         <link rel="manifest" href="/manifest.json" />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input. */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input. */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static theme-bootstrap IIFE string literal, not user input — standard Next.js flash-of-wrong-theme prevention pattern. */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

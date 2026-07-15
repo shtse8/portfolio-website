@@ -12,6 +12,8 @@
     "format:check": "biome format src package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
     "lint:fix": "biome check --write .",
     "test:api": "cd api-rust && cargo test --locked",
+    "test:cinematic": "bun scripts/check-cinematic-markers.mjs",
+    "test:cinematic:export": "bun scripts/check-cinematic-markers.mjs --with-export",
     "lint:proto": "buf lint"
   },
   "dependencies": {
