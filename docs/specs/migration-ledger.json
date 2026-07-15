@@ -63,9 +63,9 @@
       "proof": {
         "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
         "verifiedAt": "2026-07-15T05:04:30Z",
@@ -100,9 +100,9 @@
       "proof": {
         "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
         "verifiedAt": "2026-07-15T05:04:30Z",
@@ -138,9 +138,9 @@
         ],
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
         "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "verifiedAt": "2026-07-15T05:04:30Z"
       },
       "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
@@ -168,9 +168,9 @@
         ],
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
         "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "verifiedAt": "2026-07-15T05:04:30Z"
       },
       "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
@@ -194,9 +194,9 @@
       "proof": {
         "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
         "verifiedAt": "2026-07-15T05:04:30Z",
@@ -230,9 +230,9 @@
       "proof": {
         "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
         "verifiedAt": "2026-07-15T05:04:30Z",
@@ -267,9 +267,9 @@
       "proof": {
         "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
         "verifiedAt": "2026-07-15T05:04:30Z",
@@ -309,9 +309,9 @@
         ],
         "staleReason": "rej-010 re-audit \u2014 prior ts_deleted lacked SHA-bound differential proof",
         "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "verifiedAt": "2026-07-15T05:04:30Z"
       },
       "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
@@ -335,9 +335,9 @@
       "proof": {
         "status": "canary_green",
         "notes": "rust_impl unit coverage; differential_green pending",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "verifiedAt": "2026-07-15T05:04:30Z",
         "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh"
       }
@@ -361,9 +361,9 @@
       "proof": {
         "status": "canary_green",
         "notes": "rust_impl unit coverage; differential_green pending",
-        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
-        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "rustCandidateSha": "aab2f6b63472f569a996fbdad34887454033d447",
+        "mergeGroupSha": "aab2f6b63472f569a996fbdad34887454033d447",
         "verifiedAt": "2026-07-15T05:04:30Z",
         "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh"
       }
@@ -460,7 +460,7 @@
       "notes": "rej-010 rust_impl ONLY \u2014 cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
     },
     "deliveryProof": {
-      "gitSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+      "gitSha": "aab2f6b63472f569a996fbdad34887454033d447",
       "deployId": "dpl_01kx6z7wqae7mvmh4rz2t6m6jr",
       "buildId": "019f4df3-f2e0-7755-a66a-e3e1987cec46",
       "platformDeploymentUuid": "019f4df7-056a-7cad-a4be-5a87202e7798",
