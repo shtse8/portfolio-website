@@ -159,7 +159,8 @@ function aggregateActivity(input: Record<string, Json>): Json {
   return {
     commitsToday,
     commitsWeek,
-    commitsMonth: commitsWeek * 4,
+    // Never invent month as week×4 (Control Plane public series owns honest 30d).
+    commitsMonth: 0,
     reposActiveToday: reposActiveToday.size,
     lastPush: lastPush
       ? {

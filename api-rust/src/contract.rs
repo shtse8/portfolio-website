@@ -374,7 +374,10 @@ pub fn aggregate_activity_from_graphql(
     ActivityPayload {
         commits_today,
         commits_week,
-        commits_month: commits_week.saturating_mul(4),
+        // Never invent month as week×4. True 30d landings come from Control Plane
+        // public series when CP_PUBLIC_BASE is configured; legacy GraphQL path has
+        // no honest 30d default-branch SHA series here.
+        commits_month: 0,
         repos_active_today: repos_active_today.len() as u64,
         last_push: last_push_display,
         updated_at: updated_at.to_string(),

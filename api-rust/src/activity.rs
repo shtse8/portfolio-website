@@ -115,7 +115,75 @@ pub fn build_activity_graphql_query(week_start: &str, now_iso: &str) -> String {
     format!("{{ {blocks} }}")
 }
 
+/// Control Plane public projection base (anonymous). When set, owns activity authority.
+fn cp_public_base() -> Option<String> {
+    env::var("CP_PUBLIC_BASE")
+        .or_else(|_| env::var("CONTROL_PLANE_PUBLIC_BASE"))
+        .ok()
+        .map(|s| s.trim().trim_end_matches('/').to_string())
+        .filter(|s| !s.is_empty())
+}
+
+fn cp_public_slug() -> String {
+    env::var("CP_PUBLIC_PROFILE_SLUG").unwrap_or_else(|_| "kyle".into())
+}
+
+async fn compute_activity_from_cp() -> Result<ActivityPayload, String> {
+    let base = cp_public_base().ok_or_else(|| "CP_PUBLIC_BASE unset".to_string())?;
+    let slug = cp_public_slug();
+    let url = format!("{base}/api/public/v1/profiles/{slug}/summary");
+    let client = Client::builder()
+        .timeout(Duration::from_secs(8))
+        .build()
+        .map_err(|e| e.to_string())?;
+    let res = client
+        .get(&url)
+        .header("accept", "application/json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    if !res.status().is_success() {
+        return Err(format!("cp public summary status {}", res.status()));
+    }
+    let v: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
+    let c = v
+        .pointer("/summary/commits_landed")
+        .cloned()
+        .unwrap_or(serde_json::json!({}));
+    let today = c.get("today").and_then(|x| x.as_u64()).unwrap_or(0);
+    let week = c.get("d7").and_then(|x| x.as_u64()).unwrap_or(0);
+    let month = c.get("d30").and_then(|x| x.as_u64()).unwrap_or(0);
+    let projects = v
+        .pointer("/summary/projects_active/count")
+        .and_then(|x| x.as_u64())
+        .unwrap_or(0);
+    Ok(ActivityPayload {
+        commits_today: today,
+        commits_week: week,
+        commits_month: month,
+        repos_active_today: projects,
+        last_push: None,
+        updated_at: v
+            .get("as_of")
+            .and_then(|x| x.as_str())
+            .unwrap_or("")
+            .to_string(),
+    })
+}
+
 pub async fn compute_activity() -> Result<ActivityPayload, String> {
+    // Prefer Control Plane public projection (primary development-activity authority).
+    if cp_public_base().is_some() {
+        match compute_activity_from_cp().await {
+            Ok(data) => return Ok(data),
+            Err(err) => {
+                tracing::warn!(
+                    error = %err,
+                    "CP public activity failed; falling back to legacy GitHub GraphQL path"
+                );
+            }
+        }
+    }
     let now = now_ms();
     let week_start = iso_from_ms(now.saturating_sub(WEEK_MS));
     let now_iso = iso_now();
