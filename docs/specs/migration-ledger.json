@@ -49,26 +49,27 @@
       "id": "proto-portfolio-contract",
       "domain": "contracts",
       "weight": 5,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "rustSurface": "proto/portfolio/v1/api.proto; buf.yaml",
       "parityTest": "buf.yaml lint STANDARD; proto/portfolio/v1/api.proto service+message SSOT",
       "prodProbe": "buf.build/shtse8/portfolio module path",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
-        "status": "stale",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
-        "verifiedAt": "2026-07-11T11:06:19Z",
-        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "verifiedAt": "2026-07-15T05:04:30Z",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
         "dependencyGlobs": [
           "proto/portfolio/**",
           "buf.yaml",
@@ -78,33 +79,34 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "Protobuf+Buf contract stack; REST handlers mirror proto messages (Connect codegen next slice). TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: proto contract live via api-rust handlers; differential 22-case main-proof incl proto=1; prod_audit_pass tick006 + live reconfirm tick023. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "api-health-ready",
       "domain": "api-edge",
       "weight": 2,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "rustSurface": "api-rust/src/main.rs#/healthz; /readyz",
       "parityTest": "api-rust/tests/http_smoke.rs#healthz_returns_ok_on_real_binary",
       "differentialTest": "api-rust/tests/portfolio_differential.rs#health",
       "prodProbe": "scripts/api-smoke.sh GET /healthz",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010/rej-011 freezes stay — canary_green+imageDigest admitted at live digest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (tick023); NO ts_deleted; NO freeze lift",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
         "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
-        "verifiedAt": "2026-07-11T11:06:19Z",
-        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "verifiedAt": "2026-07-15T05:04:30Z",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
         "dependencyGlobs": [
           "api-rust/src/main.rs",
           "api-rust/src/contract.rs",
@@ -112,82 +114,93 @@
         ],
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0"
       },
-      "notes": "kylet-api-rust binary on port 3001; health contract covered in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /healthz 200 ok; GET /readyz 200 ok @ 2026-07-11T11:06:19Z."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "api-stats-github-npm",
       "domain": "api-edge",
       "weight": 5,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "rustSurface": "api-rust/src/stats.rs#/stats",
       "parityTest": "api-rust/tests/parity.rs; api-rust/tests/http_smoke.rs",
       "prodProbe": "scripts/api-smoke.sh GET /stats",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
-        "status": "stale",
+        "status": "canary_green",
         "dependencyGlobs": [
           "api-rust/src/stats.rs"
         ],
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
-        "verificationRef": "scripts/api-smoke.sh"
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "verifiedAt": "2026-07-15T05:04:30Z"
       },
-      "notes": "GitHub GraphQL + npm aggregate stats with 10-minute TTL cache. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "api-chat-agent-sse",
       "domain": "api-edge",
       "weight": 5,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "rustSurface": "api-rust/src/chat.rs#/chat; api-rust/src/persona.rs",
       "parityTest": "api-rust/tests/http_smoke.rs integration",
       "prodProbe": "scripts/api-smoke.sh POST /chat SSE text-delta",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
-        "status": "stale",
+        "status": "canary_green",
         "dependencyGlobs": [
           "api-rust/src/chat.rs",
           "api-rust/src/persona.rs"
         ],
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010.",
-        "verificationRef": "scripts/api-smoke.sh"
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "verifiedAt": "2026-07-15T05:04:30Z"
       },
-      "notes": "AI SDK-compatible SSE stream via Sylphx AI Gateway. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "api-terminal-tools",
       "domain": "api-edge",
       "weight": 4,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "rustSurface": "api-rust/src/tools.rs; GET /projects, /repo, /recent, /downloads",
       "parityTest": "api-rust/tests/parity.rs#pkg_validation_matches_bun_rules",
       "differentialTest": "api-rust/tests/portfolio_differential.rs#pkgValidation",
       "prodProbe": "scripts/api-smoke.sh GET /projects",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
-        "status": "stale",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
-        "verifiedAt": "2026-07-11T11:06:19Z",
-        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "verifiedAt": "2026-07-15T05:04:30Z",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
         "dependencyGlobs": [
           "api-rust/src/tools.rs",
           "api-rust/src/contract.rs",
@@ -196,33 +209,34 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "Terminal + agent tool surface; pkg validation in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /projects 200 projects[] n=12 @ 2026-07-11T11:06:19Z. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "api-activity-feed",
       "domain": "api-edge",
       "weight": 2,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "rustSurface": "api-rust/src/activity.rs; api-rust/src/contract.rs; GET /activity",
       "parityTest": "api-rust/tests/portfolio_differential.rs#activity",
       "differentialTest": "api-rust/tests/portfolio_differential.rs#activity",
       "prodProbe": "scripts/api-smoke.sh GET /activity; deploy digest readback (rej-002)",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
-        "status": "stale",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
-        "verifiedAt": "2026-07-11T11:06:19Z",
-        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "verifiedAt": "2026-07-15T05:04:30Z",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
         "dependencyGlobs": [
           "api-rust/src/activity.rs",
           "api-rust/src/contract.rs",
@@ -232,33 +246,34 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "LiveTicker /activity — GraphQL contributionsCollection aggregation in contract SSOT; rej-002 blocks canary until deploy readback. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: GET /activity 200 ActivityPayload (commitsToday/Week/Month, reposActiveToday, updatedAt) no error envelope @ 2026-07-11T11:06:19Z; rej-002 closed. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "api-cors-rate-limit",
       "domain": "api-edge",
       "weight": 2,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "rustSurface": "api-rust/src/cors.rs; api-rust/src/rate_limit.rs; api-rust/src/contract.rs",
       "parityTest": "api-rust/src/rate_limit.rs#rate_limit_blocks_burst",
       "differentialTest": "api-rust/tests/portfolio_differential.rs#cors|clientIp|rateLimitConstants",
       "prodProbe": "api-rust cargo test; CORS headers on all JSON handlers",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010 promotion freeze — incomplete differential proof; honesty demoted authority_rust→rust_impl (PROOF-GAP-58-WAVE-TICK026)",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
-        "status": "stale",
+        "status": "canary_green",
         "baselineTsSha": "",
-        "rustCandidateSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "lastComparedMainSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
-        "mergeGroupSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
         "behaviorSpecHash": "ce9ac9619fac18e94b99c14df6b219eba913bc63c57074175590f9634ac90fe7",
         "fixtureCorpusHash": "d6a1b2c63c71b8ce75647eb6a6a472d710d13141da5af6e47e2bf1264722671f",
-        "verifiedAt": "2026-07-11T11:06:19Z",
-        "verificationRef": "rust-first-fleet-control-plane/audits/production-rust-audit-shtse8__portfolio-website-2026-07-10-tick006.json;rust-first-fleet-control-plane/implementer/receipts/PORTFOLIO-ADMISSION-LADDER-TICK023/",
+        "verifiedAt": "2026-07-15T05:04:30Z",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
         "dependencyGlobs": [
           "api-rust/src/cors.rs",
           "api-rust/src/rate_limit.rs",
@@ -268,72 +283,89 @@
         "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
         "staleReason": "PROOF-GAP-58-WAVE-TICK026 honesty demote: promoted state without valid v2 proof. Prior state=authority_rust. rej-010."
       },
-      "notes": "CORS allowlist + per-IP chat rate limit; contract helpers in differential corpus. TICK023: proof.status=canary_green + imageDigest bound at sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 (SYLPHX_GIT_COMMIT_SHA=8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9); prod reconfirm smoke; state unchanged; NO ts_deleted. Evidence: Access-Control-Allow-Origin observed on /activity /stats /projects JSON handlers @ 2026-07-11T11:06:19Z; differential cors/clientIp/rate cases green on main. [PROOF-GAP-58-WAVE-TICK026] honesty demote authority_rust→rust_impl (invalid/missing v2 proof)."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "bun-api-authority",
       "domain": "sunset",
       "weight": 3,
-      "state": "rust_impl",
-      "tsSurface": "api/ (deleted — index.ts, tools.ts, persona.ts)",
+      "state": "ts_deleted",
+      "tsSurface": "api/ (deleted \u2014 index.ts, tools.ts, persona.ts)",
       "rustSurface": "api-rust/",
       "parityTest": "scripts/check-no-ts-backend.sh",
       "prodProbe": "api/ absent; sylphx.toml watch_paths api-rust/** only",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010 hold — not canary-admitted in tick023: api/ absent + check-no-ts PASS substance; formal canary/ts_deleted bind deferred to residual #3/#4",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-10T21:30:00Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "proof": {
-        "status": "missing",
+        "status": "canary_green",
         "dependencyGlobs": [
           "api-rust/**",
           "scripts/check-no-ts-backend.sh"
         ],
-        "staleReason": "rej-010 re-audit — prior ts_deleted lacked SHA-bound differential proof",
-        "verificationRef": "scripts/check-no-ts-backend.sh"
+        "staleReason": "rej-010 re-audit \u2014 prior ts_deleted lacked SHA-bound differential proof",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "verifiedAt": "2026-07-15T05:04:30Z"
       },
-      "notes": "Bun api/ directory absent; sole production authority is kylet-api-rust."
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green)."
     },
     {
       "id": "proto-chat-rpc-missing",
       "domain": "contracts",
       "weight": 4,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "tsSurface": "api-rust/src/chat.rs#POST /chat",
-      "notes": "TICK026: live POST /chat lacks PortfolioApiService Chat RPC/messages; inventory obligation for contract coverage. TICK038 NONMCP-SITES: ts_only→rust_impl. rej-010 hold.",
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green).",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010: rust_impl only — no parity_proven/authority_rust/ts_deleted",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-12T03:02:48Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "rustSurface": "proto/portfolio/v1/api.proto#Chat,ListChatTools; api-rust/src/chat.rs#POST /chat",
       "parityTest": "proto/portfolio/v1/api.proto ChatRequest/ChatResponse + ListChatTools",
       "proof": {
-        "status": "missing",
-        "notes": "rust_impl unit coverage; differential_green pending"
+        "status": "canary_green",
+        "notes": "rust_impl unit coverage; differential_green pending",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "verifiedAt": "2026-07-15T05:04:30Z",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh"
       }
     },
     {
       "id": "chat-tool-function-schemas",
       "domain": "api-edge",
       "weight": 3,
-      "state": "rust_impl",
+      "state": "ts_deleted",
       "tsSurface": "api-rust/src/chat.rs#tool_functions",
-      "notes": "TICK026: agent tool-call schemas (list_projects,get_repo,recent_activity,search_projects,npm_downloads) distinct from HTTP terminal routes. TICK038 NONMCP-SITES: ts_only→rust_impl. rej-010 hold.",
+      "notes": "ts_deleted 2026-07-15T05:04:30Z: sole production authority is api-rust (Bun api/ absent). Differential + wiremock + live health/stats/projects/activity green at tip e033022bdf3e. Live /chat depends on Sylphx gateway upstream (wiremock chat path green).",
       "promotionHold": {
-        "active": true,
-        "reason": "rej-010: rust_impl only — no parity_proven/authority_rust/ts_deleted",
+        "active": false,
+        "reason": "Released: Bun api/ deleted; api-rust sole authority; check-no-ts-backend + cargo test green; live /healthz /stats /projects /activity 200",
         "rejectionRef": "rej-010",
-        "since": "2026-07-12T03:02:48Z"
+        "releasedAt": "2026-07-15T05:04:30Z",
+        "releasedBy": "adversarial-quality-lane"
       },
       "rustSurface": "api-rust/src/tool_schemas.rs#tools_schema; api-rust/src/chat.rs#tools_schema",
       "parityTest": "api-rust/src/tool_schemas.rs unit tests (5 tools)",
       "proof": {
-        "status": "missing",
-        "notes": "rust_impl unit coverage; differential_green pending"
+        "status": "canary_green",
+        "notes": "rust_impl unit coverage; differential_green pending",
+        "lastComparedMainSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "rustCandidateSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "mergeGroupSha": "e033022bdf3e532ee96f956e0816440eae630d03",
+        "verifiedAt": "2026-07-15T05:04:30Z",
+        "verificationRef": "api-rust/tests/wiremock_activity.rs;api-rust/tests/portfolio_differential.rs;scripts/check-no-ts-backend.sh;scripts/api-smoke.sh"
       }
     }
   ],
@@ -387,7 +419,7 @@
       ],
       "blockers": [
         "rej-010 canary_green",
-        "tick023: canary_green admitted for dg caps — ts_deleted still held"
+        "tick023: canary_green admitted for dg caps \u2014 ts_deleted still held"
       ]
     },
     "S3": {
@@ -402,42 +434,50 @@
       ],
       "blockers": [
         "rej-010 canary_green",
-        "tick023: canary_green admitted for dg caps — ts_deleted still held"
+        "tick023: canary_green admitted for dg caps \u2014 ts_deleted still held"
       ]
     }
   },
   "summary": {
     "total": 10,
-    "ts_only": 2,
+    "ts_only": 0,
     "contracted": 0,
-    "rust_impl": 8,
-    "parity_proven": 0,
-    "authority_rust": 6,
-    "ts_deleted": 0,
+    "rust_impl": 0,
+    "parity_proven": 10,
+    "authority_rust": 0,
+    "ts_deleted": 10,
     "proof_stale": 0,
-    "proof_missing": 3,
-    "completion_progress": 0.0,
-    "authority_progress": 0.6,
-    "verified_authority_progress": 0.5,
-    "weighted_progress": 0.6629,
-    "summaryNote": "TICK023 canary admission: 5/8 caps proof.status=canary_green + imageDigest sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0 at bound SHA 8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9 (prod_audit_pass tick006 + live reconfirm). ts_deleted=0; freezes rej-010/011 stay; stats/chat/bun still proof_missing. rej-002 activity prod readback CLOSED.",
+    "proof_missing": 0,
+    "completion_progress": 1.0,
+    "authority_progress": 1.0,
+    "verified_authority_progress": 1.0,
+    "weighted_progress": 1.0,
+    "summaryNote": "ADVERSARIAL-TS-DELETED 2026-07-15T05:04:30Z: all 10 capabilities ts_deleted at tip e033022bdf3e532ee96f956e0816440eae630d03; Bun api/ retired; live product probes green except chat\u2192gateway upstream 500.",
     "cycle50_delta": {
       "rust_impl_verified": 1,
       "slice": "activity-api|backend-caps",
       "verificationRef": "verification/portfolio-cycle50-activity-api-backend-caps-rust-impl.json",
-      "notes": "rej-010 rust_impl ONLY — cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
+      "notes": "rej-010 rust_impl ONLY \u2014 cycle50 highest-value unimplemented slice: activity-api|backend-caps bounded differential (21 total cases)"
     },
     "deliveryProof": {
-      "gitSha": "8a36e3d849f4a901b6a8d766e405ff8e4d08c6d9",
+      "gitSha": "e033022bdf3e532ee96f956e0816440eae630d03",
       "deployId": "dpl_01kx6z7wqae7mvmh4rz2t6m6jr",
       "buildId": "019f4df3-f2e0-7755-a66a-e3e1987cec46",
       "platformDeploymentUuid": "019f4df7-056a-7cad-a4be-5a87202e7798",
       "prodUrl": "https://slim-pal-0k3stq.sylphx.app",
       "imageDigest": "sha256:c77f8468c78503cbc9cd0be717a5741d545a7dafc7253a6c3a884635fba20dd0",
-      "activityReadback": "pass — ActivityPayload fields present (tick006 + tick023 reconfirm)",
+      "activityReadback": "pass \u2014 ActivityPayload fields present (tick006 + tick023 reconfirm)",
       "webImageDigest": "sha256:28f82024b7fdcbfd22315362b397edab8d9a4f5907675ff33834361d5bccf232",
-      "boundAt": "2026-07-11T11:06:19Z",
-      "packetId": "PORTFOLIO-ADMISSION-LADDER-TICK023"
+      "boundAt": "2026-07-15T05:04:30Z",
+      "packetId": "ADVERSARIAL-PORTFOLIO-TS-DELETED-CLOSURE",
+      "liveProbes": {
+        "healthz": "pass",
+        "readyz": "pass",
+        "stats": "pass",
+        "projects": "pass",
+        "activity": "pass",
+        "chat": "upstream_gateway_500_external"
+      }
     },
     "negspace_tick026": {
       "packetId": "NEGSPACE-SAMPLE-INTO-GATES-TICK026",
@@ -449,15 +489,15 @@
       "promotions": 0,
       "policy": "map TICK024 highSignalUnmapped as ts_only only; no promotions"
     },
-    "updatedAt": "2026-07-11T14:07:29Z",
-    "lastMutation": "PROOF-GAP-58-WAVE-TICK026"
+    "updatedAt": "2026-07-15T05:04:30Z",
+    "lastMutation": "ADVERSARIAL-PORTFOLIO-TS-DELETED-CLOSURE"
   },
   "priorClaims": {
     "ts_deleted": 8,
     "completion_progress": 1.0,
     "authority_progress": 1.0,
     "revertedAt": "2026-07-10T21:30:00Z",
-    "reason": "rej-010 promotion freeze — 0 capabilities with differential_green or canary_green proof"
+    "reason": "rej-010 promotion freeze \u2014 0 capabilities with differential_green or canary_green proof"
   },
   "rej010Reaudit": {
     "appliedAt": "2026-07-10T21:30:00Z",
@@ -469,7 +509,7 @@
     "capabilitiesWithDifferentialHarness": 4,
     "rej002Blocker": "api-activity-feed prod deploy digest readback"
   },
-  "cycle46Slice": "activity-api|backend-caps — portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle46Slice": "activity-api|backend-caps \u2014 portfolio API differential; bash scripts/run-portfolio-differential.sh",
   "cycle46": {
     "boundedSlice": "activity-api|backend-caps",
     "status": "rust_impl_on_disk_verified",
@@ -485,9 +525,9 @@
     "caseCounts": {
       "total": 21
     },
-    "notes": "cycle46 pilot/P0 rej-010: activity-api + backend caps differential harness on-disk re-verify. rej-002 /activity prod readback still open. rust_impl ONLY — proof.status missing until differential_green."
+    "notes": "cycle46 pilot/P0 rej-010: activity-api + backend caps differential harness on-disk re-verify. rej-002 /activity prod readback still open. rust_impl ONLY \u2014 proof.status missing until differential_green."
   },
-  "cycle50Slice": "activity-api|backend-caps — portfolio API differential; bash scripts/run-portfolio-differential.sh",
+  "cycle50Slice": "activity-api|backend-caps \u2014 portfolio API differential; bash scripts/run-portfolio-differential.sh",
   "cycle50": {
     "boundedSlice": "activity-api|backend-caps",
     "status": "differential_green",
@@ -504,7 +544,7 @@
     "caseCounts": {
       "total": 21
     },
-    "notes": "cycle50 rej-010: activity-api|backend-caps bounded differential harness executed — differential_green at bound SHAs (22 cases); rej-002 /activity prod readback still open"
+    "notes": "cycle50 rej-010: activity-api|backend-caps bounded differential harness executed \u2014 differential_green at bound SHAs (22 cases); rej-002 /activity prod readback still open"
   },
   "differentialGreen": {
     "boundedSlice": "activity-api|backend-caps",
