@@ -12,8 +12,8 @@ import { compact, timeAgo } from "@/lib/terminal";
 import LiveTicker from "./LiveTicker";
 
 /**
- * Hero — clear first impression, balanced type, live proof, related abstract art.
- * No forced theater chrome, no progress bars, no sticky holds.
+ * Hero — content-first with full-bleed ambient art that dissolves into the page.
+ * Art is background atmosphere (masked), never a framed thumbnail box.
  */
 export default function Hero() {
   const reduce = useReducedMotion();
@@ -28,7 +28,7 @@ export default function Hero() {
   } = useWorkGraph();
   const navigate = useNavigationStore((s) => s.navigateToSection);
 
-  const rise = (delay: number, y = 16) =>
+  const rise = (delay: number, y = 14) =>
     reduce
       ? {
           initial: { opacity: 0 },
@@ -39,7 +39,7 @@ export default function Hero() {
           initial: { opacity: 0, y },
           animate: { opacity: 1, y: 0 },
           transition: {
-            duration: 0.55,
+            duration: 0.5,
             delay,
             ease: [0.22, 1, 0.36, 1] as const,
           },
@@ -61,21 +61,31 @@ export default function Hero() {
   return (
     <section
       data-design="signal-craft"
-      className="relative flex min-h-[min(100svh,920px)] items-center overflow-hidden px-5 pb-16 pt-24 sm:px-8 sm:pb-20 sm:pt-28"
+      className="relative flex min-h-[min(100svh,880px)] items-center overflow-hidden"
     >
+      {/* Full-bleed ambient art — fused into the canvas */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-grid mask-fade-b opacity-25 dark:opacity-30" />
-        <div className="absolute -left-24 top-10 h-[42vh] w-[42vh] rounded-full bg-accent/10 blur-[100px]" />
-        <div className="absolute -right-16 bottom-0 h-[36vh] w-[36vh] rounded-full bg-accent/8 blur-[90px]" />
+        <Image
+          src="/art/hero-infra.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover object-[70%_center] opacity-90 dark:opacity-80"
+          sizes="100vw"
+        />
+        {/* Readability washes — blend art into background tokens */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/25 sm:via-background/85 sm:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
+        <div className="absolute inset-0 bg-background/20 dark:bg-background/35" />
       </div>
 
-      <div className="container-wide grid w-full items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
-        <div>
+      <div className="container-wide relative z-[1] grid w-full items-center gap-10 px-5 py-24 sm:px-8 sm:py-28 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
+        <div className="max-w-xl">
           <motion.div
             {...rise(0.02)}
             className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-positive/30 bg-positive-subtle px-3 py-1 text-xs font-medium text-positive">
+            <span className="inline-flex items-center gap-2 rounded-full border border-positive/30 bg-positive-subtle/90 px-3 py-1 text-xs font-medium text-positive backdrop-blur-sm">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-positive" />
@@ -86,42 +96,37 @@ export default function Hero() {
           </motion.div>
 
           <motion.div
-            {...rise(0.06)}
+            {...rise(0.05)}
             className="mb-3 font-mono text-sm text-text-secondary"
           >
             <span className="font-semibold text-text-primary">
               {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
             </span>
             <span className="mx-2 text-text-tertiary">·</span>
-            <span className="text-text-tertiary">
-              AI infrastructure engineer
-            </span>
+            <span className="text-text-tertiary">AI infrastructure engineer</span>
           </motion.div>
 
-          <motion.h1
-            {...rise(0.1)}
-            className="text-display max-w-[18ch] text-text-primary"
-          >
+          <motion.h1 {...rise(0.08)} className="text-display text-text-primary">
             I build the infrastructure{" "}
             <span className="text-accent">AI agents</span> run on.
           </motion.h1>
 
           <motion.p
-            {...rise(0.16)}
-            className="mt-5 max-w-xl text-[15px] leading-relaxed text-text-secondary sm:text-base"
+            {...rise(0.12)}
+            className="mt-5 text-[15px] leading-relaxed text-text-secondary sm:text-base"
           >
             Open-source MCP servers and AI-native developer tools, plus{" "}
-            <strong className="font-semibold text-text-primary">Sylphx</strong>{" "}
-            — an AI-native PaaS with its own AI Gateway. Twenty years shipping
+            <strong className="font-semibold text-text-primary">Sylphx</strong> —
+            an AI-native PaaS with its own AI Gateway. Twenty years shipping
             before this; 10M+ app downloads at a Hong Kong gaming studio.
           </motion.p>
 
-          <motion.div {...rise(0.2)} className="mt-5">
+          <motion.div {...rise(0.16)} className="mt-5">
             <LiveTicker />
           </motion.div>
 
           <motion.div
-            {...rise(0.24)}
+            {...rise(0.2)}
             className="mt-7 flex flex-wrap items-center gap-2.5"
           >
             <button
@@ -135,15 +140,13 @@ export default function Hero() {
               href={PERSONAL_INFO.social.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary btn-lg"
+              className="btn-secondary btn-lg backdrop-blur-sm"
             >
               <FaGithub className="h-[18px] w-[18px]" /> GitHub
             </a>
             <button
               type="button"
-              onClick={() =>
-                window.dispatchEvent(new CustomEvent("open-agent"))
-              }
+              onClick={() => window.dispatchEvent(new CustomEvent("open-agent"))}
               className="btn-ghost btn-lg"
             >
               <FaBolt className="h-3.5 w-3.5 text-accent" /> Ask my AI
@@ -158,29 +161,9 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        <motion.div
-          {...rise(0.14, 20)}
-          className="space-y-4 lg:justify-self-end"
-        >
-          {/* Related abstract art — AI infrastructure mesh */}
-          <div className="art-frame aspect-[16/10] w-full max-w-lg shadow-md">
-            <Image
-              src="/art/hero-infra.jpg"
-              alt="Abstract visualization of AI agent infrastructure as a luminous network of nodes"
-              width={1280}
-              height={800}
-              priority
-              className="h-full w-full object-cover"
-              sizes="(max-width: 1024px) 100vw, 520px"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent"
-            />
-          </div>
-
-          {/* Live proof board */}
-          <div className="card w-full max-w-lg overflow-hidden">
+        {/* Proof board floats in the atmospheric field — no art thumbnail */}
+        <motion.div {...rise(0.14, 18)} className="lg:justify-self-end">
+          <div className="card w-full max-w-md overflow-hidden border-border/80 bg-surface/80 shadow-md backdrop-blur-xl">
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-2.5">
               <span className="font-mono text-[11px] text-text-tertiary">
                 live · from GitHub &amp; npm
@@ -257,7 +240,7 @@ export default function Hero() {
               </span>
             </button>
           </div>
-          <p className="px-1 text-center font-mono text-[11px] text-text-tertiary lg:text-right">
+          <p className="mt-3 px-1 text-center font-mono text-[11px] text-text-tertiary lg:text-right">
             Hover a number to see what it&apos;s made of.
           </p>
         </motion.div>
@@ -297,7 +280,7 @@ function ProofNode({
       onFocus={() => onHover(kind)}
       onBlur={() => onHover(null)}
       onClick={() => onClick(kind)}
-      className={`group bg-surface px-4 py-4 text-left transition-colors hover:bg-accent-subtle/40 ${wide ? "col-span-2" : ""}`}
+      className={`group bg-surface/70 px-4 py-4 text-left transition-colors hover:bg-accent-subtle/50 ${wide ? "col-span-2" : ""}`}
     >
       <div className="flex items-baseline gap-1 font-mono text-xl font-semibold tracking-tight text-text-primary tabular-nums transition-colors group-hover:text-accent sm:text-2xl">
         {display}

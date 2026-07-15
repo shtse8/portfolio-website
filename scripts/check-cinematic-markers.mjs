@@ -24,7 +24,7 @@ const SOURCE_CHECKS = [
   {
     id: "globals-signal-craft",
     path: "src/app/globals.css",
-    patterns: [/SIGNAL & CRAFT/, /--font-display/, /\.text-display/, /\.art-frame/],
+    patterns: [/SIGNAL & CRAFT/, /--font-display/, /\.text-display/],
   },
   {
     id: "page-no-progress-chrome",
@@ -41,16 +41,17 @@ const SOURCE_CHECKS = [
       /data-design="signal-craft"/,
       /text-display/,
       /hero-infra\.jpg/,
-      /art-frame/,
+      /object-cover/,
+      /from-background via-background/,
     ],
   },
   {
     id: "story-cards-not-sticky",
     path: "src/components/StoryArc.tsx",
     patterns: [
-      /art-frame/,
       /era-web\.jpg|era-social\.jpg|era-mobile\.jpg|era-ai\.jpg/,
       /EraCard/,
+      /from-surface via-surface/,
     ],
   },
   {

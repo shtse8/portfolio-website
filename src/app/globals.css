@@ -210,14 +210,5 @@ p { color: oklch(var(--text-secondary)); text-wrap: pretty; }
 }
 .animate-ping-soft { animation: ping-soft 2s var(--ease-out) infinite; }
 
-/* Soft image frame used on era / hero art */
-.art-frame {
-  @apply relative overflow-hidden rounded-2xl border border-border bg-surface-sunken;
-}
-.art-frame img {
-  @apply h-full w-full object-cover;
-  transition: transform 0.7s var(--ease-soft);
-}
-.art-frame:hover img {
-  transform: scale(1.03);
-}
+/* Ambient art is blended via absolute layers + gradients in components.
+   No framed thumbnail cells — art dissolves into surfaces. */

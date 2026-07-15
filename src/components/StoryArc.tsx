@@ -13,9 +13,8 @@ import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
 /**
- * StoryArc — career timeline as a readable scroll of era cards.
- * No sticky viewport holds, no secondary progress rails.
- * Each era has related abstract art + clear hierarchy.
+ * StoryArc — career timeline with brand-related ambient art fused into each card.
+ * Art is a background wash (masked), not a separate framed photo grid.
  */
 
 interface EraChapter {
@@ -44,31 +43,31 @@ const ERA_META: Record<
     era: "Web · Community",
     headline: "Hong Kong's gaming portal",
     image: "/art/era-web.jpg",
-    imageAlt: "Abstract lattice of community and hyperlink nodes",
+    imageAlt: "Ambient visual derived from Nakuz brand and portal materials",
   },
   "minimax-ceo": {
     era: "Social Gaming",
     headline: "Facebook games at 10M scale",
     image: "/art/era-social.jpg",
-    imageAlt: "Abstract social graph constellation at scale",
+    imageAlt: "Ambient visual derived from MiniMax / Funimax social games",
   },
   "cubeage-founder": {
     era: "Mobile Gaming",
     headline: "25+ games, 10M downloads",
     image: "/art/era-mobile.jpg",
-    imageAlt: "Abstract multi-region mobile systems diagram",
+    imageAlt: "Ambient visual derived from Cubeage mobile game products",
   },
   "epiow-cto": {
     era: "Consultancy",
     headline: "Building for clients",
     image: "/art/era-ai.jpg",
-    imageAlt: "Abstract modular software architecture blocks",
+    imageAlt: "Ambient visual for consultancy / product engineering work",
   },
   "sylphx-founder": {
     era: "AI · Open Source",
     headline: "The infrastructure AI agents run on",
     image: "/art/era-ai.jpg",
-    imageAlt: "Abstract AI infrastructure connectors and pipelines",
+    imageAlt: "Ambient visual for Sylphx AI infrastructure and open source",
   },
 };
 
@@ -141,12 +140,10 @@ export default function StoryArc() {
         </div>
       </Reveal>
 
-      {/* Natural scroll timeline — no sticky holds */}
-      <ol className="relative mt-12 space-y-8 sm:space-y-10">
-        {/* spine */}
+      <ol className="relative mt-12 space-y-6 sm:space-y-7">
         <div
           aria-hidden
-          className="absolute bottom-4 left-[1.15rem] top-4 hidden w-px bg-gradient-to-b from-accent/40 via-border to-border sm:block"
+          className="absolute bottom-6 left-[1.15rem] top-6 hidden w-px bg-gradient-to-b from-accent/40 via-border to-border sm:block"
         />
 
         {chapters.map((ch, i) => (
@@ -161,7 +158,7 @@ export default function StoryArc() {
       </ol>
 
       <Reveal>
-        <div className="mt-16 flex flex-col items-center gap-1.5 py-10 text-center">
+        <div className="mt-14 flex flex-col items-center gap-1.5 py-8 text-center">
           <div className="font-display text-4xl font-semibold tracking-tight text-accent sm:text-5xl">
             {years}+
           </div>
@@ -190,123 +187,116 @@ function EraCard({
   const org = getOrganization(role.organizationId);
   if (!org) return null;
   const isCurrent = !role.period.end;
-  const reverse = index % 2 === 1;
 
   return (
     <motion.li
-      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 28 }}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-8% 0px" }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.04 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.03 }}
       className="relative list-none sm:pl-12"
     >
-      {/* spine node */}
       <span
         aria-hidden
-        className="absolute left-[0.85rem] top-8 hidden h-2.5 w-2.5 rounded-full border-2 border-accent bg-background sm:block"
+        className="absolute left-[0.85rem] top-10 hidden h-2.5 w-2.5 rounded-full border-2 border-accent bg-background sm:block"
       />
 
-      <article className="card card-hover overflow-hidden">
-        <div
-          className={`grid gap-0 lg:grid-cols-2 ${reverse ? "lg:[&>*:first-child]:order-2" : ""}`}
-        >
-          <div className="art-frame m-0 aspect-[16/11] rounded-none border-0 border-b border-border lg:aspect-auto lg:min-h-[280px] lg:border-b-0 lg:border-r">
-            <Image
-              src={image}
-              alt={imageAlt}
-              width={960}
-              height={660}
-              className="h-full w-full object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              loading="lazy"
-            />
+      <article className="card group relative overflow-hidden transition-shadow duration-300 hover:shadow-md">
+        {/* Fused ambient art — full card backdrop, not a photo cell */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <Image
+            src={image}
+            alt=""
+            fill
+            className="object-cover object-center opacity-[0.55] transition-transform duration-700 group-hover:scale-[1.03] dark:opacity-45"
+            sizes="(max-width: 1024px) 100vw, 960px"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/92 to-surface/55 dark:from-surface dark:via-surface/90 dark:to-surface/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-surface/30" />
+        </div>
+
+        <div className="relative z-[1] max-w-2xl p-6 sm:p-8">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="font-mono text-sm font-semibold tabular-nums text-accent">
+              {startYear}
+            </span>
+            <span className="eyebrow !mb-0">{era}</span>
+            {isCurrent && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-positive-subtle px-2 py-0.5 text-[10px] font-medium text-positive">
+                <span className="h-1.5 w-1.5 rounded-full bg-positive" /> Now
+              </span>
+            )}
           </div>
 
-          <div className="flex flex-col justify-center p-6 sm:p-8">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="font-mono text-sm font-semibold tabular-nums text-accent">
-                {startYear}
-              </span>
-              <span className="eyebrow !mb-0">{era}</span>
-              {isCurrent && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-positive-subtle px-2 py-0.5 text-[10px] font-medium text-positive">
-                  <span className="h-1.5 w-1.5 rounded-full bg-positive" /> Now
-                </span>
-              )}
-            </div>
+          {scaleNumber && (
+            <AnimatedScale value={scaleNumber.value} label={scaleNumber.label} />
+          )}
 
-            {scaleNumber && (
-              <AnimatedScale
-                value={scaleNumber.value}
-                label={scaleNumber.label}
-              />
-            )}
+          <h3 className="mt-3 text-h2 text-text-primary">{headline}</h3>
 
-            <h3 className="mt-3 text-h2 text-text-primary">{headline}</h3>
-
-            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-              <span className="font-semibold text-text-secondary">
-                {org.name}
-              </span>
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <span className="font-semibold text-text-secondary">{org.name}</span>
+            <span className="font-mono text-[11px] text-text-tertiary">
+              {role.title}
+            </span>
+            {role.location && (
               <span className="font-mono text-[11px] text-text-tertiary">
-                {role.title}
+                · {role.location}
               </span>
-              {role.location && (
-                <span className="font-mono text-[11px] text-text-tertiary">
-                  · {role.location}
-                </span>
-              )}
-            </div>
-
-            <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-text-secondary">
-              {role.description}.
-            </p>
-
-            {role.keyAchievements && role.keyAchievements.length > 0 && (
-              <ul className="mt-4 space-y-1.5">
-                {role.keyAchievements.slice(0, 3).map((a) => (
-                  <li
-                    key={a}
-                    className="flex items-start gap-2 text-sm text-text-secondary"
-                  >
-                    <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
-                    {a}
-                  </li>
-                ))}
-              </ul>
             )}
+          </div>
 
-            {chapter.projects && chapter.projects.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                {chapter.projects.map((proj) => (
-                  <span
-                    key={proj}
-                    className="rounded-md bg-surface-sunken px-2 py-0.5 text-[11px] font-medium text-text-secondary"
-                  >
-                    {proj}
-                  </span>
-                ))}
-              </div>
-            )}
+          <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-text-secondary">
+            {role.description}.
+          </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              {role.skills?.slice(0, 4).map((s) => (
-                <span key={s} className="chip">
-                  {s}
+          {role.keyAchievements && role.keyAchievements.length > 0 && (
+            <ul className="mt-4 space-y-1.5">
+              {role.keyAchievements.slice(0, 3).map((a) => (
+                <li
+                  key={a}
+                  className="flex items-start gap-2 text-sm text-text-secondary"
+                >
+                  <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+                  {a}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {chapter.projects && chapter.projects.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {chapter.projects.map((proj) => (
+                <span
+                  key={proj}
+                  className="rounded-md border border-border/70 bg-surface/70 px-2 py-0.5 text-[11px] font-medium text-text-secondary backdrop-blur-sm"
+                >
+                  {proj}
                 </span>
               ))}
-              <button
-                type="button"
-                onClick={() =>
-                  ask(`Tell me more about Kyle's work at ${org.name}.`)
-                }
-                className="ml-0.5 text-xs font-medium text-accent transition-colors hover:text-accent-hover"
-              >
-                Ask AI →
-              </button>
             </div>
+          )}
+
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            {role.skills?.slice(0, 4).map((s) => (
+              <span key={s} className="chip bg-surface/70 backdrop-blur-sm">
+                {s}
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                ask(`Tell me more about Kyle's work at ${org.name}.`)
+              }
+              className="ml-0.5 text-xs font-medium text-accent transition-colors hover:text-accent-hover"
+            >
+              Ask AI →
+            </button>
           </div>
         </div>
+        {/* decorative alt for a11y — art is purely ambient */}
+        <span className="sr-only">{imageAlt}</span>
       </article>
     </motion.li>
   );
@@ -322,7 +312,7 @@ function AnimatedScale({ value, label }: { value: number; label: string }) {
         : animated.toString();
 
   return (
-    <div className="mt-4">
+    <div className="mt-3">
       <div className="font-mono text-2xl font-semibold tracking-tight text-accent sm:text-3xl">
         {shown}
       </div>
