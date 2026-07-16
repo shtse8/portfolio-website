@@ -31,51 +31,46 @@ console.log("admin orgs:", adminOrgs.join(", "));
 
 const repos = [];
 
-for (const org of adminOrgs) {
-  const list = (await ghJson(`orgs/${org}/repos?per_page=100&type=public`)) ?? [];
-  for (const r of list) {
-    if (r.fork || SKIP_NAME.test(r.name)) continue;
-    const stars = r.stargazers_count ?? 0;
-    if (stars < 2 && !KEEP_ZERO.test(r.name)) continue;
-    repos.push({
-      owner: org,
-      name: r.name,
-      stars,
-      description: r.description ?? "",
-      language: r.language,
-      topics: r.topics ?? [],
-      homepage: r.homepage || null,
-      url: r.html_url,
-      pushedAt: r.pushed_at ?? "",
-      source: "org",
-      orgLogin: org,
-    });
-  }
-}
-
-const personal = (await ghJson("users/shtse8/repos?per_page=100&type=owner")) ?? [];
-for (const r of personal) {
-  if (r.fork || SKIP_NAME.test(r.name)) continue;
+function pushRepo(r, source, orgLogin) {
+  if (r.fork || SKIP_NAME.test(r.name)) return;
   const stars = r.stargazers_count ?? 0;
-  if (stars < 2 && !KEEP_ZERO.test(r.name)) continue;
+  const archived = Boolean(r.archived);
+  // Keep archived if they have signal — UI deprioritizes them.
+  if (!archived && stars < 2 && !KEEP_ZERO.test(r.name)) return;
+  if (archived && stars < 3) return; // drop quiet archives
   repos.push({
-    owner: "shtse8",
+    owner: orgLogin ?? r.owner?.login ?? "shtse8",
     name: r.name,
     stars,
+    archived,
     description: r.description ?? "",
     language: r.language,
     topics: r.topics ?? [],
     homepage: r.homepage || null,
     url: r.html_url,
     pushedAt: r.pushed_at ?? "",
-    source: "personal",
-    orgLogin: null,
+    source,
+    orgLogin: orgLogin ?? null,
   });
 }
 
+for (const org of adminOrgs) {
+  const list =
+    (await ghJson(`orgs/${org}/repos?per_page=100&type=public`)) ?? [];
+  for (const r of list) pushRepo(r, "org", org);
+}
+
+const personal =
+  (await ghJson("users/shtse8/repos?per_page=100&type=owner")) ?? [];
+for (const r of personal) pushRepo(r, "personal", null);
+
 const seen = new Set();
 const uniq = [];
-for (const r of repos.sort((a, b) => b.stars - a.stars || a.name.localeCompare(b.name))) {
+// Active first (by stars), then archived (by stars) — portfolio signal order
+for (const r of repos.sort((a, b) => {
+  if (a.archived !== b.archived) return a.archived ? 1 : -1;
+  return b.stars - a.stars || a.name.localeCompare(b.name);
+})) {
   const k = `${r.owner}/${r.name}`;
   if (seen.has(k)) continue;
   seen.add(k);
@@ -90,4 +85,7 @@ const payload = {
 
 const path = join(root, "src/data/github-portfolio.json");
 writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
-console.log(`wrote ${uniq.length} repos → ${path}`);
+const archivedN = uniq.filter((r) => r.archived).length;
+console.log(
+  `wrote ${uniq.length} repos (${archivedN} archived) → ${path}`,
+);

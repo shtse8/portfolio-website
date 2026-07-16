@@ -65,6 +65,7 @@ export const FALLBACK_PROJECTS: TermRepo[] = (
     owner: string;
     name: string;
     stars: number;
+    archived?: boolean;
     description: string;
     language: string | null;
     topics: string[];
@@ -73,7 +74,7 @@ export const FALLBACK_PROJECTS: TermRepo[] = (
     pushedAt: string;
   }>
 )
-  // Keep full admin-org inventory for expand; UI primary-filters by stars.
+  // Keep inventory for expand; UI primary-filters by stars + active.
   .filter((r) => !r.name.startsWith("scale-"))
   .slice(0, 60)
   .map((r) => ({
@@ -89,6 +90,7 @@ export const FALLBACK_PROJECTS: TermRepo[] = (
     url: r.url,
     pushed: r.pushedAt,
     pushedAt: r.pushedAt,
+    archived: Boolean(r.archived),
   }));
 
 // ── highlight model — what a hovered hero stat lights up in the graph ─────────
@@ -175,8 +177,20 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
         // when the API returns a shorter top-N list.
         const byRepo = new Map<string, TermRepo>();
         for (const r of FALLBACK_PROJECTS) byRepo.set(r.repo.toLowerCase(), r);
-        for (const r of p.value.projects) byRepo.set(r.repo.toLowerCase(), r);
-        const merged = [...byRepo.values()].sort((a, b) => b.stars - a.stars);
+        for (const r of p.value.projects) {
+          const key = r.repo.toLowerCase();
+          const prev = byRepo.get(key);
+          // Live API may omit archived — keep snapshot flag from sync.
+          byRepo.set(key, {
+            ...r,
+            archived: r.archived ?? prev?.archived,
+          });
+        }
+        const merged = [...byRepo.values()].sort((a, b) => {
+          if (Boolean(a.archived) !== Boolean(b.archived))
+            return a.archived ? 1 : -1;
+          return b.stars - a.stars;
+        });
         setProjects(merged);
         setLiveProjects(true);
         any = true;

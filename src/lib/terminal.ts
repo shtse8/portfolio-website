@@ -22,6 +22,8 @@ export interface TermRepo {
   url: string;
   pushed: string;
   pushedAt: string;
+  /** GitHub archived flag (synced snapshot; live API may omit). */
+  archived?: boolean;
 }
 
 export interface TermStats {

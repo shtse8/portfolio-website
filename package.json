@@ -15,6 +15,7 @@
     "test:cinematic": "bun scripts/check-cinematic-markers.mjs",
     "test:cinematic:export": "bun scripts/check-cinematic-markers.mjs --with-export",
     "sync:github": "bun scripts/sync-github-portfolio.mjs",
+    "generate:covers": "bun scripts/generate-oss-covers.mjs",
     "lint:proto": "buf lint"
   },
   "dependencies": {

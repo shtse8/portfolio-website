@@ -1,13 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useId, useState } from "react";
 import { FaArrowUpRightFromSquare, FaGithub, FaXmark } from "react-icons/fa6";
 import { ORGANIZATIONS } from "@/data/organizations";
 import { PROJECTS } from "@/data/projects";
 import { getRole, getRolesByOrganization } from "@/data/roles";
 import type { Organization } from "@/data/types";
+import CompanyLogo from "./CompanyLogo";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
@@ -56,15 +56,7 @@ export default function Companies() {
               onClick={() => setSelectedId(org.id)}
               className="card group flex flex-col items-center gap-3 p-4 text-center transition-shadow hover:shadow-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
             >
-              <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-border bg-surface-sunken">
-                <Image
-                  src={org.logo}
-                  alt=""
-                  width={56}
-                  height={56}
-                  className="h-full w-full object-contain p-1.5"
-                />
-              </div>
+              <CompanyLogo src={org.logo} alt="" size={56} />
               <div>
                 <div className="font-display text-sm font-semibold text-text-primary">
                   {org.name}
@@ -139,15 +131,11 @@ function CompanyModal({
         </button>
 
         <div className="flex items-start gap-4 pr-10">
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-surface-sunken">
-            <Image
-              src={org.logo}
-              alt={`${org.name} logo`}
-              width={64}
-              height={64}
-              className="h-full w-full object-contain p-1.5"
-            />
-          </div>
+          <CompanyLogo
+            src={org.logo}
+            alt={`${org.name} logo`}
+            size={64}
+          />
           <div>
             <h3
               id={titleId}

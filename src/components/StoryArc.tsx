@@ -16,6 +16,7 @@ import {
 } from "@/data/roles";
 import type { Organization, Role } from "@/data/types";
 import { useCountUp } from "@/hooks/useCountUp";
+import CompanyLogo from "./CompanyLogo";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
@@ -400,15 +401,11 @@ function CompanyDetailModal({
         </button>
 
         <div className="flex items-start gap-4 pr-10">
-          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-border bg-surface-sunken">
-            <Image
-              src={org.logo}
-              alt={`${org.name} logo`}
-              width={64}
-              height={64}
-              className="h-full w-full object-contain p-1.5"
-            />
-          </div>
+          <CompanyLogo
+            src={org.logo}
+            alt={`${org.name} logo`}
+            size={64}
+          />
           <div>
             <h3
               id={titleId}

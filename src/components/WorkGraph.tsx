@@ -26,7 +26,7 @@ import {
   type TermRepo,
   timeAgo,
 } from "@/lib/terminal";
-import BrandCover from "./BrandCover";
+import ProjectCover from "./ProjectCover";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
@@ -43,18 +43,31 @@ const SKELETON_CARD_KEYS = [
  * WorkGraph — visual product grid with deep project detail.
  *
  * Visibility policy (portfolio signal, not exhaustiveness):
- * - Primary: stars ≥ 3, or catalog flagship / named npm product
- * - Expanded ("See more"): remaining low-star repos (often 0–2★)
- * Zero-star noise stays available on demand without dominating the page.
+ * - Primary: active (not archived) + (stars ≥ 3 OR catalog flagship/npm)
+ * - Expanded ("See more"): low-star + archived (archived always last)
+ * Covers: public/art/projects/{name}.jpg (README twins under art/projects/readme/)
  */
 const PRIMARY_STAR_MIN = 3;
 
+function isArchived(repo: TermRepo): boolean {
+  return Boolean(repo.archived);
+}
+
 function isPrimaryRepo(repo: TermRepo): boolean {
+  if (isArchived(repo)) return false; // never lead with archived
   if (repo.stars >= PRIMARY_STAR_MIN) return true;
   const catalog = catalogForRepoName(repo.name);
   if (catalog?.flagship) return true;
   if (catalog?.npm || REPO_NPM[repo.name]) return true;
   return false;
+}
+
+function sortPortfolio(a: TermRepo, b: TermRepo): number {
+  // active before archived, then stars desc
+  const aa = isArchived(a) ? 1 : 0;
+  const ba = isArchived(b) ? 1 : 0;
+  if (aa !== ba) return aa - ba;
+  return b.stars - a.stars || a.name.localeCompare(b.name);
 }
 
 export default function WorkGraph() {
@@ -70,13 +83,16 @@ export default function WorkGraph() {
   } = useWorkGraph();
   const [showMore, setShowMore] = useState(false);
 
-  const filtered = capability
-    ? projects.filter((p) => repoCapabilities(p).includes(capability))
-    : projects;
+  const filtered = (
+    capability
+      ? projects.filter((p) => repoCapabilities(p).includes(capability))
+      : projects
+  ).slice().sort(sortPortfolio);
 
   const primary = filtered.filter(isPrimaryRepo);
   const secondary = filtered.filter((p) => !isPrimaryRepo(p));
   const shown = showMore ? filtered : primary;
+  const archivedHidden = secondary.filter(isArchived).length;
 
   const counts = CAPABILITY_ORDER.map((c) => ({
     c,
@@ -118,7 +134,7 @@ export default function WorkGraph() {
         index="02"
         eyebrow="Open source · live"
         title="Tools with proof — open a product."
-        description="Primary grid: projects with real traction (3+ stars or catalogued products). Lower-signal repos stay one click away."
+        description="Primary grid: active projects with real traction (3+ stars or catalogued products). Archived and lower-signal repos stay one click away."
       />
 
       <Reveal delay={0.05}>
@@ -165,12 +181,12 @@ export default function WorkGraph() {
           >
             {showMore
               ? "Show less"
-              : `See more · ${secondary.length} lower-signal repos`}
+              : `See more · ${secondary.length} more${archivedHidden ? ` · ${archivedHidden} archived` : ""}`}
           </button>
           {!showMore && (
             <p className="max-w-md text-center font-mono text-[11px] text-text-tertiary">
-              Hidden by default: under {PRIMARY_STAR_MIN}★ and not in the product
-              catalog — still openable after expand.
+              Hidden by default: under {PRIMARY_STAR_MIN}★, not catalogued, or
+              GitHub-archived — still openable after expand.
             </p>
           )}
         </div>
@@ -262,16 +278,15 @@ function ProjectCard({
         aria-label={`Open ${title}`}
       >
         <div className="relative aspect-[16/10] w-full overflow-hidden">
-          <BrandCover
+          <ProjectCover
             name={repo.name}
             subtitle={`${repo.description ?? ""} ${caps.join(" ")}`}
             className="absolute inset-0"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="truncate font-mono text-sm font-semibold text-white">
+                <span className="truncate font-mono text-sm font-semibold text-white drop-shadow">
                   {title}
                 </span>
                 {catalog?.flagship && (
@@ -279,9 +294,14 @@ function ProjectCard({
                     flagship
                   </span>
                 )}
+                {repo.archived && (
+                  <span className="rounded bg-black/40 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-white/90 ring-1 ring-white/25">
+                    archived
+                  </span>
+                )}
               </div>
             </div>
-            <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-white">
+            <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-white drop-shadow">
               {compact(repo.stars)}★
             </span>
           </div>
@@ -374,9 +394,9 @@ function ProjectDetail({
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-[1] flex max-h-[min(92svh,880px)] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-lg sm:rounded-3xl"
       >
-        {/* Brand panel — not generative AI art */}
+        {/* Product social cover — same asset family as README banners */}
         <div className="relative h-36 shrink-0 overflow-hidden sm:h-40">
-          <BrandCover
+          <ProjectCover
             name={repo.name}
             subtitle={repo.description ?? ""}
             className="absolute inset-0"
@@ -405,6 +425,11 @@ function ProjectDetail({
                 {catalog?.flagship && (
                   <span className="rounded bg-accent-subtle px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
                     flagship
+                  </span>
+                )}
+                {repo.archived && (
+                  <span className="rounded border border-border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-text-tertiary">
+                    archived
                   </span>
                 )}
               </div>

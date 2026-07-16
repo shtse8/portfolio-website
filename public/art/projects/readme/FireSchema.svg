@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#94a3b8" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+  <circle cx="1100" cy="120" r="220" fill="url(#shine)"/>
+  <circle cx="200" cy="560" r="180" fill="#94a3b8" fill-opacity="0.08"/>
+
+  <!-- monogram tile -->
+  <rect x="80" y="96" width="88" height="88" rx="20" fill="#94a3b8" fill-opacity="0.15" stroke="#94a3b8" stroke-opacity="0.55" stroke-width="2"/>
+  <text x="124" y="154" text-anchor="middle" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="32" font-weight="700">FI</text>
+
+  <text x="188" y="132" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">shtse8/FireSchema</text>
+  <text x="188" y="162" fill="#64748b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">TypeScript  ·  shtse8</text>
+
+  <text x="80" y="300" fill="#f8fafc" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="52" font-weight="700">FireSchema</text>
+
+  <text x="80" y="392" fill="#cbd5e1" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24"></text>
+
+  <!-- bottom bar -->
+  <rect x="0" y="580" width="1280" height="60" fill="black" fill-opacity="0.25"/>
+  <text x="80" y="616" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">open source · social cover · kylet.se</text>
+  <circle cx="1180" cy="610" r="8" fill="#94a3b8"/>
+</svg>
