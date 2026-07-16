@@ -25,8 +25,14 @@ fn stale_projection_adds_flag() {
         repos_active_today: 1,
         last_push: Some(LastPush { repo: "x".into(), ago: "1h ago".into() }),
         updated_at: "t".into(),
+        stale: None,
+        freshness: None,
+        source: Some("control-plane".into()),
+        projection_revision: Some("rev".into()),
     };
     let a = activity_json_stale(&act);
     assert_eq!(a["stale"], true);
     assert_eq!(a["commitsToday"], 1);
+    assert_eq!(a["source"], "control-plane");
+    assert_eq!(a["projectionRevision"], "rev");
 }

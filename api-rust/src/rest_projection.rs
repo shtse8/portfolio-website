@@ -49,16 +49,36 @@ pub fn activity_response(payload: &ActivityPayload) -> GetActivityResponse {
     }
 }
 
+/// Proto-backed base fields + authority metadata (stale/freshness/source/revision).
 pub fn activity_json(payload: &ActivityPayload) -> Value {
-    serde_json::to_value(activity_response(payload)).unwrap_or_else(|_| json!({}))
+    let mut v = serde_json::to_value(activity_response(payload)).unwrap_or_else(|_| json!({}));
+    if let Some(obj) = v.as_object_mut() {
+        if let Some(stale) = payload.stale {
+            obj.insert("stale".to_string(), Value::Bool(stale));
+        }
+        if let Some(ref freshness) = payload.freshness {
+            obj.insert("freshness".to_string(), Value::String(freshness.clone()));
+        }
+        if let Some(ref source) = payload.source {
+            obj.insert("source".to_string(), Value::String(source.clone()));
+        }
+        if let Some(ref rev) = payload.projection_revision {
+            obj.insert("projectionRevision".to_string(), Value::String(rev.clone()));
+        }
+    }
+    v
 }
 
 pub fn activity_json_stale(payload: &ActivityPayload) -> Value {
-    let mut v = activity_json(payload);
-    if let Some(obj) = v.as_object_mut() {
-        obj.insert("stale".to_string(), Value::Bool(true));
+    let mut marked = payload.clone();
+    marked.stale = Some(true);
+    if marked.freshness.is_none() {
+        marked.freshness = Some("stale".into());
     }
-    v
+    if marked.source.is_none() {
+        marked.source = Some("control-plane-stale".into());
+    }
+    activity_json(&marked)
 }
 
 fn repo_proto(repo: &RepoSummary) -> ProtoRepoSummary {

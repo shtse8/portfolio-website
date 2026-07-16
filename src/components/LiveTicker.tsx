@@ -4,19 +4,15 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { FaCodeBranch, FaFire, FaClock } from "react-icons/fa6";
 import { API_BASE } from "@/lib/api";
-import {
-  fetchCpPublicSummary,
-  HAS_CP_PUBLIC,
-  mapCpSummaryToActivity,
-} from "@/lib/controlPlanePublic";
 import { useCountUp } from "@/hooks/useCountUp";
 
 /**
  * LiveTicker — portfolio development throughput strip.
  *
- * Prefer Control Plane public profile projection (anonymous, privacy-filtered).
- * Fall back to website `/activity` only when CP public base is unset (legacy
- * compatibility path — time-bound dual authority).
+ * Single metric authority: same-origin BFF `/activity` only.
+ * Never call Control Plane from the browser (no CP URL/token in frontend).
+ * BFF maps Control Plane projection snapshots; on CP failure BFF may return
+ * last verified snapshot with stale=true / freshness=stale.
  */
 
 interface Activity {
@@ -28,6 +24,12 @@ interface Activity {
   source?: string;
   freshness?: string;
   stale?: boolean;
+  projectionRevision?: string;
+}
+
+function activityUrl(): string {
+  // Empty API_BASE → relative same-origin `/activity` (nginx BFF proxy).
+  return `${API_BASE}/activity`;
 }
 
 export default function LiveTicker() {
@@ -39,20 +41,7 @@ export default function LiveTicker() {
     let alive = true;
     async function poll() {
       try {
-        // 1) Control Plane public projection (authoritative for fleet throughput).
-        if (HAS_CP_PUBLIC) {
-          const summary = await fetchCpPublicSummary();
-          if (summary && !summary.error) {
-            if (!alive) return;
-            setUnavailable(false);
-            setData(mapCpSummaryToActivity(summary));
-            return;
-          }
-        }
-
-        // 2) Time-bound legacy website-owned activity (sunset 2026-08-15 UTC unless
-        //    LEGACY_ACTIVITY_SUNSET=never on the API). Prefer CP public exclusively in prod.
-        const res = await fetch(`${API_BASE}/activity`);
+        const res = await fetch(activityUrl());
         if (!res.ok) {
           if (alive) setUnavailable(true);
           return;
@@ -60,15 +49,20 @@ export default function LiveTicker() {
         const d = await res.json();
         if (!alive) return;
         setUnavailable(false);
+        const freshness: string | undefined =
+          d.freshness ?? (d.stale ? "stale" : undefined);
+        const stale =
+          !!d.stale || freshness === "stale" || freshness === "not_observed";
         setData({
           commitsToday: d.commitsToday ?? d.commits_today ?? 0,
           commitsWeek: d.commitsWeek ?? d.commits_week ?? 0,
           commitsMonth: d.commitsMonth ?? d.commits_month,
           reposActiveToday: d.reposActiveToday ?? d.repos_active_today ?? 0,
           lastPush: d.lastPush ?? d.last_push ?? null,
-          source: "legacy-website-activity",
-          stale: !!d.stale,
-          freshness: d.stale ? "stale" : "live",
+          source: d.source ?? "bff",
+          stale,
+          freshness: freshness ?? (stale ? "stale" : "live"),
+          projectionRevision: d.projectionRevision ?? d.projection_revision,
         });
       } catch {
         if (alive) setUnavailable(true);
@@ -91,7 +85,8 @@ export default function LiveTicker() {
   }
   if (!data) return null;
 
-  const stale = data.freshness === "stale" || data.freshness === "not_observed" || data.stale;
+  const stale =
+    data.freshness === "stale" || data.freshness === "not_observed" || data.stale;
 
   return (
     <div
@@ -124,7 +119,7 @@ export default function LiveTicker() {
           />
         </>
       )}
-      {data.lastPush && data.source !== "control-plane-public" && (
+      {data.lastPush && !String(data.source ?? "").startsWith("control-plane") && (
         <>
           <Dot />
           <div className="flex items-center gap-1 truncate text-text-tertiary">

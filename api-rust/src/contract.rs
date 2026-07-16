@@ -42,6 +42,18 @@ pub struct ActivityPayload {
     pub repos_active_today: u64,
     pub last_push: Option<LastPush>,
     pub updated_at: String,
+    /// True when serving last verified CP snapshot after upstream failure.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub stale: Option<bool>,
+    /// `live` | `stale` | `not_observed` | …
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub freshness: Option<String>,
+    /// `control-plane` | `control-plane-public` | `control-plane-stale` | …
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    /// Opaque CP projection revision of the snapshot served.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub projection_revision: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -374,13 +386,17 @@ pub fn aggregate_activity_from_graphql(
     ActivityPayload {
         commits_today,
         commits_week,
-        // Never invent month as week×4. True 30d landings come from Control Plane
-        // public series when CP_PUBLIC_BASE is configured; legacy GraphQL path has
-        // no honest 30d default-branch SHA series here.
+        // Never invent month as week×4. True 30d landings come only from Control
+        // Plane projection series; this GraphQL helper is retained for tools/stats
+        // parity fixtures and must not be used as /activity metric authority.
         commits_month: 0,
         repos_active_today: repos_active_today.len() as u64,
         last_push: last_push_display,
         updated_at: updated_at.to_string(),
+        stale: None,
+        freshness: None,
+        source: None,
+        projection_revision: None,
     }
 }
 

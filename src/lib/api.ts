@@ -1,11 +1,20 @@
 /**
- * Base URL for kylet-api (the Sylphx-hosted backend that powers live stats +
- * the AI chat). Baked at build time from NEXT_PUBLIC_API_BASE. When unset, the
- * live features degrade gracefully — the site falls back to the build-time
- * STATS numbers and the chat stays hidden.
+ * Base URL for the portfolio BFF (Rust `api-rust`).
+ *
+ * Empty string = same-origin relative paths (`/activity`, `/chat`, `/stats`, …)
+ * when nginx (or the platform gateway) proxies those routes to the API service.
+ *
+ * `NEXT_PUBLIC_API_BASE` may still point at slim-pal during transition, but must
+ * **never** point at Control Plane — the browser talks only to this BFF.
  */
-// Default points at the deployed kylet-api service (the portfolio project's 2nd
-// service on Sylphx). Overridable at build time via NEXT_PUBLIC_API_BASE.
-const DEFAULT_API_BASE = "https://slim-pal-0k3stq.sylphx.app";
-export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? DEFAULT_API_BASE).replace(/\/$/, "");
-export const HAS_API = API_BASE.length > 0;
+const DEFAULT_API_BASE = "";
+export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? DEFAULT_API_BASE).replace(
+  /\/$/,
+  "",
+);
+
+/**
+ * Same-origin (empty base) still has a BFF. Set NEXT_PUBLIC_DISABLE_API=1 to
+ * force live features off (local static preview without API).
+ */
+export const HAS_API = process.env.NEXT_PUBLIC_DISABLE_API !== "1";

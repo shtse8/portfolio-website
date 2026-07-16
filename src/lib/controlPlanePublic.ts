@@ -1,22 +1,28 @@
-/** Mirrors packages/public-client (CP public.profile.v1). GENERATED_FROM control-plane contract. */
 /**
- * Control Plane Public Profile client (anonymous).
+ * @deprecated Browser-direct Control Plane access is retired.
  *
- * Development activity authority is the CP public projection — not the
- * website-owned GitHub `/activity` dual authority. No CP credentials ever
- * embed in the browser; this surface is public GET only.
+ * Single metric authority cutover (ADR-0006):
+ * - Browser → same-origin BFF `/activity` only
+ * - BFF → Control Plane authenticated projection (or public expand-contract)
+ * - Never embed CP URL/token in the browser (`NEXT_PUBLIC_CP_*` must not be used)
+ *
+ * Mapping helpers remain for unit tests / offline gates that assert honest
+ * d7/d30 windows (no week×4). LiveTicker must not import fetchCpPublicSummary.
  */
 
+/** @deprecated Do not set in browser builds. */
 export const CP_PUBLIC_BASE = (
   process.env.NEXT_PUBLIC_CP_PUBLIC_BASE ??
   process.env.NEXT_PUBLIC_CONTROL_PLANE_PUBLIC_BASE ??
   ""
 ).replace(/\/$/, "");
 
+/** @deprecated Slug is server-side only on the BFF. */
 export const CP_PUBLIC_PROFILE_SLUG =
   process.env.NEXT_PUBLIC_CP_PUBLIC_PROFILE_SLUG ?? "kyle";
 
-export const HAS_CP_PUBLIC = CP_PUBLIC_BASE.length > 0;
+/** @deprecated Always treat browser CP path as disabled. */
+export const HAS_CP_PUBLIC = false;
 
 export type CpPublicSummary = {
   schema_version?: string;
@@ -44,7 +50,7 @@ export type CpPublicSummary = {
   error?: { message?: string };
 };
 
-/** Map CP public summary → LiveTicker-compatible activity view model. */
+/** Map CP summary → activity view model (test/BFF-parity helper only). */
 export function mapCpSummaryToActivity(s: CpPublicSummary): {
   commitsToday: number;
   commitsWeek: number;
@@ -76,19 +82,14 @@ export function mapCpSummaryToActivity(s: CpPublicSummary): {
   };
 }
 
+/**
+ * @deprecated Browser must not call Control Plane. Always returns null.
+ * Kept so accidental imports fail closed without network.
+ */
 export async function fetchCpPublicSummary(
-  signal?: AbortSignal,
+  _signal?: AbortSignal,
 ): Promise<CpPublicSummary | null> {
-  if (!HAS_CP_PUBLIC) return null;
-  const url = `${CP_PUBLIC_BASE}/api/public/v1/profiles/${encodeURIComponent(CP_PUBLIC_PROFILE_SLUG)}/summary`;
-  const res = await fetch(url, {
-    headers: { accept: "application/json" },
-    signal,
-    // Public projection is CDN-cacheable; browser respects ETag via fetch defaults on revalidation.
-    cache: "no-cache",
-  });
-  if (!res.ok) return null;
-  return (await res.json()) as CpPublicSummary;
+  return null;
 }
 
 /** Regression guards used by unit tests. */
@@ -101,7 +102,6 @@ export function assertHonestWindows(activity: {
     throw new Error("d30 must not be derived as week×4");
   }
   if (activity.commitsMonth === activity.commitsWeek * 4 && activity.commitsWeek > 0) {
-    // Statistically possible but treat equality with week×4 as a red flag in tests with fixtures.
     throw new Error("commitsMonth equals commitsWeek×4 — likely dual-authority bug");
   }
 }
