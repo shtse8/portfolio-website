@@ -1,20 +1,30 @@
 /**
  * Resolve OSS project cover art.
  *
- * Convention (shareable with READMEs):
- *   public/art/projects/{repoName}.jpg           — portfolio card (1376×768)
- *   public/art/projects/readme/{repoName}.png    — 1280×640 GitHub README banner
- *   public/art/projects/readme/{repoName}.svg    — source vector
+ * SSOT:
+ *   public/art/projects/{repoName}.jpg
+ *   public/art/projects/readme/{repoName}.png
  *
- * Generate / refresh: `bun run generate:covers`
- * ProjectCover falls back to BrandCover if the file 404s.
+ * Generate: `bun run generate:banners`
  */
 
+/** Case-insensitive aliases when GitHub name casing drifts. */
+const ALIASES: Record<string, string> = {
+  deepresearch: "DeepResearch",
+  fireschema: "FireSchema",
+  arbimath: "ArbiMath",
+  dust: "Dust",
+};
+
 export function projectArtPath(repoName: string): string {
-  // Deterministic social cover named after the GitHub repo (SSOT).
-  return `/art/projects/${repoName}.jpg`;
+  const key = repoName.toLowerCase();
+  const file = ALIASES[key] ?? repoName;
+  // banner8 — designed social cards after docs-screenshot rollback
+  return `/art/projects/${file}.jpg?v=banner8`;
 }
 
 export function readmeBannerPath(repoName: string): string {
-  return `/art/projects/readme/${repoName}.png`;
+  const key = repoName.toLowerCase();
+  const file = ALIASES[key] ?? repoName;
+  return `/art/projects/readme/${file}.png`;
 }

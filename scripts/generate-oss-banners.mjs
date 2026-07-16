@@ -81,6 +81,42 @@ const CURATED = {
     title: "Dust",
     tagline: "Component-based Dart web framework",
   },
+  synth: {
+    title: "Synth",
+    tagline: "Synthesis and generation tools",
+  },
+  skills: {
+    title: "Skills",
+    tagline: "Agent skills catalog and runtime",
+  },
+  tsnum: {
+    title: "tsnum",
+    tagline: "TypeScript numeric utilities",
+  },
+  "architecture-reader-mcp": {
+    title: "Architecture Reader MCP",
+    tagline: "Read software architecture with evidence",
+  },
+  "talos-fleet-controller": {
+    title: "Talos Fleet Controller",
+    tagline: "Fleet control for Talos Linux clusters",
+  },
+  "control-plane": {
+    title: "Control Plane",
+    tagline: "Agent-native work ledger and delivery graph",
+  },
+  doctrine: {
+    title: "Doctrine",
+    tagline: "Engineering doctrine and fleet standards",
+  },
+  platform: {
+    title: "Platform",
+    tagline: "Sylphx platform surface",
+  },
+  gateway: {
+    title: "Gateway",
+    tagline: "AI gateway and routing surface",
+  },
 };
 
 const PALETTES = [

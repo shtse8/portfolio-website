@@ -11,9 +11,11 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
-const SKIP_NAME = /^(renovate-config|\.github|bun-workflow-test|website)$/i;
-const KEEP_ZERO =
-  /mcp|rag|reader|coderag|craft|silk|rapid|flow|vex|pura|webgpu|media-curator|spectra|video|image|smart-read|consultant|platform/i;
+const SKIP_NAME =
+  /^(renovate-config|\.github|bun-workflow-test|website|configs|rook-ceph-fork|skills-public-cleanroom)$/i;
+// Always keep product/tooling surface even at 0–1★ (MCP family, synth, etc.)
+const KEEP_ALWAYS =
+  /mcp|rag|reader|coderag|craft|silk|rapid|flow|vex|pura|webgpu|media-curator|spectra|video|image|smart-read|consultant|platform|synth|skills|lens|talos|control-plane|doctrine|gateway|codec|ast|luzzy|hookyard|morphle|voidbite|tsnum|viszy|qonduit|tryit|spiron|photo-dedup|agent-workbench|alpha-foundry|architecture-reader/i;
 
 async function ghJson(path) {
   const r = await $`gh api ${path}`.quiet().nothrow();
@@ -35,9 +37,9 @@ function pushRepo(r, source, orgLogin) {
   if (r.fork || SKIP_NAME.test(r.name)) return;
   const stars = r.stargazers_count ?? 0;
   const archived = Boolean(r.archived);
-  // Keep archived if they have signal — UI deprioritizes them.
-  if (!archived && stars < 2 && !KEEP_ZERO.test(r.name)) return;
-  if (archived && stars < 3) return; // drop quiet archives
+  // Active: stars≥1 or product-name match. Archived: only if stars≥3 (UI deprioritizes).
+  if (!archived && stars < 1 && !KEEP_ALWAYS.test(r.name)) return;
+  if (archived && stars < 3) return;
   repos.push({
     owner: orgLogin ?? r.owner?.login ?? "shtse8",
     name: r.name,

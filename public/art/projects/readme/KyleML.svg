@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0B1220"/>
+      <stop offset="100%" stop-color="#1E3A5F"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 180) rotate(90) scale(420 420)">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+  <rect width="1280" height="640" fill="url(#glow)"/>
+
+  <!-- soft product geometry -->
+  <g opacity="0.55">
+    <rect x="860" y="140" width="260" height="180" rx="28" stroke="#38BDF8" stroke-opacity="0.55" stroke-width="2" fill="#38BDF8" fill-opacity="0.06"/>
+    <rect x="940" y="260" width="240" height="170" rx="28" stroke="#38BDF8" stroke-opacity="0.35" stroke-width="2" fill="none"/>
+    <circle cx="1040" cy="320" r="110" stroke="#38BDF8" stroke-opacity="0.25" stroke-width="2" fill="none"/>
+    <circle cx="1040" cy="320" r="54" fill="#38BDF8" fill-opacity="0.18"/>
+  </g>
+
+  <!-- monogram tile -->
+  <rect x="80" y="96" width="96" height="96" rx="24" fill="#38BDF8" fill-opacity="0.16" stroke="#38BDF8" stroke-opacity="0.7" stroke-width="2"/>
+  <text x="128" y="158" text-anchor="middle" fill="#38BDF8" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="34" font-weight="700">KY</text>
+
+  <text x="200" y="132" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">shtse8  ·  Python</text>
+  <text x="200" y="168" fill="#64748B" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">open source · social banner</text>
+
+  <text x="80" y="320" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="64" font-weight="700">KyleML</text>
+  <text x="80" y="380" fill="#CBD5E1" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26"></text>
+
+  <rect x="0" y="576" width="1280" height="64" fill="#000000" fill-opacity="0.28"/>
+  <text x="80" y="615" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">github.com/shtse8/KyleML</text>
+  <circle cx="1200" cy="608" r="8" fill="#38BDF8"/>
+</svg>
