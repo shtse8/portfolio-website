@@ -17,6 +17,8 @@
     "sync:github": "bun scripts/sync-github-portfolio.mjs",
     "generate:covers": "bun scripts/generate-oss-covers.mjs",
     "generate:banners": "bun scripts/generate-oss-banners.mjs",
+    "screenshot:oss-ui": "bun scripts/screenshot-oss-ui.mjs",
+    "apply:oss-banners": "bun scripts/apply-oss-banners-to-repos.mjs",
     "lint:proto": "buf lint"
   },
   "dependencies": {

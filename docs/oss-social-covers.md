@@ -26,8 +26,14 @@ Optional AI art is only a background plate when needed — never the only identi
 
 ```bash
 bun run sync:github
-bun run generate:banners
+bun run generate:banners          # designed banners for all listed repos
+bun run screenshot:oss-ui         # real UI screenshots when demos are live
+bun run apply:oss-banners         # push docs/banner.png + README embed to each repo
 ```
+
+UI screenshots land in `public/art/projects/screenshots/` and take priority over
+designed banners when applying to READMEs. Demo GIFs (when produced) go to
+`public/art/projects/gifs/` and can be linked as `docs/demo.gif`.
 
 ## Drop into a repo README
 
