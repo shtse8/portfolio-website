@@ -1,44 +1,40 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
-import { projectArtPath } from "@/lib/project-art";
-import BrandCover from "./BrandCover";
-
 /**
- * OSS product cover: real social-card image when present, BrandCover fallback.
- * Images live at public/art/projects/{name}.jpg (README-ready twins under readme/).
+ * OSS product cover — always shows a real image file.
+ *
+ * Uses native <img> (not next/image fill) so static-export cards never
+ * collapse to monogram placeholders. Path SSOT: /art/projects/{repoName}.jpg
  */
 export default function ProjectCover({
   name,
-  subtitle,
   className = "",
 }: {
   name: string;
   subtitle?: string;
   className?: string;
 }) {
-  const art = projectArtPath(name);
-  const [failed, setFailed] = useState(false);
-
-  if (!art || failed) {
-    return (
-      <BrandCover name={name} subtitle={subtitle} className={className} />
-    );
-  }
+  const src = `/art/projects/${name}.jpg`;
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      <Image
-        src={art}
+    <div
+      className={`relative overflow-hidden bg-surface-sunken ${className}`}
+      style={{
+        // Guarantee paint even before img loads / if img fails
+        backgroundImage: `url(${src}), linear-gradient(145deg, #1a2332, #2d4a6f)`,
+        backgroundSize: "cover, cover",
+        backgroundPosition: "center, center",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- static-export reliability */}
+      <img
+        src={src}
         alt=""
-        fill
-        className="object-cover object-center"
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        onError={() => setFailed(true)}
+        className="absolute inset-0 h-full w-full object-cover object-center"
+        loading="lazy"
+        decoding="async"
       />
-      {/* soft legibility wash for overlaid title chips */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
     </div>
   );
 }
