@@ -25,6 +25,9 @@ const FeaturedProducts = dynamic(
     loading: () => sectionFallback,
   },
 );
+const Companies = dynamic(() => import("@/components/Companies"), {
+  loading: () => sectionFallback,
+});
 const StoryArc = dynamic(() => import("@/components/StoryArc"), {
   loading: () => sectionFallback,
 });
@@ -95,6 +98,10 @@ export default function Home({ initialSection }: HomeProps) {
 
       <Section id="story">
         <StoryArc />
+      </Section>
+
+      <Section id="companies">
+        <Companies />
       </Section>
 
       <Section id="work">

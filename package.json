@@ -14,6 +14,7 @@
     "test:api": "cd api-rust && cargo test --locked",
     "test:cinematic": "bun scripts/check-cinematic-markers.mjs",
     "test:cinematic:export": "bun scripts/check-cinematic-markers.mjs --with-export",
+    "sync:github": "bun scripts/sync-github-portfolio.mjs",
     "lint:proto": "buf lint"
   },
   "dependencies": {

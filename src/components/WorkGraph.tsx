@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import { useEffect, useId, useState } from "react";
 import {
   FaArrowRightLong,
@@ -27,6 +26,7 @@ import {
   type TermRepo,
   timeAgo,
 } from "@/lib/terminal";
+import BrandCover from "./BrandCover";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
@@ -197,7 +197,6 @@ function ProjectCard({
 }) {
   const catalog = catalogForRepoName(repo.name);
   const caps = repoCapabilities(repo);
-  const art = catalog?.art;
   const title = catalog?.title ?? repo.name;
   const tagline = catalog?.tagline ?? repo.description ?? "";
 
@@ -218,34 +217,27 @@ function ProjectCard({
         className="flex flex-1 flex-col text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/60"
         aria-label={`Open ${title}`}
       >
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-surface-sunken">
-          {art ? (
-            <Image
-              src={art}
-              alt=""
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              loading="lazy"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/15 via-surface-sunken to-surface" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent" />
+        <div className="relative aspect-[16/10] w-full overflow-hidden">
+          <BrandCover
+            name={repo.name}
+            subtitle={`${repo.description ?? ""} ${caps.join(" ")}`}
+            className="absolute inset-0"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
           <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="truncate font-mono text-sm font-semibold text-text-primary drop-shadow-sm">
+                <span className="truncate font-mono text-sm font-semibold text-white">
                   {title}
                 </span>
                 {catalog?.flagship && (
-                  <span className="rounded bg-accent px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-accent-contrast">
+                  <span className="rounded bg-white/20 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-white ring-1 ring-white/30">
                     flagship
                   </span>
                 )}
               </div>
             </div>
-            <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-text-primary">
+            <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-white">
               {compact(repo.stars)}★
             </span>
           </div>
@@ -314,8 +306,6 @@ function ProjectDetail({
     repo.description ??
     "Open-source work shipping in production.";
   const highlights = catalog?.highlights ?? [];
-  const art = catalog?.art;
-
   return (
     <motion.div
       className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-6"
@@ -334,27 +324,20 @@ function ProjectDetail({
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 28, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 16, scale: 0.98 }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 12 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-[1] flex max-h-[min(92svh,880px)] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-lg sm:rounded-3xl"
       >
-        {/* Hero art band */}
-        <div className="relative h-44 shrink-0 overflow-hidden sm:h-52">
-          {art ? (
-            <Image
-              src={art}
-              alt={catalog?.artAlt ?? ""}
-              fill
-              className="object-cover"
-              sizes="768px"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/20 via-surface-sunken to-surface" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
+        {/* Brand panel — not generative AI art */}
+        <div className="relative h-36 shrink-0 overflow-hidden sm:h-40">
+          <BrandCover
+            name={repo.name}
+            subtitle={repo.description ?? ""}
+            className="absolute inset-0"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
           <button
             type="button"
             onClick={onClose}

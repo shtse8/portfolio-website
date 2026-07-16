@@ -1,7 +1,6 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { FaArrowRight, FaBolt, FaGithub } from "react-icons/fa6";
 import { useNavigationStore } from "@/context/NavigationContext";
 import { type HighlightKind, useWorkGraph } from "@/context/WorkGraphContext";
@@ -63,20 +62,11 @@ export default function Hero() {
       data-design="signal-craft"
       className="relative flex min-h-[min(100svh,880px)] items-center overflow-hidden"
     >
-      {/* Full-bleed ambient art — fused into the canvas */}
+      {/* Design-system atmosphere — no generative AI art */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <Image
-          src="/art/hero-infra.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover object-[70%_center] opacity-90 dark:opacity-80"
-          sizes="100vw"
-        />
-        {/* Readability washes — blend art into background tokens */}
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/25 sm:via-background/85 sm:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
-        <div className="absolute inset-0 bg-background/20 dark:bg-background/35" />
+        <div className="absolute inset-0 bg-grid mask-fade-b opacity-[0.28] dark:opacity-30" />
+        <div className="absolute -left-24 top-0 h-[50vh] w-[50vh] rounded-full bg-accent/10 blur-[110px]" />
+        <div className="absolute -right-20 bottom-10 h-[42vh] w-[42vh] rounded-full bg-accent/8 blur-[100px]" />
       </div>
 
       <div className="container-wide relative z-[1] grid w-full items-center gap-10 px-5 py-24 sm:px-8 sm:py-28 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">

@@ -14,6 +14,7 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import githubPortfolio from "@/data/github-portfolio.json";
 import {
   fetchProjects,
   fetchRecent,
@@ -47,51 +48,47 @@ export function repoCapabilities(r: TermRepo): Capability[] {
 /** npm package backing a repo (for the per-project download trend), if any. */
 export const REPO_NPM: Record<string, string> = {
   "pdf-reader-mcp": "@sylphx/pdf-reader-mcp",
-  "filesystem-mcp": "@shtse8/filesystem-mcp",
+  "filesystem-mcp": "@sylphx/filesystem-mcp",
   coderag: "@sylphx/coderag",
   flow: "@sylphx/flow",
   silk: "@sylphx/silk",
   craft: "@sylphx/craft",
+  rapid: "@sylphx/rapid",
   "cursor-ai-downloads": "@shtse8/cursor-ai-downloads",
 };
 
-// ── static fallback — the core portfolio NEVER disappears if the API is down ──
-// Approximate, curated figures; the live fetch overlays the exact numbers when
-// it lands. Without this, a failed /projects call would empty the whole graph.
-function fb(
-  owner: string,
-  name: string,
-  stars: number,
-  language: string,
-  description: string,
-  topics: string[],
-): TermRepo {
-  return {
-    repo: `${owner}/${name}`,
-    name,
-    owner,
-    stars,
+// ── static fallback from synced GitHub admin-org + personal owner repos ───────
+// Source of truth: `bun scripts/sync-github-portfolio.mjs` → github-portfolio.json
+// Live /projects fetch overlays fresher numbers when the API is up.
+export const FALLBACK_PROJECTS: TermRepo[] = (
+  githubPortfolio.repos as Array<{
+    owner: string;
+    name: string;
+    stars: number;
+    description: string;
+    language: string | null;
+    topics: string[];
+    homepage: string | null;
+    url: string;
+    pushedAt: string;
+  }>
+)
+  .filter((r) => r.stars >= 2 || /mcp|rag|reader|coderag|video|image|smart/i.test(r.name))
+  .slice(0, 36)
+  .map((r) => ({
+    repo: `${r.owner}/${r.name}`,
+    name: r.name,
+    owner: r.owner,
+    stars: r.stars,
     forks: 0,
-    description,
-    language,
-    topics,
-    homepage: null,
-    url: `https://github.com/${owner}/${name}`,
-    pushed: "",
-    pushedAt: "",
-  };
-}
-
-export const FALLBACK_PROJECTS: TermRepo[] = [
-  fb("SylphxAI", "pdf-reader-mcp", 801, "TypeScript", "Production-ready MCP server for PDF processing — 5–10× faster with parallel processing and 94%+ test coverage.", ["mcp", "ai-agent", "pdf", "llm-tool"]),
-  fb("shtse8", "cursor-ai-downloads", 13, "TypeScript", "Track and download official Cursor AI editor versions, with hourly automatic updates.", ["cursor", "ai", "tooling"]),
-  fb("SylphxAI", "coderag", 10, "TypeScript", "Semantic code search engine with AST chunking across 15+ programming languages.", ["rag", "semantic-search", "mcp", "embeddings"]),
-  fb("shtse8", "filesystem-mcp", 7, "TypeScript", "Secure, token-saving MCP filesystem server for AI agents.", ["mcp", "filesystem", "ai-agent"]),
-  fb("SylphxAI", "craft", 6, "TypeScript", "Immutable state library for TypeScript with ES6 collection support — an immer alternative.", ["state-management", "immutable", "typescript"]),
-  fb("SylphxAI", "DeepResearch", 5, "TypeScript", "Autonomous AI research tool using Tree-of-Thoughts and ReAct-style reasoning.", ["ai", "research", "rag"]),
-  fb("SylphxAI", "silk", 5, "TypeScript", "The smallest, fastest zero-runtime CSS-in-TypeScript library.", ["css-in-js", "zero-runtime", "tooling"]),
-  fb("SylphxAI", "flow", 4, "TypeScript", "CLI orchestration for AI development — Claude Code, Cursor, and other AI coding tools.", ["cli", "ai", "orchestration", "ai-infra"]),
-];
+    description: r.description || null,
+    language: r.language,
+    topics: r.topics ?? [],
+    homepage: r.homepage,
+    url: r.url,
+    pushed: r.pushedAt,
+    pushedAt: r.pushedAt,
+  }));
 
 // ── highlight model — what a hovered hero stat lights up in the graph ─────────
 export type HighlightKind = "stars" | "downloads" | "flagship" | null;
@@ -166,13 +163,23 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [s, p, r] = await Promise.allSettled([fetchStats(), fetchProjects(14), fetchRecent(8)]);
+      const [s, p, r] = await Promise.allSettled([fetchStats(), fetchProjects(40), fetchRecent(8)]);
       if (!alive) return;
       let any = false;
       if (s.status === "fulfilled") { setStats(s.value); any = true; }
       // only overlay live projects if the call actually returned some — never
       // replace the curated fallback with an empty list.
-      if (p.status === "fulfilled" && p.value.projects.length > 0) { setProjects(p.value.projects); setLiveProjects(true); any = true; }
+      if (p.status === "fulfilled" && p.value.projects.length > 0) {
+        // Merge live overlay with synced catalog so owned-org repos never disappear
+        // when the API returns a shorter top-N list.
+        const byRepo = new Map<string, TermRepo>();
+        for (const r of FALLBACK_PROJECTS) byRepo.set(r.repo.toLowerCase(), r);
+        for (const r of p.value.projects) byRepo.set(r.repo.toLowerCase(), r);
+        const merged = [...byRepo.values()].sort((a, b) => b.stars - a.stars);
+        setProjects(merged);
+        setLiveProjects(true);
+        any = true;
+      }
       if (r.status === "fulfilled") { setRecent(r.value.recent); any = true; }
       setLive(any);
       setLoading(false);

@@ -40,7 +40,7 @@ const SOURCE_CHECKS = [
     patterns: [
       /data-design="signal-craft"/,
       /text-display/,
-      /hero-infra\.jpg/,
+      /BrandCover|signal-craft|text-display/,
       /object-cover/,
       /from-background via-background/,
     ],
@@ -159,7 +159,7 @@ if (withExport) {
     if (!/signal-craft|hero-infra|syne_/i.test(html)) {
       fail("export missing signal-craft / hero-infra / syne markers");
     } else ok("export signal markers");
-    if (!/art\/hero-infra|hero-infra\.jpg/.test(html)) {
+    if (!/art\/hero-infra|BrandCover|signal-craft|text-display/.test(html)) {
       // may be in JS chunk
       const assets = walk(join(root, "out/_next"));
       const blob = assets
