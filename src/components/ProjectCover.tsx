@@ -14,7 +14,8 @@ export default function ProjectCover({
   subtitle?: string;
   className?: string;
 }) {
-  const src = `/art/projects/${name}.jpg`;
+  // Cache-bust when CF/nginx marks static art immutable for a year.
+  const src = `/art/projects/${name}.jpg?v=20260716b`;
 
   return (
     <div
