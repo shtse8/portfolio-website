@@ -19,7 +19,7 @@ export default function ProjectCover({
   className?: string;
 }) {
   // Bump when regenerating banners so CF immutable cache cannot serve stale art.
-  const src = `/art/projects/${name}.jpg?v=banner6`;
+  const src = `/art/projects/${name}.jpg?v=banner7`;
 
   return (
     <div
