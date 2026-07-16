@@ -277,18 +277,15 @@ function ProjectCard({
         className="flex flex-1 flex-col text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/60"
         aria-label={`Open ${title}`}
       >
-        <div className="relative aspect-[16/10] w-full overflow-hidden">
+        <div className="relative w-full">
           <ProjectCover
             name={repo.name}
             subtitle={`${repo.description ?? ""} ${caps.join(" ")}`}
-            className="absolute inset-0"
           />
-          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-2">
+          {/* badge strip over banner bottom */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/70 via-black/25 to-transparent px-3 pb-3 pt-10">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="truncate font-mono text-sm font-semibold text-white drop-shadow">
-                  {title}
-                </span>
                 {catalog?.flagship && (
                   <span className="rounded bg-white/20 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-white ring-1 ring-white/30">
                     flagship
@@ -308,7 +305,10 @@ function ProjectCard({
         </div>
 
         <div className="flex flex-1 flex-col p-4">
-          <p className="line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
+          <h3 className="font-display text-base font-semibold tracking-tight text-text-primary">
+            {title}
+          </h3>
+          <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-text-secondary">
             {tagline}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
@@ -394,14 +394,10 @@ function ProjectDetail({
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-[1] flex max-h-[min(92svh,880px)] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-lg sm:rounded-3xl"
       >
-        {/* Product social cover — same asset family as README banners */}
-        <div className="relative h-36 shrink-0 overflow-hidden sm:h-40">
-          <ProjectCover
-            name={repo.name}
-            subtitle={repo.description ?? ""}
-            className="absolute inset-0"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
+        {/* Same banner family as README social images */}
+        <div className="relative shrink-0">
+          <ProjectCover name={repo.name} subtitle={repo.description ?? ""} />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
           <button
             type="button"
             onClick={onClose}

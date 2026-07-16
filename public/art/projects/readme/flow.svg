@@ -1,36 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" fill="none">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#1a1030"/>
-      <stop offset="100%" stop-color="#3b0764"/>
+      <stop offset="0%" stop-color="#1A1030"/>
+      <stop offset="100%" stop-color="#3B0764"/>
     </linearGradient>
-    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#c084fc" stop-opacity="0"/>
-    </linearGradient>
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-opacity="0.04" stroke-width="1"/>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 180) rotate(90) scale(420 420)">
+      <stop offset="0%" stop-color="#C084FC" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#C084FC" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="1"/>
     </pattern>
   </defs>
+
   <rect width="1280" height="640" fill="url(#bg)"/>
   <rect width="1280" height="640" fill="url(#grid)"/>
-  <circle cx="1100" cy="120" r="220" fill="url(#shine)"/>
-  <circle cx="200" cy="560" r="180" fill="#c084fc" fill-opacity="0.08"/>
+  <rect width="1280" height="640" fill="url(#glow)"/>
+
+  <!-- soft product geometry -->
+  <g opacity="0.55">
+    <rect x="860" y="140" width="260" height="180" rx="28" stroke="#C084FC" stroke-opacity="0.55" stroke-width="2" fill="#C084FC" fill-opacity="0.06"/>
+    <rect x="940" y="260" width="240" height="170" rx="28" stroke="#C084FC" stroke-opacity="0.35" stroke-width="2" fill="none"/>
+    <circle cx="1040" cy="320" r="110" stroke="#C084FC" stroke-opacity="0.25" stroke-width="2" fill="none"/>
+    <circle cx="1040" cy="320" r="54" fill="#C084FC" fill-opacity="0.18"/>
+  </g>
 
   <!-- monogram tile -->
-  <rect x="80" y="96" width="88" height="88" rx="20" fill="#c084fc" fill-opacity="0.15" stroke="#c084fc" stroke-opacity="0.55" stroke-width="2"/>
-  <text x="124" y="154" text-anchor="middle" fill="#c084fc" font-family="ui-sans-serif, system-ui, sans-serif" font-size="32" font-weight="700">FL</text>
+  <rect x="80" y="96" width="96" height="96" rx="24" fill="#C084FC" fill-opacity="0.16" stroke="#C084FC" stroke-opacity="0.7" stroke-width="2"/>
+  <text x="128" y="158" text-anchor="middle" fill="#C084FC" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="34" font-weight="700">FL</text>
 
-  <text x="188" y="132" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">SylphxAI/flow</text>
-  <text x="188" y="162" fill="#64748b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">TypeScript  ·  archived  ·  SylphxAI</text>
+  <text x="200" y="132" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">SylphxAI  ·  TypeScript  ·  archived</text>
+  <text x="200" y="168" fill="#64748B" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">open source · social banner</text>
 
-  <text x="80" y="300" fill="#f8fafc" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="52" font-weight="700">flow</text>
+  <text x="80" y="320" fill="#F8FAFC" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="64" font-weight="700">flow</text>
+  <text x="80" y="380" fill="#CBD5E1" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26">🚀 AI development platform with MEP architecture - stop writing prompts, start building with 90%</text>
 
-  <text x="80" y="392" fill="#cbd5e1" font-family="ui-sans-serif, system-ui, sans-serif" font-size="24">🚀 AI development platform with MEP architecture - stop writing prompts, start building wi…</text>
-
-  <!-- bottom bar -->
-  <rect x="0" y="580" width="1280" height="60" fill="black" fill-opacity="0.25"/>
-  <text x="80" y="616" fill="#94a3b8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">open source · social cover · kylet.se</text>
-  <circle cx="1180" cy="610" r="8" fill="#c084fc"/>
+  <rect x="0" y="576" width="1280" height="64" fill="#000000" fill-opacity="0.28"/>
+  <text x="80" y="615" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">github.com/SylphxAI/flow</text>
+  <circle cx="1200" cy="608" r="8" fill="#C084FC"/>
 </svg>

@@ -1,10 +1,14 @@
 "use client";
 
 /**
- * OSS product cover — always shows a real image file.
+ * OSS product banner for portfolio cards.
  *
- * Uses native <img> (not next/image fill) so static-export cards never
- * collapse to monogram placeholders. Path SSOT: /art/projects/{repoName}.jpg
+ * SSOT files (also used as GitHub README banners):
+ *   /art/projects/{repoName}.jpg
+ *   /art/projects/readme/{repoName}.png
+ *
+ * Layout is intentionally simple: one block with explicit aspect ratio and a
+ * normal flow image (no nested absolute/fill traps).
  */
 export default function ProjectCover({
   name,
@@ -14,28 +18,24 @@ export default function ProjectCover({
   subtitle?: string;
   className?: string;
 }) {
-  // Cache-bust when CF/nginx marks static art immutable for a year.
-  const src = `/art/projects/${name}.jpg?v=20260716b`;
+  // Bump when regenerating banners so CF immutable cache cannot serve stale art.
+  const src = `/art/projects/${name}.jpg?v=banner3`;
 
   return (
     <div
-      className={`relative overflow-hidden bg-surface-sunken ${className}`}
-      style={{
-        // Guarantee paint even before img loads / if img fails
-        backgroundImage: `url(${src}), linear-gradient(145deg, #1a2332, #2d4a6f)`,
-        backgroundSize: "cover, cover",
-        backgroundPosition: "center, center",
-      }}
+      className={`relative w-full overflow-hidden bg-[#0f172a] ${className}`}
+      style={{ aspectRatio: "16 / 10" }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- static-export reliability */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- static export + cache-busted local art */}
       <img
         src={src}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover object-center"
+        alt={`${name} banner`}
+        width={1376}
+        height={768}
+        className="block h-full w-full object-cover object-center"
         loading="lazy"
         decoding="async"
       />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
     </div>
   );
 }
