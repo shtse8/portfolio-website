@@ -3,6 +3,9 @@
 #   docker build -f api-rust/Dockerfile .
 # so build.rs can compile protos from ../proto (repo root/proto).
 FROM rust:1-bookworm AS builder
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends protobuf-compiler \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace/api-rust
 COPY api-rust/Cargo.toml api-rust/Cargo.lock ./
 COPY api-rust/build.rs ./
