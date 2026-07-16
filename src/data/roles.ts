@@ -53,7 +53,7 @@ export const ROLES: Role[] = [
       { type: 'custom', value: 'UK', unit: 'Headquarters' }
     ],
     skills: ['typescript', 'react', 'nextjs', 'nodejs', 'full-stack'],
-    logo: '/companys/epiow.png',
+    logo: '/companys/epiow.png?v=eorbit',
     liveUrl: 'https://epiow.com'
   },
   {

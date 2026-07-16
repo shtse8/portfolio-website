@@ -27,7 +27,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     status: 'active',
     description:
       "Enterprise workspace platform OS for Hong Kong organizations — modular HR, CRM, and operations apps with local Employment Ordinance & MPF-native workflows",
-    logo: '/companys/epiow.png',
+    logo: '/companys/epiow.png?v=eorbit',
     website: 'https://epiow.com',
     github: 'EpiowAI',
     location: 'United Kingdom / Hong Kong',
