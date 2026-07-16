@@ -1,5 +1,5 @@
 /**
- * @deprecated Browser-direct Control Plane access is retired.
+ * Browser-direct Control Plane access is retired.
  *
  * Single metric authority cutover (ADR-0006):
  * - Browser → same-origin BFF `/activity` only
@@ -8,20 +8,18 @@
  *
  * Mapping helpers remain for unit tests / offline gates that assert honest
  * d7/d30 windows (no week×4). LiveTicker must not import fetchCpPublicSummary.
+ *
+ * Intentionally no NEXT_PUBLIC_CP_*, Control Plane host defaults, or personal
+ * slug fallbacks — those belong only on the server-side BFF via env.
  */
 
-/** @deprecated Do not set in browser builds. */
-export const CP_PUBLIC_BASE = (
-  process.env.NEXT_PUBLIC_CP_PUBLIC_BASE ??
-  process.env.NEXT_PUBLIC_CONTROL_PLANE_PUBLIC_BASE ??
-  ""
-).replace(/\/$/, "");
+/** Always empty in browser builds — CP base is server-only. */
+export const CP_PUBLIC_BASE = "";
 
-/** @deprecated Slug is server-side only on the BFF. */
-export const CP_PUBLIC_PROFILE_SLUG =
-  process.env.NEXT_PUBLIC_CP_PUBLIC_PROFILE_SLUG ?? "kyle";
+/** No browser slug; BFF requires CP_PUBLIC_PROFILE_SLUG / CP_PROJECTION_ID. */
+export const CP_PUBLIC_PROFILE_SLUG = "";
 
-/** @deprecated Always treat browser CP path as disabled. */
+/** Always treat browser CP path as disabled. */
 export const HAS_CP_PUBLIC = false;
 
 export type CpPublicSummary = {
@@ -83,7 +81,7 @@ export function mapCpSummaryToActivity(s: CpPublicSummary): {
 }
 
 /**
- * @deprecated Browser must not call Control Plane. Always returns null.
+ * Browser must not call Control Plane. Always returns null.
  * Kept so accidental imports fail closed without network.
  */
 export async function fetchCpPublicSummary(

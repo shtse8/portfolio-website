@@ -5,21 +5,40 @@
 //!
 //! Authority ladder:
 //! 1. Authenticated projection: `CP_PROJECTION_BASE` + `CP_PROJECTION_TOKEN`
-//!    → `GET /api/v1/projections/{id}/snapshot`
+//!    + `CP_PROJECTION_ID` → `GET /api/v1/projections/{id}/snapshot`
 //! 2. Legacy anonymous expand-contract: `CP_PUBLIC_BASE` / `CONTROL_PLANE_PUBLIC_BASE`
-//!    → `GET /api/public/v1/profiles/{slug}/summary`
+//!    + `CP_PUBLIC_PROFILE_SLUG` → `GET /api/public/v1/profiles/{slug}/summary`
 //! 3. Otherwise: hard error (no Control Plane projection configured)
 //!
-//! On CP failure: serve last verified CP snapshot marked stale, or unavailable.
+//! # Last-good durability (documented choice)
+//!
+//! On CP failure: serve a **verified** last snapshot marked stale, or return
+//! explicit unavailable when no verified snapshot exists (never fabricate zeros
+//! as a live success).
+//!
+//! Implementation: dual store —
+//! 1. Process-local hot cache (`CACHE`, short TTL) + in-memory last-good mirror
+//! 2. **File-backed durable verified snapshot** at
+//!    `ACTIVITY_LAST_GOOD_PATH` (default
+//!    `/var/lib/portfolio-api/activity-last-good.json`). Written only after a
+//!    successful CP map; read on failover when process memory is empty
+//!    (restart-safe within a writable volume/path).
+//!
+//! If neither memory nor file has a verified snapshot, return Err (handler →
+//! unavailable / 502) — no invented commit counts.
+//!
 //! NEVER recompute commits/work metrics via GitHub GraphQL.
 
 use crate::contract::ActivityPayload;
 use reqwest::Client;
 use std::env;
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 const DEFAULT_ACTIVITY_TTL_MS: u64 = 90 * 1000;
+const DEFAULT_LAST_GOOD_PATH: &str = "/var/lib/portfolio-api/activity-last-good.json";
 
 fn activity_ttl_ms() -> u64 {
     env::var("ACTIVITY_TTL_MS")
@@ -33,7 +52,7 @@ fn activity_ttl_ms() -> u64 {
 static CACHE: std::sync::OnceLock<Mutex<Option<(u64, ActivityPayload)>>> =
     std::sync::OnceLock::new();
 
-/// Durable last verified Control Plane snapshot — never expires for fail-over.
+/// In-memory last verified Control Plane snapshot (mirrors durable file).
 static LAST_GOOD: std::sync::OnceLock<Mutex<Option<ActivityPayload>>> = std::sync::OnceLock::new();
 
 fn cache() -> &'static Mutex<Option<(u64, ActivityPayload)>> {
@@ -77,8 +96,10 @@ fn cp_projection_token() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
-fn cp_projection_id() -> String {
-    non_empty_env("CP_PROJECTION_ID").unwrap_or_else(cp_public_slug)
+/// Projection id — **required** for authenticated path (no personal-name default).
+fn cp_projection_id() -> Result<String, String> {
+    non_empty_env("CP_PROJECTION_ID")
+        .ok_or_else(|| "CP_PROJECTION_ID required (no default slug)".into())
 }
 
 /// Legacy anonymous public profile base (expand-contract only).
@@ -86,8 +107,10 @@ fn cp_public_base() -> Option<String> {
     non_empty_env("CP_PUBLIC_BASE").or_else(|| non_empty_env("CONTROL_PLANE_PUBLIC_BASE"))
 }
 
-fn cp_public_slug() -> String {
-    env::var("CP_PUBLIC_PROFILE_SLUG").unwrap_or_else(|_| "kyle".into())
+/// Public profile slug — **required** when using public path (no "kyle" fallback).
+fn cp_public_slug() -> Result<String, String> {
+    non_empty_env("CP_PUBLIC_PROFILE_SLUG")
+        .ok_or_else(|| "CP_PUBLIC_PROFILE_SLUG required (no default slug)".into())
 }
 
 /// True when any Control Plane metric path is configured (auth or public).
@@ -104,16 +127,72 @@ enum CpPath {
 
 fn select_cp_path() -> Result<(CpPath, String), String> {
     if let (Some(base), Some(_token)) = (cp_projection_base(), cp_projection_token()) {
-        let id = cp_projection_id();
+        let id = cp_projection_id()?;
         let url = format!("{base}/api/v1/projections/{id}/snapshot");
         return Ok((CpPath::Authenticated, url));
     }
     if let Some(base) = cp_public_base() {
-        let slug = cp_public_slug();
+        let slug = cp_public_slug()?;
         let url = format!("{base}/api/public/v1/profiles/{slug}/summary");
         return Ok((CpPath::PublicLegacy, url));
     }
     Err("no control plane projection configured".into())
+}
+
+/// Path for durable verified snapshot file.
+pub fn last_good_path() -> PathBuf {
+    non_empty_env("ACTIVITY_LAST_GOOD_PATH")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(DEFAULT_LAST_GOOD_PATH))
+}
+
+fn write_last_good_file(data: &ActivityPayload) {
+    let path = last_good_path();
+    if let Some(parent) = path.parent() {
+        if let Err(e) = fs::create_dir_all(parent) {
+            tracing::warn!(
+                error = %e,
+                path = %path.display(),
+                "activity last_good: could not create parent dir"
+            );
+            return;
+        }
+    }
+    match serde_json::to_vec(data) {
+        Ok(bytes) => {
+            // Atomic-ish: write tmp then rename.
+            let tmp = path.with_extension("json.tmp");
+            if let Err(e) = fs::write(&tmp, &bytes) {
+                tracing::warn!(error = %e, path = %tmp.display(), "activity last_good write tmp failed");
+                return;
+            }
+            if let Err(e) = fs::rename(&tmp, &path) {
+                // rename may fail across filesystems; try direct write as fallback
+                if let Err(e2) = fs::write(&path, &bytes) {
+                    tracing::warn!(
+                        error = %e,
+                        fallback = %e2,
+                        path = %path.display(),
+                        "activity last_good durable write failed"
+                    );
+                }
+                let _ = fs::remove_file(&tmp);
+            }
+        }
+        Err(e) => {
+            tracing::warn!(error = %e, "activity last_good encode failed");
+        }
+    }
+}
+
+fn read_last_good_file() -> Option<ActivityPayload> {
+    let path = last_good_path();
+    read_last_good_from_path(&path)
+}
+
+fn read_last_good_from_path(path: &Path) -> Option<ActivityPayload> {
+    let bytes = fs::read(path).ok()?;
+    serde_json::from_slice(&bytes).ok()
 }
 
 /// Map a Control Plane projection / public summary envelope → ActivityPayload.
@@ -242,13 +321,23 @@ fn store_success(now: u64, data: &ActivityPayload) {
     if let Ok(mut guard) = last_good().lock() {
         *guard = Some(data.clone());
     }
+    write_last_good_file(data);
 }
 
 fn take_last_good() -> Option<ActivityPayload> {
-    last_good()
-        .lock()
-        .ok()
-        .and_then(|guard| guard.as_ref().cloned())
+    if let Ok(guard) = last_good().lock() {
+        if let Some(data) = guard.as_ref() {
+            return Some(data.clone());
+        }
+    }
+    // Durable file fallback (process restart / empty memory).
+    if let Some(data) = read_last_good_file() {
+        if let Ok(mut guard) = last_good().lock() {
+            *guard = Some(data.clone());
+        }
+        return Some(data);
+    }
+    None
 }
 
 pub async fn get_activity() -> Result<ActivityPayload, String> {
@@ -277,6 +366,7 @@ pub async fn get_activity() -> Result<ActivityPayload, String> {
                 );
                 return Ok(mark_stale(cached));
             }
+            // Explicit unavailable — no fabricated zeros.
             Err(err)
         }
     }
@@ -300,14 +390,16 @@ pub fn cached_snapshot() -> Option<ActivityPayload> {
 }
 
 /// Inject a verified snapshot for tests (simulates prior successful CP fetch).
+/// Also writes the durable file when ACTIVITY_LAST_GOOD_PATH is set for tests.
 #[doc(hidden)]
 pub fn seed_last_good_for_tests(data: ActivityPayload) {
     if let Ok(mut guard) = last_good().lock() {
-        *guard = Some(data);
+        *guard = Some(data.clone());
     }
     if let Ok(mut guard) = cache().lock() {
         *guard = None;
     }
+    write_last_good_file(&data);
 }
 
 #[doc(hidden)]
@@ -318,12 +410,19 @@ pub fn reset_cache_for_tests() {
     if let Ok(mut guard) = last_good().lock() {
         *guard = None;
     }
+    // Best-effort remove durable file when under test path.
+    let path = last_good_path();
+    let _ = fs::remove_file(path);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json::json;
+    use std::sync::Mutex as StdMutex;
+
+    // Serialize tests that touch process-global env / file path.
+    static TEST_LOCK: StdMutex<()> = StdMutex::new(());
 
     #[test]
     fn map_cp_envelope_uses_true_d30_not_week_times_four() {
@@ -395,12 +494,74 @@ mod tests {
     }
 
     #[test]
-    fn select_cp_path_errors_when_unconfigured() {
-        // Structural: select_cp_path with no env is tested via compute path contract.
-        // We only assert map does not invent month when d30 missing.
+    fn map_does_not_invent_month_when_d30_missing() {
+        // Missing d30 → 0, not week×4.
         let v = json!({ "summary": { "commits_landed": { "today": 1, "d7": 2 } } });
         let a = map_cp_envelope_to_activity(&v, "control-plane-public");
         assert_eq!(a.commits_month, 0);
         assert_ne!(a.commits_month, a.commits_week * 4);
+    }
+
+    #[test]
+    fn durable_last_good_roundtrip_via_file() {
+        let _g = TEST_LOCK.lock().unwrap();
+        let dir = std::env::temp_dir().join(format!(
+            "portfolio-activity-last-good-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::create_dir_all(&dir);
+        let path = dir.join("activity-last-good.json");
+        // SAFETY: serialized by TEST_LOCK; restored below.
+        // SAFETY: serialized by TEST_LOCK; restored below.
+        unsafe { std::env::set_var("ACTIVITY_LAST_GOOD_PATH", &path) };
+        reset_cache_for_tests();
+
+        let payload = ActivityPayload {
+            commits_today: 3,
+            commits_week: 11,
+            commits_month: 41,
+            repos_active_today: 2,
+            last_push: None,
+            updated_at: "2026-07-16T01:00:00Z".into(),
+            stale: Some(false),
+            freshness: Some("live".into()),
+            source: Some("control-plane".into()),
+            projection_revision: Some("sha256:durable".into()),
+        };
+        seed_last_good_for_tests(payload.clone());
+        assert!(path.is_file(), "durable file must exist");
+
+        // Clear memory only — file must still serve.
+        if let Ok(mut guard) = last_good().lock() {
+            *guard = None;
+        }
+        if let Ok(mut guard) = cache().lock() {
+            *guard = None;
+        }
+        let restored = take_last_good().expect("file-backed last_good");
+        assert_eq!(restored.commits_week, 11);
+        assert_eq!(restored.commits_month, 41);
+        assert_eq!(restored.projection_revision.as_deref(), Some("sha256:durable"));
+        assert!(assert_honest_cp_windows(&restored).is_ok());
+
+        reset_cache_for_tests();
+        unsafe { std::env::remove_var("ACTIVITY_LAST_GOOD_PATH") };
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn no_verified_snapshot_returns_none_not_zeros() {
+        let _g = TEST_LOCK.lock().unwrap();
+        let dir = std::env::temp_dir().join(format!(
+            "portfolio-activity-empty-{}",
+            std::process::id()
+        ));
+        let _ = fs::create_dir_all(&dir);
+        let path = dir.join("missing.json");
+        unsafe { std::env::set_var("ACTIVITY_LAST_GOOD_PATH", &path) };
+        reset_cache_for_tests();
+        assert!(take_last_good().is_none());
+        unsafe { std::env::remove_var("ACTIVITY_LAST_GOOD_PATH") };
+        let _ = fs::remove_dir_all(&dir);
     }
 }

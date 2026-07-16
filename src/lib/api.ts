@@ -4,8 +4,9 @@
  * Empty string = same-origin relative paths (`/activity`, `/chat`, `/stats`, …)
  * when nginx (or the platform gateway) proxies those routes to the API service.
  *
- * `NEXT_PUBLIC_API_BASE` may still point at slim-pal during transition, but must
- * **never** point at Control Plane — the browser talks only to this BFF.
+ * Default is always same-origin. `NEXT_PUBLIC_API_BASE` may override for local
+ * dev against a remote API host, but must **never** point at Control Plane —
+ * the browser talks only to this BFF (or a BFF proxy).
  */
 const DEFAULT_API_BASE = "";
 export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? DEFAULT_API_BASE).replace(

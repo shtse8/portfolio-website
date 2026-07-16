@@ -84,4 +84,20 @@ describe("LiveTicker single metric authority", () => {
     expect(src).not.toMatch(/glad-word-ommriy/);
     expect(src).not.toMatch(/NEXT_PUBLIC_CP_/);
   });
+
+  it("browser runtime strips NEXT_PUBLIC_CP_* and personal-name defaults", () => {
+    const cpPath = join(here, "../controlPlanePublic.ts");
+    const shellPath = join(here, "../../components/layout/AppShell.tsx");
+    const cp = readFileSync(cpPath, "utf8");
+    const shell = readFileSync(shellPath, "utf8");
+    // No env reads of CP public base / slug in browser modules.
+    expect(cp).not.toMatch(/process\.env\.NEXT_PUBLIC_CP_/);
+    expect(cp).not.toMatch(/process\.env\.NEXT_PUBLIC_CONTROL_PLANE/);
+    expect(cp).not.toMatch(/"kyle"/);
+    expect(cp).toMatch(/CP_PUBLIC_BASE\s*=\s*""/);
+    expect(cp).toMatch(/CP_PUBLIC_PROFILE_SLUG\s*=\s*""/);
+    expect(shell).not.toMatch(/NEXT_PUBLIC_CP_/);
+    expect(shell).not.toMatch(/glad-word/);
+    expect(shell).not.toMatch(/data-cp-public-base/);
+  });
 });

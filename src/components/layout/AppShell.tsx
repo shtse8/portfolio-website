@@ -3,20 +3,13 @@
 import type React from "react";
 
 /**
- * Platform init-container bake gate requires NEXT_PUBLIC_CP_PUBLIC_BASE to appear
- * in `/_next` output. Keep the string reachable from a client module (not used for
- * network — browser CP path stays disabled).
- */
-const CP_PUBLIC_BAKE_PROOF =
-  process.env.NEXT_PUBLIC_CP_PUBLIC_BASE ??
-  process.env.NEXT_PUBLIC_CONTROL_PLANE_PUBLIC_BASE ??
-  "";
-
-/**
  * AppShell — natural document scroll (no custom scroll container).
  * The previous `body:overflow-hidden` + `#main-content` scroll container broke
  * window-based scroll consumers (progress bar, back-to-top). We scroll the
  * document directly: simpler, accessible, and the modern default.
+ *
+ * Browser path is same-origin BFF only — no NEXT_PUBLIC_CP_* bake proof, no
+ * Control Plane URL/token in the client bundle.
  */
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -28,9 +21,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       >
         Skip to content
       </a>
-
-      {/* Hidden bake proof node — do not remove without updating platform bake gate */}
-      <span className="hidden" data-cp-public-base={CP_PUBLIC_BAKE_PROOF} />
 
       <main id="main-content" tabIndex={-1} className="focus:outline-none">
         {children}

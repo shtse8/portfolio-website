@@ -14,12 +14,16 @@ context = "."
 name = "web"
 type = "web"
 port = 3000
+# web nginx BFF proxies /activity|/stats|/chat|/healthz → api:3001.
+# Platform injects API_INTERNAL_URL and opens NetworkPolicy web→api.
+connect = { services = ["api"] }
 watch_paths = ["src/**", "public/**", "package.json", "nginx.conf", "Dockerfile", "sylphx.toml"]
 
 [[services]]
 name = "api"
 type = "web"
 port = 3001
+deploy_priority = 100
 watch_paths = ["api-rust/**", "sylphx.toml"]
 [services.build]
 strategy = "dockerfile"

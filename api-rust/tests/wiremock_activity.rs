@@ -6,6 +6,7 @@ use kylet_api_rust::contract::ActivityPayload;
 use kylet_api_rust::testing;
 use serde_json::json;
 use serial_test::serial;
+use std::path::PathBuf;
 use tower::ServiceExt;
 use wiremock::matchers::{header, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -28,23 +29,39 @@ fn cp_summary(today: u64, d7: u64, d30: u64) -> serde_json::Value {
     })
 }
 
+fn temp_last_good_path(label: &str) -> PathBuf {
+    let dir = std::env::temp_dir().join(format!(
+        "portfolio-activity-it-{}-{}",
+        label,
+        std::process::id()
+    ));
+    let _ = std::fs::create_dir_all(&dir);
+    dir.join("activity-last-good.json")
+}
+
+const LAST_GOOD_KEYS: &[&str] = &[
+    "CP_PROJECTION_BASE",
+    "CP_PROJECTION_TOKEN",
+    "CP_PROJECTION_ID",
+    "CP_PUBLIC_BASE",
+    "CP_PUBLIC_PROFILE_SLUG",
+    "CONTROL_PLANE_PUBLIC_BASE",
+    "ACTIVITY_LAST_GOOD_PATH",
+    "GITHUB_TOKEN",
+    "GITHUB_API_BASE",
+    "GITHUB_GRAPHQL_URL",
+];
+
 #[tokio::test]
 #[serial]
 async fn activity_from_authenticated_cp_projection() {
     let server = MockServer::start().await;
-    let env = testing::EnvGuard::acquire(&[
-        "CP_PROJECTION_BASE",
-        "CP_PROJECTION_TOKEN",
-        "CP_PROJECTION_ID",
-        "CP_PUBLIC_BASE",
-        "CONTROL_PLANE_PUBLIC_BASE",
-        "GITHUB_TOKEN",
-        "GITHUB_API_BASE",
-        "GITHUB_GRAPHQL_URL",
-    ]);
+    let last_good = temp_last_good_path("auth");
+    let env = testing::EnvGuard::acquire(LAST_GOOD_KEYS);
     env.set("CP_PROJECTION_BASE", &server.uri());
     env.set("CP_PROJECTION_TOKEN", "proj-token");
     env.set("CP_PROJECTION_ID", "kyle-dev-metrics");
+    env.set("ACTIVITY_LAST_GOOD_PATH", last_good.to_str().unwrap());
     let _env = env;
 
     Mock::given(method("GET"))
@@ -97,19 +114,12 @@ async fn activity_from_authenticated_cp_projection() {
 #[serial]
 async fn activity_cp_failure_serves_last_good_stale_without_graphql() {
     let server = MockServer::start().await;
-    let env = testing::EnvGuard::acquire(&[
-        "CP_PROJECTION_BASE",
-        "CP_PROJECTION_TOKEN",
-        "CP_PROJECTION_ID",
-        "CP_PUBLIC_BASE",
-        "CONTROL_PLANE_PUBLIC_BASE",
-        "GITHUB_TOKEN",
-        "GITHUB_API_BASE",
-        "GITHUB_GRAPHQL_URL",
-    ]);
+    let last_good = temp_last_good_path("stale");
+    let env = testing::EnvGuard::acquire(LAST_GOOD_KEYS);
     env.set("CP_PROJECTION_BASE", &server.uri());
     env.set("CP_PROJECTION_TOKEN", "proj-token");
     env.set("CP_PROJECTION_ID", "kyle-dev-metrics");
+    env.set("ACTIVITY_LAST_GOOD_PATH", last_good.to_str().unwrap());
     // Point GraphQL at wiremock so any accidental call is observable.
     env.set("GITHUB_API_BASE", &server.uri());
     env.set("GITHUB_TOKEN", "must-not-use");
@@ -172,16 +182,9 @@ async fn activity_cp_failure_serves_last_good_stale_without_graphql() {
 #[tokio::test]
 #[serial]
 async fn activity_unavailable_when_cp_unconfigured_and_no_last_good() {
-    let env = testing::EnvGuard::acquire(&[
-        "CP_PROJECTION_BASE",
-        "CP_PROJECTION_TOKEN",
-        "CP_PROJECTION_ID",
-        "CP_PUBLIC_BASE",
-        "CONTROL_PLANE_PUBLIC_BASE",
-        "GITHUB_TOKEN",
-        "GITHUB_API_BASE",
-        "GITHUB_GRAPHQL_URL",
-    ]);
+    let last_good = temp_last_good_path("unavail");
+    let env = testing::EnvGuard::acquire(LAST_GOOD_KEYS);
+    env.set("ACTIVITY_LAST_GOOD_PATH", last_good.to_str().unwrap());
     // Explicitly no CP config; EnvGuard removes keys on drop and acquire resets caches.
     let _env = env;
 
@@ -206,19 +209,12 @@ async fn activity_unavailable_when_cp_unconfigured_and_no_last_good() {
 #[serial]
 async fn activity_from_legacy_public_summary() {
     let server = MockServer::start().await;
-    let env = testing::EnvGuard::acquire(&[
-        "CP_PROJECTION_BASE",
-        "CP_PROJECTION_TOKEN",
-        "CP_PROJECTION_ID",
-        "CP_PUBLIC_BASE",
-        "CP_PUBLIC_PROFILE_SLUG",
-        "CONTROL_PLANE_PUBLIC_BASE",
-        "GITHUB_TOKEN",
-        "GITHUB_API_BASE",
-        "GITHUB_GRAPHQL_URL",
-    ]);
+    let last_good = temp_last_good_path("public");
+    let env = testing::EnvGuard::acquire(LAST_GOOD_KEYS);
     env.set("CP_PUBLIC_BASE", &server.uri());
+    // Explicit env — no default "kyle" fallback in product code.
     env.set("CP_PUBLIC_PROFILE_SLUG", "kyle");
+    env.set("ACTIVITY_LAST_GOOD_PATH", last_good.to_str().unwrap());
     let _env = env;
 
     Mock::given(method("GET"))
