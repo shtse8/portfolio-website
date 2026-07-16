@@ -7,8 +7,8 @@
  *   2. Insert README banner block at top if missing
  *   3. Commit + push to default branch (main/master)
  *
- * Optional: if public/art/projects/screenshots/{name}.png exists, prefer it as
- * docs/banner.png (real UI screenshot path).
+ * Source of truth: designed banners in public/art/projects/readme/{name}.png
+ * (MCP/library identity — not docs-site screenshots).
  *
  * Usage:
  *   bun scripts/apply-oss-banners-to-repos.mjs
@@ -64,11 +64,9 @@ function injectBanner(readme, alt) {
 }
 
 function bannerSource(name) {
-  const shot = join(root, "public/art/projects/screenshots", `${name}.png`);
-  const shotJpg = join(root, "public/art/projects/screenshots", `${name}.jpg`);
+  // Designed social banners only. Docs-site screenshots are the wrong metaphor
+  // for MCP/library repos (use generate-oss-banners.mjs).
   const designed = join(root, "public/art/projects/readme", `${name}.png`);
-  if (existsSync(shot)) return shot;
-  if (existsSync(shotJpg)) return shotJpg;
   if (existsSync(designed)) return designed;
   return null;
 }
@@ -104,56 +102,53 @@ for (const r of portfolio.repos) {
     mkdirSync(docs, { recursive: true });
     const destBanner = join(docs, "banner.png");
 
-    // Convert jpg screenshot → png if needed
-    if (src.endsWith(".jpg") || src.endsWith(".jpeg")) {
-      await $`python3 -c ${`
-from PIL import Image
-Image.open(${JSON.stringify(src)}).convert("RGB").save(${JSON.stringify(destBanner)}, "PNG", optimize=True)
-`}`.quiet();
-    } else {
-      copyFileSync(src, destBanner);
-    }
-
-    // Also keep a README-sized social if source was screenshot (resize 1280x640 center-crop)
-    if (src.includes("/screenshots/")) {
-      await $`python3 -c ${`
-from PIL import Image
-im=Image.open(${JSON.stringify(src)}).convert("RGB")
-# letterbox into 1280x640
-tw,th=1280,640
-im.thumbnail((tw,th), Image.Resampling.LANCZOS)
-canvas=Image.new("RGB",(tw,th),(11,18,32))
-x=(tw-im.width)//2; y=(th-im.height)//2
-canvas.paste(im,(x,y))
-canvas.save(${JSON.stringify(destBanner)}, "PNG", optimize=True)
-# also refresh portfolio card
-card=canvas.resize((1376,768), Image.Resampling.LANCZOS)
-card.save(${JSON.stringify(join(root, "public/art/projects", r.name + ".jpg"))}, "JPEG", quality=90)
-print("screenshot-banner")
-`}`.quiet();
-    }
+    copyFileSync(src, destBanner);
 
     const readmePath = join(dir, "README.md");
-    let readme = existsSync(readmePath)
+    const originalReadme = existsSync(readmePath)
       ? readFileSync(readmePath, "utf8")
       : `# ${r.name}\n\n${r.description || ""}\n`;
+    let readme = originalReadme;
+
+    // Remove mistaken docs-scroll demo GIFs (not product demos for MCP tools)
+    const demoGif = join(docs, "demo.gif");
+    let removedDemo = false;
+    if (existsSync(demoGif)) {
+      try {
+        rmSync(demoGif);
+        removedDemo = true;
+      } catch {}
+      readme = readme.replace(
+        /\n*<p align="center">\s*<img src="docs\/demo\.gif"[^>]*>\s*<\/p>\s*/gi,
+        "\n",
+      );
+    }
+
     const inj = injectBanner(readme, `${r.name} banner`);
-    if (inj.changed) writeFileSync(readmePath, inj.text);
+    const nextReadme = inj.text;
+    if (nextReadme !== originalReadme) {
+      writeFileSync(readmePath, nextReadme);
+    }
 
     if (dry) {
-      console.log(`dry ${full} banner=${src.split("/").slice(-2).join("/")} readme=${inj.changed}`);
+      console.log(
+        `dry ${full} banner=${src.split("/").slice(-2).join("/")} readme=${inj.changed} demoRemoved=${removedDemo}`,
+      );
       ok++;
       continue;
     }
 
     await $`git -C ${dir} add docs/banner.png README.md`.quiet();
+    if (removedDemo) {
+      await $`git -C ${dir} add -u docs/demo.gif`.quiet().nothrow();
+    }
     const st = await $`git -C ${dir} status --porcelain`.quiet();
     if (!st.stdout.toString().trim()) {
       console.log(`noop ${full}`);
       skip++;
       continue;
     }
-    await $`git -C ${dir} commit -m ${"docs: add social banner (shared portfolio asset)"}`.quiet();
+    await $`git -C ${dir} commit -m ${"docs: designed social banner only (no docs-site screenshot/GIF)"}`.quiet();
     const push = await $`git -C ${dir} push origin HEAD`.quiet().nothrow();
     if (push.exitCode !== 0) {
       console.log(`fail push ${full}: ${push.stderr.toString().slice(0, 200)}`);
