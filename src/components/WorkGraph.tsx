@@ -92,9 +92,9 @@ export default function WorkGraph() {
     <div className="container-wide">
       <SectionHeader
         index="02"
-        eyebrow="The work · live"
-        title="Products with proof — open them."
-        description="Open-source tools with live GitHub stars and npm downloads. Every card has product art and a deep intro — click through for the full story, trends, and links."
+        eyebrow="Open source · live"
+        title="Tools with proof — open a product."
+        description="Live GitHub stars and npm downloads. Click a card for a modal intro — the grid stays still; nothing reflows under you."
       />
 
       <Reveal delay={0.05}>
@@ -203,12 +203,11 @@ function ProjectCard({
 
   return (
     <motion.article
-      layout
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-6% 0px" }}
       transition={{ duration: 0.45, delay: Math.min(index * 0.04, 0.24) }}
-      animate={{ opacity: dimmed ? 0.4 : 1 }}
+      animate={{ opacity: dimmed ? 0.45 : 1 }}
       className={`card group relative flex flex-col overflow-hidden transition-shadow duration-300 hover:shadow-md ${
         lit ? "ring-1 ring-accent" : ""
       }`}
