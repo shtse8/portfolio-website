@@ -25,12 +25,13 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     legalName: 'Epiow Limited',
     type: 'company',
     status: 'active',
-    description: 'UK-based web development and software consultancy',
+    description:
+      "Enterprise workspace platform OS for Hong Kong organizations — modular HR, CRM, and operations apps with local Employment Ordinance & MPF-native workflows",
     logo: '/companys/epiow.png',
     website: 'https://epiow.com',
     github: 'EpiowAI',
-    location: 'United Kingdom',
-    industry: 'Web Development',
+    location: 'United Kingdom / Hong Kong',
+    industry: 'Enterprise Software',
     size: '1-10 employees',
     founded: '2025-11'
   },

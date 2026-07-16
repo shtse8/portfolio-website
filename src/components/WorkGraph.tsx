@@ -41,8 +41,22 @@ const SKELETON_CARD_KEYS = [
 
 /**
  * WorkGraph — visual product grid with deep project detail.
- * Each open-source product has ambient art + a full intro panel on open.
+ *
+ * Visibility policy (portfolio signal, not exhaustiveness):
+ * - Primary: stars ≥ 3, or catalog flagship / named npm product
+ * - Expanded ("See more"): remaining low-star repos (often 0–2★)
+ * Zero-star noise stays available on demand without dominating the page.
  */
+const PRIMARY_STAR_MIN = 3;
+
+function isPrimaryRepo(repo: TermRepo): boolean {
+  if (repo.stars >= PRIMARY_STAR_MIN) return true;
+  const catalog = catalogForRepoName(repo.name);
+  if (catalog?.flagship) return true;
+  if (catalog?.npm || REPO_NPM[repo.name]) return true;
+  return false;
+}
+
 export default function WorkGraph() {
   const {
     projects,
@@ -54,15 +68,20 @@ export default function WorkGraph() {
     selected,
     setSelected,
   } = useWorkGraph();
+  const [showMore, setShowMore] = useState(false);
+
+  const filtered = capability
+    ? projects.filter((p) => repoCapabilities(p).includes(capability))
+    : projects;
+
+  const primary = filtered.filter(isPrimaryRepo);
+  const secondary = filtered.filter((p) => !isPrimaryRepo(p));
+  const shown = showMore ? filtered : primary;
 
   const counts = CAPABILITY_ORDER.map((c) => ({
     c,
     n: projects.filter((p) => repoCapabilities(p).includes(c)).length,
   })).filter((x) => x.n > 0);
-
-  const shown = capability
-    ? projects.filter((p) => repoCapabilities(p).includes(capability))
-    : projects;
 
   const selectedRepo = selected
     ? (projects.find((p) => p.repo === selected) ?? null)
@@ -88,13 +107,18 @@ export default function WorkGraph() {
     };
   }, [selected]);
 
+  // Reset expansion when filter changes so the page stays scannable
+  useEffect(() => {
+    setShowMore(false);
+  }, [capability]);
+
   return (
     <div className="container-wide">
       <SectionHeader
         index="02"
         eyebrow="Open source · live"
         title="Tools with proof — open a product."
-        description="Live GitHub stars and npm downloads. Click a card for a modal intro — the grid stays still; nothing reflows under you."
+        description="Primary grid: projects with real traction (3+ stars or catalogued products). Lower-signal repos stay one click away."
       />
 
       <Reveal delay={0.05}>
@@ -103,7 +127,7 @@ export default function WorkGraph() {
             active={capability === null}
             onClick={() => setCapability(null)}
             label="All"
-            n={projects.length}
+            n={primary.length}
           />
           {counts.map(({ c, n }) => (
             <FilterChip
@@ -131,6 +155,26 @@ export default function WorkGraph() {
               />
             ))}
       </div>
+
+      {!loading && secondary.length > 0 && (
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowMore((v) => !v)}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-text-secondary transition-colors hover:border-accent hover:text-text-primary"
+          >
+            {showMore
+              ? "Show less"
+              : `See more · ${secondary.length} lower-signal repos`}
+          </button>
+          {!showMore && (
+            <p className="max-w-md text-center font-mono text-[11px] text-text-tertiary">
+              Hidden by default: under {PRIMARY_STAR_MIN}★ and not in the product
+              catalog — still openable after expand.
+            </p>
+          )}
+        </div>
+      )}
 
       {!loading && shown.length === 0 && (
         <p className="mt-8 text-sm text-text-tertiary">

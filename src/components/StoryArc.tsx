@@ -20,8 +20,8 @@ import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
 /**
- * StoryArc — career timeline. Company logos + real brand marks (no AI art).
- * Click company name / logo for a detail modal.
+ * StoryArc — career timeline with brand ambient art fused into each card.
+ * Logos stay out of the layout; company name is a soft entry into a detail modal.
  */
 
 interface EraChapter {
@@ -29,6 +29,8 @@ interface EraChapter {
   era: string;
   startYear: string;
   headline: string;
+  image: string;
+  imageAlt: string;
   scaleNumber?: { value: number; label: string; display: string };
   projects?: string[];
 }
@@ -48,26 +50,39 @@ function eraProjects(roleId: string, orgId: string): string[] {
     .map((p) => p.title);
 }
 
-const ERA_META: Record<string, { era: string; headline: string }> = {
+const ERA_META: Record<
+  string,
+  { era: string; headline: string; image: string; imageAlt: string }
+> = {
   "nakuz-cto": {
     era: "Web · Community",
     headline: "Hong Kong's gaming portal",
+    image: "/art/era-web.jpg",
+    imageAlt: "Ambient visual derived from Nakuz brand and portal materials",
   },
   "minimax-ceo": {
     era: "Social Gaming",
     headline: "Facebook games at 10M scale",
+    image: "/art/era-social.jpg",
+    imageAlt: "Ambient visual derived from MiniMax / Funimax social games",
   },
   "cubeage-founder": {
     era: "Mobile Gaming",
     headline: "25+ games, 10M downloads",
+    image: "/art/era-mobile.jpg",
+    imageAlt: "Ambient visual derived from Cubeage mobile game products",
   },
   "epiow-cto": {
-    era: "Consultancy",
-    headline: "Building for clients",
+    era: "Enterprise · Platform",
+    headline: "Organization operating system",
+    image: "/art/era-consulting.jpg",
+    imageAlt: "Ambient visual derived from Epiow brand and enterprise platform work",
   },
   "sylphx-founder": {
     era: "AI · Open Source",
     headline: "The infrastructure AI agents run on",
+    image: "/art/era-ai.jpg",
+    imageAlt: "Ambient visual derived from Sylphx brand mark and AI platform identity",
   },
 };
 
@@ -112,6 +127,8 @@ export default function StoryArc() {
         era: meta.era,
         startYear: role.period.start.substring(0, 4),
         headline: meta.headline,
+        image: meta.image,
+        imageAlt: meta.imageAlt,
         scaleNumber: getScaleNumber(role),
         projects: eraProjects(role.id, role.organizationId),
       };
@@ -139,7 +156,7 @@ export default function StoryArc() {
         index="01"
         eyebrow="The journey"
         title="Twenty years. Five eras. One builder."
-        description="From a Hong Kong gaming forum in 2006 to AI infrastructure today — click a company logo for details."
+        description="From a Hong Kong gaming forum in 2006 to AI infrastructure today — every chapter proved Kyle can ship and scale."
       />
 
       <Reveal delay={0.08}>
@@ -154,7 +171,7 @@ export default function StoryArc() {
         </div>
       </Reveal>
 
-      <ol className="relative mt-12 space-y-5 sm:space-y-6">
+      <ol className="relative mt-12 space-y-6 sm:space-y-7">
         <div
           aria-hidden
           className="absolute bottom-6 left-[1.15rem] top-6 hidden w-px bg-gradient-to-b from-accent/40 via-border to-border sm:block"
@@ -208,17 +225,18 @@ function EraCard({
   ask: (q: string) => void;
   onOpenCompany: (orgId: string) => void;
 }) {
-  const { role, era, startYear, headline, scaleNumber } = chapter;
+  const { role, era, startYear, headline, scaleNumber, image, imageAlt } =
+    chapter;
   const org = getOrganization(role.organizationId);
   if (!org) return null;
   const isCurrent = !role.period.end;
 
   return (
     <motion.li
-      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 18 }}
+      initial={reduce ? { opacity: 0 } : { opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-8% 0px" }}
-      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.03 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.03 }}
       className="relative list-none sm:pl-12"
     >
       <span
@@ -226,118 +244,110 @@ function EraCard({
         className="absolute left-[0.85rem] top-10 hidden h-2.5 w-2.5 rounded-full border-2 border-accent bg-background sm:block"
       />
 
-      <article className="card overflow-hidden">
-        <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:gap-6 sm:p-7">
-          {/* Real company logo — clickable */}
-          <button
-            type="button"
-            onClick={() => onOpenCompany(org.id)}
-            className="group flex shrink-0 flex-col items-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-accent/50 sm:w-28"
-            aria-label={`Open ${org.name} details`}
-          >
-            <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-border bg-surface-sunken transition-shadow group-hover:shadow-md sm:h-20 sm:w-20">
-              <Image
-                src={org.logo}
-                alt={`${org.name} logo`}
-                width={80}
-                height={80}
-                className="h-full w-full object-contain p-2"
-              />
-            </div>
-            <span className="text-center text-xs font-medium text-text-secondary group-hover:text-accent">
-              {org.name}
+      <article className="card group relative overflow-hidden transition-shadow duration-300 hover:shadow-md">
+        {/* Fused ambient art — full card backdrop, not a logo column */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <Image
+            src={image}
+            alt=""
+            fill
+            className="object-cover object-center opacity-[0.55] transition-transform duration-700 group-hover:scale-[1.03] dark:opacity-45"
+            sizes="(max-width: 1024px) 100vw, 960px"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-surface via-surface/92 to-surface/55 dark:from-surface dark:via-surface/90 dark:to-surface/45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-surface/30" />
+        </div>
+
+        <div className="relative z-[1] max-w-2xl p-6 sm:p-8">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="font-mono text-sm font-semibold tabular-nums text-accent">
+              {startYear}
             </span>
-          </button>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="font-mono text-sm font-semibold tabular-nums text-accent">
-                {startYear}
+            <span className="eyebrow !mb-0">{era}</span>
+            {isCurrent && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-positive-subtle px-2 py-0.5 text-[10px] font-medium text-positive">
+                <span className="h-1.5 w-1.5 rounded-full bg-positive" /> Now
               </span>
-              <span className="eyebrow !mb-0">{era}</span>
-              {isCurrent && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-positive-subtle px-2 py-0.5 text-[10px] font-medium text-positive">
-                  <span className="h-1.5 w-1.5 rounded-full bg-positive" /> Now
-                </span>
-              )}
-            </div>
-
-            {scaleNumber && (
-              <AnimatedScale
-                value={scaleNumber.value}
-                label={scaleNumber.label}
-              />
             )}
+          </div>
 
-            <h3 className="mt-2 text-h2 text-text-primary">{headline}</h3>
+          {scaleNumber && (
+            <AnimatedScale
+              value={scaleNumber.value}
+              label={scaleNumber.label}
+            />
+          )}
 
-            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-              <button
-                type="button"
-                onClick={() => onOpenCompany(org.id)}
-                className="font-semibold text-text-secondary underline-offset-2 hover:text-accent hover:underline"
-              >
-                {org.name}
-              </button>
+          <h3 className="mt-3 text-h2 text-text-primary">{headline}</h3>
+
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <button
+              type="button"
+              onClick={() => onOpenCompany(org.id)}
+              className="font-semibold text-text-secondary underline-offset-2 transition-colors hover:text-accent hover:underline"
+            >
+              {org.name}
+            </button>
+            <span className="font-mono text-[11px] text-text-tertiary">
+              {role.title}
+            </span>
+            {role.location && (
               <span className="font-mono text-[11px] text-text-tertiary">
-                {role.title}
+                · {role.location}
               </span>
-              {role.location && (
-                <span className="font-mono text-[11px] text-text-tertiary">
-                  · {role.location}
-                </span>
-              )}
-            </div>
-
-            <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-text-secondary">
-              {role.description}.
-            </p>
-
-            {role.keyAchievements && role.keyAchievements.length > 0 && (
-              <ul className="mt-4 space-y-1.5">
-                {role.keyAchievements.slice(0, 3).map((a) => (
-                  <li
-                    key={a}
-                    className="flex items-start gap-2 text-sm text-text-secondary"
-                  >
-                    <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
-                    {a}
-                  </li>
-                ))}
-              </ul>
             )}
+          </div>
 
-            {chapter.projects && chapter.projects.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-1.5">
-                {chapter.projects.map((proj) => (
-                  <span
-                    key={proj}
-                    className="rounded-md border border-border-subtle bg-surface-sunken/60 px-2 py-0.5 text-[11px] font-medium text-text-secondary"
-                  >
-                    {proj}
-                  </span>
-                ))}
-              </div>
-            )}
+          <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-text-secondary">
+            {role.description}.
+          </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              {role.skills?.slice(0, 4).map((s) => (
-                <span key={s} className="chip">
-                  {s}
+          {role.keyAchievements && role.keyAchievements.length > 0 && (
+            <ul className="mt-4 space-y-1.5">
+              {role.keyAchievements.slice(0, 3).map((a) => (
+                <li
+                  key={a}
+                  className="flex items-start gap-2 text-sm text-text-secondary"
+                >
+                  <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
+                  {a}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {chapter.projects && chapter.projects.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {chapter.projects.map((proj) => (
+                <span
+                  key={proj}
+                  className="rounded-md border border-border/70 bg-surface/70 px-2 py-0.5 text-[11px] font-medium text-text-secondary backdrop-blur-sm"
+                >
+                  {proj}
                 </span>
               ))}
-              <button
-                type="button"
-                onClick={() =>
-                  ask(`Tell me more about Kyle's work at ${org.name}.`)
-                }
-                className="ml-0.5 text-xs font-medium text-accent transition-colors hover:text-accent-hover"
-              >
-                Ask AI →
-              </button>
             </div>
+          )}
+
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            {role.skills?.slice(0, 4).map((s) => (
+              <span key={s} className="chip bg-surface/70 backdrop-blur-sm">
+                {s}
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={() =>
+                ask(`Tell me more about Kyle's work at ${org.name}.`)
+              }
+              className="ml-0.5 text-xs font-medium text-accent transition-colors hover:text-accent-hover"
+            >
+              Ask AI →
+            </button>
           </div>
         </div>
+        <span className="sr-only">{imageAlt}</span>
       </article>
     </motion.li>
   );

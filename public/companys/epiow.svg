@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" role="img" aria-label="Epiow">
+  <!--
+    Official Epiow mark — "Orbit E"
+    B2B enterprise workspace OS monogram:
+    geometric E (structure / modules) + orbital ring & core (organization OS).
+    Brand gradient: indigo → violet.
+  -->
+  <defs>
+    <linearGradient id="epiow-bg" x1="12" y1="8" x2="108" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5B6CF0"/>
+      <stop offset="55%" stop-color="#6B5BDB"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="28" fill="url(#epiow-bg)"/>
+  <!-- E spine -->
+  <rect x="28" y="30" width="12" height="60" rx="6" fill="#FFFFFF"/>
+  <!-- E top bar -->
+  <rect x="28" y="30" width="42" height="12" rx="6" fill="#FFFFFF"/>
+  <!-- E bottom bar -->
+  <rect x="28" y="78" width="42" height="12" rx="6" fill="#FFFFFF"/>
+  <!-- E middle bar meets orbit -->
+  <rect x="28" y="54" width="28" height="12" rx="6" fill="#FFFFFF"/>
+  <!-- Organization OS orbit -->
+  <circle cx="78" cy="60" r="20" stroke="#FFFFFF" stroke-width="10" fill="none"/>
+  <!-- Platform core -->
+  <circle cx="78" cy="60" r="7" fill="#FFFFFF"/>
+</svg>

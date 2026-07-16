@@ -73,8 +73,9 @@ export const FALLBACK_PROJECTS: TermRepo[] = (
     pushedAt: string;
   }>
 )
-  .filter((r) => r.stars >= 2 || /mcp|rag|reader|coderag|video|image|smart/i.test(r.name))
-  .slice(0, 36)
+  // Keep full admin-org inventory for expand; UI primary-filters by stars.
+  .filter((r) => !r.name.startsWith("scale-"))
+  .slice(0, 60)
   .map((r) => ({
     repo: `${r.owner}/${r.name}`,
     name: r.name,
