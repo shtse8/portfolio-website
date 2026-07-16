@@ -40,19 +40,21 @@ export const ROLES: Role[] = [
     period: { start: '2025-11' },
     location: 'United Kingdom',
     isRemote: true,
-    description: 'UK-based web development and software consultancy',
+    description:
+      "Building Epiow — the organization operating system for Hong Kong enterprises: modular HR, CRM, and ops with Employment Ordinance & MPF-native workflows",
     responsibilities: [
-      'Co-founded UK-based web development company',
-      'Building web applications and software for clients',
-      'Technical architecture and full-stack development'
+      'Co-founded Epiow Limited — enterprise workspace / Platform OS',
+      'Product architecture for modular catalog-backed business apps',
+      'HK labour-law and MPF-native platform capabilities'
     ],
     keyAchievements: [
-      'UK company established Nov 2025'
+      'Enterprise Platform OS product live at epiow.com',
+      'Modular HR / CRM / operations app catalog architecture'
     ],
     metrics: [
-      { type: 'custom', value: 'UK', unit: 'Headquarters' }
+      { type: 'custom', value: 'UK/HK', unit: 'Markets' }
     ],
-    skills: ['typescript', 'react', 'nextjs', 'nodejs', 'full-stack'],
+    skills: ['typescript', 'react', 'nextjs', 'nodejs', 'full-stack', 'enterprise-platform'],
     logo: '/companys/epiow.png?v=eorbit',
     liveUrl: 'https://epiow.com'
   },

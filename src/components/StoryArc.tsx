@@ -76,8 +76,9 @@ const ERA_META: Record<
   "epiow-cto": {
     era: "Enterprise · Platform",
     headline: "Organization operating system",
-    image: "/art/era-consulting.jpg",
-    imageAlt: "Ambient visual derived from Epiow brand and enterprise platform work",
+    // cache-bust: ambient was regenerated from official E-Orbit mark
+    image: "/art/era-consulting.jpg?v=eorbit2",
+    imageAlt: "Ambient visual derived from the official Epiow E-Orbit brand mark",
   },
   "sylphx-founder": {
     era: "AI · Open Source",
