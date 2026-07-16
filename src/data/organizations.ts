@@ -64,6 +64,23 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     size: '1-10 employees',
     founded: '2006-01'
   },
+
+  ozyrix: {
+    id: 'ozyrix',
+    name: 'Ozyrix',
+    legalName: 'Ozyrix Limited',
+    type: 'company',
+    status: 'active',
+    description:
+      'Quality tech accessories brand — cables, chargers, audio, and protection with multi-channel e-commerce',
+    logo: '/companys/ozyrix.png',
+    website: 'https://ozyrix.com',
+    github: 'OzyrixLtd',
+    location: 'United Kingdom',
+    industry: 'E-commerce · Tech Accessories',
+    size: '1-10 employees',
+    founded: '2025-11'
+  },
   minimax: {
     id: 'minimax',
     name: 'MiniMax',
