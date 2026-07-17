@@ -4,7 +4,6 @@
   <img src="https://mark.sylphx.com/api/v1/banner?type=orbit&theme=tokyonight&text=portfolio+website&desc=Open+source+%C2%B7+Sylphx+ecosystem&height=200&animation=rise&credit=0" alt="portfolio-website — Sylphx Mark banner" width="100%" />
 </p>
 
-
 Kyle Tse portfolio (`kylet.se`).
 
 ## Stack (Rust-first backend, TypeScript frontend)
