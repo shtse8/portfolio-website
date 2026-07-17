@@ -27,8 +27,9 @@ deploy_priority = 100
 watch_paths = ["api-rust/**", "sylphx.toml"]
 [services.build]
 strategy = "dockerfile"
+# Context MUST be repo root: api-rust/Dockerfile COPYs api-rust/* and proto/.
 dockerfile = "api-rust/Dockerfile"
-context = "api-rust"
+context = "."
 [services.health]
 mode = "http"
 path = "/healthz"
