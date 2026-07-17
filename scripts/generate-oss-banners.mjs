@@ -246,8 +246,13 @@ function domainFor(name, language, description) {
 }
 
 function monogram(name) {
-  const clean = name.replace(/[-_]/g, " ").trim().split(/\s+/);
+  const clean = name.replace(/[-_]/g, " ").trim().split(/\s+/).filter(Boolean);
   if (clean.length >= 2) return (clean[0][0] + clean[1][0]).toUpperCase();
+  // CamelCase / PascalCase → first letters of humps (ArbiMath → AM)
+  const humps = name.match(/[A-Z]?[a-z]+|[A-Z]+(?![a-z])|\d+/g);
+  if (humps && humps.length >= 2) {
+    return (humps[0][0] + humps[1][0]).toUpperCase();
+  }
   return name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 2).toUpperCase() || "OS";
 }
 

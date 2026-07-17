@@ -44,7 +44,7 @@
     stroke="#fb923c" stroke-opacity="0.65" stroke-width="1.5"/>
   <text x="116" y="144" text-anchor="middle" fill="#fb923c"
     font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
-    font-size="32" font-weight="700" letter-spacing="0.04em">DE</text>
+    font-size="32" font-weight="700" letter-spacing="0.04em">DR</text>
 
   <text x="180" y="122" fill="#a8a29e"
     font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="0.04em">shtse8</text>
