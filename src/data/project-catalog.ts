@@ -153,6 +153,24 @@ export const PROJECT_CATALOG: ProjectCatalogEntry[] = [
     artAlt: "Ambient product visual for Cursor AI Downloads",
     npm: "@shtse8/cursor-ai-downloads",
   },
+  {
+    id: "Google-Photos-Delete-Tool",
+    repoName: "Google-Photos-Delete-Tool",
+    title: "Google Photos Delete Tool",
+    tagline: "Bulk-delete Google Photos — fast, stable, Chrome extension.",
+    intro:
+      "A personal high-signal utility for cleaning large Google Photos libraries: intelligent batch deletion, smart scrolling for 10k+ libraries, and a Chrome extension used by thousands. Actively maintained fork with 140+ GitHub stars.",
+    highlights: [
+      "140+ GitHub stars · Chrome Web Store 4.7/5",
+      "Batch delete with progress + retry",
+      "Handles large libraries (10,000+ photos)",
+      "Extension + script-injection modes",
+    ],
+    art: "/projects/google-photos-delete/1.jpg",
+    artAlt: "Google Photos Delete Tool",
+    docsUrl:
+      "https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb",
+  },
 ];
 
 export const PROJECT_CATALOG_BY_NAME: Record<string, ProjectCatalogEntry> =

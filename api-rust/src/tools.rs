@@ -4,9 +4,11 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::time::Duration;
 
-const GH_OWNERS: &[&str] = &["shtse8", "SylphxAI", "Cubeage", "EpiowAI"];
+const GH_OWNERS: &[&str] = &["shtse8", "SylphxAI", "Cubeage", "EpiowAI", "OzyrixLtd"];
 const UPSTREAM_TIMEOUT: Duration = Duration::from_secs(8);
 const REPOS_TTL_MS: u64 = 5 * 60 * 1000;
+/// Owned forks with real portfolio signal (e.g. Google-Photos-Delete-Tool).
+const NOTABLE_FORK_STARS: u64 = 30;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -40,6 +42,20 @@ struct GhRepo {
     pushed_at: Option<String>,
     fork: Option<bool>,
     archived: Option<bool>,
+}
+
+fn keep_live_repo(r: &GhRepo) -> bool {
+    if r.archived.unwrap_or(false) {
+        return false;
+    }
+    let stars = r.stargazers_count.unwrap_or(0);
+    if r.fork.unwrap_or(false) {
+        // Notable personal forks stay in the live /projects feed.
+        let name = r.name.as_deref().unwrap_or("");
+        return stars >= NOTABLE_FORK_STARS
+            || name.eq_ignore_ascii_case("Google-Photos-Delete-Tool");
+    }
+    true
 }
 
 #[derive(Debug, Deserialize)]
@@ -122,7 +138,7 @@ pub async fn list_all_repos() -> Vec<RepoSummary> {
                 if let Ok(raw) = res.json::<Vec<GhRepo>>().await {
                     out.extend(
                         raw.into_iter()
-                            .filter(|r| !r.fork.unwrap_or(false) && !r.archived.unwrap_or(false))
+                            .filter(keep_live_repo)
                             .map(to_summary),
                     );
                 }

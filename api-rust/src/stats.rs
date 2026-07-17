@@ -112,7 +112,9 @@ async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, 
         .map(|(i, o)| {
             if o.kind == "user" {
                 format!(
-                    "o{i}: user(login: \"{}\") {{ repositories(ownerAffiliations: OWNER, first: 100, isFork: false, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount }} }} }}",
+                    // Include owned forks so notable personal tools (e.g. Google-Photos-Delete-Tool)
+                    // count toward portfolio star totals.
+                    "o{i}: user(login: \"{}\") {{ repositories(ownerAffiliations: OWNER, first: 100, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount isFork }} }} }}",
                     o.login
                 )
             } else {
@@ -138,6 +140,17 @@ async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, 
             .map(|nodes| {
                 nodes
                     .iter()
+                    .filter(|n| {
+                        // Orgs: isFork not present → keep. User: keep non-forks + notable forks (≥30★).
+                        let is_fork = n.get("isFork").and_then(|v| v.as_bool()).unwrap_or(false);
+                        if !is_fork {
+                            return true;
+                        }
+                        n.get("stargazerCount")
+                            .and_then(|s| s.as_u64())
+                            .unwrap_or(0)
+                            >= 30
+                    })
                     .filter_map(|n| n.get("stargazerCount").and_then(|s| s.as_u64()))
                     .sum()
             })

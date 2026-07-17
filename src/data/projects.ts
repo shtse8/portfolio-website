@@ -670,7 +670,7 @@ export const PROJECTS: Project[] = [
         skills: ['nodejs', 'chrome-extension', 'google-photos-api', 'javascript', 'automation', 'api-development', 'frontend-development'],
         category: "Tools & Utilities",
         urls: {
-          repository: 'https://github.com/shtse8/google-photos-delete-tool',
+          repository: 'https://github.com/shtse8/Google-Photos-Delete-Tool',
           demo: 'https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb'
         },
         details: [
@@ -678,7 +678,7 @@ export const PROJECTS: Project[] = [
           'Implemented intelligent batch processing with custom selectors for automated photo deletion',
           'Created smart scrolling logic to handle large photo libraries with 10,000+ images',
           'Built in robust error handling and progress tracking for operation reliability',
-          'Earned 4.7/5 star rating on Chrome Web Store and 129 stars on GitHub'
+          'Earned 4.7/5 star rating on Chrome Web Store and 140+ stars on GitHub'
         ]
       },
       {
