@@ -155,7 +155,7 @@ pub async fn list_all_repos() -> Vec<RepoSummary> {
 }
 
 pub async fn list_projects(limit: usize) -> Vec<RepoSummary> {
-    let lim = limit.clamp(1, 40);
+    let lim = limit.clamp(1, 80);
     let mut repos: Vec<_> = list_all_repos()
         .await
         .into_iter()
