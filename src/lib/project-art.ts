@@ -1,32 +1,29 @@
 /**
- * Resolve OSS project cover art.
+ * Project cover art resolution.
  *
- * SSOT for own-project portfolio cards: Sylphx Mark live banners
- *   https://mark.sylphx.com/api/v1/banner?...
+ * Surface split (beauty-first SSOT):
+ *   - Portfolio cards  → local Product Plate JPEGs (16:9-ish, designed hierarchy)
+ *   - GitHub / README   → Sylphx Mark live banners (embed dogfood)
  *
- * Local JPEG/PNG under public/art/projects/ remain available for README
- * export tooling and offline fallbacks — not the product card SSOT.
+ * Local files under public/art/projects/ are the card identity surface.
+ * Mark is the embeddable mark API — not a drop-in for tall product tiles.
  */
 
 export const MARK_BANNER_ORIGIN = "https://mark.sylphx.com";
 export const MARK_BANNER_PATH = "/api/v1/banner";
 
-/** Stable style assignment so each repo keeps a consistent identity. */
-const STYLES = [
+/** Classic / plate-friendly Mark types for README embeds (not showcase carnival). */
+const README_STYLES = [
   "wave",
-  "aurora",
-  "mesh",
-  "plasma",
-  "holo",
-  "neon",
-  "liquid",
+  "waving",
+  "soft",
   "glass",
-  "orbit",
-  "meteor",
-  "constellation",
-  "void",
-  "firefly",
-  "silk",
+  "aurora",
+  "product",
+  "oss",
+  "terminal",
+  "mesh",
+  "rounded",
 ] as const;
 
 /** Case-insensitive aliases when GitHub name casing drifts (local art only). */
@@ -43,15 +40,42 @@ function hashName(name: string): number {
   return h;
 }
 
+function artFileKey(repoName: string): string {
+  const key = repoName.toLowerCase();
+  return ALIASES[key] ?? repoName;
+}
+
 /**
- * Product SSOT: live Mark banner URL for portfolio project cards.
- * Same identity function as scripts/apply-mark-banners-to-repos.mjs.
+ * Portfolio card SSOT: designed Product Plate JPEG (1376×768).
+ * Matches ProjectCover 16:10 frame without crop mutilation of a 4:1 strip.
+ */
+export function localProjectArtPath(repoName: string): string {
+  const file = artFileKey(repoName);
+  return `/art/projects/${file}.jpg?v=plate1`;
+}
+
+/** @deprecated Prefer localProjectArtPath for cards — alias kept for call sites. */
+export function projectArtPath(repoName: string): string {
+  return localProjectArtPath(repoName);
+}
+
+/**
+ * README / embed SSOT: live Mark banner URL.
+ * Defaults favor calm plate-friendly composition (not rise + plasma).
  */
 export function markBannerUrl(
   repoName: string,
-  opts?: { description?: string | null; theme?: string },
+  opts?: {
+    description?: string | null;
+    theme?: string;
+    /** Override banner type; default stable hash over classic pool. */
+    type?: string;
+    animation?: string;
+    layout?: string;
+  },
 ): string {
-  const style = STYLES[hashName(repoName) % STYLES.length];
+  const style =
+    opts?.type ?? README_STYLES[hashName(repoName) % README_STYLES.length];
   const theme = opts?.theme ?? "tokyonight";
   const text = repoName.replace(/[-_]/g, " ");
   const desc = (opts?.description || "Open source · Sylphx ecosystem").slice(
@@ -63,27 +87,15 @@ export function markBannerUrl(
     theme,
     text,
     desc,
-    height: "200",
-    animation: "rise",
+    height: "220",
+    layout: opts?.layout ?? "plate",
+    animation: opts?.animation ?? "none",
     credit: "0",
   });
   return `${MARK_BANNER_ORIGIN}${MARK_BANNER_PATH}?${p.toString()}`;
 }
 
-/** @deprecated Prefer markBannerUrl — kept as alias for card cover path. */
-export function projectArtPath(repoName: string): string {
-  return markBannerUrl(repoName);
-}
-
 export function readmeBannerPath(repoName: string): string {
-  const key = repoName.toLowerCase();
-  const file = ALIASES[key] ?? repoName;
+  const file = artFileKey(repoName);
   return `/art/projects/readme/${file}.png`;
-}
-
-/** Local designed JPEG (export tooling / optional offline). Not product SSOT. */
-export function localProjectArtPath(repoName: string): string {
-  const key = repoName.toLowerCase();
-  const file = ALIASES[key] ?? repoName;
-  return `/art/projects/${file}.jpg?v=banner8`;
 }

@@ -1,12 +1,15 @@
 # OSS social banners (portfolio + README)
 
-One designed banner family for portfolio cards and GitHub READMEs.
+**Beauty-first surface split** (do not force one bitmap URL for every surface):
 
-| Surface | Path |
-|---------|------|
-| Portfolio card | `public/art/projects/{repoName}.jpg` (1376×768) |
-| GitHub README | `public/art/projects/readme/{repoName}.png` (1280×640) |
-| Vector source | `public/art/projects/readme/{repoName}.svg` |
+| Surface | SSOT | Notes |
+|---------|------|--------|
+| Portfolio card | `public/art/projects/{repoName}.jpg` (1376×768) | Product Plate — monogram + hierarchy |
+| GitHub README (static export) | `public/art/projects/readme/{repoName}.png` (1280×640) | Optional offline |
+| GitHub README (live embed) | Mark `markBannerUrl` → `layout=plate&animation=none` | Dogfood Mark |
+| Vector source | `public/art/projects/readme/{repoName}.svg` | Generator input |
+
+Mark is the **embed API**, not a drop-in crop of a 4:1 strip into a 16:10 card.
 
 ## What style we use
 

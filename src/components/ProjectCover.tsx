@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { markBannerUrl } from "@/lib/project-art";
+import { localProjectArtPath } from "@/lib/project-art";
 
 /**
- * OSS product banner for portfolio cards.
+ * OSS product cover for portfolio cards.
  *
- * SSOT: https://mark.sylphx.com/api/v1/banner (Sylphx Mark live SVG)
+ * SSOT: local Product Plate art (public/art/projects/{name}.jpg).
+ * Mark live banners remain for README embeds via markBannerUrl — not card tiles.
  * Layout: explicit aspect-ratio + normal <img> (no absolute/fill traps).
  */
 export default function ProjectCover({
@@ -18,8 +19,9 @@ export default function ProjectCover({
   subtitle?: string;
   className?: string;
 }) {
-  const src = markBannerUrl(name, { description: subtitle });
+  const src = localProjectArtPath(name);
   const [failed, setFailed] = useState(false);
+  const label = subtitle?.trim() ? `${name} — ${subtitle}` : name;
 
   return (
     <div
@@ -32,10 +34,10 @@ export default function ProjectCover({
       }}
     >
       {!failed ? (
-        // eslint-disable-next-line @next/next/no-img-element -- Mark live SVG banners
+        // eslint-disable-next-line @next/next/no-img-element -- static portfolio art
         <img
           src={src}
-          alt={`${name} banner via Sylphx Mark`}
+          alt={label}
           width={1376}
           height={768}
           className="block h-full w-full object-cover object-center"
