@@ -51,7 +51,7 @@ function artFileKey(repoName: string): string {
  */
 export function localProjectArtPath(repoName: string): string {
   const file = artFileKey(repoName);
-  return `/art/projects/${file}.jpg?v=plate1`;
+  return `/art/projects/${file}.jpg?v=plate2`;
 }
 
 /** @deprecated Prefer localProjectArtPath for cards — alias kept for call sites. */

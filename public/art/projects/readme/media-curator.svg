@@ -1,42 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" fill="none">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#1C1917"/>
-      <stop offset="100%" stop-color="#44403C"/>
+    <linearGradient id="bg" x1="0" y1="640" x2="1280" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#140a18"/>
+      <stop offset="48%" stop-color="#2a1050"/>
+      <stop offset="100%" stop-color="#3b0764"/>
     </linearGradient>
-    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 180) rotate(90) scale(420 420)">
-      <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#FBBF24" stop-opacity="0"/>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(1020 220) rotate(70) scale(480 400)">
+      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.38"/>
+      <stop offset="55%" stop-color="#e9d5ff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#c084fc" stop-opacity="0"/>
     </radialGradient>
-    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="1"/>
-    </pattern>
+    <radialGradient id="vignette" cx="50%" cy="45%" r="70%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.35"/>
+    </radialGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+    </linearGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch" result="n"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.04 0" in="n"/>
+    </filter>
   </defs>
 
   <rect width="1280" height="640" fill="url(#bg)"/>
-  <rect width="1280" height="640" fill="url(#grid)"/>
   <rect width="1280" height="640" fill="url(#glow)"/>
+  <rect width="1280" height="640" fill="url(#vignette)"/>
+  <rect width="1280" height="640" filter="url(#grain)" opacity="0.55"/>
 
-  <!-- soft product geometry -->
-  <g opacity="0.55">
-    <rect x="860" y="140" width="260" height="180" rx="28" stroke="#FBBF24" stroke-opacity="0.55" stroke-width="2" fill="#FBBF24" fill-opacity="0.06"/>
-    <rect x="940" y="260" width="240" height="170" rx="28" stroke="#FBBF24" stroke-opacity="0.35" stroke-width="2" fill="none"/>
-    <circle cx="1040" cy="320" r="110" stroke="#FBBF24" stroke-opacity="0.25" stroke-width="2" fill="none"/>
-    <circle cx="1040" cy="320" r="54" fill="#FBBF24" fill-opacity="0.18"/>
-  </g>
+  <g opacity="0.9">
+        <rect x="880" y="150" width="280" height="200" rx="22" fill="#c084fc" fill-opacity="0.07" stroke="#c084fc" stroke-opacity="0.45" stroke-width="1.5"/>
+        <rect x="940" y="250" width="260" height="190" rx="22" fill="none" stroke="#e9d5ff" stroke-opacity="0.28" stroke-width="1.5"/>
+        <circle cx="1060" cy="300" r="48" fill="#c084fc" fill-opacity="0.14"/>
+        <path d="M1044 300 L1056 312 L1082 284" fill="none" stroke="#e9d5ff" stroke-opacity="0.7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
 
-  <!-- monogram tile -->
-  <rect x="80" y="96" width="96" height="96" rx="24" fill="#FBBF24" fill-opacity="0.16" stroke="#FBBF24" stroke-opacity="0.7" stroke-width="2"/>
-  <text x="128" y="158" text-anchor="middle" fill="#FBBF24" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="34" font-weight="700">MC</text>
+  <!-- Identity column -->
+  <rect x="72" y="88" width="88" height="88" rx="22" fill="#c084fc" fill-opacity="0.12"
+    stroke="#c084fc" stroke-opacity="0.65" stroke-width="1.5"/>
+  <text x="116" y="144" text-anchor="middle" fill="#c084fc"
+    font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
+    font-size="32" font-weight="700" letter-spacing="0.04em">MC</text>
 
-  <text x="200" y="132" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">SylphxAI  ·  TypeScript</text>
-  <text x="200" y="168" fill="#64748B" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">open source · social banner</text>
+  <text x="180" y="122" fill="#a78bba"
+    font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="0.04em">SylphxAI</text>
+  <text x="180" y="150" fill="#a78bba" fill-opacity="0.75"
+    font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="13">media</text>
 
-  <text x="80" y="320" fill="#FAFAF9" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif" font-size="64" font-weight="700">Media Curator</text>
-  <text x="80" y="380" fill="#CBD5E1" font-family="ui-sans-serif, system-ui, sans-serif" font-size="26">Organize and dedupe large photo libraries</text>
+  <!-- Hairline under meta -->
+  <rect x="72" y="210" width="72" height="2" rx="1" fill="#c084fc" fill-opacity="0.55"/>
 
-  <rect x="0" y="576" width="1280" height="64" fill="#000000" fill-opacity="0.28"/>
-  <text x="80" y="615" fill="#94A3B8" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">github.com/SylphxAI/media-curator</text>
-  <circle cx="1200" cy="608" r="8" fill="#FBBF24"/>
+  <text x="72" y="340" fill="#faf5ff"
+    font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif"
+    font-size="64" font-weight="700" letter-spacing="-0.03em">Media Curator</text>
+  <text x="72" y="392" fill="#a78bba"
+    font-family="ui-sans-serif, system-ui, sans-serif"
+    font-size="22" font-weight="450">Organize and dedupe large photo libraries</text>
+
+  <!-- Floor bar -->
+  <rect x="0" y="560" width="1280" height="80" fill="url(#floor)"/>
+  <text x="72" y="608" fill="#a78bba"
+    font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14">github.com/SylphxAI/media-curator</text>
+  <circle cx="1208" cy="604" r="6" fill="#c084fc" fill-opacity="0.85"/>
 </svg>

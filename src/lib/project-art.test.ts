@@ -10,7 +10,7 @@ describe("portfolio card SSOT — Product Plate local art", () => {
   test("localProjectArtPath points at designed JPEG plates", () => {
     const path = localProjectArtPath("pdf-reader-mcp");
     expect(path.startsWith("/art/projects/pdf-reader-mcp.jpg")).toBe(true);
-    expect(path).toContain("v=plate1");
+    expect(path).toContain("v=plate2");
     expect(path).not.toContain("mark.sylphx.com");
     expect(path).not.toContain("shields.io");
   });
