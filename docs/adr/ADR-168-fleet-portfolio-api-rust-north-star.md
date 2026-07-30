@@ -91,3 +91,10 @@ Fleet cutover registry: **api-rust adopted** as sole API authority; static web r
 | Proto SSOT | **Adopted (REST slice)** | `proto/portfolio/v1/{api,chat}.proto` + `prost-build` + `contract` REST projection; Connect optional |
 
 Fleet registry row for this repo should read **adopted** for API authority (Rust), with frontend remaining TypeScript static export.
+
+## Amendment 2026-07-30 — technology-stack-profile product wire
+
+- Product wire: **buffa + connectrpc + axum** (`PortfolioApiService`).
+- REST public edge remains derived projection for static-site `fetch`.
+- prost product generator retired.
+

@@ -1,10 +1,18 @@
+use std::path::PathBuf;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let mut config = prost_build::Config::new();
-    config.type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
-    config.type_attribute(".", r#"#[serde(rename_all = "camelCase")]"#);
-    config.compile_protos(
-        &["portfolio/v1/api.proto", "portfolio/v1/chat.proto"],
-        &["../proto"],
-    )?;
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let proto_root = manifest_dir.join("../proto");
+
+    // technology-stack-profile: connectrpc-build + buffa (not prost).
+    connectrpc_build::Config::new()
+        .files(&[
+            proto_root.join("portfolio/v1/api.proto"),
+            proto_root.join("portfolio/v1/chat.proto"),
+        ])
+        .includes(&[proto_root.as_path()])
+        .include_file("_connectrpc.rs")
+        .compile()?;
+
     Ok(())
 }

@@ -10,6 +10,7 @@ use axum::{
 use serde::Deserialize;
 use serde_json::json;
 use crate::activity;
+use crate::connect_api;
 use crate::chat;
 use crate::contract;
 use crate::cors;
@@ -236,6 +237,11 @@ pub async fn handle_options(req: Request, next: Next) -> Response {
 }
 
 pub fn router() -> Router {
+    // Product wire: buffa + connectrpc (technology-stack-profile).
+    // REST routes remain derived projections for static-site fetch (ADR-168).
+    let connect = connectrpc::Router::new()
+        .add_service(connect_api::portfolio_connect_service());
+
     Router::new()
         .route("/healthz", get(healthz))
         .route("/readyz", get(healthz))
@@ -246,7 +252,7 @@ pub fn router() -> Router {
         .route("/activity", get(activity_handler))
         .route("/downloads", get(downloads_handler))
         .route("/chat", post(chat_handler))
-        .fallback(fallback)
+        .fallback_service(connect.into_axum_service())
         .layer(middleware::from_fn(handle_options))
 }
 

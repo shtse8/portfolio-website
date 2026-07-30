@@ -28,7 +28,7 @@ data, and the on-site AI agent (Sylphx AI Gateway).
 | Concern | Owner in this repo |
 | --- | --- |
 | Static pages, components, content | `src/`, `public/`, Next static export |
-| Live API (`/stats`, `/chat`, terminal routes) | `api-rust/` |
+| Live API (`/stats`, `/chat`, terminal routes) | `api-rust/` (buffa + connectrpc product wire; REST derived edge) |
 | Cross-boundary contract SSOT | `proto/portfolio/v1/` + `buf.yaml` |
 | Deploy manifest | `sylphx.toml` (web + api services) |
 
