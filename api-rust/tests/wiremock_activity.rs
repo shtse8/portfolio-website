@@ -1,82 +1,55 @@
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
-use kylet_api_rust::activity;
 use kylet_api_rust::app::router;
-use kylet_api_rust::contract::ActivityPayload;
 use kylet_api_rust::testing;
 use serde_json::json;
 use serial_test::serial;
-use std::path::PathBuf;
 use tower::ServiceExt;
-use wiremock::matchers::{header, method, path};
+use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-fn cp_summary(today: u64, d7: u64, d30: u64) -> serde_json::Value {
-    json!({
-        "schema_version": "public.profile.v1",
-        "projection_revision": "sha256:wiremock-rev",
-        "as_of": "2026-07-16T12:00:00Z",
-        "freshness": { "state": "live" },
-        "summary": {
-            "commits_landed": {
-                "today": today,
-                "d7": d7,
-                "d30": d30,
-                "d30_is_not_week_times_four": true
-            },
-            "projects_active": { "count": 3 }
+fn graphql_fixture() -> serde_json::Value {
+    // Only shtse8 (user, u0_*) + SylphxAI (org, o1_*) are populated; the other
+    // owners return empty collections. Three windows each.
+    let mut body = serde_json::Map::new();
+    body.insert("u0_today".into(), json!({ "contributionsCollection": { "totalCommitContributions": 3, "commitContributionsByRepository": [
+        { "repository": { "nameWithOwner": "shtse8/tool-repo", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 3 } }
+    ] } }));
+    body.insert("u0_week".into(), json!({ "contributionsCollection": { "totalCommitContributions": 11 } }));
+    body.insert("u0_month".into(), json!({ "contributionsCollection": { "totalCommitContributions": 34 } }));
+    for win in ["today", "week", "month"] {
+        let count = if win == "today" { 1 } else if win == "week" { 5 } else { 21 };
+        body.insert(
+            format!("o1_{win}"),
+            json!({ "repositories": { "nodes": [
+                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": count } } } }
+            ] } }),
+        );
+    }
+    // Other owners: empty.
+    for (i, kind) in [(2usize, "o"), (3, "o"), (4, "o")] {
+        for win in ["today", "week", "month"] {
+            if kind == "o" {
+                body.insert(format!("o{i}_{win}"), json!({ "repositories": { "nodes": [] } }));
+            }
         }
-    })
+    }
+    json!({ "data": body })
 }
-
-fn temp_last_good_path(label: &str) -> PathBuf {
-    let dir = std::env::temp_dir().join(format!(
-        "portfolio-activity-it-{}-{}",
-        label,
-        std::process::id()
-    ));
-    let _ = std::fs::create_dir_all(&dir);
-    dir.join("activity-last-good.json")
-}
-
-const LAST_GOOD_KEYS: &[&str] = &[
-    "CP_PROJECTION_BASE",
-    "CP_PROJECTION_TOKEN",
-    "CP_PROJECTION_ID",
-    "CP_PUBLIC_BASE",
-    "CP_PUBLIC_PROFILE_SLUG",
-    "CONTROL_PLANE_PUBLIC_BASE",
-    "ACTIVITY_LAST_GOOD_PATH",
-    "GITHUB_TOKEN",
-    "GITHUB_API_BASE",
-    "GITHUB_GRAPHQL_URL",
-];
 
 #[tokio::test]
 #[serial]
-async fn activity_from_authenticated_cp_projection() {
+async fn activity_from_github_graphql_is_live() {
     let server = MockServer::start().await;
-    let last_good = temp_last_good_path("auth");
-    let env = testing::EnvGuard::acquire(LAST_GOOD_KEYS);
-    env.set("CP_PROJECTION_BASE", &server.uri());
-    env.set("CP_PROJECTION_TOKEN", "proj-token");
-    env.set("CP_PROJECTION_ID", "kyle-dev-metrics");
-    env.set("ACTIVITY_LAST_GOOD_PATH", last_good.to_str().unwrap());
-    let _env = env;
+    testing::reset_all();
+    unsafe {
+        std::env::set_var("GITHUB_API_BASE", server.uri());
+        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
+    }
 
-    Mock::given(method("GET"))
-        .and(path("/api/v1/projections/kyle-dev-metrics/snapshot"))
-        .and(header("authorization", "Bearer proj-token"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(cp_summary(12, 80, 300)))
-        .expect(1..)
-        .mount(&server)
-        .await;
-
-    // GraphQL must never be hit when CP is configured.
     Mock::given(method("POST"))
         .and(path("/graphql"))
-        .respond_with(ResponseTemplate::new(500).set_body_string("graphql must not be called"))
-        .expect(0)
+        .respond_with(ResponseTemplate::new(200).set_body_json(graphql_fixture()))
         .mount(&server)
         .await;
 
@@ -91,67 +64,45 @@ async fn activity_from_authenticated_cp_projection() {
         .await
         .unwrap();
     assert_eq!(res.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
-        .await
-        .unwrap();
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
     let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["commitsToday"], 12, "body={v}");
-    assert_eq!(v["commitsWeek"], 80, "body={v}");
-    assert_eq!(v["commitsMonth"], 300, "body={v}");
-    assert_ne!(
-        v["commitsMonth"].as_u64().unwrap_or(0),
-        v["commitsWeek"].as_u64().unwrap_or(0) * 4,
-        "week×4 must not appear on BFF mapping path; body={v}"
-    );
-    assert_eq!(v["source"], "control-plane", "body={v}");
-    assert_eq!(v["freshness"], "live", "body={v}");
-    assert_eq!(v["stale"], false, "body={v}");
-    assert_eq!(v["projectionRevision"], "sha256:wiremock-rev", "body={v}");
-    assert!(v.get("lastPush").is_none() || v["lastPush"].is_null(), "body={v}");
+    assert_eq!(v["commitsToday"], json!(4));
+    assert_eq!(v["commitsWeek"], json!(16));
+    assert_eq!(v["commitsMonth"], json!(55));
+    assert_eq!(v["reposActiveToday"], json!(2));
+    assert_eq!(v["source"], json!("github"));
+    assert_eq!(v["freshness"], json!("live"));
+    assert_ne!(v["commitsMonth"], json!(64)); // never week×4 (16×4)
+    assert_eq!(v["lastPush"]["repo"], json!("tool-repo"));
 }
 
 #[tokio::test]
 #[serial]
-async fn activity_cp_failure_serves_last_good_stale_without_graphql() {
+async fn activity_cp_failure_serves_last_good_stale_without_fabrication() {
     let server = MockServer::start().await;
-    let last_good = temp_last_good_path("stale");
-    let env = testing::EnvGuard::acquire(LAST_GOOD_KEYS);
-    env.set("CP_PROJECTION_BASE", &server.uri());
-    env.set("CP_PROJECTION_TOKEN", "proj-token");
-    env.set("CP_PROJECTION_ID", "kyle-dev-metrics");
-    env.set("ACTIVITY_LAST_GOOD_PATH", last_good.to_str().unwrap());
-    // Point GraphQL at wiremock so any accidental call is observable.
-    env.set("GITHUB_API_BASE", &server.uri());
-    env.set("GITHUB_TOKEN", "must-not-use");
-    let _env = env;
+    testing::reset_all();
+    unsafe {
+        std::env::set_var("GITHUB_API_BASE", server.uri());
+        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
+    }
 
-    // Seed durable last_good as if a prior CP fetch succeeded.
-    activity::seed_last_good_for_tests(ActivityPayload {
+    // Seed a last-good snapshot, then make GitHub fail.
+    kylet_api_rust::activity::seed_last_good_for_tests(kylet_api_rust::contract::ActivityPayload {
         commits_today: 2,
-        commits_week: 7,
-        commits_month: 19,
+        commits_week: 8,
+        commits_month: 25,
         repos_active_today: 1,
         last_push: None,
-        updated_at: "2026-07-15T00:00:00Z".into(),
+        updated_at: "2026-08-09T09:00:00Z".into(),
         stale: Some(false),
         freshness: Some("live".into()),
-        source: Some("control-plane".into()),
-        projection_revision: Some("sha256:last-good".into()),
+        source: Some("github".into()),
+        projection_revision: None,
     });
-
-    Mock::given(method("GET"))
-        .and(path("/api/v1/projections/kyle-dev-metrics/snapshot"))
-        .respond_with(ResponseTemplate::new(503).set_body_string("cp down"))
-        .expect(1..)
-        .mount(&server)
-        .await;
 
     Mock::given(method("POST"))
         .and(path("/graphql"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!({
-            "data": { "o0": { "contributionsCollection": { "totalCommitContributions": 999 } } }
-        })))
-        .expect(0)
+        .respond_with(ResponseTemplate::new(500))
         .mount(&server)
         .await;
 
@@ -165,29 +116,24 @@ async fn activity_cp_failure_serves_last_good_stale_without_graphql() {
         )
         .await
         .unwrap();
-    assert_eq!(res.status(), StatusCode::OK, "must serve last_good stale");
-    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
-        .await
-        .unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
     let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["commitsWeek"], 7, "body={v}");
-    assert_eq!(v["commitsMonth"], 19, "body={v}");
-    assert_ne!(v["commitsMonth"], 28, "must not invent week×4; body={v}");
-    assert_eq!(v["stale"], true, "body={v}");
-    assert_eq!(v["freshness"], "stale", "body={v}");
-    assert_eq!(v["source"], "control-plane-stale", "body={v}");
-    assert_eq!(v["projectionRevision"], "sha256:last-good", "body={v}");
+    assert_eq!(v["stale"], json!(true));
+    assert_eq!(v["freshness"], json!("stale"));
+    assert_eq!(v["source"], json!("github-stale"));
+    assert_eq!(v["commitsWeek"], json!(8));
 }
 
 #[tokio::test]
 #[serial]
-async fn activity_unavailable_when_cp_unconfigured_and_no_last_good() {
-    let last_good = temp_last_good_path("unavail");
-    let env = testing::EnvGuard::acquire(LAST_GOOD_KEYS);
-    env.set("ACTIVITY_LAST_GOOD_PATH", last_good.to_str().unwrap());
-    // Explicitly no CP config; EnvGuard removes keys on drop and acquire resets caches.
-    let _env = env;
-
+async fn activity_unavailable_when_unconfigured_and_no_last_good() {
+    testing::reset_all();
+    unsafe {
+        std::env::remove_var("GITHUB_API_BASE");
+        std::env::remove_var("GITHUB_GRAPHQL_URL");
+        std::env::remove_var("GITHUB_TOKEN");
+    }
     let app = router();
     let res = app
         .oneshot(
@@ -198,10 +144,5 @@ async fn activity_unavailable_when_cp_unconfigured_and_no_last_good() {
         )
         .await
         .unwrap();
-    assert_eq!(
-        res.status(),
-        StatusCode::BAD_GATEWAY,
-        "unconfigured CP with no last_good must be unavailable"
-    );
+    assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
 }
-

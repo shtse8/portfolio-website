@@ -61,3 +61,14 @@ bun run check          # biome + tsc + bun test
 bun run build          # static export
 scripts/api-smoke.sh   # against https://kylet.se (default)
 ```
+
+## Amendment 2026-08-09 (b) — /activity authority is live GitHub GraphQL
+
+- The Control Plane projection feed was stale/broken since 2026-07-16; the owner
+  chose **real GitHub commit numbers**. `/activity` now computes commits
+  today/7d/30d directly from GitHub GraphQL (users via `contributionsCollection`,
+  orgs via default-branch commit history), with the same honesty ladder
+  (TTL cache, durable last-good, stale-on-fail, never fabricated zeros).
+- `commits_month` is a REAL 30-day series from GitHub — never week×4.
+- `CP_PROJECTION_*` / `CP_PUBLIC_*` env and the CP mapping code are retired.
+- `source` is `github` (live) / `github-stale` (fail-over).

@@ -28,7 +28,7 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 | Concern | Owner in this repo |
 | --- | --- |
 | Static pages, components, content | `src/`, `public/`, Next static export |
-| Live API (`/stats`, `/activity`, `/projects`, `/recent`, `/repo`, `/downloads`, `/chat`) | `api-rust/` (single REST JSON contract) |
+| Live API (`/stats`, `/activity`, `/projects`, `/recent`, `/repo`, `/downloads`, `/chat`) | `api-rust/` (single REST JSON contract; `/activity` = live GitHub GraphQL commits) |
 | Contract SSOT | `api-rust/src/contract.rs` + `api-rust/src/tool_schemas.rs` |
 | Deploy manifest | `sylphx.toml` (web + api services) |
 

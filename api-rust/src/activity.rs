@@ -1,44 +1,33 @@
-//! Development activity authority — Control Plane projection only.
+//! Development activity authority — GitHub GraphQL (ADR-169 amendment 2026-08-09).
 //!
-//! Browser clients must never talk to Control Plane or recompute metrics from
-//! GitHub. This BFF is the sole public surface for `/activity`.
+//! `/activity` is computed live from GitHub: commits today / 7d / 30d across
+//! Kyle's personal account + owned orgs (users via `contributionsCollection`,
+//! orgs via default-branch commit history). The Control Plane projection feed
+//! was stale/broken since 2026-07-16, so the owner chose real GitHub numbers.
 //!
-//! Authority (sole path, ADR-169):
-//! Authenticated projection: `CP_PROJECTION_BASE` + `CP_PROJECTION_TOKEN`
-//! + `CP_PROJECTION_ID` → `GET /api/v1/projections/{id}/snapshot`.
+//! Honesty ladder (unchanged):
+//! 1. Process-local TTL cache.
+//! 2. On GitHub failure: serve a **verified** last snapshot marked stale, or
+//!    return explicit unavailable when no verified snapshot exists — never
+//!    fabricate zeros as a live success.
+//! 3. Durable last-good file at `ACTIVITY_LAST_GOOD_PATH` (default
+//!    `/var/lib/portfolio-api/activity-last-good.json`) survives restarts.
 //!
-//! Otherwise: hard error (no Control Plane projection configured).
-//!
-//! The legacy anonymous public expand-contract path is retired.
-//!
-//! # Last-good durability (documented choice)
-//!
-//! On CP failure: serve a **verified** last snapshot marked stale, or return
-//! explicit unavailable when no verified snapshot exists (never fabricate zeros
-//! as a live success).
-//!
-//! Implementation: dual store —
-//! 1. Process-local hot cache (`CACHE`, short TTL) + in-memory last-good mirror
-//! 2. **File-backed durable verified snapshot** at
-//!    `ACTIVITY_LAST_GOOD_PATH` (default
-//!    `/var/lib/portfolio-api/activity-last-good.json`). Written only after a
-//!    successful CP map; read on failover when process memory is empty
-//!    (restart-safe within a writable volume/path).
-//!
-//! If neither memory nor file has a verified snapshot, return Err (handler →
-//! unavailable / 502) — no invented commit counts.
-//!
-//! NEVER recompute commits/work metrics via GitHub GraphQL.
+//! `commits_month` is a REAL 30-day series from GitHub — never week×4.
 
-use crate::contract::ActivityPayload;
+use crate::contract::{
+    aggregate_github_activity, days_ago_iso, github_activity_query, start_of_day_iso,
+    ActivityPayload,
+};
 use reqwest::Client;
+use serde_json::Value;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-const DEFAULT_ACTIVITY_TTL_MS: u64 = 90 * 1000;
+const DEFAULT_ACTIVITY_TTL_MS: u64 = 5 * 60 * 1000;
 const DEFAULT_LAST_GOOD_PATH: &str = "/var/lib/portfolio-api/activity-last-good.json";
 
 fn activity_ttl_ms() -> u64 {
@@ -53,7 +42,7 @@ fn activity_ttl_ms() -> u64 {
 static CACHE: std::sync::OnceLock<Mutex<Option<(u64, ActivityPayload)>>> =
     std::sync::OnceLock::new();
 
-/// In-memory last verified Control Plane snapshot (mirrors durable file).
+/// In-memory last verified GitHub snapshot (mirrors durable file).
 static LAST_GOOD: std::sync::OnceLock<Mutex<Option<ActivityPayload>>> = std::sync::OnceLock::new();
 
 fn cache() -> &'static Mutex<Option<(u64, ActivityPayload)>> {
@@ -78,55 +67,18 @@ fn client() -> Client {
         .unwrap_or_else(|_| Client::new())
 }
 
-fn non_empty_env(key: &str) -> Option<String> {
-    env::var(key)
-        .ok()
-        .map(|s| s.trim().trim_end_matches('/').to_string())
-        .filter(|s| !s.is_empty())
-}
-
-/// Preferred authenticated projection base (S2S).
-fn cp_projection_base() -> Option<String> {
-    non_empty_env("CP_PROJECTION_BASE")
-}
-
-fn cp_projection_token() -> Option<String> {
-    env::var("CP_PROJECTION_TOKEN")
-        .ok()
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
-}
-
-/// Projection id — **required** for authenticated path (no personal-name default).
-fn cp_projection_id() -> Result<String, String> {
-    non_empty_env("CP_PROJECTION_ID")
-        .ok_or_else(|| "CP_PROJECTION_ID required (no default slug)".into())
-}
-
-/// True when the authenticated Control Plane projection path is configured.
-pub fn cp_metrics_configured() -> bool {
-    cp_projection_base().is_some() && cp_projection_token().is_some()
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum CpPath {
-    Authenticated,
-}
-
-fn select_cp_path() -> Result<(CpPath, String), String> {
-    if cp_projection_base().is_some() && cp_projection_token().is_some() {
-        let id = cp_projection_id()?;
-        let url = format!("{base}/api/v1/projections/{id}/snapshot", base = cp_projection_base().unwrap_or_default());
-        return Ok((CpPath::Authenticated, url));
-    }
-    Err("no control plane projection configured".into())
-}
-
-/// Path for durable verified snapshot file.
+/// Durable last-good path (env-overridable for tests).
 pub fn last_good_path() -> PathBuf {
     non_empty_env("ACTIVITY_LAST_GOOD_PATH")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(DEFAULT_LAST_GOOD_PATH))
+}
+
+fn non_empty_env(key: &str) -> Option<String> {
+    env::var(key)
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
 }
 
 fn write_last_good_file(data: &ActivityPayload) {
@@ -178,60 +130,8 @@ fn read_last_good_from_path(path: &Path) -> Option<ActivityPayload> {
     serde_json::from_slice(&bytes).ok()
 }
 
-/// Map a Control Plane projection / public summary envelope → ActivityPayload.
-/// Never invents month as week×4; takes d30 from CP series only.
-pub fn map_cp_envelope_to_activity(v: &serde_json::Value, source: &str) -> ActivityPayload {
-    let c = v
-        .pointer("/summary/commits_landed")
-        .or_else(|| v.pointer("/payload/summary/commits_landed"))
-        .or_else(|| v.pointer("/data/summary/commits_landed"))
-        .cloned()
-        .unwrap_or_else(|| serde_json::json!({}));
-    let today = c.get("today").and_then(|x| x.as_u64()).unwrap_or(0);
-    let week = c.get("d7").and_then(|x| x.as_u64()).unwrap_or(0);
-    // Honest 30d series from CP — never week×4.
-    let month = c.get("d30").and_then(|x| x.as_u64()).unwrap_or(0);
-    let projects = v
-        .pointer("/summary/projects_active/count")
-        .or_else(|| v.pointer("/payload/summary/projects_active/count"))
-        .or_else(|| v.pointer("/data/summary/projects_active/count"))
-        .and_then(|x| x.as_u64())
-        .unwrap_or(0);
-    let revision = v
-        .get("projection_revision")
-        .or_else(|| v.get("revision"))
-        .and_then(|x| x.as_str())
-        .map(str::to_string);
-    let as_of = v
-        .get("as_of")
-        .or_else(|| v.get("updated_at"))
-        .or_else(|| v.get("generated_at"))
-        .and_then(|x| x.as_str())
-        .unwrap_or("")
-        .to_string();
-    let freshness = v
-        .pointer("/freshness/state")
-        .or_else(|| v.get("freshness"))
-        .and_then(|x| x.as_str())
-        .unwrap_or("live")
-        .to_string();
-    let stale = freshness == "stale" || freshness == "not_observed";
-    ActivityPayload {
-        commits_today: today,
-        commits_week: week,
-        commits_month: month,
-        repos_active_today: projects,
-        last_push: None,
-        updated_at: as_of,
-        stale: Some(stale),
-        freshness: Some(freshness),
-        source: Some(source.to_string()),
-        projection_revision: revision,
-    }
-}
-
-/// Pure mapping guard: CP d30 must not be rewritten as week×4 on the BFF.
-pub fn assert_honest_cp_windows(payload: &ActivityPayload) -> Result<(), String> {
+/// Pure mapping guard: d30 must not be a week×4 rewrite on the BFF.
+pub fn assert_honest_windows(payload: &ActivityPayload) -> Result<(), String> {
     if payload.commits_week > 0
         && payload.commits_month == payload.commits_week.saturating_mul(4)
         && payload.commits_month > 0
@@ -245,46 +145,54 @@ pub fn assert_honest_cp_windows(payload: &ActivityPayload) -> Result<(), String>
     Ok(())
 }
 
-async fn fetch_cp_json(url: &str) -> Result<serde_json::Value, String> {
-    let token = cp_projection_token().ok_or_else(|| "CP_PROJECTION_TOKEN unset".to_string())?;
-    let req = client().get(url).header("accept", "application/json");
-    let req = req.header("authorization", format!("Bearer {token}"));
-    let res = req
+async fn fetch_github_activity() -> Result<ActivityPayload, String> {
+    let token = env::var("GITHUB_TOKEN")
+        .ok()
+        .filter(|t| !t.trim().is_empty())
+        .ok_or_else(|| "GITHUB_TOKEN not set".to_string())?;
+    let now = now_ms();
+    let now_iso = crate::stats::iso_now();
+    let today_start = start_of_day_iso(now);
+    let week_start = days_ago_iso(now, 7);
+    let month_start = days_ago_iso(now, 30);
+    let query = github_activity_query(&now_iso, &today_start, &week_start, &month_start);
+    let res = client()
+        .post(crate::upstream::github_graphql_url())
+        .header("authorization", format!("bearer {token}"))
+        .header("content-type", "application/json")
+        .header("user-agent", "kylet-api-rust")
+        .json(&serde_json::json!({ "query": query }))
         .send()
         .await
-        .map_err(|e| format!("cp projection transport: {e}"))?;
-    let status = res.status();
-    if !status.is_success() {
-        let body = res.text().await.unwrap_or_default();
+        .map_err(|e| format!("github graphql transport: {e}"))?;
+    if !res.status().is_success() {
+        return Err(format!("github graphql {}", res.status()));
+    }
+    let body: Value = res.json().await.map_err(|e| format!("github graphql decode: {e}"))?;
+    if let Some(errors) = body.get("errors") {
         return Err(format!(
-            "cp projection http {status}: {}",
-            body.chars().take(200).collect::<String>()
+            "github graphql: {}",
+            errors.to_string().chars().take(200).collect::<String>()
         ));
     }
-    res.json()
-        .await
-        .map_err(|e| format!("cp projection decode: {e}"))
+    let data = body
+        .get("data")
+        .cloned()
+        .ok_or_else(|| "github graphql missing data".to_string())?;
+    let payload = aggregate_github_activity(&data, now, &now_iso);
+    assert_honest_windows(&payload)?;
+    Ok(payload)
 }
 
-async fn compute_activity_from_cp() -> Result<ActivityPayload, String> {
-    let (_path, url) = select_cp_path()?;
-    let v = fetch_cp_json(&url).await?;
-    Ok(map_cp_envelope_to_activity(&v, "control-plane"))
-}
-
-/// Single metric authority: Control Plane only. No GitHub GraphQL fall-through.
+/// Single metric authority: GitHub GraphQL only.
 pub async fn compute_activity() -> Result<ActivityPayload, String> {
-    if !cp_metrics_configured() {
-        return Err("no control plane projection configured".into());
-    }
-    compute_activity_from_cp().await
+    fetch_github_activity().await
 }
 
 fn mark_stale(mut data: ActivityPayload) -> ActivityPayload {
     data.stale = Some(true);
     data.freshness = Some("stale".into());
-    // Contract source labels for fail-over serves.
-    data.source = Some("control-plane-stale".into());
+    data.source = Some("github-stale".into());
     data
 }
 
@@ -334,9 +242,9 @@ pub async fn get_activity() -> Result<ActivityPayload, String> {
             if let Some(cached) = take_last_good() {
                 tracing::warn!(
                     error = %err,
-                    upstream = "control-plane",
+                    upstream = "github-graphql",
                     route = "/activity",
-                    "activity CP failed; serving last verified CP snapshot as stale"
+                    "github activity failed; serving last verified snapshot as stale"
                 );
                 return Ok(mark_stale(cached));
             }
@@ -348,35 +256,29 @@ pub async fn get_activity() -> Result<ActivityPayload, String> {
 
 #[doc(hidden)]
 pub fn cached_snapshot() -> Option<ActivityPayload> {
-    // Prefer durable last_good for handler-level stale serve.
     if let Some(data) = take_last_good() {
         return Some(mark_stale(data));
     }
-    let now = now_ms();
     if let Ok(guard) = cache().lock() {
-        if let Some((at, data)) = guard.as_ref() {
-            if now.saturating_sub(*at) < activity_ttl_ms() {
-                return Some(data.clone());
-            }
-        }
+        return guard.as_ref().map(|(_, d)| mark_stale(d.clone()));
     }
     None
 }
 
-/// Inject a verified snapshot for tests (simulates prior successful CP fetch).
-/// Also writes the durable file when ACTIVITY_LAST_GOOD_PATH is set for tests.
 #[doc(hidden)]
 pub fn seed_last_good_for_tests(data: ActivityPayload) {
     if let Ok(mut guard) = last_good().lock() {
         *guard = Some(data.clone());
     }
-    if let Ok(mut guard) = cache().lock() {
-        *guard = None;
+    let path = last_good_path();
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
     }
-    write_last_good_file(&data);
+    if let Ok(bytes) = serde_json::to_vec(&data) {
+        let _ = fs::write(&path, bytes);
+    }
 }
 
-#[doc(hidden)]
 pub fn reset_cache_for_tests() {
     if let Ok(mut guard) = cache().lock() {
         *guard = None;
@@ -399,37 +301,38 @@ mod tests {
     static TEST_LOCK: StdMutex<()> = StdMutex::new(());
 
     #[test]
-    fn map_cp_envelope_uses_true_d30_not_week_times_four() {
-        let v = json!({
-            "projection_revision": "sha256:abc",
-            "as_of": "2026-07-16T00:00:00Z",
-            "freshness": { "state": "live" },
-            "summary": {
-                "commits_landed": {
-                    "today": 12,
-                    "d7": 80,
-                    "d30": 300,
-                    "d30_is_not_week_times_four": true
-                },
-                "projects_active": { "count": 4 }
-            }
+    fn aggregate_uses_true_30d_series_not_week_times_four() {
+        let data = json!({
+            "u0_today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
+                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } }
+            ] } },
+            "u0_week": { "contributionsCollection": { "totalCommitContributions": 9 } },
+            "u0_month": { "contributionsCollection": { "totalCommitContributions": 31 } },
+            "o1_today": { "repositories": { "nodes": [
+                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": 1 } } } }
+            ] } },
+            "o1_week": { "repositories": { "nodes": [
+                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": 4 } } } }
+            ] } },
+            "o1_month": { "repositories": { "nodes": [
+                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": 12 } } } }
+            ] } }
         });
-        let a = map_cp_envelope_to_activity(&v, "control-plane");
-        assert_eq!(a.commits_today, 12);
-        assert_eq!(a.commits_week, 80);
-        assert_eq!(a.commits_month, 300);
+        let now = 1_782_800_000_000u64;
+        let a = aggregate_github_activity(&data, now, "2026-08-09T12:00:00Z");
+        assert_eq!(a.commits_today, 3);
+        assert_eq!(a.commits_week, 13);
+        assert_eq!(a.commits_month, 43);
         assert_ne!(a.commits_month, a.commits_week * 4);
-        assert_eq!(a.repos_active_today, 4);
-        assert!(a.last_push.is_none());
-        assert_eq!(a.source.as_deref(), Some("control-plane"));
+        assert_eq!(a.repos_active_today, 2);
+        assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("pdf-reader-mcp"));
+        assert_eq!(a.source.as_deref(), Some("github"));
         assert_eq!(a.freshness.as_deref(), Some("live"));
-        assert_eq!(a.stale, Some(false));
-        assert_eq!(a.projection_revision.as_deref(), Some("sha256:abc"));
-        assert!(assert_honest_cp_windows(&a).is_ok());
+        assert!(assert_honest_windows(&a).is_ok());
     }
 
     #[test]
-    fn assert_honest_flags_week_times_four() {
+    fn honest_window_guard_rejects_week_times_four() {
         let a = ActivityPayload {
             commits_today: 1,
             commits_week: 10,
@@ -439,10 +342,10 @@ mod tests {
             updated_at: "t".into(),
             stale: Some(false),
             freshness: Some("live".into()),
-            source: Some("control-plane".into()),
+            source: Some("github".into()),
             projection_revision: None,
         };
-        assert!(assert_honest_cp_windows(&a).is_err());
+        assert!(assert_honest_windows(&a).is_err());
     }
 
     #[test]
@@ -453,27 +356,28 @@ mod tests {
             commits_month: 9,
             repos_active_today: 1,
             last_push: None,
-            updated_at: "2026-07-16T00:00:00Z".into(),
+            updated_at: "2026-08-09T00:00:00Z".into(),
             stale: Some(false),
             freshness: Some("live".into()),
-            source: Some("control-plane".into()),
-            projection_revision: Some("rev1".into()),
+            source: Some("github".into()),
+            projection_revision: None,
         };
         let s = mark_stale(live);
         assert_eq!(s.stale, Some(true));
         assert_eq!(s.freshness.as_deref(), Some("stale"));
-        assert_eq!(s.source.as_deref(), Some("control-plane-stale"));
+        assert_eq!(s.source.as_deref(), Some("github-stale"));
         assert_eq!(s.commits_week, 5);
-        assert_eq!(s.projection_revision.as_deref(), Some("rev1"));
     }
 
     #[test]
-    fn map_does_not_invent_month_when_d30_missing() {
-        // Missing d30 → 0, not week×4.
-        let v = json!({ "summary": { "commits_landed": { "today": 1, "d7": 2 } } });
-        let a = map_cp_envelope_to_activity(&v, "control-plane-public");
-        assert_eq!(a.commits_month, 0);
-        assert_ne!(a.commits_month, a.commits_week * 4);
+    fn window_iso_helpers_are_rfc3339() {
+        let now = 1_782_800_000_000u64; // 2026-08-09-ish UTC
+        let today = start_of_day_iso(now);
+        let week = days_ago_iso(now, 7);
+        let month = days_ago_iso(now, 30);
+        assert!(today.ends_with("T00:00:00Z"));
+        assert!(week < today);
+        assert!(month < week);
     }
 
     #[test]
@@ -486,7 +390,6 @@ mod tests {
         let _ = fs::create_dir_all(&dir);
         let path = dir.join("activity-last-good.json");
         // SAFETY: serialized by TEST_LOCK; restored below.
-        // SAFETY: serialized by TEST_LOCK; restored below.
         unsafe { std::env::set_var("ACTIVITY_LAST_GOOD_PATH", &path) };
         reset_cache_for_tests();
 
@@ -496,11 +399,11 @@ mod tests {
             commits_month: 41,
             repos_active_today: 2,
             last_push: None,
-            updated_at: "2026-07-16T01:00:00Z".into(),
+            updated_at: "2026-08-09T01:00:00Z".into(),
             stale: Some(false),
             freshness: Some("live".into()),
-            source: Some("control-plane".into()),
-            projection_revision: Some("sha256:durable".into()),
+            source: Some("github".into()),
+            projection_revision: None,
         };
         seed_last_good_for_tests(payload.clone());
         assert!(path.is_file(), "durable file must exist");
@@ -515,27 +418,10 @@ mod tests {
         let restored = take_last_good().expect("file-backed last_good");
         assert_eq!(restored.commits_week, 11);
         assert_eq!(restored.commits_month, 41);
-        assert_eq!(restored.projection_revision.as_deref(), Some("sha256:durable"));
-        assert!(assert_honest_cp_windows(&restored).is_ok());
+        assert_eq!(restored.source.as_deref(), Some("github"));
+        assert!(assert_honest_windows(&restored).is_ok());
 
-        reset_cache_for_tests();
         unsafe { std::env::remove_var("ACTIVITY_LAST_GOOD_PATH") };
-        let _ = fs::remove_dir_all(&dir);
-    }
-
-    #[test]
-    fn no_verified_snapshot_returns_none_not_zeros() {
-        let _g = TEST_LOCK.lock().unwrap();
-        let dir = std::env::temp_dir().join(format!(
-            "portfolio-activity-empty-{}",
-            std::process::id()
-        ));
-        let _ = fs::create_dir_all(&dir);
-        let path = dir.join("missing.json");
-        unsafe { std::env::set_var("ACTIVITY_LAST_GOOD_PATH", &path) };
         reset_cache_for_tests();
-        assert!(take_last_good().is_none());
-        unsafe { std::env::remove_var("ACTIVITY_LAST_GOOD_PATH") };
-        let _ = fs::remove_dir_all(&dir);
     }
 }

@@ -7,7 +7,8 @@ use kylet_api_rust::contract::{
     allowed_origin, check_rate_limit_isolated, client_ip, cors_header_map, rate_limit_constants,
     simulate_burst_verdicts, valid_pkg, RateLimitState, IP_MAX_IN_WINDOW,
 };
-use kylet_api_rust::activity::{assert_honest_cp_windows, map_cp_envelope_to_activity};
+use kylet_api_rust::activity::assert_honest_windows;
+use kylet_api_rust::contract::aggregate_github_activity;
 use serde_json::json;
 
 #[test]
@@ -105,46 +106,36 @@ fn daily_ip_cap_is_enforced() {
 }
 
 #[test]
-fn activity_mapping_uses_true_d30_not_week_times_four() {
-    let envelope = json!({
-        "summary": {
-            "commits_landed": { "today": 2, "d7": 9, "d30": 31 },
-            "projects_active": { "count": 3 }
-        },
-        "projection_revision": "sha256:abc",
-        "as_of": "2026-08-09T00:00:00Z",
-        "freshness": { "state": "live" }
+fn github_activity_uses_true_30d_series_not_week_times_four() {
+    let data = json!({
+        "u0_today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
+            { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } }
+        ] } },
+        "u0_week": { "contributionsCollection": { "totalCommitContributions": 9 } },
+        "u0_month": { "contributionsCollection": { "totalCommitContributions": 31 } },
+        "o1_today": { "repositories": { "nodes": [] } },
+        "o1_week": { "repositories": { "nodes": [] } },
+        "o1_month": { "repositories": { "nodes": [] } }
     });
-    let payload = map_cp_envelope_to_activity(&envelope, "control-plane");
-    assert_eq!(payload.commits_month, 31);
-    assert_eq!(payload.commits_week, 9);
-    assert_eq!(payload.commits_month, payload.commits_week * 3 + 4);
-    assert!(assert_honest_cp_windows(&payload).is_ok());
+    let a = aggregate_github_activity(&data, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+    assert_eq!(a.commits_month, 31);
+    assert_eq!(a.commits_week, 9);
+    assert_ne!(a.commits_month, a.commits_week * 4);
+    assert_eq!(a.source.as_deref(), Some("github"));
+    assert_eq!(a.freshness.as_deref(), Some("live"));
+    assert!(assert_honest_windows(&a).is_ok());
 }
 
 #[test]
-fn activity_mapping_flags_stale_freshness() {
-    let envelope = json!({
-        "summary": {
-            "commits_landed": { "today": 0, "d7": 0, "d30": 0 },
-            "projects_active": { "count": 0 }
-        },
-        "freshness": { "state": "stale" }
+fn github_activity_rejects_week_times_four_shapes() {
+    let data = json!({
+        "u0_today": { "contributionsCollection": { "totalCommitContributions": 5, "commitContributionsByRepository": [] } },
+        "u0_week": { "contributionsCollection": { "totalCommitContributions": 7 } },
+        "u0_month": { "contributionsCollection": { "totalCommitContributions": 28 } },
+        "o1_today": { "repositories": { "nodes": [] } },
+        "o1_week": { "repositories": { "nodes": [] } },
+        "o1_month": { "repositories": { "nodes": [] } }
     });
-    let payload = map_cp_envelope_to_activity(&envelope, "control-plane");
-    assert_eq!(payload.freshness.as_deref(), Some("stale"));
-    assert_eq!(payload.stale, Some(true));
-}
-
-#[test]
-fn activity_mapping_rejects_week_times_four_shapes() {
-    let envelope = json!({
-        "summary": {
-            "commits_landed": { "today": 5, "d7": 7, "d30": 28 },
-            "projects_active": { "count": 1 }
-        },
-        "freshness": { "state": "live" }
-    });
-    let payload = map_cp_envelope_to_activity(&envelope, "control-plane");
-    assert!(assert_honest_cp_windows(&payload).is_err());
+    let a = aggregate_github_activity(&data, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+    assert!(assert_honest_windows(&a).is_err());
 }

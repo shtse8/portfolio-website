@@ -309,3 +309,208 @@ mod tests {
         );
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GitHub activity (ADR-169 amendment 2026-08-09): `/activity` is computed live
+// from GitHub GraphQL — the Control Plane projection feed was stale/broken and
+// the owner chose real GitHub commit numbers. Today/7d/30d are REAL windows
+// (never week×4). These helpers are pure and unit-tested.
+// ─────────────────────────────────────────────────────────────────────────────
+
+pub const ACTIVITY_GITHUB_OWNERS: &[(&str, &str)] = &[
+    ("shtse8", "user"),
+    ("SylphxAI", "organization"),
+    ("Cubeage", "organization"),
+    ("EpiowAI", "organization"),
+    ("OzyrixLtd", "organization"),
+];
+
+/// One GraphQL query with per-owner × per-window aliases:
+/// users use contributionsCollection; orgs use repo default-branch history.
+pub fn github_activity_query(now_iso: &str, today_start: &str, week_start: &str, month_start: &str) -> String {
+    let mut blocks = Vec::new();
+    for (i, (login, kind)) in ACTIVITY_GITHUB_OWNERS.iter().enumerate() {
+        if *kind == "user" {
+            for (win, from) in [("today", today_start), ("week", week_start), ("month", month_start)] {
+                blocks.push(format!(
+                    "u{i}_{win}: user(login: \"{login}\") {{ contributionsCollection(from: \"{from}\", to: \"{now_iso}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }}"
+                ));
+            }
+        } else {
+            for (win, from) in [("today", today_start), ("week", week_start), ("month", month_start)] {
+                blocks.push(format!(
+                    "o{i}_{win}: organization(login: \"{login}\") {{ repositories(first: 50, orderBy: {{ field: PUSHED_AT, direction: DESC }}) {{ nodes {{ nameWithOwner pushedAt defaultBranchRef {{ target {{ ... on Commit {{ history(since: \"{from}\") {{ totalCount }} }} }} }} }} }}"
+                ));
+            }
+        }
+    }
+    format!("{{ {} }}", blocks.join("\n"))
+}
+
+/// Aggregate the GitHub GraphQL activity response into the contract payload.
+/// `repos_active_today` counts repos with ≥1 commit since today's start;
+/// `last_push` is the newest pushedAt across all owner repos.
+pub fn aggregate_github_activity(data: &Value, now_ms: u64, updated_at: &str) -> ActivityPayload {
+    let mut commits_today = 0u64;
+    let mut commits_week = 0u64;
+    let mut commits_month = 0u64;
+    let mut repos_active_today = std::collections::HashSet::new();
+    let mut last_push: Option<(String, String)> = None;
+
+    let push_if_newer = |last: &mut Option<(String, String)>, repo: &str, pushed: &str| {
+        let ts = parse_iso_ms(pushed);
+        if last.as_ref().map_or(true, |(_, when)| ts > parse_iso_ms(when)) {
+            *last = Some((repo.to_string(), pushed.to_string()));
+        }
+    };
+
+    for (i, (login, kind)) in ACTIVITY_GITHUB_OWNERS.iter().enumerate() {
+        if *kind == "user" {
+            for (win, acc) in [
+                ("today", &mut commits_today),
+                ("week", &mut commits_week),
+                ("month", &mut commits_month),
+            ] {
+                let v = data
+                    .get(format!("u{i}_{win}"))
+                    .and_then(|x| x.get("contributionsCollection"))
+                    .and_then(|x| x.get("totalCommitContributions"))
+                    .and_then(Value::as_u64)
+                    .unwrap_or(0);
+                *acc += v;
+            }
+            if let Some(by_repo) = data
+                .get(format!("u{i}_today"))
+                .and_then(|x| x.get("contributionsCollection"))
+                .and_then(|x| x.get("commitContributionsByRepository"))
+                .and_then(Value::as_array)
+            {
+                for entry in by_repo {
+                    let count = entry
+                        .get("contributions")
+                        .and_then(|c| c.get("totalCount"))
+                        .and_then(Value::as_u64)
+                        .unwrap_or(0);
+                    if count > 0 {
+                        let repo = entry
+                            .pointer("/repository/nameWithOwner")
+                            .and_then(Value::as_str)
+                            .unwrap_or("");
+                        repos_active_today.insert(repo.to_string());
+                    }
+                    if let Some(pushed) = entry.pointer("/repository/pushedAt").and_then(Value::as_str) {
+                        let repo = entry
+                            .pointer("/repository/nameWithOwner")
+                            .and_then(Value::as_str)
+                            .unwrap_or("");
+                        if !repo.is_empty() {
+                            push_if_newer(&mut last_push, repo, pushed);
+                        }
+                    }
+                }
+            }
+            // User contributions can land in any repo (PRs to other orgs); keep
+            // the personal owner count honest by noting the login when empty.
+            let _ = login;
+        } else {
+            for (win, acc) in [
+                ("today", &mut commits_today),
+                ("week", &mut commits_week),
+                ("month", &mut commits_month),
+            ] {
+                let nodes = data
+                    .get(format!("o{i}_{win}"))
+                    .and_then(|x| x.get("repositories"))
+                    .and_then(|x| x.get("nodes"))
+                    .and_then(Value::as_array);
+                if let Some(nodes) = nodes {
+                    for node in nodes {
+                        let count = node
+                            .pointer("/defaultBranchRef/target/history/totalCount")
+                            .and_then(Value::as_u64)
+                            .unwrap_or(0);
+                        *acc += count;
+                        if win == "today" && count > 0 {
+                            if let Some(name) = node.get("nameWithOwner").and_then(Value::as_str) {
+                                repos_active_today.insert(name.to_string());
+                            }
+                        }
+                        if let Some(pushed) = node.get("pushedAt").and_then(Value::as_str) {
+                            if let Some(name) = node.get("nameWithOwner").and_then(Value::as_str) {
+                                if !name.is_empty() {
+                                    push_if_newer(&mut last_push, name, pushed);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let last_push_display = last_push.map(|(repo, when)| LastPush {
+        repo: repo.split('/').nth(1).unwrap_or(&repo).to_string(),
+        ago: format_ago(now_ms, &when),
+    });
+
+    ActivityPayload {
+        commits_today,
+        commits_week,
+        commits_month,
+        repos_active_today: repos_active_today.len() as u64,
+        last_push: last_push_display,
+        updated_at: updated_at.to_string(),
+        stale: None,
+        freshness: Some("live".to_string()),
+        source: Some("github".to_string()),
+        projection_revision: None,
+    }
+}
+
+/// ISO-8601 helpers for window starts (UTC).
+pub fn start_of_day_iso(now_ms: u64) -> String {
+    let secs = now_ms / 1000;
+    let day_secs = secs % 86_400;
+    format_iso(now_ms - day_secs * 1000)
+}
+
+pub fn days_ago_iso(now_ms: u64, days: u64) -> String {
+    format_iso(now_ms.saturating_sub(days * 86_400_000))
+}
+
+fn format_iso(ms: u64) -> String {
+    let secs = ms / 1000;
+    let nanos = (ms % 1000) * 1_000_000;
+    match time::OffsetDateTime::from_unix_timestamp(secs as i64) {
+        Ok(dt) => dt
+            .replace_nanosecond(nanos as u32)
+            .unwrap_or(dt)
+            .format(&time::format_description::well_known::Rfc3339)
+            .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string()),
+        Err(_) => "1970-01-01T00:00:00Z".to_string(),
+    }
+}
+
+pub fn parse_iso_ms(iso: &str) -> u64 {
+    time::OffsetDateTime::parse(iso, &time::format_description::well_known::Rfc3339)
+        .ok()
+        .map(|dt| (dt.unix_timestamp_nanos() / 1_000_000) as u64)
+        .unwrap_or(0)
+}
+
+pub fn format_ago(now_ms: u64, when: &str) -> String {
+    let when_ms = parse_iso_ms(when);
+    let diff = now_ms.saturating_sub(when_ms);
+    let mins = diff / 60_000;
+    let hrs = mins / 60;
+    let days = hrs / 24;
+    if days > 0 {
+        format!("{days}d ago")
+    } else if hrs > 0 {
+        format!("{hrs}h ago")
+    } else if mins > 0 {
+        format!("{mins}m ago")
+    } else {
+        "just now".to_string()
+    }
+}

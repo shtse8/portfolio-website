@@ -10,9 +10,8 @@ import { API_BASE } from "@/lib/api";
  * LiveTicker — portfolio development throughput strip.
  *
  * Single metric authority: same-origin BFF `/activity` only.
- * Never call Control Plane from the browser (no CP URL/token in frontend).
- * BFF maps Control Plane projection snapshots; on CP failure BFF may return
- * last verified snapshot with stale=true / freshness=stale.
+ * BFF computes live GitHub commit activity (today/7d/30d); on GitHub failure
+ * it may return the last verified snapshot with stale=true / freshness=stale.
  */
 
 interface Activity {
