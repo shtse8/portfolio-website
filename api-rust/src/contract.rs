@@ -209,35 +209,24 @@ pub fn simulate_burst_verdicts(ip: &str, base: u64) -> (Vec<String>, String) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GitHub activity (ADR-169 amendment 2026-08-09): `/activity` counts authored
-// commits via the GitHub commit SEARCH API — `contributionsCollection` only
-// counts default-branch commits and massively under-reports branch work, so
-// counts come from search (all branches); a light GraphQL query supplies
-// repos-with-contributions-today and the most recently pushed repo.
+// GitHub activity (ADR-169 amendment 2026-08-09): `/activity` mirrors GitHub's
+// OWN contribution graph — `contributionCalendar` counts ALL contribution
+// types (commits, PRs, issues, reviews, discussions) including private repos,
+// summed as REAL per-day series (never week×4). This is the same number the
+// profile graph shows when "Include private contributions" is enabled.
 // ─────────────────────────────────────────────────────────────────────────────
 
 pub const ACTIVITY_GITHUB_USER: &str = "shtse8";
 
-/// Lightweight GraphQL: today-contributions by repo (for `repos_active_today`)
-/// + the 10 most recently pushed repos (for `last_push`).
-pub fn github_activity_query(now_iso: &str, today_start: &str) -> String {
+/// One GraphQL query: the contribution calendar for the full 30-day window
+/// (per-day counts), today's commitContributionsByRepository (for
+/// `repos_active_today`), and the 10 most recently pushed repos (last_push).
+pub fn github_activity_query(now_iso: &str, month_start: &str) -> String {
     format!(
-        "{{ today: user(login: \"{login}\") {{ contributionsCollection(from: \"{today}\", to: \"{now}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }} repos: user(login: \"{login}\") {{ repositories(first: 10, orderBy: {{ field: PUSHED_AT, direction: DESC }}, ownerAffiliations: OWNER) {{ nodes {{ nameWithOwner pushedAt }} }} }} }}",
+        "{{ activity: user(login: \"{login}\") {{ contributionsCollection(from: \"{from}\", to: \"{now}\") {{ contributionCalendar {{ totalContributions weeks {{ contributionDays {{ date contributionCount }} }} }} commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }} repos: user(login: \"{login}\") {{ repositories(first: 10, orderBy: {{ field: PUSHED_AT, direction: DESC }}, ownerAffiliations: OWNER) {{ nodes {{ nameWithOwner pushedAt }} }} }} }}",
         login = ACTIVITY_GITHUB_USER,
-        today = today_start,
+        from = month_start,
         now = now_iso,
-    )
-}
-
-/// Commit search query URL: authored commits (all branches, incl. private with
-/// the service token) since the given ISO instant. `per_page=1` keeps it cheap;
-/// `total_count` is the real number.
-pub fn github_activity_search_url(api_base: &str, since_iso: &str) -> String {
-    format!(
-        "{base}/search/commits?q=author:{user}+author-date:%3E%3D{since}&per_page=1",
-        base = api_base.trim_end_matches('/'),
-        user = ACTIVITY_GITHUB_USER,
-        since = since_iso,
     )
 }
 
@@ -246,20 +235,47 @@ pub fn github_activity_query_balanced(query: &str) -> bool {
     query.chars().filter(|c| *c == '{').count() == query.chars().filter(|c| *c == '}').count()
 }
 
-/// Aggregate GitHub activity: commit COUNTS come from the commit search API
-/// (all branches); the GraphQL `data` supplies repos-with-contributions-today
-/// and the most recently pushed repo.
-pub fn aggregate_github_activity(
-    data: &Value,
-    commits_today: u64,
-    commits_week: u64,
-    commits_month: u64,
-    now_ms: u64,
-    updated_at: &str,
-) -> ActivityPayload {
+/// Aggregate the GitHub contribution calendar + repos into the payload.
+/// `today` is the current UTC calendar day; `week`/`month` are REAL sums of
+/// per-day calendar counts (identical to GitHub's graph).
+pub fn aggregate_github_activity(data: &Value, now_ms: u64, updated_at: &str) -> ActivityPayload {
+    // Compare on DATE only (YYYY-MM-DD) — calendar days are date-only strings
+    // and a naive full-ISO compare would misclassify the day boundary.
+    let today_date = &start_of_day_iso(now_ms)[..10];
+    let week_start_date = &days_ago_iso(now_ms, 7)[..10];
+    let month_start_date = &days_ago_iso(now_ms, 30)[..10];
+
+    let mut today = 0u64;
+    let mut week = 0u64;
+    let mut month = 0u64;
+    if let Some(weeks) = data
+        .pointer("/activity/contributionsCollection/contributionCalendar/weeks")
+        .and_then(Value::as_array)
+    {
+        for w in weeks {
+            if let Some(days) = w.get("contributionDays").and_then(Value::as_array) {
+                for d in days {
+                    let Some(date) = d.get("date").and_then(Value::as_str) else {
+                        continue;
+                    };
+                    let count = d.get("contributionCount").and_then(Value::as_u64).unwrap_or(0);
+                    if date >= month_start_date {
+                        month += count;
+                    }
+                    if date >= week_start_date {
+                        week += count;
+                    }
+                    if date >= today_date {
+                        today += count;
+                    }
+                }
+            }
+        }
+    }
+
     let mut repos_active_today = 0u64;
     if let Some(by_repo) = data
-        .pointer("/today/contributionsCollection/commitContributionsByRepository")
+        .pointer("/activity/contributionsCollection/commitContributionsByRepository")
         .and_then(Value::as_array)
     {
         repos_active_today = by_repo
@@ -291,9 +307,9 @@ pub fn aggregate_github_activity(
         });
 
     ActivityPayload {
-        commits_today,
-        commits_week,
-        commits_month,
+        commits_today: today,
+        commits_week: week,
+        commits_month: month,
         repos_active_today,
         last_push,
         updated_at: updated_at.to_string(),
@@ -360,40 +376,22 @@ mod tests {
 
     #[test]
     fn github_activity_query_is_balanced() {
-        let q = github_activity_query("2026-08-09T12:00:00Z", "2026-08-09T00:00:00Z");
+        let q = github_activity_query("2026-08-09T12:00:00Z", "2026-07-10T12:00:00Z");
         assert!(github_activity_query_balanced(&q), "query braces must balance");
-        for alias in ["today:", "repos:"] {
+        for alias in ["activity:", "repos:"] {
             assert!(q.contains(alias), "missing alias {alias}");
         }
+        assert!(q.contains("contributionCalendar"));
         assert!(q.contains(ACTIVITY_GITHUB_USER));
     }
 
     #[test]
-    fn github_activity_search_url_is_well_formed() {
-        let url = github_activity_search_url("https://api.github.com", "2026-08-09T00:00:00Z");
-        assert!(url.starts_with(
-            "https://api.github.com/search/commits?q=author:shtse8+author-date:%3E%3D2026-08-09T00:00:00Z&per_page=1"
-        ));
-        let url2 = github_activity_search_url("http://127.0.0.1:9/", "2026-08-09T00:00:00Z");
-        assert!(url2.starts_with("http://127.0.0.1:9/search/commits?"));
-    }
-
-    #[test]
-    fn aggregate_uses_search_counts_and_graphql_side_data() {
-        let data = json!({
-            "today": { "contributionsCollection": { "commitContributionsByRepository": [
-                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } },
-                { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z" }, "contributions": { "totalCount": 0 } }
-            ] } },
-            "repos": { "repositories": { "nodes": [
-                { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z" }
-            ] } }
-        });
-        let a = aggregate_github_activity(&data, 275, 12_023, 24_682, 1_782_800_000_000, "2026-08-09T12:00:00Z");
-        assert_eq!(a.commits_today, 275);
-        assert_eq!(a.commits_week, 12_023);
-        assert_eq!(a.commits_month, 24_682);
-        assert_ne!(a.commits_month, a.commits_week * 4);
+    fn aggregate_sums_real_per_day_series() {
+        let data: Value = serde_json::from_str(r#"{"activity": {"contributionsCollection": {"contributionCalendar": {"weeks": [{"contributionDays": [{"date": "2026-08-02", "contributionCount": 100}, {"date": "2026-08-03", "contributionCount": 50}, {"date": "2026-08-09", "contributionCount": 25}]}]}, "commitContributionsByRepository": [{"repository": {"nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z"}, "contributions": {"totalCount": 2}}]}}, "repos": {"repositories": {"nodes": [{"nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z"}]}}}"#).unwrap();
+        let a = aggregate_github_activity(&data, 1_786_276_800_000, "2026-08-09T12:00:00Z");
+        assert_eq!(a.commits_today, 25);
+        assert_eq!(a.commits_week, 175);
+        assert_eq!(a.commits_month, 175);
         assert_eq!(a.repos_active_today, 1);
         assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("newest"));
         assert_eq!(a.source.as_deref(), Some("github"));
