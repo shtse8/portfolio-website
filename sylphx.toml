@@ -24,10 +24,13 @@ name = "api"
 type = "web"
 port = 3001
 deploy_priority = 100
+# Chat requires server-side env (project secrets): SYLPHX_AI_URL + SYLPHX_AI_API_KEY
+# (or AI_GATEWAY_BASE_URL/AI_GATEWAY_KEY). SYLPHX_URL is the public browser URL and
+# must never be used. Without a credential /chat fails closed with 503.
 watch_paths = ["api-rust/**", "sylphx.toml"]
 [services.build]
 strategy = "dockerfile"
-# Context MUST be repo root: api-rust/Dockerfile COPYs api-rust/* and proto/.
+# Context MUST be repo root: api-rust/Dockerfile COPYs api-rust/src.
 dockerfile = "api-rust/Dockerfile"
 context = "."
 [services.health]

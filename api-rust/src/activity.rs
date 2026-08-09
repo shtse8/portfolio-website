@@ -3,12 +3,13 @@
 //! Browser clients must never talk to Control Plane or recompute metrics from
 //! GitHub. This BFF is the sole public surface for `/activity`.
 //!
-//! Authority ladder:
-//! 1. Authenticated projection: `CP_PROJECTION_BASE` + `CP_PROJECTION_TOKEN`
-//!    + `CP_PROJECTION_ID` → `GET /api/v1/projections/{id}/snapshot`
-//! 2. Legacy anonymous expand-contract: `CP_PUBLIC_BASE` / `CONTROL_PLANE_PUBLIC_BASE`
-//!    + `CP_PUBLIC_PROFILE_SLUG` → `GET /api/public/v1/profiles/{slug}/summary`
-//! 3. Otherwise: hard error (no Control Plane projection configured)
+//! Authority (sole path, ADR-169):
+//! Authenticated projection: `CP_PROJECTION_BASE` + `CP_PROJECTION_TOKEN`
+//! + `CP_PROJECTION_ID` → `GET /api/v1/projections/{id}/snapshot`.
+//!
+//! Otherwise: hard error (no Control Plane projection configured).
+//!
+//! The legacy anonymous public expand-contract path is retired.
 //!
 //! # Last-good durability (documented choice)
 //!
@@ -102,39 +103,21 @@ fn cp_projection_id() -> Result<String, String> {
         .ok_or_else(|| "CP_PROJECTION_ID required (no default slug)".into())
 }
 
-/// Legacy anonymous public profile base (expand-contract only).
-fn cp_public_base() -> Option<String> {
-    non_empty_env("CP_PUBLIC_BASE").or_else(|| non_empty_env("CONTROL_PLANE_PUBLIC_BASE"))
-}
-
-/// Public profile slug — **required** when using public path (no "kyle" fallback).
-fn cp_public_slug() -> Result<String, String> {
-    non_empty_env("CP_PUBLIC_PROFILE_SLUG")
-        .ok_or_else(|| "CP_PUBLIC_PROFILE_SLUG required (no default slug)".into())
-}
-
-/// True when any Control Plane metric path is configured (auth or public).
+/// True when the authenticated Control Plane projection path is configured.
 pub fn cp_metrics_configured() -> bool {
-    let auth = cp_projection_base().is_some() && cp_projection_token().is_some();
-    auth || cp_public_base().is_some()
+    cp_projection_base().is_some() && cp_projection_token().is_some()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum CpPath {
     Authenticated,
-    PublicLegacy,
 }
 
 fn select_cp_path() -> Result<(CpPath, String), String> {
-    if let (Some(base), Some(_token)) = (cp_projection_base(), cp_projection_token()) {
+    if cp_projection_base().is_some() && cp_projection_token().is_some() {
         let id = cp_projection_id()?;
-        let url = format!("{base}/api/v1/projections/{id}/snapshot");
+        let url = format!("{base}/api/v1/projections/{id}/snapshot", base = cp_projection_base().unwrap_or_default());
         return Ok((CpPath::Authenticated, url));
-    }
-    if let Some(base) = cp_public_base() {
-        let slug = cp_public_slug()?;
-        let url = format!("{base}/api/public/v1/profiles/{slug}/summary");
-        return Ok((CpPath::PublicLegacy, url));
     }
     Err("no control plane projection configured".into())
 }
@@ -262,12 +245,10 @@ pub fn assert_honest_cp_windows(payload: &ActivityPayload) -> Result<(), String>
     Ok(())
 }
 
-async fn fetch_cp_json(path: CpPath, url: &str) -> Result<serde_json::Value, String> {
-    let mut req = client().get(url).header("accept", "application/json");
-    if path == CpPath::Authenticated {
-        let token = cp_projection_token().ok_or_else(|| "CP_PROJECTION_TOKEN unset".to_string())?;
-        req = req.header("authorization", format!("Bearer {token}"));
-    }
+async fn fetch_cp_json(url: &str) -> Result<serde_json::Value, String> {
+    let token = cp_projection_token().ok_or_else(|| "CP_PROJECTION_TOKEN unset".to_string())?;
+    let req = client().get(url).header("accept", "application/json");
+    let req = req.header("authorization", format!("Bearer {token}"));
     let res = req
         .send()
         .await
@@ -286,13 +267,9 @@ async fn fetch_cp_json(path: CpPath, url: &str) -> Result<serde_json::Value, Str
 }
 
 async fn compute_activity_from_cp() -> Result<ActivityPayload, String> {
-    let (path, url) = select_cp_path()?;
-    let source = match path {
-        CpPath::Authenticated => "control-plane",
-        CpPath::PublicLegacy => "control-plane-public",
-    };
-    let v = fetch_cp_json(path, &url).await?;
-    Ok(map_cp_envelope_to_activity(&v, source))
+    let (_path, url) = select_cp_path()?;
+    let v = fetch_cp_json(&url).await?;
+    Ok(map_cp_envelope_to_activity(&v, "control-plane"))
 }
 
 /// Single metric authority: Control Plane only. No GitHub GraphQL fall-through.
@@ -307,10 +284,7 @@ fn mark_stale(mut data: ActivityPayload) -> ActivityPayload {
     data.stale = Some(true);
     data.freshness = Some("stale".into());
     // Contract source labels for fail-over serves.
-    data.source = Some(match data.source.as_deref() {
-        Some(s) if s.contains("public") => "control-plane-public-stale".into(),
-        _ => "control-plane-stale".into(),
-    });
+    data.source = Some("control-plane-stale".into());
     data
 }
 

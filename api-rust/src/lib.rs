@@ -1,10 +1,10 @@
-//! kylet.se portfolio API — technology-stack-profile product wire:
-//! **buffa + connectrpc + axum**, with REST projections for static-site `fetch` (ADR-168).
+//! kylet.se portfolio API — single JSON REST contract (ADR-169 clean break).
+//! Rust is the sole API authority; the browser BFF is nginx proxying these
+//! routes to this service. No proto/Connect surface remains.
 
 pub mod activity;
 pub mod app;
 pub mod chat;
-pub mod connect_api;
 pub mod contract;
 pub mod cors;
 pub mod http_util;
@@ -17,11 +17,6 @@ pub mod tools;
 pub mod upstream;
 #[doc(hidden)]
 pub mod testing;
-
-/// Generated Connect/Protobuf types (buffa + connectrpc-build).
-pub mod proto {
-    connectrpc::include_generated!();
-}
 
 pub async fn run() {
     app::serve().await;

@@ -236,6 +236,11 @@ pub struct NpmDay {
 }
 
 pub async fn npm_range(pkg: &str) -> Vec<NpmDay> {
+    // Enforce the contract pkg rule on every entry point (REST handler AND
+    // chat tool) — never forward unvalidated package names upstream.
+    if !crate::contract::valid_pkg(pkg) {
+        return Vec::new();
+    }
     let url = upstream::npm_url(&format!(
         "/downloads/range/last-month/{}",
         urlencoding_encode(pkg)

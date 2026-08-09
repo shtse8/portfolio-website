@@ -3,7 +3,7 @@ name = "kylet-api-rust"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
-description = "Rust drop-in authority for kylet.se live API (stats, terminal data, AI chat)"
+description = "Rust sole authority for kylet.se live API (stats, activity, projects, AI chat)"
 license = "MIT"
 
 [lib]
@@ -15,9 +15,8 @@ name = "kylet-api-rust"
 path = "src/main.rs"
 
 [dependencies]
-sha2 = "0.10"
 axum = { version = "0.8", features = ["json"] }
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "net", "time", "io-util"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -25,16 +24,8 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 uuid = { version = "1", features = ["v4"] }
 futures = "0.3"
-tower-http = { version = "0.6", features = ["cors"] }
-time = { version = "0.3", features = ["formatting", "parsing"] }
 tokio-stream = "0.1"
-# technology-stack-profile product wire (not prost)
-connectrpc = { version = "0.8", features = ["axum"] }
-buffa = { version = "0.8.1", features = ["json"] }
-buffa-types = { version = "0.8", features = ["json"] }
-
-[build-dependencies]
-connectrpc-build = "0.8"
+time = { version = "0.3", features = ["formatting", "parsing"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

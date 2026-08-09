@@ -1,12 +1,16 @@
+//! Single JSON REST contract for kylet.se (ADR-169 clean break).
+//! Sole authority for origin/CORS policy, rate-limit policy, package-name
+//! validation, and the shared response payload shapes. No proto/Connect
+//! surface remains; this module is the contract SSOT.
+
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
-use std::fs;
-use std::path::Path;
 
 pub const ALLOWED_ORIGINS: &[&str] = &[
     "https://kylet.se",
     "https://www.kylet.se",
+    "https://slim-pal-0k3stq.sylphx.app",
     "https://loud-slab-t9c6ai.sylphx.app",
     "http://localhost:3000",
 ];
@@ -18,13 +22,6 @@ pub const IP_WINDOW_MS: u64 = 3 * 60_000;
 pub const IP_MAX_IN_WINDOW: usize = 12;
 pub const IP_MAX_PER_DAY: usize = 60;
 pub const GLOBAL_MAX_PER_DAY: usize = 500;
-
-pub const GITHUB_OWNERS: &[(&str, &str)] = &[
-    ("shtse8", "user"),
-    ("SylphxAI", "organization"),
-    ("Cubeage", "organization"),
-    ("EpiowAI", "organization"),
-];
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -48,7 +45,7 @@ pub struct ActivityPayload {
     /// `live` | `stale` | `not_observed` | …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub freshness: Option<String>,
-    /// `control-plane` | `control-plane-public` | `control-plane-stale` | …
+    /// `control-plane` | `control-plane-stale` | …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub source: Option<String>,
     /// Opaque CP projection revision of the snapshot served.
@@ -97,35 +94,39 @@ pub fn valid_pkg(pkg: &str) -> bool {
             .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
 }
 
-pub fn allowed_origin(origin: Option<&str>) -> &'static str {
-    origin
-        .and_then(|o| ALLOWED_ORIGINS.iter().copied().find(|&allowed| allowed == o))
-        .unwrap_or("https://kylet.se")
+/// Returns the origin to echo in CORS headers, or `None` when the request
+/// origin is not allowlisted (browser will block the response — never echo a
+/// foreign origin back).
+pub fn allowed_origin(origin: Option<&str>) -> Option<&'static str> {
+    origin.and_then(|o| ALLOWED_ORIGINS.iter().copied().find(|&allowed| allowed == o))
 }
 
 pub fn cors_header_map(origin: Option<&str>) -> BTreeMap<String, String> {
-    let allowed = allowed_origin(origin);
-    BTreeMap::from([
-        (
-            "access-control-allow-origin".to_string(),
-            allowed.to_string(),
-        ),
-        (
-            "access-control-allow-methods".to_string(),
-            "GET, POST, OPTIONS".to_string(),
-        ),
-        (
-            "access-control-allow-headers".to_string(),
-            "content-type".to_string(),
-        ),
-        (
-            "access-control-max-age".to_string(),
-            "86400".to_string(),
-        ),
-        ("vary".to_string(), "origin".to_string()),
-    ])
+    let mut map = BTreeMap::new();
+    if let Some(allowed) = allowed_origin(origin) {
+        map.insert("access-control-allow-origin".to_string(), allowed.to_string());
+    }
+    map.insert(
+        "access-control-allow-methods".to_string(),
+        "GET, POST, OPTIONS".to_string(),
+    );
+    map.insert(
+        "access-control-allow-headers".to_string(),
+        "content-type".to_string(),
+    );
+    map.insert("access-control-max-age".to_string(), "86400".to_string());
+    map.insert("vary".to_string(), "origin".to_string());
+    map
 }
 
+/// Resolve the real client IP from headers set by trusted proxies.
+///
+/// Trust ladder (never the client-controlled first X-Forwarded-For entry):
+/// 1. `cf-connecting-ip` — Cloudflare overwrites this at the edge.
+/// 2. `x-real-ip` — nginx sets this from `$remote_addr` (`proxy_set_header`).
+/// 3. Last entry of `x-forwarded-for` — the peer appended by our own nginx;
+///    client-supplied earlier entries are ignored.
+/// 4. `x-envoy-external-address` — platform edge fallback.
 pub fn client_ip(headers: &[(String, String)]) -> String {
     let pick = |name: &str| -> Option<String> {
         headers
@@ -133,11 +134,16 @@ pub fn client_ip(headers: &[(String, String)]) -> String {
             .find(|(k, _)| k.eq_ignore_ascii_case(name))
             .map(|(_, v)| v.clone())
     };
-    let raw = pick("x-forwarded-for")
-        .and_then(|v| v.split(',').next().map(str::trim).map(str::to_string))
-        .or_else(|| pick("x-real-ip"))
-        .or_else(|| pick("x-envoy-external-address"))
-        .or_else(|| pick("cf-connecting-ip"))
+    let raw = pick("cf-connecting-ip")
+        .map(|v| v.split(',').next().map(str::trim).map(str::to_string).unwrap_or_default())
+        .filter(|v| !v.is_empty())
+        .or_else(|| pick("x-real-ip").map(|v| v.trim().to_string()).filter(|v| !v.is_empty()))
+        .or_else(|| {
+            pick("x-forwarded-for")
+                .and_then(|v| v.rsplit(',').next().map(str::trim).map(str::to_string))
+                .filter(|v| !v.is_empty())
+        })
+        .or_else(|| pick("x-envoy-external-address").map(|v| v.trim().to_string()).filter(|v| !v.is_empty()))
         .unwrap_or_else(|| "unknown".to_string());
     raw.chars().take(45).collect()
 }
@@ -163,11 +169,7 @@ pub fn check_rate_limit_isolated(ip: &str, now: u64, state: &mut RateLimitState)
         return LimitVerdict::GlobalDaily;
     }
     if ip != "unknown" {
-        let day_count = state
-            .ip_day
-            .get(ip)
-            .copied()
-            .unwrap_or(0);
+        let day_count = state.ip_day.get(ip).copied().unwrap_or(0);
         if day_count >= IP_MAX_PER_DAY {
             return LimitVerdict::DailyIp;
         }
@@ -208,211 +210,102 @@ pub fn simulate_burst_verdicts(ip: &str, base: u64) -> (Vec<String>, String) {
         let verdict = check_rate_limit_isolated(ip, base + i as u64, &mut state);
         verdicts.push(verdict.as_str().to_string());
     }
-    let final_verdict = verdicts.last().cloned().unwrap_or_else(|| "unknown".to_string());
+    let final_verdict = verdicts
+        .last()
+        .cloned()
+        .unwrap_or_else(|| "unknown".to_string());
     (verdicts, final_verdict)
 }
 
-pub fn parse_iso_ms(iso: &str) -> u64 {
-    time::OffsetDateTime::parse(iso, &time::format_description::well_known::Rfc3339)
-        .ok()
-        .map(|dt| (dt.unix_timestamp_nanos() / 1_000_000) as u64)
-        .unwrap_or(0)
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-pub fn format_ago(now_ms: u64, when: &str) -> String {
-    let when_ms = parse_iso_ms(when);
-    let diff = now_ms.saturating_sub(when_ms);
-    let mins = diff / 60_000;
-    let hrs = mins / 60;
-    let days = hrs / 24;
-    if days > 0 {
-        format!("{days}d ago")
-    } else if hrs > 0 {
-        format!("{hrs}h ago")
-    } else if mins > 0 {
-        format!("{mins}m ago")
-    } else {
-        "just now".to_string()
+    #[test]
+    fn client_ip_trusts_cf_connecting_ip_first() {
+        let headers = vec![
+            ("x-forwarded-for".to_string(), "6.6.6.6, 203.0.113.9".to_string()),
+            ("cf-connecting-ip".to_string(), "198.51.100.7".to_string()),
+            ("x-real-ip".to_string(), "203.0.113.9".to_string()),
+        ];
+        assert_eq!(client_ip(&headers), "198.51.100.7");
     }
-}
 
-pub fn build_user_activity_graphql_block(index: usize, login: &str, week_start: &str, now_iso: &str) -> String {
-    format!(
-        "o{index}: user(login: \"{login}\") {{
-          contributionsCollection(from: \"{week_start}\", to: \"{now_iso}\") {{
-            totalCommitContributions
-            commitContributionsByRepository(maxRepositories: 20) {{
-              repository {{ nameWithOwner pushedAt }}
-              contributions {{ totalCount }}
-            }}
-          }}
-        }}"
-    )
-}
+    #[test]
+    fn client_ip_ignores_spoofed_first_xff_entry() {
+        // Client-sent first XFF entry must never be trusted; the last entry is
+        // appended by our own nginx from $remote_addr.
+        let headers = vec![(
+            "x-forwarded-for".to_string(),
+            "1.2.3.4, 203.0.113.9".to_string(),
+        )];
+        assert_eq!(client_ip(&headers), "203.0.113.9");
+    }
 
-pub fn build_org_activity_graphql_block(index: usize, login: &str, week_start: &str) -> String {
-    format!(
-        "o{index}: organization(login: \"{login}\") {{
-          repositories(first: 50, orderBy: {{field: PUSHED_AT, direction: DESC}}) {{
-            nodes {{
-              nameWithOwner
-              pushedAt
-              defaultBranchRef {{
-                target {{
-                  ... on Commit {{
-                    history(since: \"{week_start}\") {{ totalCount }}
-                  }}
-                }}
-              }}
-            }}
-          }}
-        }}"
-    )
-}
+    #[test]
+    fn client_ip_falls_back_to_x_real_ip() {
+        let headers = vec![
+            ("x-forwarded-for".to_string(), "1.2.3.4".to_string()),
+            ("x-real-ip".to_string(), "203.0.113.9".to_string()),
+        ];
+        assert_eq!(client_ip(&headers), "203.0.113.9");
+    }
 
-pub fn normalize_activity_graphql_response(data: &Value) -> Value {
-    let mut normalized = serde_json::Map::new();
-    let Some(obj) = data.as_object() else {
-        return data.clone();
-    };
+    #[test]
+    fn client_ip_unknown_without_proxy_headers() {
+        assert_eq!(client_ip(&[]), "unknown");
+    }
 
-    for (key, value) in obj {
-        if let Some(repos) = value.get("repositories").and_then(|v| v.get("nodes")).and_then(Value::as_array)
-        {
-            let mut total = 0u64;
-            let mut by_repo = Vec::new();
-            for repo in repos {
-                let name = repo
-                    .get("nameWithOwner")
-                    .and_then(Value::as_str)
-                    .unwrap_or("");
-                let pushed_at = repo.get("pushedAt").and_then(Value::as_str).unwrap_or("");
-                let count = repo
-                    .get("defaultBranchRef")
-                    .and_then(|v| v.get("target"))
-                    .and_then(|v| v.get("history"))
-                    .and_then(|v| v.get("totalCount"))
-                    .and_then(Value::as_u64)
-                    .unwrap_or(0);
-                total += count;
-                by_repo.push(json!({
-                    "repository": { "nameWithOwner": name, "pushedAt": pushed_at },
-                    "contributions": { "totalCount": count },
-                }));
-            }
-            normalized.insert(
-                key.clone(),
-                json!({
-                    "contributionsCollection": {
-                        "totalCommitContributions": total,
-                        "commitContributionsByRepository": by_repo,
-                    }
-                }),
+    #[test]
+    fn cors_only_echoes_allowlisted_origins() {
+        assert_eq!(
+            allowed_origin(Some("https://kylet.se")),
+            Some("https://kylet.se")
+        );
+        assert_eq!(
+            allowed_origin(Some("https://slim-pal-0k3stq.sylphx.app")),
+            Some("https://slim-pal-0k3stq.sylphx.app")
+        );
+        assert_eq!(allowed_origin(Some("https://evil.example")), None);
+        assert_eq!(allowed_origin(None), None);
+    }
+
+    #[test]
+    fn cors_map_omits_allow_origin_for_foreign_origins() {
+        let map = cors_header_map(Some("https://evil.example"));
+        assert!(!map.contains_key("access-control-allow-origin"));
+        assert_eq!(map.get("vary").map(String::as_str), Some("origin"));
+
+        let map = cors_header_map(Some("https://kylet.se"));
+        assert_eq!(
+            map.get("access-control-allow-origin").map(String::as_str),
+            Some("https://kylet.se")
+        );
+    }
+
+    #[test]
+    fn pkg_validation_rules() {
+        assert!(valid_pkg("@sylphx/pdf-reader-mcp"));
+        assert!(valid_pkg("lodash"));
+        assert!(!valid_pkg("not valid spaces"));
+        assert!(!valid_pkg(""));
+        assert!(!valid_pkg("@/nope"));
+    }
+
+    #[test]
+    fn rate_limit_blocks_burst_after_window_capacity() {
+        let ip = "203.0.113.1".to_string();
+        let base = 1_700_000_000_000u64;
+        let mut state = RateLimitState::default();
+        for i in 0..IP_MAX_IN_WINDOW {
+            assert_eq!(
+                check_rate_limit_isolated(&ip, base + i as u64, &mut state),
+                LimitVerdict::Ok
             );
-        } else {
-            normalized.insert(key.clone(), value.clone());
         }
+        assert_eq!(
+            check_rate_limit_isolated(&ip, base + IP_MAX_IN_WINDOW as u64, &mut state),
+            LimitVerdict::TooFast
+        );
     }
-
-    Value::Object(normalized)
-}
-
-pub fn aggregate_activity_from_graphql(
-    graphql: &Value,
-    owner_keys: &[String],
-    now_ms: u64,
-    updated_at: &str,
-) -> ActivityPayload {
-    let mut commits_today = 0u64;
-    let mut commits_week = 0u64;
-    let mut repos_active_today = std::collections::HashSet::new();
-    let mut last_push: Option<(String, String)> = None;
-
-    for key in owner_keys {
-        let Some(cc) = graphql
-            .get(key)
-            .and_then(|v| v.get("contributionsCollection"))
-        else {
-            continue;
-        };
-
-        commits_week += cc
-            .get("totalCommitContributions")
-            .and_then(Value::as_u64)
-            .unwrap_or(0);
-
-        if let Some(entries) = cc
-            .get("commitContributionsByRepository")
-            .and_then(Value::as_array)
-        {
-            for entry in entries {
-                let repo = entry
-                    .get("repository")
-                    .and_then(|r| r.get("nameWithOwner"))
-                    .and_then(Value::as_str)
-                    .unwrap_or("");
-                let count = entry
-                    .get("contributions")
-                    .and_then(|c| c.get("totalCount"))
-                    .and_then(Value::as_u64)
-                    .unwrap_or(0);
-                let pushed_at = entry
-                    .get("repository")
-                    .and_then(|r| r.get("pushedAt"))
-                    .and_then(Value::as_str);
-
-                if let Some(pushed_at) = pushed_at {
-                    let ts = parse_iso_ms(pushed_at);
-                    if now_ms.saturating_sub(ts) < DAY_MS {
-                        repos_active_today.insert(repo.to_string());
-                        commits_today += count;
-                    }
-                    if last_push
-                        .as_ref()
-                        .is_none_or(|(_, when)| ts > parse_iso_ms(when))
-                    {
-                        last_push = Some((repo.to_string(), pushed_at.to_string()));
-                    }
-                }
-            }
-        }
-    }
-
-    let last_push_display = last_push.map(|(repo, when)| LastPush {
-        repo: repo.split('/').nth(1).unwrap_or(&repo).to_string(),
-        ago: format_ago(now_ms, &when),
-    });
-
-    ActivityPayload {
-        commits_today,
-        commits_week,
-        // Never invent month as week×4. True 30d landings come only from Control
-        // Plane projection series; this GraphQL helper is retained for tools/stats
-        // parity fixtures and must not be used as /activity metric authority.
-        commits_month: 0,
-        repos_active_today: repos_active_today.len() as u64,
-        last_push: last_push_display,
-        updated_at: updated_at.to_string(),
-        stale: None,
-        freshness: None,
-        source: None,
-        projection_revision: None,
-    }
-}
-
-pub fn proto_contract_summary(proto_path: &Path) -> Value {
-    let raw = fs::read_to_string(proto_path).unwrap_or_default();
-    let proto_hash = sha256_hex(&raw);
-    let rpc_count = raw.matches("rpc ").count();
-    json!({
-        "service": "PortfolioApiService",
-        "rpcCount": rpc_count,
-        "protoHash": proto_hash,
-    })
-}
-
-fn sha256_hex(content: &str) -> String {
-    use sha2::{Digest, Sha256};
-    let digest = Sha256::digest(content.as_bytes());
-    digest.iter().map(|byte| format!("{byte:02x}")).collect()
 }

@@ -1,16 +1,9 @@
-# kylet-api-rust — Rust drop-in authority for kylet.se live API
-# Build context MUST be the repository root (not api-rust alone):
-#   docker build -f api-rust/Dockerfile .
-# so build.rs can compile protos from ../proto (repo root/proto).
+# kylet-api-rust — Rust sole authority for kylet.se live API (ADR-169).
+# Build context is the repository root (api-rust/ only).
 FROM rust:1-bookworm AS builder
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends protobuf-compiler \
-  && rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace/api-rust
 COPY api-rust/Cargo.toml api-rust/Cargo.lock ./
-COPY api-rust/build.rs ./
 COPY api-rust/src ./src
-COPY proto /workspace/proto
 ENV CARGO_BUILD_JOBS=2
 RUN cargo build --locked --release
 

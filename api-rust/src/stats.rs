@@ -41,6 +41,10 @@ const GITHUB_OWNERS: &[GithubOwner] = &[
         login: "EpiowAI",
         kind: "organization",
     },
+    GithubOwner {
+        login: "OzyrixLtd",
+        kind: "organization",
+    },
 ];
 
 const NPM_PACKAGES: &[&str] = &[

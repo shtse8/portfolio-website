@@ -17,9 +17,11 @@ async fn chat_tool_loop_list_projects_grounded_by_wiremock_github() {
     unsafe {
         std::env::set_var("GITHUB_API_BASE", gh.uri());
         std::env::set_var("GITHUB_TOKEN", "wiremock-token");
-        std::env::set_var("AI_GATEWAY_BASE_URL", format!("{}/v1", gw.uri()));
-        std::env::set_var("AI_GATEWAY_KEY", "sk-wiremock");
+        std::env::set_var("SYLPHX_AI_URL", gw.uri());
+        std::env::set_var("SYLPHX_AI_API_KEY", "sk-wiremock");
         std::env::remove_var("SYLPHX_URL");
+        std::env::remove_var("AI_GATEWAY_BASE_URL");
+        std::env::remove_var("AI_GATEWAY_KEY");
     }
 
     for owner in ["shtse8", "SylphxAI", "Cubeage", "EpiowAI"] {
@@ -48,22 +50,27 @@ async fn chat_tool_loop_list_projects_grounded_by_wiremock_github() {
             .await;
     }
 
-    let tool_sse = "data: {\"choices\":[{\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"call1\",\"function\":{\"name\":\"list_projects\",\"arguments\":\"{\\\"limit\\\":2}\"}}]}}]}\n\n\
-data: {\"choices\":[{\"finish_reason\":\"tool_calls\"}]}\n\n\
-data: [DONE]\n\n";
-    let text_sse = "data: {\"choices\":[{\"delta\":{\"content\":\"Grounded.\"}}]}\n\n\
-data: {\"choices\":[{\"finish_reason\":\"stop\"}]}\n\n\
-data: [DONE]\n\n";
+    let tool_sse = "data: {\"type\":\"response.output_item.added\",\"output_index\":0,\"item\":{\"type\":\"function_call\",\"call_id\":\"call1\",\"name\":\"list_projects\"}}\n\n\
+data: {\"type\":\"response.function_call_arguments.delta\",\"output_index\":0,\"delta\":\"{\\\"limit\\\":2}\"}\n\n\
+data: {\"type\":\"response.completed\",\"response\":{\"id\":\"r1\",\"status\":\"completed\",\"output\":[{\"type\":\"function_call\",\"call_id\":\"call1\",\"name\":\"list_projects\",\"arguments\":\"{\\\"limit\\\":2}\"}]}}\n\n";
+    let text_sse = "data: {\"type\":\"response.output_text.delta\",\"delta\":\"Grounded.\"}\n\n\
+data: {\"type\":\"response.completed\",\"response\":{\"id\":\"r2\",\"status\":\"completed\",\"output\":[{\"type\":\"message\",\"role\":\"assistant\",\"content\":[{\"type\":\"output_text\",\"text\":\"Grounded.\"}]}]}}\n\n";
 
     Mock::given(method("POST"))
-        .and(path("/v1/chat/completions"))
-        .respond_with(ResponseTemplate::new(200).insert_header("content-type", "text/event-stream").set_body_string(tool_sse))
+        .and(path("/v1/responses"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_raw(tool_sse, "text/event-stream"),
+        )
         .up_to_n_times(1)
         .mount(&gw)
         .await;
     Mock::given(method("POST"))
-        .and(path("/v1/chat/completions"))
-        .respond_with(ResponseTemplate::new(200).insert_header("content-type", "text/event-stream").set_body_string(text_sse))
+        .and(path("/v1/responses"))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_raw(text_sse, "text/event-stream"),
+        )
         .up_to_n_times(1)
         .mount(&gw)
         .await;
@@ -85,5 +92,6 @@ data: [DONE]\n\n";
     let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
     let text = String::from_utf8_lossy(&bytes);
     assert!(text.contains("tool-output-available"), "{text}");
-    assert!(text.contains("tool-repo") || text.contains("Grounded."), "{text}");
+    assert!(text.contains("tool-repo"), "{text}");
+    assert!(text.contains("Grounded."), "{text}");
 }

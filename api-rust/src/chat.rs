@@ -1,3 +1,15 @@
+//! AI chat — browser SSE bridge to the Sylphx AI Gateway Responses wire.
+//!
+//! Browser contract (unchanged, AI SDK v7): POST /chat → SSE events
+//! `text-start|text-delta|text-end|tool-input-start|tool-input-available|
+//! tool-output-available|error` + `[DONE]`.
+//!
+//! Gateway contract (ADR-169): `SYLPHX_AI_URL` (default `https://api.sylphx.ai`,
+//! normalized to `/v1`) + `SYLPHX_AI_API_KEY` bearer → `POST /v1/responses`
+//! (OpenAI Responses API, SSE). Public `/v1/chat/completions` is retired
+//! (2026-08-09); `SYLPHX_URL` is the platform *public browser* connection URL
+//! and must never be used as a server credential.
+
 use crate::http_util::{event_stream_content_type, no_cache};
 use crate::persona::SYSTEM_PROMPT;
 use crate::rate_limit::{check_rate_limit, client_ip, LimitVerdict};
@@ -19,12 +31,56 @@ const MAX_TURNS: usize = 14;
 const CHAT_TIMEOUT: Duration = Duration::from_secs(60);
 const MAX_STEPS: usize = 3;
 const AI_MODEL: &str = "sylphx/lumen";
+const DEFAULT_SYLPHX_AI_URL: &str = "https://api.sylphx.ai";
 
 #[derive(Debug, Clone)]
 pub struct AiConfig {
     pub base_url: String,
     pub key: String,
     pub model: String,
+}
+
+/// Normalize a raw gateway URL to the `/v1` base (same rule as the canonical
+/// spiron client).
+fn normalize_v1_url(raw: Option<&str>) -> String {
+    let configured = raw
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .unwrap_or(DEFAULT_SYLPHX_AI_URL);
+    let trimmed = configured.trim_end_matches('/');
+    if trimmed.ends_with("/v1") {
+        trimmed.to_string()
+    } else {
+        format!("{trimmed}/v1")
+    }
+}
+
+/// Resolve the AI gateway config from server-side env only.
+///
+/// Precedence: `AI_GATEWAY_BASE_URL`/`AI_GATEWAY_KEY` (explicit overrides)
+/// → `SYLPHX_AI_URL`/`SYLPHX_AI_API_KEY` (canonical gateway env, per spiron).
+/// `SYLPHX_URL` (platform public browser connection URL) is deliberately
+/// ignored — it is not a server credential and must never be forwarded.
+pub fn resolve_ai() -> AiConfig {
+    let override_base = env::var("AI_GATEWAY_BASE_URL")
+        .ok()
+        .filter(|s| !s.trim().is_empty());
+    let override_key = env::var("AI_GATEWAY_KEY")
+        .ok()
+        .filter(|s| !s.trim().is_empty());
+    let base = normalize_v1_url(
+        override_base
+            .as_deref()
+            .or(env::var("SYLPHX_AI_URL").ok().as_deref()),
+    );
+    let key = override_key
+        .or_else(|| env::var("SYLPHX_AI_API_KEY").ok().filter(|s| !s.trim().is_empty()))
+        .unwrap_or_default();
+    AiConfig {
+        base_url: base,
+        key,
+        model: env::var("AI_MODEL").unwrap_or_else(|_| AI_MODEL.to_string()),
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -46,82 +102,61 @@ pub struct UIPart {
     pub text: Option<String>,
 }
 
-pub fn resolve_ai() -> AiConfig {
-    let override_base = env::var("AI_GATEWAY_BASE_URL")
-        .ok()
-        .filter(|s| !s.trim().is_empty());
-    let override_key = env::var("AI_GATEWAY_KEY")
-        .ok()
-        .filter(|s| !s.trim().is_empty());
-    let conn = env::var("SYLPHX_URL").unwrap_or_default();
-    let cred = conn
-        .strip_prefix("sylphx://")
-        .and_then(|rest| rest.split('@').next())
-        .unwrap_or("")
-        .to_string();
-    let host = conn
-        .split('@')
-        .nth(1)
-        .and_then(|h| h.split('/').next())
-        .unwrap_or("")
-        .to_string();
-    let base = override_base.unwrap_or_else(|| {
-        if host.is_empty() {
-            String::new()
+fn message_text(m: &UIMessage) -> String {
+    if let Some(parts) = &m.parts {
+        parts
+            .iter()
+            .filter(|p| p.kind == "text")
+            .filter_map(|p| p.text.clone())
+            .collect::<Vec<_>>()
+            .join("")
+    } else if let Some(c) = &m.content {
+        if let Some(s) = c.as_str() {
+            s.to_string()
+        } else if let Some(arr) = c.as_array() {
+            arr.iter()
+                .filter_map(|p| {
+                    p.get("type")
+                        .and_then(|t| t.as_str())
+                        .filter(|t| *t == "text")
+                        .and_then(|_| p.get("text").and_then(|t| t.as_str()))
+                })
+                .collect::<Vec<_>>()
+                .join("")
         } else {
-            format!("https://{host}/v1")
+            String::new()
         }
-    });
-    AiConfig {
-        base_url: base.trim_end_matches('/').to_string(),
-        key: override_key.unwrap_or(cred),
-        model: env::var("AI_MODEL").unwrap_or_else(|_| AI_MODEL.to_string()),
+    } else {
+        String::new()
     }
 }
 
-fn ui_messages_to_openai(messages: &[UIMessage]) -> Vec<Value> {
+/// Map UI messages to Responses `input` items (user/assistant text only;
+/// tool state is server-local across the loop).
+fn ui_messages_to_input_items(messages: &[UIMessage]) -> Vec<Value> {
     messages
         .iter()
         .filter_map(|m| {
-            let role = m.role.as_str();
-            if role != "user" && role != "assistant" && role != "system" {
+            let text = message_text(m);
+            if text.trim().is_empty() {
                 return None;
             }
-            let text: String = if let Some(parts) = &m.parts {
-                parts
-                    .iter()
-                    .filter(|p| p.kind == "text")
-                    .filter_map(|p| p.text.clone())
-                    .collect::<Vec<_>>()
-                    .join("")
-            } else if let Some(c) = &m.content {
-                if let Some(s) = c.as_str() {
-                    s.to_string()
-                } else if let Some(arr) = c.as_array() {
-                    arr.iter()
-                        .filter_map(|p| {
-                            p.get("type")
-                                .and_then(|t| t.as_str())
-                                .filter(|t| *t == "text")
-                                .and_then(|_| p.get("text").and_then(|t| t.as_str()))
-                        })
-                        .collect::<Vec<_>>()
-                        .join("")
-                } else {
-                    String::new()
-                }
-            } else {
-                String::new()
-            };
-            if text.is_empty() && role != "assistant" {
-                return None;
+            match m.role.as_str() {
+                "user" => Some(json!({
+                    "role": "user",
+                    "content": [{ "type": "input_text", "text": text }],
+                })),
+                "assistant" => Some(json!({
+                    "role": "assistant",
+                    "content": [{ "type": "output_text", "text": text }],
+                })),
+                _ => None,
             }
-            Some(json!({ "role": role, "content": text }))
         })
         .collect()
 }
 
-fn tools_schema() -> Vec<Value> {
+fn responses_tools() -> Vec<Value> {
     crate::tool_schemas::tools_schema()
 }
 
@@ -172,8 +207,71 @@ fn message_payload_len(messages: &[UIMessage]) -> usize {
         .sum()
 }
 
-fn emit_event(tx: &tokio::sync::mpsc::UnboundedSender<Result<Event, std::convert::Infallible>>, chunk: Value) {
+fn emit_event(
+    tx: &tokio::sync::mpsc::UnboundedSender<Result<Event, std::convert::Infallible>>,
+    chunk: Value,
+) {
     let _ = tx.send(Ok(Event::default().data(chunk.to_string())));
+}
+
+/// Accumulated function call from Responses stream deltas.
+#[derive(Debug, Default, Clone)]
+struct StreamFunctionCall {
+    id: String,
+    name: String,
+    arguments: String,
+}
+
+/// Extract assistant text + function calls from a non-stream Responses body
+/// (fallback when the gateway returns a complete JSON response).
+fn parse_buffered_response(body: &Value) -> (String, Vec<StreamFunctionCall>) {
+    let mut text = String::new();
+    let mut calls = Vec::new();
+    let Some(output) = body.get("output").and_then(Value::as_array) else {
+        return (text, calls);
+    };
+    for item in output {
+        match item.get("type").and_then(Value::as_str).unwrap_or("") {
+            "message" => {
+                if let Some(parts) = item.get("content").and_then(Value::as_array) {
+                    for part in parts {
+                        if part.get("type").and_then(Value::as_str) == Some("output_text") {
+                            if let Some(t) = part.get("text").and_then(Value::as_str) {
+                                text.push_str(t);
+                            }
+                        }
+                    }
+                }
+            }
+            "function_call" => {
+                let id = item
+                    .get("call_id")
+                    .or_else(|| item.get("id"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let name = item
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                let args = item
+                    .get("arguments")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_string();
+                if !name.is_empty() {
+                    calls.push(StreamFunctionCall {
+                        id,
+                        name,
+                        arguments: args,
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+    (text, calls)
 }
 
 pub async fn handle_chat(body: ChatRequest, headers: &HeaderMap, cors: HeaderMap) -> Response {
@@ -247,150 +345,79 @@ pub async fn handle_chat(body: ChatRequest, headers: &HeaderMap, cors: HeaderMap
         .build()
         .unwrap_or_else(|_| reqwest::Client::new());
 
-    let mut openai_messages = ui_messages_to_openai(&trimmed);
-    openai_messages.insert(0, json!({ "role": "system", "content": SYSTEM_PROMPT }));
+    let mut conversation_input = ui_messages_to_input_items(&trimmed);
+    if conversation_input.is_empty() {
+        return json_response(
+            StatusCode::BAD_REQUEST,
+            json!({ "error": "no readable user text" }),
+            cors,
+        );
+    }
 
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
     let ai2 = ai.clone();
     tokio::spawn(async move {
         let text_id = Uuid::new_v4().to_string();
-        let mut messages_state = openai_messages;
         for _step in 0..MAX_STEPS {
-            let payload = json!({
-                "model": ai2.model,
-                "messages": messages_state,
-                "tools": tools_schema(),
-                "stream": true,
-            });
-            let res = match client
-                .post(format!("{}/chat/completions", ai2.base_url))
-                .bearer_auth(&ai2.key)
-                .json(&payload)
-                .send()
-                .await
-            {
-                Ok(r) => r,
-                Err(e) => {
-                    emit_event(&tx, json!({ "type": "error", "errorText": format!("gateway error: {e}") }));
-                    let _ = tx.send(Ok(Event::default().data("[DONE]")));
-                    return;
-                }
-            };
-            if !res.status().is_success() {
-                let status = res.status();
-                let body = res.text().await.unwrap_or_default();
-                emit_event(
-                    &tx,
-                    json!({ "type": "error", "errorText": format!("gateway {status}: {}", body.chars().take(200).collect::<String>()) }),
-                );
-                let _ = tx.send(Ok(Event::default().data("[DONE]")));
-                return;
-            }
-            let mut byte_stream = res.bytes_stream();
-            let mut saw_stream_bytes = false;
-            let mut assistant_text = String::new();
-            let mut tool_calls: Vec<(String, String, String)> = Vec::new();
-            let mut started_text = false;
-            let mut tool_finish = false;
-            while let Some(chunk) = byte_stream.next().await {
-                let Ok(bytes) = chunk else { continue };
-                if !bytes.is_empty() {
-                    saw_stream_bytes = true;
-                }
-                for raw in String::from_utf8_lossy(&bytes).lines() {
-                    let data = raw.strip_prefix("data: ").unwrap_or(raw).trim();
-                    if data.is_empty() || data == "[DONE]" {
-                        continue;
-                    }
-                    let Ok(parsed) = serde_json::from_str::<Value>(data) else {
-                        continue;
-                    };
-                    let choice = parsed.get("choices").and_then(|c| c.get(0));
-                    let delta = choice.and_then(|c| c.get("delta"));
-                    if let Some(content) = delta.and_then(|d| d.get("content")).and_then(|c| c.as_str()) {
-                        if !started_text {
-                            started_text = true;
-                            emit_event(&tx, json!({ "type": "text-start", "id": text_id }));
-                        }
-                        assistant_text.push_str(content);
-                        emit_event(&tx, json!({ "type": "text-delta", "id": text_id, "delta": content }));
-                    }
-                    if let Some(tcs) = delta.and_then(|d| d.get("tool_calls")).and_then(|t| t.as_array()) {
-                        for tc in tcs {
-                            let idx = tc.get("index").and_then(|i| i.as_u64()).unwrap_or(0) as usize;
-                            while tool_calls.len() <= idx {
-                                tool_calls.push((String::new(), String::new(), String::new()));
+            // Client disconnect cancels the remaining gateway work promptly.
+            tokio::select! {
+                _ = tx.closed() => { return; }
+                outcome = run_gateway_step(&client, &ai2, &conversation_input, &tx, &text_id) => {
+                    match outcome {
+                        StepOutcome::ToolCalls { text, calls } => {
+                            // Append assistant items + tool outputs, then loop.
+                            if !text.is_empty() {
+                                conversation_input.push(json!({
+                                    "role": "assistant",
+                                    "content": [{ "type": "output_text", "text": text }],
+                                }));
                             }
-                            if let Some(id) = tc.get("id").and_then(|i| i.as_str()) {
-                                tool_calls[idx].0 = id.to_string();
-                            }
-                            if let Some(name) = tc.get("function").and_then(|f| f.get("name")).and_then(|n| n.as_str()) {
-                                tool_calls[idx].1 = name.to_string();
-                            }
-                            if let Some(args) = tc.get("function").and_then(|f| f.get("arguments")).and_then(|a| a.as_str()) {
-                                tool_calls[idx].2.push_str(args);
+                            for call in &calls {
+                                emit_event(&tx, json!({ "type": "tool-input-start", "toolCallId": call.id, "toolName": call.name }));
+                                emit_event(&tx, json!({ "type": "tool-input-available", "toolCallId": call.id, "toolName": call.name, "input": serde_json::from_str::<Value>(&call.arguments).unwrap_or(json!({})) }));
+                                let output = run_tool(&call.name, &serde_json::from_str::<Value>(&call.arguments).unwrap_or(json!({}))).await;
+                                emit_event(&tx, json!({ "type": "tool-output-available", "toolCallId": call.id, "output": output }));
+                                conversation_input.push(json!({
+                                    "type": "function_call",
+                                    "call_id": call.id,
+                                    "name": call.name,
+                                    "arguments": call.arguments,
+                                }));
+                                conversation_input.push(json!({
+                                    "type": "function_call_output",
+                                    "call_id": call.id,
+                                    "output": output.to_string(),
+                                }));
                             }
                         }
-                    }
-                    if let Some(finish) = choice.and_then(|c| c.get("finish_reason")).and_then(|f| f.as_str()) {
-                        if finish == "stop" {
-                            if started_text {
+                        StepOutcome::Done { text } => {
+                            if !text.is_empty() {
+                                emit_event(&tx, json!({ "type": "text-start", "id": text_id }));
+                                emit_event(&tx, json!({ "type": "text-delta", "id": text_id, "delta": text }));
                                 emit_event(&tx, json!({ "type": "text-end", "id": text_id }));
                             }
                             let _ = tx.send(Ok(Event::default().data("[DONE]")));
                             return;
                         }
-                        if finish == "tool_calls" {
-                            tool_finish = true;
-                            if started_text {
-                                emit_event(&tx, json!({ "type": "text-end", "id": text_id }));
-                            }
-                            let mut tool_msgs = Vec::new();
-                            for (id, name, args_raw) in &tool_calls {
-                                if name.is_empty() {
-                                    continue;
-                                }
-                                let args: Value = serde_json::from_str(args_raw).unwrap_or(json!({}));
-                                emit_event(&tx, json!({ "type": "tool-input-start", "toolCallId": id, "toolName": name }));
-                                emit_event(&tx, json!({ "type": "tool-input-available", "toolCallId": id, "toolName": name, "input": args }));
-                                let output = run_tool(name, &args).await;
-                                emit_event(&tx, json!({ "type": "tool-output-available", "toolCallId": id, "output": output }));
-                                tool_msgs.push(json!({ "role": "tool", "tool_call_id": id, "content": output.to_string() }));
-                            }
-                            messages_state.push(json!({
-                                "role": "assistant",
-                                "content": assistant_text,
-                                "tool_calls": tool_calls.iter().map(|(id, name, args)| json!({
-                                    "id": id, "type": "function", "function": { "name": name, "arguments": args }
-                                })).collect::<Vec<_>>()
-                            }));
-                            for tm in tool_msgs {
-                                messages_state.push(tm);
-                            }
-                            break;
+                        StepOutcome::Error { message } => {
+                            emit_event(&tx, json!({ "type": "error", "errorText": message }));
+                            let _ = tx.send(Ok(Event::default().data("[DONE]")));
+                            return;
+                        }
+                        StepOutcome::Empty => {
+                            emit_event(
+                                &tx,
+                                json!({
+                                    "type": "error",
+                                    "errorText": "gateway returned an empty stream — the AI provider may be unavailable (check platform credits)."
+                                }),
+                            );
+                            let _ = tx.send(Ok(Event::default().data("[DONE]")));
+                            return;
                         }
                     }
                 }
             }
-            if tool_finish {
-                continue;
-            }
-            if !started_text && !saw_stream_bytes {
-                emit_event(
-                    &tx,
-                    json!({
-                        "type": "error",
-                        "errorText": "gateway returned an empty stream — the AI provider may be unavailable (check platform credits)."
-                    }),
-                );
-                let _ = tx.send(Ok(Event::default().data("[DONE]")));
-                return;
-            }
-            if started_text {
-                emit_event(&tx, json!({ "type": "text-end", "id": text_id }));
-            }
-            let _ = tx.send(Ok(Event::default().data("[DONE]")));
-            return;
         }
         let _ = tx.send(Ok(Event::default().data("[DONE]")));
     });
@@ -405,6 +432,273 @@ pub async fn handle_chat(body: ChatRequest, headers: &HeaderMap, cors: HeaderMap
         .into_response()
 }
 
+enum StepOutcome {
+    ToolCalls { text: String, calls: Vec<StreamFunctionCall> },
+    Done { text: String },
+    Error { message: String },
+    Empty,
+}
+
+/// One Responses request/stream round. Emits browser text deltas as they
+/// arrive; returns tool calls or terminal state from `response.completed`.
+async fn run_gateway_step(
+    client: &reqwest::Client,
+    ai: &AiConfig,
+    conversation_input: &[Value],
+    tx: &tokio::sync::mpsc::UnboundedSender<Result<Event, std::convert::Infallible>>,
+    text_id: &str,
+) -> StepOutcome {
+    let payload = json!({
+        "model": ai.model,
+        "instructions": SYSTEM_PROMPT,
+        "input": conversation_input,
+        "tools": responses_tools(),
+        "stream": true,
+    });
+    let res = match client
+        .post(format!("{}/responses", ai.base_url))
+        .bearer_auth(&ai.key)
+        .json(&payload)
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => return StepOutcome::Error { message: format!("gateway error: {e}") },
+    };
+    if !res.status().is_success() {
+        let status = res.status();
+        let body = res.text().await.unwrap_or_default();
+        return StepOutcome::Error {
+            message: format!(
+                "gateway {status}: {}",
+                body.chars().take(200).collect::<String>()
+            ),
+        };
+    }
+    let content_type = res
+        .headers()
+        .get(header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("")
+        .to_string();
+
+    // Non-stream fallback: complete JSON response body.
+    if !content_type.contains("text/event-stream") {
+        match res.json::<Value>().await {
+            Ok(body) => {
+                let status = body
+                    .pointer("/response/status")
+                    .or_else(|| body.get("status"))
+                    .and_then(Value::as_str)
+                    .unwrap_or("completed");
+                if status == "failed" {
+                    let msg = body
+                        .pointer("/response/error/message")
+                        .or_else(|| body.pointer("/error/message"))
+                        .and_then(Value::as_str)
+                        .unwrap_or("gateway failed")
+                        .to_string();
+                    return StepOutcome::Error { message: msg };
+                }
+                let (text, calls) = parse_buffered_response(&body);
+                if !calls.is_empty() {
+                    return StepOutcome::ToolCalls { text, calls };
+                }
+                if text.is_empty() {
+                    return StepOutcome::Empty;
+                }
+                return StepOutcome::Done { text };
+            }
+            Err(_) => return StepOutcome::Empty,
+        }
+    }
+
+    let mut byte_stream = res.bytes_stream();
+    let mut saw_stream_bytes = false;
+    let mut started_text = false;
+    let mut text = String::new();
+    let mut calls: Vec<StreamFunctionCall> = Vec::new();
+    let mut by_index: std::collections::HashMap<usize, usize> = std::collections::HashMap::new();
+    // Terminal signal captured inside the loop; final StepOutcome is built
+    // after the loop so accumulated state can move into it exactly once.
+    let mut completed_status: Option<String> = None;
+    let mut failed_message: Option<String> = None;
+
+    while let Some(chunk) = byte_stream.next().await {
+        let Ok(bytes) = chunk else { continue };
+        if !bytes.is_empty() {
+            saw_stream_bytes = true;
+        }
+        for raw in String::from_utf8_lossy(&bytes).lines() {
+            let data = raw.strip_prefix("data: ").unwrap_or(raw).trim();
+            if data.is_empty() || data == "[DONE]" {
+                continue;
+            }
+            let Ok(parsed) = serde_json::from_str::<Value>(data) else {
+                continue;
+            };
+            let Some(event_type) = parsed.get("type").and_then(Value::as_str) else {
+                continue;
+            };
+            match event_type {
+                "response.output_text.delta" => {
+                    if let Some(delta) = parsed.get("delta").and_then(Value::as_str) {
+                        if !started_text {
+                            started_text = true;
+                            emit_event(tx, json!({ "type": "text-start", "id": text_id }));
+                        }
+                        text.push_str(delta);
+                        emit_event(tx, json!({ "type": "text-delta", "id": text_id, "delta": delta }));
+                    }
+                }
+                "response.output_item.added" => {
+                    if let Some(item) = parsed.get("item") {
+                        if item.get("type").and_then(Value::as_str) == Some("function_call") {
+                            let idx = parsed.get("output_index").and_then(Value::as_u64).unwrap_or(0) as usize;
+                            let call = StreamFunctionCall {
+                                id: item
+                                    .get("call_id")
+                                    .and_then(Value::as_str)
+                                    .unwrap_or("")
+                                    .to_string(),
+                                name: item.get("name").and_then(Value::as_str).unwrap_or("").to_string(),
+                                arguments: String::new(),
+                            };
+                            by_index.insert(idx, calls.len());
+                            calls.push(call);
+                        }
+                    }
+                }
+                "response.function_call_arguments.delta" => {
+                    if let Some(delta) = parsed.get("delta").and_then(Value::as_str) {
+                        let idx = parsed.get("output_index").and_then(Value::as_u64).unwrap_or(0) as usize;
+                        if let Some(slot) = by_index.get(&idx).copied() {
+                            if let Some(call) = calls.get_mut(slot) {
+                                call.arguments.push_str(delta);
+                            }
+                        }
+                    }
+                }
+                "response.output_item.done" => {
+                    if let Some(item) = parsed.get("item") {
+                        if item.get("type").and_then(Value::as_str) == Some("function_call") {
+                            // Authoritative arguments if the stream omitted deltas.
+                            if let Some(args) = item.get("arguments").and_then(Value::as_str) {
+                                let idx = parsed.get("output_index").and_then(Value::as_u64).unwrap_or(0) as usize;
+                                if let Some(slot) = by_index.get(&idx).copied() {
+                                    if let Some(call) = calls.get_mut(slot) {
+                                        if call.arguments.is_empty() {
+                                            call.arguments = args.to_string();
+                                        }
+                                        if call.id.is_empty() {
+                                            if let Some(id) = item.get("call_id").and_then(Value::as_str) {
+                                                call.id = id.to_string();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                "response.completed" => {
+                    if let Some(output) = parsed.pointer("/response/output").and_then(Value::as_array) {
+                        // Authoritative final parse (covers deltas missed or buffered).
+                        for item in output {
+                            match item.get("type").and_then(Value::as_str).unwrap_or("") {
+                                "message" => {
+                                    if let Some(parts) = item.get("content").and_then(Value::as_array) {
+                                        for part in parts {
+                                            if part.get("type").and_then(Value::as_str) == Some("output_text") {
+                                                if let Some(t) = part.get("text").and_then(Value::as_str) {
+                                                    text.push_str(t);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                "function_call" => {
+                                    let name = item.get("name").and_then(Value::as_str).unwrap_or("").to_string();
+                                    if name.is_empty() {
+                                        continue;
+                                    }
+                                    let id = item
+                                        .get("call_id")
+                                        .or_else(|| item.get("id"))
+                                        .and_then(Value::as_str)
+                                        .unwrap_or("")
+                                        .to_string();
+                                    let args = item.get("arguments").and_then(Value::as_str).unwrap_or("").to_string();
+                                    if let Some(existing) = calls.iter_mut().find(|c| !c.id.is_empty() && c.id == id) {
+                                        if existing.arguments.is_empty() {
+                                            existing.arguments = args;
+                                        }
+                                    } else {
+                                        calls.push(StreamFunctionCall { id, name, arguments: args });
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    completed_status = Some(
+                        parsed
+                            .pointer("/response/status")
+                            .and_then(Value::as_str)
+                            .unwrap_or("completed")
+                            .to_string(),
+                    );
+                }
+                "response.incomplete" => {
+                    failed_message = Some("gateway stream ended incomplete — please try again.".to_string());
+                }
+                "response.failed" => {
+                    failed_message = Some(
+                        parsed
+                            .pointer("/response/error/message")
+                            .and_then(Value::as_str)
+                            .unwrap_or("gateway failed")
+                            .to_string(),
+                    );
+                }
+                _ => {}
+            }
+        }
+        if completed_status.is_some() || failed_message.is_some() {
+            break;
+        }
+    }
+
+    if let Some(msg) = failed_message {
+        return StepOutcome::Error { message: msg };
+    }
+    if let Some(status) = completed_status {
+        if status != "completed" {
+            return StepOutcome::Error {
+                message: format!("gateway response status: {status}"),
+            };
+        }
+        if !calls.is_empty() {
+            return StepOutcome::ToolCalls { text, calls };
+        }
+        if !text.is_empty() || started_text {
+            return StepOutcome::Done { text };
+        }
+        return StepOutcome::Empty;
+    }
+    if !saw_stream_bytes {
+        return StepOutcome::Empty;
+    }
+    // Stream ended without a terminal event: text (if any) is all we have.
+    if !calls.is_empty() {
+        return StepOutcome::ToolCalls { text, calls };
+    }
+    if !text.is_empty() || started_text {
+        return StepOutcome::Done { text };
+    }
+    StepOutcome::Empty
+}
+
 fn json_response(status: StatusCode, body: Value, mut cors: HeaderMap) -> Response {
     crate::http_util::apply_json_headers(&mut cors);
     (
@@ -413,4 +707,77 @@ fn json_response(status: StatusCode, body: Value, mut cors: HeaderMap) -> Respon
         serde_json::to_string(&body).unwrap_or_else(|_| "{}".to_string()),
     )
         .into_response()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ui_messages_map_to_responses_input_items() {
+        let messages = vec![
+            UIMessage {
+                role: "user".into(),
+                parts: Some(vec![UIPart {
+                    kind: "text".into(),
+                    text: Some("hello".into()),
+                }]),
+                content: None,
+            },
+            UIMessage {
+                role: "assistant".into(),
+                parts: Some(vec![UIPart {
+                    kind: "text".into(),
+                    text: Some("hi".into()),
+                }]),
+                content: None,
+            },
+            UIMessage {
+                role: "system".into(),
+                parts: None,
+                content: Some(json!([{ "type": "text", "text": "ignored" }])),
+            },
+        ];
+        let items = ui_messages_to_input_items(&messages);
+        assert_eq!(items.len(), 2);
+        assert_eq!(items[0]["role"], "user");
+        assert_eq!(items[0]["content"][0]["type"], "input_text");
+        assert_eq!(items[1]["role"], "assistant");
+        assert_eq!(items[1]["content"][0]["type"], "output_text");
+    }
+
+    #[test]
+    fn parse_buffered_response_extracts_text_and_calls() {
+        let body = json!({
+            "id": "r1",
+            "output": [
+                { "type": "message", "role": "assistant", "content": [
+                    { "type": "output_text", "text": "Here is the answer " }
+                ]},
+                { "type": "function_call", "call_id": "call_1", "name": "get_repo", "arguments": "{\"name\":\"pdf-reader-mcp\"}" }
+            ]
+        });
+        let (text, calls) = parse_buffered_response(&body);
+        assert_eq!(text, "Here is the answer ");
+        assert_eq!(calls.len(), 1);
+        assert_eq!(calls[0].name, "get_repo");
+        assert_eq!(calls[0].id, "call_1");
+    }
+
+    #[test]
+    fn normalize_v1_url_rules() {
+        assert_eq!(normalize_v1_url(None), "https://api.sylphx.ai/v1");
+        assert_eq!(
+            normalize_v1_url(Some("https://gateway.example")),
+            "https://gateway.example/v1"
+        );
+        assert_eq!(
+            normalize_v1_url(Some("https://gateway.example/v1")),
+            "https://gateway.example/v1"
+        );
+        assert_eq!(
+            normalize_v1_url(Some("https://gateway.example/v1/")),
+            "https://gateway.example/v1"
+        );
+    }
 }

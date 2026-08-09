@@ -27,6 +27,50 @@ async fn options_preflight_allows_kylet_origin() {
 }
 
 #[tokio::test]
+async fn foreign_origin_preflight_gets_no_allow_origin() {
+    let app = router();
+    let res = app
+        .oneshot(
+            Request::builder()
+                .method("OPTIONS")
+                .uri("/stats")
+                .header("origin", "https://evil.example")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(res.status(), StatusCode::NO_CONTENT);
+    assert!(
+        res.headers()
+            .get("access-control-allow-origin")
+            .is_none(),
+        "foreign origin must not be echoed"
+    );
+}
+
+#[tokio::test]
+async fn stats_response_omits_allow_origin_for_foreign_origin() {
+    let app = router();
+    let res = app
+        .oneshot(
+            Request::builder()
+                .uri("/stats")
+                .header("origin", "https://evil.example")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert!(
+        res.headers()
+            .get("access-control-allow-origin")
+            .is_none(),
+        "foreign origin must not receive allow-origin"
+    );
+}
+
+#[tokio::test]
 async fn unknown_route_returns_404_json() {
     let app = router();
     let res = app

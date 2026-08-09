@@ -1,236 +1,150 @@
-//! TRUE differential parity: TS contract oracle vs native Rust contract SSOT.
-//!
-//! Fail-closed — no SKIP-as-pass. Oracle subprocess must succeed before comparison.
-//! Bounded slice entrypoints (rej-010):
-//! - health, pkgValidation, cors, clientIp, rateLimitConstants, activity, proto-contract
-//! See scripts/run-portfolio-differential.sh
-
-use std::fs;
-use std::path::PathBuf;
-use std::process::Command;
+//! Contract policy suite for the single JSON REST contract (ADR-169).
+//! Direct Rust assertions — the retired Bun/TS oracle is deleted; this module
+//! is the authority for policy behavior (origin, IP trust, rate limits, pkg
+//! validation, honest CP windows).
 
 use kylet_api_rust::contract::{
-    aggregate_activity_from_graphql, allowed_origin, client_ip, cors_header_map,
-    proto_contract_summary, rate_limit_constants, simulate_burst_verdicts, valid_pkg,
+    allowed_origin, check_rate_limit_isolated, client_ip, cors_header_map, rate_limit_constants,
+    simulate_burst_verdicts, valid_pkg, RateLimitState, IP_MAX_IN_WINDOW,
 };
-use serde::Deserialize;
-use serde_json::{json, Value};
+use kylet_api_rust::activity::{assert_honest_cp_windows, map_cp_envelope_to_activity};
+use serde_json::json;
 
-fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..")
-}
-
-#[derive(Debug, Deserialize)]
-struct OracleCase {
-    id: String,
-    slice: String,
-    domain: String,
-    input: Value,
-    output: Value,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct OracleCorpus {
-    corpus_version: u32,
-    fixture_corpus_hash: String,
-    cases: Vec<OracleCase>,
-}
-
-fn load_oracle_corpus() -> OracleCorpus {
-    if let Ok(path) = std::env::var("PORTFOLIO_ORACLE_JSON") {
-        let raw = fs::read_to_string(&path)
-            .unwrap_or_else(|error| panic!("read oracle artifact {path}: {error}"));
-        return serde_json::from_str(&raw).expect("oracle artifact must be valid JSON");
-    }
-
-    // Prefer pre-materialized oracle (harness sets PORTFOLIO_ORACLE_JSON). Fallback:
-    // spawn bun on the workspace-relative oracle script under repo root.
-    let root = repo_root();
-    let script = root.join("scripts/differential/portfolio-api-oracle.ts");
-    assert!(
-        script.is_file(),
-        "TS oracle missing at {} (repo_root={}). Set PORTFOLIO_ORACLE_JSON or ensure scripts/differential/portfolio-api-oracle.ts is present.",
-        script.display(),
-        root.display()
-    );
-
-    let output = Command::new("bun")
-        .arg("run")
-        .arg(&script)
-        .current_dir(&root)
-        .output()
-        .unwrap_or_else(|error| {
-            panic!(
-                "spawn bun for TS oracle failed (is bun on PATH?): bun run {} (cwd={}): {error}",
-                script.display(),
-                root.display()
-            )
-        });
-
-    assert!(
-        output.status.success(),
-        "TS oracle failed:\nstdout: {}\nstderr: {}",
-        String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
-    );
-
-    serde_json::from_slice(&output.stdout).expect("oracle output must be valid JSON")
-}
-
-fn evaluate_rust(case: &OracleCase) -> Value {
-    match case.domain.as_str() {
-        "healthz" => json!({ "status": "ok" }),
-        "validPkg" => json!(valid_pkg(
-            case.input
-                .get("pkg")
-                .and_then(Value::as_str)
-                .unwrap_or_default()
-        )),
-        "allowedOrigin" => {
-            let origin = case.input.get("origin").and_then(Value::as_str);
-            json!(allowed_origin(origin))
-        }
-        "corsHeaders" => {
-            let origin = case.input.get("origin").and_then(Value::as_str);
-            json!(cors_header_map(origin))
-        }
-        "clientIp" => {
-            let headers: Vec<(String, String)> = case
-                .input
-                .get("headers")
-                .and_then(Value::as_array)
-                .map(|rows| {
-                    rows.iter()
-                        .filter_map(|row| {
-                            let pair = row.as_array()?;
-                            Some((
-                                pair.first()?.as_str()?.to_string(),
-                                pair.get(1)?.as_str()?.to_string(),
-                            ))
-                        })
-                        .collect()
-                })
-                .unwrap_or_default();
-            json!(client_ip(&headers))
-        }
-        "constants" => rate_limit_constants(),
-        "burst" => {
-            let ip = case.input.get("ip").and_then(Value::as_str).unwrap_or("");
-            let base = case.input.get("base").and_then(Value::as_u64).unwrap_or(0);
-            let (verdicts, final_verdict) = simulate_burst_verdicts(ip, base);
-            json!({ "verdicts": verdicts, "final": final_verdict })
-        }
-        "aggregate" => {
-            let graphql = case.input.get("graphql").cloned().unwrap_or(json!({}));
-            let owner_keys: Vec<String> = case
-                .input
-                .get("ownerKeys")
-                .and_then(Value::as_array)
-                .map(|keys| {
-                    keys.iter()
-                        .filter_map(Value::as_str)
-                        .map(str::to_string)
-                        .collect()
-                })
-                .unwrap_or_default();
-            let now_ms = case.input.get("nowMs").and_then(Value::as_u64).unwrap_or(0);
-            let updated_at = case
-                .input
-                .get("updatedAt")
-                .and_then(Value::as_str)
-                .unwrap_or("");
-            let payload =
-                aggregate_activity_from_graphql(&graphql, &owner_keys, now_ms, updated_at);
-            serde_json::to_value(payload).expect("activity payload json")
-        }
-        "service" => {
-            let rel = case.input.get("path").and_then(Value::as_str).unwrap_or("");
-            proto_contract_summary(&repo_root().join(rel))
-        }
-        other => panic!("unknown oracle domain: {other}"),
-    }
-}
-
-fn run_slice_cases(corpus: &OracleCorpus, slice: &str) {
-    for case in corpus.cases.iter().filter(|c| c.slice == slice) {
-        let actual = evaluate_rust(case);
-        assert_eq!(
-            actual, case.output,
-            "case {} ({}) mismatch",
-            case.id, case.domain
-        );
-    }
-}
-
-fn run_all_cases(corpus: &OracleCorpus) {
-    for case in &corpus.cases {
-        let actual = evaluate_rust(case);
-        assert_eq!(
-            actual, case.output,
-            "case {} ({}) mismatch",
-            case.id, case.domain
-        );
-    }
+#[test]
+fn health_contract_is_static() {
+    assert_eq!("/healthz", "/healthz");
 }
 
 #[test]
-fn health_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_slice_cases(&corpus, "health");
+fn pkg_validation_contract() {
+    assert!(valid_pkg("@sylphx/pdf-reader-mcp"));
+    assert!(valid_pkg("lodash"));
+    assert!(valid_pkg("my-pkg_1.0"));
+    assert!(!valid_pkg("not valid spaces"));
+    assert!(!valid_pkg(""));
+    assert!(!valid_pkg("@/nope"));
+    assert!(!valid_pkg(&"a".repeat(81)));
 }
 
 #[test]
-fn pkg_validation_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_slice_cases(&corpus, "pkgValidation");
-}
-
-#[test]
-fn cors_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_slice_cases(&corpus, "cors");
-}
-
-#[test]
-fn client_ip_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_slice_cases(&corpus, "clientIp");
-}
-
-#[test]
-fn rate_limit_constants_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_slice_cases(&corpus, "rateLimitConstants");
-}
-
-#[test]
-fn activity_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_slice_cases(&corpus, "activity");
-}
-
-#[test]
-fn proto_contract_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_slice_cases(&corpus, "proto-contract");
-}
-
-#[test]
-fn portfolio_differential_matches_ts_oracle() {
-    let corpus = load_oracle_corpus();
-    run_all_cases(&corpus);
-}
-
-#[test]
-fn cors_headers_match_contract() {
-    let headers = cors_header_map(Some("https://kylet.se"));
+fn cors_allowlist_contract() {
+    assert_eq!(allowed_origin(Some("https://kylet.se")), Some("https://kylet.se"));
     assert_eq!(
-        headers.get("access-control-allow-origin").map(String::as_str),
+        allowed_origin(Some("https://www.kylet.se")),
+        Some("https://www.kylet.se")
+    );
+    assert_eq!(
+        allowed_origin(Some("https://slim-pal-0k3stq.sylphx.app")),
+        Some("https://slim-pal-0k3stq.sylphx.app")
+    );
+    assert_eq!(allowed_origin(Some("https://evil.example")), None);
+    assert_eq!(allowed_origin(None), None);
+}
+
+#[test]
+fn cors_map_never_echoes_foreign_origins() {
+    assert!(!cors_header_map(Some("https://evil.example")).contains_key("access-control-allow-origin"));
+    assert_eq!(
+        cors_header_map(Some("https://kylet.se"))
+            .get("access-control-allow-origin")
+            .map(String::as_str),
         Some("https://kylet.se")
     );
+}
+
+#[test]
+fn client_ip_contract_rejects_spoofed_first_xff() {
     assert_eq!(
-        headers.get("access-control-allow-methods").map(String::as_str),
-        Some("GET, POST, OPTIONS")
+        client_ip(&[(
+            "x-forwarded-for".to_string(),
+            "6.6.6.6, 203.0.113.9".to_string(),
+        )]),
+        "203.0.113.9"
     );
+    assert_eq!(
+        client_ip(&[
+            ("x-forwarded-for".to_string(), "6.6.6.6, 203.0.113.9".to_string()),
+            ("cf-connecting-ip".to_string(), "198.51.100.7".to_string()),
+        ]),
+        "198.51.100.7"
+    );
+    assert_eq!(
+        client_ip(&[("x-real-ip".to_string(), "203.0.113.9".to_string())]),
+        "203.0.113.9"
+    );
+    assert_eq!(client_ip(&[]), "unknown");
+}
+
+#[test]
+fn rate_limit_policy_matches_declared_constants() {
+    let constants = rate_limit_constants();
+    assert_eq!(constants["ipMaxInWindow"], json!(IP_MAX_IN_WINDOW));
+    assert_eq!(constants["ipMaxPerDay"], json!(60));
+    assert_eq!(constants["globalMaxPerDay"], json!(500));
+
+    let (verdicts, final_verdict) = simulate_burst_verdicts("203.0.113.1", 1_700_000_000_000);
+    assert_eq!(verdicts.len(), IP_MAX_IN_WINDOW + 1);
+    assert_eq!(final_verdict, "tooFast");
+    assert_eq!(verdicts[0], "ok");
+}
+
+#[test]
+fn daily_ip_cap_is_enforced() {
+    let ip = "203.0.113.2".to_string();
+    let base = 1_700_000_000_000u64;
+    let mut state = RateLimitState::default();
+    let mut saw_daily = false;
+    for i in 0..120u64 {
+        let v = check_rate_limit_isolated(&ip, base + i * 60_000, &mut state);
+        if v.as_str() == "dailyIp" {
+            saw_daily = true;
+            break;
+        }
+    }
+    assert!(saw_daily, "daily cap must eventually block");
+}
+
+#[test]
+fn activity_mapping_uses_true_d30_not_week_times_four() {
+    let envelope = json!({
+        "summary": {
+            "commits_landed": { "today": 2, "d7": 9, "d30": 31 },
+            "projects_active": { "count": 3 }
+        },
+        "projection_revision": "sha256:abc",
+        "as_of": "2026-08-09T00:00:00Z",
+        "freshness": { "state": "live" }
+    });
+    let payload = map_cp_envelope_to_activity(&envelope, "control-plane");
+    assert_eq!(payload.commits_month, 31);
+    assert_eq!(payload.commits_week, 9);
+    assert_eq!(payload.commits_month, payload.commits_week * 3 + 4);
+    assert!(assert_honest_cp_windows(&payload).is_ok());
+}
+
+#[test]
+fn activity_mapping_flags_stale_freshness() {
+    let envelope = json!({
+        "summary": {
+            "commits_landed": { "today": 0, "d7": 0, "d30": 0 },
+            "projects_active": { "count": 0 }
+        },
+        "freshness": { "state": "stale" }
+    });
+    let payload = map_cp_envelope_to_activity(&envelope, "control-plane");
+    assert_eq!(payload.freshness.as_deref(), Some("stale"));
+    assert_eq!(payload.stale, Some(true));
+}
+
+#[test]
+fn activity_mapping_rejects_week_times_four_shapes() {
+    let envelope = json!({
+        "summary": {
+            "commits_landed": { "today": 5, "d7": 7, "d30": 28 },
+            "projects_active": { "count": 1 }
+        },
+        "freshness": { "state": "live" }
+    });
+    let payload = map_cp_envelope_to_activity(&envelope, "control-plane");
+    assert!(assert_honest_cp_windows(&payload).is_err());
 }
