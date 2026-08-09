@@ -146,8 +146,8 @@ for (const f of [
   "public/art/era-mobile.jpg",
   "public/art/era-ai.jpg",
   "public/art/era-consulting.jpg",
-  "public/companys/sylphx.png",
-  "public/companys/epiow.png",
+  "public/company/sylphx.png",
+  "public/company/epiow.png",
 ]) {
   if (!existsSync(join(root, f))) fail(`missing ${f}`);
   else ok(`asset ${f}`);

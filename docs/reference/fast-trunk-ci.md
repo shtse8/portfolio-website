@@ -4,7 +4,7 @@
 
 | Concern | Owner |
 | --- | --- |
-| Work / claim / review | Enact |
+| Work / claim / review | Native agent coordination (Codex); Enact retired |
 | Source history | Git |
 | Source correctness | This repository CI (`source-ci/pass`) |
 | Production artifact build | Sylphx Platform (once) |
@@ -16,9 +16,10 @@
 - **External contributors:** Pull Request presubmit feedback.
 - **Merge Queue:** default off (no `merge_group` trigger).
 
-## CI scope
+## CI scope (source-ci/pass)
 
-Blocking: lint/typecheck, affected tests, schema/migration safety, narrow security.
+Blocking: biome lint, `tsc`, `bun test`, static export build, `cargo clippy -D warnings`,
+`cargo test --locked`, design-marker gate, no-TS-backend gate.
 
 Not in source CI: production Docker/release image builds, disposable ship binaries for ordinary tips.
 

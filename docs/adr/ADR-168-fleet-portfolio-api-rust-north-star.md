@@ -98,3 +98,15 @@ Fleet registry row for this repo should read **adopted** for API authority (Rust
 - REST public edge remains derived projection for static-site `fetch`.
 - prost product generator retired.
 
+
+## Amendment 2026-08-09 — superseded by ADR-169 (single JSON REST contract)
+
+- The buffa + connectrpc product wire, proto SSOT, and `prost`/`connectrpc-build`
+  codegen are **retired**. The contract is a single JSON REST surface
+  (`api-rust/src/contract.rs` + `tool_schemas.rs`); see
+  [ADR-169](./ADR-169-contract-simplification-clean-break.md).
+- Chat now calls the Sylphx AI Gateway **Responses API** (`POST /v1/responses`)
+  with `SYLPHX_AI_URL` + `SYLPHX_AI_API_KEY`; public `/v1/chat/completions` is
+  retired upstream (2026-08-09).
+- The Bun→Rust cutover outcome (Rust sole API authority, TypeScript static web)
+  remains the North Star and is unchanged.

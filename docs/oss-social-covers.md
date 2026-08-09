@@ -22,24 +22,12 @@ Mark is the **embed API**, not a drop-in crop of a 4:1 strip into a 16:10 card.
 
 Grok Build’s README works because the screenshot **is** the product (the TUI). Docs pages are not the product for `pdf-reader-mcp`.
 
-## Regenerate / apply
+## Regenerate
 
 ```bash
 bun run sync:github
 bun run generate:banners      # designed banners for all listed repos
-bun run apply:oss-banners     # push docs/banner.png + README embed
+bun run generate:covers       # local card plates + README PNG/SVG sources
 ```
 
-## README embed
-
-```markdown
-<p align="center">
-  <img src="docs/banner.png" alt="Project banner" width="100%" />
-</p>
-```
-
-## Pipeline
-
-1. **Default: designed banner** with code-rendered text (never AI-garbled names).
-2. **Screenshot only** when the capture is the actual product surface users run.
-3. **One SSOT** — same banner in portfolio and README.
+Cross-repo auto-push scripts were retired (ADR-169): banner/cover changes are applied via normal PRs.

@@ -12,7 +12,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     status: "active",
     description:
       "Open source developer tools company focused on MCP ecosystem and TypeScript libraries",
-    logo: "/companys/sylphx.png",
+    logo: "/company/sylphx.png",
     website: "https://sylphx.com",
     github: "SylphxAI",
     location: "United Kingdom",
@@ -28,7 +28,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     status: "active",
     description:
       "Enterprise workspace platform OS for Hong Kong organizations — modular HR, CRM, and operations apps with local Employment Ordinance & MPF-native workflows",
-    logo: "/companys/epiow.png?v=eorbit",
+    logo: "/company/epiow.png?v=eorbit",
     website: "https://epiow.com",
     github: "EpiowAI",
     location: "United Kingdom / Hong Kong",
@@ -44,7 +44,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     status: "active",
     description:
       "Mobile gaming company — card and casino games with 10M+ downloads",
-    logo: "/companys/cubeage.jpeg",
+    logo: "/company/cubeage.jpeg",
     website: "https://cubeage.com",
     github: "Cubeage",
     location: "Hong Kong",
@@ -60,7 +60,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     status: "active",
     description:
       "Hong Kong gaming media platform and community with 500K+ users",
-    logo: "/companys/nakuz.jpeg",
+    logo: "/company/nakuz.jpeg",
     website: "https://nakuz.com",
     location: "Hong Kong",
     industry: "Digital Media",
@@ -76,7 +76,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     status: "active",
     description:
       "Quality tech accessories brand — cables, chargers, audio, and protection with multi-channel e-commerce",
-    logo: "/companys/ozyrix.png",
+    logo: "/company/ozyrix.png",
     website: "https://ozyrix.com",
     github: "OzyrixLtd",
     location: "United Kingdom",
@@ -92,7 +92,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     type: "company",
     status: "closed",
     description: "Social gaming company — Facebook games with 10M+ MAU",
-    logo: "/companys/minimax.jpeg",
+    logo: "/company/minimax.jpeg",
     website: "https://funimax.com",
     location: "Hong Kong",
     industry: "Social Gaming",

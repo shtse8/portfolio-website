@@ -1,8 +1,8 @@
 # Portfolio Website
 
 Public portfolio for Kyle Tse (`kylet.se`): a **TypeScript Next.js static export** for the
-marketing surface, plus a **Rust `api-rust` service** for live GitHub/npm stats, terminal
-data, and the on-site AI agent (Sylphx AI Gateway).
+marketing surface, plus a **Rust `api-rust` service** for live GitHub/npm stats, activity,
+terminal data, and the on-site AI agent (Sylphx AI Gateway).
 
 ## Lifecycle
 
@@ -13,37 +13,41 @@ data, and the on-site AI agent (Sylphx AI Gateway).
 ## Goals
 
 - Ship fast, static portfolio UX from `src/` → `out/` (no server runtime in the web image).
-- Run all live API authority in Rust per [ADR-168](./docs/adr/ADR-168-fleet-portfolio-api-rust-north-star.md)
-  and Sylphx doctrine [ADR-167](https://github.com/SylphxAI/doctrine/blob/main/docs/adr/ADR-167-boundary-contract-stack-and-platform-pillars.md)
-  (**Rust-first backends; TypeScript for browser UI**).
+- Run all live API authority in Rust with a **single JSON REST contract** (ADR-169).
+- Chat calls the Sylphx AI Gateway Responses wire with server-side credentials only.
 
 ## Non-Goals
 
 - Migrating the static site to Rust SSR.
 - Holding model-provider API keys (Gateway only).
 - Owning Sylphx Platform cluster control plane.
+- Maintaining a proto/Connect surface with no consumer.
 
 ## Boundary
 
 | Concern | Owner in this repo |
 | --- | --- |
 | Static pages, components, content | `src/`, `public/`, Next static export |
-| Live API (`/stats`, `/chat`, terminal routes) | `api-rust/` (buffa + connectrpc product wire; REST derived edge) |
-| Cross-boundary contract SSOT | `proto/portfolio/v1/` + `buf.yaml` |
+| Live API (`/stats`, `/activity`, `/projects`, `/recent`, `/repo`, `/downloads`, `/chat`) | `api-rust/` (single REST JSON contract) |
+| Contract SSOT | `api-rust/src/contract.rs` + `api-rust/src/tool_schemas.rs` |
 | Deploy manifest | `sylphx.toml` (web + api services) |
 
 ## Public Surfaces
 
-- Browser site: static export served by nginx (`Dockerfile`).
-- Live API: `api-rust` HTTP routes (REST JSON for `fetch`; proto is SSOT).
-- Default API base for builds: `NEXT_PUBLIC_API_BASE` (see `src/lib/api.ts`).
+- Browser site: static export served by nginx (`Dockerfile`), nginx is the BFF proxy.
+- Live API: `api-rust` REST JSON routes.
+- Default API base for builds: `NEXT_PUBLIC_API_BASE` (see `src/lib/api.ts`); same-origin
+  by default via the nginx BFF.
 
 ## Delivery
 
 - **Web:** `bun run build` → nginx image.
 - **API:** `api-rust/Dockerfile` release binary; health at `/healthz`.
-- **Production proof:** `scripts/api-smoke.sh` (health, stats, projects, activity, chat SSE).
-- **Local API tests:** `cd api-rust && cargo test --locked`.
+- **Source CI (fast trunk):** biome, `tsc`, `bun test`, static export build, `cargo clippy -D warnings`, `cargo test --locked`.
+- **Production proof:** `scripts/api-smoke.sh` (default `https://kylet.se`): health, stats,
+  projects, activity, chat SSE.
+- **Baked fallbacks:** `bun run sync` refreshes `src/data/github-portfolio.json` and
+  `src/data/stats-baked.json` (with `verifiedAt`).
 
 ## Commercial Direction
 

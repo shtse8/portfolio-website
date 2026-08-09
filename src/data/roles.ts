@@ -38,7 +38,7 @@ export const ROLES: Role[] = [
       "performance-testing",
       "open-source",
     ],
-    logo: "/companys/sylphx.png",
+    logo: "/company/sylphx.png",
     liveUrl: "https://sylphx.com",
   },
   {
@@ -69,7 +69,7 @@ export const ROLES: Role[] = [
       "full-stack",
       "enterprise-platform",
     ],
-    logo: "/companys/epiow.png?v=eorbit",
+    logo: "/company/epiow.png?v=eorbit",
     liveUrl: "https://epiow.com",
   },
   {
@@ -110,7 +110,7 @@ export const ROLES: Role[] = [
       "ios",
       "android",
     ],
-    logo: "/companys/cubeage.jpeg",
+    logo: "/company/cubeage.jpeg",
     liveUrl: "https://cubeage.com",
   },
   {
@@ -151,7 +151,7 @@ export const ROLES: Role[] = [
       "game-operations",
       "facebook-platform",
     ],
-    logo: "/companys/minimax.jpeg",
+    logo: "/company/minimax.jpeg",
   },
   {
     id: "nakuz-cto",
@@ -191,7 +191,7 @@ export const ROLES: Role[] = [
       "digital-media",
       "content-strategy",
     ],
-    logo: "/companys/nakuz.jpeg",
+    logo: "/company/nakuz.jpeg",
     liveUrl: "https://nakuz.com",
   },
 ];

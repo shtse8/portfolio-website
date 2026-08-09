@@ -1,18 +1,29 @@
-# portfolio-website
+# portfolio-website — kylet.se
 
-<p align="center">
-  <img src="https://mark.sylphx.com/api/v1/banner?type=orbit&theme=tokyonight&text=portfolio+website&desc=Open+source+%C2%B7+Sylphx+ecosystem&height=200&animation=rise&credit=0" alt="portfolio-website — Sylphx Mark banner" width="100%" />
-</p>
+Kyle Tse's personal portfolio (`kylet.se`): a static marketing site with a small
+Rust live API. Clean-break contract model per [ADR-169](./docs/adr/ADR-169-contract-simplification-clean-break.md).
 
-Kyle Tse portfolio (`kylet.se`).
-
-## Stack (Rust-first backend, TypeScript frontend)
+## Stack
 
 - **Web:** Next.js static export (TypeScript) → nginx (`Dockerfile`, port 3000).
-- **API:** Rust `api-rust` (`sylphx.toml` `api` service, port 3001) — stats, terminal data, AI chat via Sylphx Gateway.
-- **Contract:** Protobuf + Buf in `proto/portfolio/v1/` (REST JSON is the browser projection).
+  No server runtime in the web image; nginx is the BFF proxying API routes.
+- **API:** Rust `api-rust` (`sylphx.toml` `api` service, port 3001) — stats,
+  activity, projects, downloads, and AI chat via the Sylphx AI Gateway
+  Responses wire.
+- **Contract:** single JSON REST contract (`api-rust/src/contract.rs` +
+  `tool_schemas.rs`). No proto/Connect surface.
 
-See [PROJECT.md](./PROJECT.md) and [ADR-168](./docs/adr/ADR-168-fleet-portfolio-api-rust-north-star.md).
+## Chat env contract (server-side only)
+
+| Var | Purpose |
+| --- | --- |
+| `SYLPHX_AI_URL` | Gateway base (default `https://api.sylphx.ai`, normalized to `/v1`) |
+| `SYLPHX_AI_API_KEY` | Gateway bearer credential |
+| `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` | Explicit overrides (optional) |
+
+`SYLPHX_URL` (the platform public browser connection URL) is **never** used as a
+server credential. Without a credential the API fails closed
+(`503 chat is warming up`).
 
 ## Dev
 
@@ -22,10 +33,23 @@ bun run dev          # static site dev server :4311
 cd api-rust && cargo run
 ```
 
-## Verify
+## Verify (source)
 
 ```bash
+bun run check        # biome + tsc + bun test
+bun run build        # static export
 cd api-rust && cargo test --locked
-buf lint
-BASE_URL=https://slim-pal-0k3stq.sylphx.app scripts/api-smoke.sh
+cd api-rust && cargo clippy --locked --lib --bins -- -D warnings
+```
+
+## Sync baked fallbacks
+
+```bash
+bun run sync         # github-portfolio.json + stats-baked.json from live
+```
+
+## Production proof
+
+```bash
+scripts/api-smoke.sh # against https://kylet.se (BASE_URL overridable)
 ```
