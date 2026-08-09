@@ -145,6 +145,28 @@ pub fn assert_honest_windows(payload: &ActivityPayload) -> Result<(), String> {
     Ok(())
 }
 
+async fn search_count(token: &str, since_iso: &str) -> Result<u64, String> {
+    let url = crate::contract::github_activity_search_url(
+        &crate::upstream::github_api_base(),
+        since_iso,
+    );
+    let res = client()
+        .get(&url)
+        .header("authorization", format!("bearer {token}"))
+        .header("accept", "application/vnd.github+json")
+        .header("user-agent", "kylet-api-rust")
+        .send()
+        .await
+        .map_err(|e| format!("github search transport: {e}"))?;
+    if !res.status().is_success() {
+        return Err(format!("github search {}", res.status()));
+    }
+    let body: Value = res.json().await.map_err(|e| format!("github search decode: {e}"))?;
+    body.get("total_count")
+        .and_then(Value::as_u64)
+        .ok_or_else(|| "github search missing total_count".to_string())
+}
+
 async fn fetch_github_activity() -> Result<ActivityPayload, String> {
     let token = env::var("GITHUB_TOKEN")
         .ok()
@@ -155,7 +177,8 @@ async fn fetch_github_activity() -> Result<ActivityPayload, String> {
     let today_start = start_of_day_iso(now);
     let week_start = days_ago_iso(now, 7);
     let month_start = days_ago_iso(now, 30);
-    let query = github_activity_query(&now_iso, &today_start, &week_start, &month_start);
+
+    let query = github_activity_query(&now_iso, &today_start);
     if !crate::contract::github_activity_query_balanced(&query) {
         return Err("github activity query brace imbalance".to_string());
     }
@@ -182,7 +205,21 @@ async fn fetch_github_activity() -> Result<ActivityPayload, String> {
         .get("data")
         .cloned()
         .ok_or_else(|| "github graphql missing data".to_string())?;
-    let payload = aggregate_github_activity(&data, now, &now_iso);
+
+    // Commit counts: commit search covers ALL branches (contributionsCollection
+    // only counts default-branch commits and under-reports branch work).
+    let commits_today = search_count(&token, &today_start).await?;
+    let commits_week = search_count(&token, &week_start).await?;
+    let commits_month = search_count(&token, &month_start).await?;
+
+    let payload = aggregate_github_activity(
+        &data,
+        commits_today,
+        commits_week,
+        commits_month,
+        now,
+        &now_iso,
+    );
     assert_honest_windows(&payload)?;
     Ok(payload)
 }
@@ -304,23 +341,20 @@ mod tests {
     static TEST_LOCK: StdMutex<()> = StdMutex::new(());
 
         #[test]
-    fn aggregate_uses_true_30d_series_not_week_times_four() {
+    fn aggregate_uses_search_counts_and_graphql_side_data() {
         let data = json!({
-            "today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
+            "today": { "contributionsCollection": { "commitContributionsByRepository": [
                 { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } },
                 { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z" }, "contributions": { "totalCount": 0 } }
             ] } },
-            "week": { "contributionsCollection": { "totalCommitContributions": 9 } },
-            "month": { "contributionsCollection": { "totalCommitContributions": 31 } },
             "repos": { "repositories": { "nodes": [
                 { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z" }
             ] } }
         });
-        let now = 1_782_800_000_000u64;
-        let a = aggregate_github_activity(&data, now, "2026-08-09T12:00:00Z");
-        assert_eq!(a.commits_today, 2);
-        assert_eq!(a.commits_week, 9);
-        assert_eq!(a.commits_month, 31);
+        let a = aggregate_github_activity(&data, 275, 12_023, 24_682, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+        assert_eq!(a.commits_today, 275);
+        assert_eq!(a.commits_week, 12_023);
+        assert_eq!(a.commits_month, 24_682);
         assert_ne!(a.commits_month, a.commits_week * 4);
         assert_eq!(a.repos_active_today, 1);
         assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("newest"));

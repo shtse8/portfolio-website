@@ -106,18 +106,16 @@ fn daily_ip_cap_is_enforced() {
 }
 
 #[test]
-fn github_activity_uses_true_30d_series_not_week_times_four() {
+fn github_activity_uses_search_counts_with_true_30d_series() {
     let data = json!({
-        "today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
+        "today": { "contributionsCollection": { "commitContributionsByRepository": [
             { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } }
         ] } },
-        "week": { "contributionsCollection": { "totalCommitContributions": 9 } },
-        "month": { "contributionsCollection": { "totalCommitContributions": 31 } },
         "repos": { "repositories": { "nodes": [] } }
     });
-    let a = aggregate_github_activity(&data, 1_782_800_000_000, "2026-08-09T12:00:00Z");
-    assert_eq!(a.commits_month, 31);
-    assert_eq!(a.commits_week, 9);
+    let a = aggregate_github_activity(&data, 275, 12_023, 24_682, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+    assert_eq!(a.commits_month, 24_682);
+    assert_eq!(a.commits_week, 12_023);
     assert_ne!(a.commits_month, a.commits_week * 4);
     assert_eq!(a.source.as_deref(), Some("github"));
     assert_eq!(a.freshness.as_deref(), Some("live"));
@@ -127,11 +125,9 @@ fn github_activity_uses_true_30d_series_not_week_times_four() {
 #[test]
 fn github_activity_rejects_week_times_four_shapes() {
     let data = json!({
-        "today": { "contributionsCollection": { "totalCommitContributions": 5, "commitContributionsByRepository": [] } },
-        "week": { "contributionsCollection": { "totalCommitContributions": 7 } },
-        "month": { "contributionsCollection": { "totalCommitContributions": 28 } },
+        "today": { "contributionsCollection": { "commitContributionsByRepository": [] } },
         "repos": { "repositories": { "nodes": [] } }
     });
-    let a = aggregate_github_activity(&data, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+    let a = aggregate_github_activity(&data, 5, 7, 28, 1_782_800_000_000, "2026-08-09T12:00:00Z");
     assert!(assert_honest_windows(&a).is_err());
 }

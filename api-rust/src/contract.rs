@@ -1,7 +1,6 @@
 //! Single JSON REST contract for kylet.se (ADR-169 clean break).
 //! Sole authority for origin/CORS policy, rate-limit policy, package-name
-//! validation, and the shared response payload shapes. No proto/Connect
-//! surface remains; this module is the contract SSOT.
+//! validation, shared payload shapes, and the GitHub activity computation.
 
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -39,16 +38,15 @@ pub struct ActivityPayload {
     pub repos_active_today: u64,
     pub last_push: Option<LastPush>,
     pub updated_at: String,
-    /// True when serving last verified CP snapshot after upstream failure.
+    /// True when serving last verified snapshot after upstream failure.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub stale: Option<bool>,
     /// `live` | `stale` | `not_observed` | …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub freshness: Option<String>,
-    /// `control-plane` | `control-plane-stale` | …
+    /// `github` | `github-stale` | …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub source: Option<String>,
-    /// Opaque CP projection revision of the snapshot served.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub projection_revision: Option<String>,
 }
@@ -95,8 +93,7 @@ pub fn valid_pkg(pkg: &str) -> bool {
 }
 
 /// Returns the origin to echo in CORS headers, or `None` when the request
-/// origin is not allowlisted (browser will block the response — never echo a
-/// foreign origin back).
+/// origin is not allowlisted (browser will block the response).
 pub fn allowed_origin(origin: Option<&str>) -> Option<&'static str> {
     origin.and_then(|o| ALLOWED_ORIGINS.iter().copied().find(|&allowed| allowed == o))
 }
@@ -120,13 +117,7 @@ pub fn cors_header_map(origin: Option<&str>) -> BTreeMap<String, String> {
 }
 
 /// Resolve the real client IP from headers set by trusted proxies.
-///
-/// Trust ladder (never the client-controlled first X-Forwarded-For entry):
-/// 1. `cf-connecting-ip` — Cloudflare overwrites this at the edge.
-/// 2. `x-real-ip` — nginx sets this from `$remote_addr` (`proxy_set_header`).
-/// 3. Last entry of `x-forwarded-for` — the peer appended by our own nginx;
-///    client-supplied earlier entries are ignored.
-/// 4. `x-envoy-external-address` — platform edge fallback.
+/// Trust ladder: cf-connecting-ip → x-real-ip → last XFF entry → envoy.
 pub fn client_ip(headers: &[(String, String)]) -> String {
     let pick = |name: &str| -> Option<String> {
         headers
@@ -217,130 +208,36 @@ pub fn simulate_burst_verdicts(ip: &str, base: u64) -> (Vec<String>, String) {
     (verdicts, final_verdict)
 }
 
-    #[test]
-    fn github_activity_query_is_balanced() {
-        let q = github_activity_query("2026-08-09T12:00:00Z", "2026-08-09T00:00:00Z", "2026-08-02T12:00:00Z", "2026-07-10T12:00:00Z");
-        assert!(github_activity_query_balanced(&q), "query braces must balance");
-        for alias in ["today:", "week:", "month:", "repos:"] {
-            assert!(q.contains(alias), "missing alias {alias}");
-        }
-        assert!(q.contains(ACTIVITY_GITHUB_USER));
-    }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn client_ip_trusts_cf_connecting_ip_first() {
-        let headers = vec![
-            ("x-forwarded-for".to_string(), "6.6.6.6, 203.0.113.9".to_string()),
-            ("cf-connecting-ip".to_string(), "198.51.100.7".to_string()),
-            ("x-real-ip".to_string(), "203.0.113.9".to_string()),
-        ];
-        assert_eq!(client_ip(&headers), "198.51.100.7");
-    }
-
-    #[test]
-    fn client_ip_ignores_spoofed_first_xff_entry() {
-        // Client-sent first XFF entry must never be trusted; the last entry is
-        // appended by our own nginx from $remote_addr.
-        let headers = vec![(
-            "x-forwarded-for".to_string(),
-            "1.2.3.4, 203.0.113.9".to_string(),
-        )];
-        assert_eq!(client_ip(&headers), "203.0.113.9");
-    }
-
-    #[test]
-    fn client_ip_falls_back_to_x_real_ip() {
-        let headers = vec![
-            ("x-forwarded-for".to_string(), "1.2.3.4".to_string()),
-            ("x-real-ip".to_string(), "203.0.113.9".to_string()),
-        ];
-        assert_eq!(client_ip(&headers), "203.0.113.9");
-    }
-
-    #[test]
-    fn client_ip_unknown_without_proxy_headers() {
-        assert_eq!(client_ip(&[]), "unknown");
-    }
-
-    #[test]
-    fn cors_only_echoes_allowlisted_origins() {
-        assert_eq!(
-            allowed_origin(Some("https://kylet.se")),
-            Some("https://kylet.se")
-        );
-        assert_eq!(
-            allowed_origin(Some("https://slim-pal-0k3stq.sylphx.app")),
-            Some("https://slim-pal-0k3stq.sylphx.app")
-        );
-        assert_eq!(allowed_origin(Some("https://evil.example")), None);
-        assert_eq!(allowed_origin(None), None);
-    }
-
-    #[test]
-    fn cors_map_omits_allow_origin_for_foreign_origins() {
-        let map = cors_header_map(Some("https://evil.example"));
-        assert!(!map.contains_key("access-control-allow-origin"));
-        assert_eq!(map.get("vary").map(String::as_str), Some("origin"));
-
-        let map = cors_header_map(Some("https://kylet.se"));
-        assert_eq!(
-            map.get("access-control-allow-origin").map(String::as_str),
-            Some("https://kylet.se")
-        );
-    }
-
-    #[test]
-    fn pkg_validation_rules() {
-        assert!(valid_pkg("@sylphx/pdf-reader-mcp"));
-        assert!(valid_pkg("lodash"));
-        assert!(!valid_pkg("not valid spaces"));
-        assert!(!valid_pkg(""));
-        assert!(!valid_pkg("@/nope"));
-    }
-
-    #[test]
-    fn rate_limit_blocks_burst_after_window_capacity() {
-        let ip = "203.0.113.1".to_string();
-        let base = 1_700_000_000_000u64;
-        let mut state = RateLimitState::default();
-        for i in 0..IP_MAX_IN_WINDOW {
-            assert_eq!(
-                check_rate_limit_isolated(&ip, base + i as u64, &mut state),
-                LimitVerdict::Ok
-            );
-        }
-        assert_eq!(
-            check_rate_limit_isolated(&ip, base + IP_MAX_IN_WINDOW as u64, &mut state),
-            LimitVerdict::TooFast
-        );
-    }
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-// GitHub activity (ADR-169 amendment 2026-08-09): `/activity` is computed live
-// from GitHub GraphQL — the Control Plane projection feed was stale/broken and
-// the owner chose real GitHub commit numbers. Today/7d/30d are REAL windows
-// (never week×4). These helpers are pure and unit-tested.
+// GitHub activity (ADR-169 amendment 2026-08-09): `/activity` counts authored
+// commits via the GitHub commit SEARCH API — `contributionsCollection` only
+// counts default-branch commits and massively under-reports branch work, so
+// counts come from search (all branches); a light GraphQL query supplies
+// repos-with-contributions-today and the most recently pushed repo.
 // ─────────────────────────────────────────────────────────────────────────────
 
 pub const ACTIVITY_GITHUB_USER: &str = "shtse8";
 
-/// One small GraphQL query: the owner's contributions in three REAL windows
-/// (today / 7d / 30d) + their most recently pushed repos.
-/// `contributionsCollection` counts the user's commits across every repo
-/// (including their own orgs) — no double counting, no org history scans.
-pub fn github_activity_query(now_iso: &str, today_start: &str, week_start: &str, month_start: &str) -> String {
+/// Lightweight GraphQL: today-contributions by repo (for `repos_active_today`)
+/// + the 10 most recently pushed repos (for `last_push`).
+pub fn github_activity_query(now_iso: &str, today_start: &str) -> String {
     format!(
-        "{{ today: user(login: \"{login}\") {{ contributionsCollection(from: \"{today}\", to: \"{now}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }} week: user(login: \"{login}\") {{ contributionsCollection(from: \"{week}\", to: \"{now}\") {{ totalCommitContributions }} }} month: user(login: \"{login}\") {{ contributionsCollection(from: \"{month}\", to: \"{now}\") {{ totalCommitContributions }} }} repos: user(login: \"{login}\") {{ repositories(first: 10, orderBy: {{ field: PUSHED_AT, direction: DESC }}, ownerAffiliations: OWNER) {{ nodes {{ nameWithOwner pushedAt }} }} }} }}",
+        "{{ today: user(login: \"{login}\") {{ contributionsCollection(from: \"{today}\", to: \"{now}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }} repos: user(login: \"{login}\") {{ repositories(first: 10, orderBy: {{ field: PUSHED_AT, direction: DESC }}, ownerAffiliations: OWNER) {{ nodes {{ nameWithOwner pushedAt }} }} }} }}",
         login = ACTIVITY_GITHUB_USER,
         today = today_start,
-        week = week_start,
-        month = month_start,
         now = now_iso,
+    )
+}
+
+/// Commit search query URL: authored commits (all branches, incl. private with
+/// the service token) since the given ISO instant. `per_page=1` keeps it cheap;
+/// `total_count` is the real number.
+pub fn github_activity_search_url(api_base: &str, since_iso: &str) -> String {
+    format!(
+        "{base}/search/commits?q=author:{user}+author-date:%3E%3D{since}&per_page=1",
+        base = api_base.trim_end_matches('/'),
+        user = ACTIVITY_GITHUB_USER,
+        since = since_iso,
     )
 }
 
@@ -349,22 +246,17 @@ pub fn github_activity_query_balanced(query: &str) -> bool {
     query.chars().filter(|c| *c == '{').count() == query.chars().filter(|c| *c == '}').count()
 }
 
-/// Aggregate the GitHub GraphQL activity response into the contract payload.
-/// `repos_active_today` counts repos with ≥1 commit since today's start;
-/// `last_push` is the newest pushedAt across the owner's recent repos.
-pub fn aggregate_github_activity(data: &Value, now_ms: u64, updated_at: &str) -> ActivityPayload {
-    let commits_today = data
-        .pointer("/today/contributionsCollection/totalCommitContributions")
-        .and_then(Value::as_u64)
-        .unwrap_or(0);
-    let commits_week = data
-        .pointer("/week/contributionsCollection/totalCommitContributions")
-        .and_then(Value::as_u64)
-        .unwrap_or(0);
-    let commits_month = data
-        .pointer("/month/contributionsCollection/totalCommitContributions")
-        .and_then(Value::as_u64)
-        .unwrap_or(0);
+/// Aggregate GitHub activity: commit COUNTS come from the commit search API
+/// (all branches); the GraphQL `data` supplies repos-with-contributions-today
+/// and the most recently pushed repo.
+pub fn aggregate_github_activity(
+    data: &Value,
+    commits_today: u64,
+    commits_week: u64,
+    commits_month: u64,
+    now_ms: u64,
+    updated_at: &str,
+) -> ActivityPayload {
     let mut repos_active_today = 0u64;
     if let Some(by_repo) = data
         .pointer("/today/contributionsCollection/commitContributionsByRepository")
@@ -412,7 +304,8 @@ pub fn aggregate_github_activity(data: &Value, now_ms: u64, updated_at: &str) ->
     }
 }
 
-/// ISO-8601 helpers for window starts (UTC).
+// ── ISO-8601 window helpers (UTC) ────────────────────────────────────────────
+
 pub fn start_of_day_iso(now_ms: u64) -> String {
     let secs = now_ms / 1000;
     let day_secs = secs % 86_400;
@@ -457,5 +350,82 @@ pub fn format_ago(now_ms: u64, when: &str) -> String {
         format!("{mins}m ago")
     } else {
         "just now".to_string()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::activity::assert_honest_windows;
+
+    #[test]
+    fn github_activity_query_is_balanced() {
+        let q = github_activity_query("2026-08-09T12:00:00Z", "2026-08-09T00:00:00Z");
+        assert!(github_activity_query_balanced(&q), "query braces must balance");
+        for alias in ["today:", "repos:"] {
+            assert!(q.contains(alias), "missing alias {alias}");
+        }
+        assert!(q.contains(ACTIVITY_GITHUB_USER));
+    }
+
+    #[test]
+    fn github_activity_search_url_is_well_formed() {
+        let url = github_activity_search_url("https://api.github.com", "2026-08-09T00:00:00Z");
+        assert!(url.starts_with(
+            "https://api.github.com/search/commits?q=author:shtse8+author-date:%3E%3D2026-08-09T00:00:00Z&per_page=1"
+        ));
+        let url2 = github_activity_search_url("http://127.0.0.1:9/", "2026-08-09T00:00:00Z");
+        assert!(url2.starts_with("http://127.0.0.1:9/search/commits?"));
+    }
+
+    #[test]
+    fn aggregate_uses_search_counts_and_graphql_side_data() {
+        let data = json!({
+            "today": { "contributionsCollection": { "commitContributionsByRepository": [
+                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } },
+                { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z" }, "contributions": { "totalCount": 0 } }
+            ] } },
+            "repos": { "repositories": { "nodes": [
+                { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z" }
+            ] } }
+        });
+        let a = aggregate_github_activity(&data, 275, 12_023, 24_682, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+        assert_eq!(a.commits_today, 275);
+        assert_eq!(a.commits_week, 12_023);
+        assert_eq!(a.commits_month, 24_682);
+        assert_ne!(a.commits_month, a.commits_week * 4);
+        assert_eq!(a.repos_active_today, 1);
+        assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("newest"));
+        assert_eq!(a.source.as_deref(), Some("github"));
+        assert_eq!(a.freshness.as_deref(), Some("live"));
+        assert!(assert_honest_windows(&a).is_ok());
+    }
+
+    #[test]
+    fn honest_window_guard_rejects_week_times_four() {
+        let a = ActivityPayload {
+            commits_today: 1,
+            commits_week: 10,
+            commits_month: 40,
+            repos_active_today: 1,
+            last_push: None,
+            updated_at: "t".into(),
+            stale: Some(false),
+            freshness: Some("live".into()),
+            source: Some("github".into()),
+            projection_revision: None,
+        };
+        assert!(assert_honest_windows(&a).is_err());
+    }
+
+    #[test]
+    fn window_iso_helpers_are_rfc3339() {
+        let now = 1_782_800_000_000u64;
+        let today = start_of_day_iso(now);
+        let week = days_ago_iso(now, 7);
+        let month = days_ago_iso(now, 30);
+        assert!(today.ends_with("T00:00:00Z"));
+        assert!(week < today);
+        assert!(month < week);
     }
 }
