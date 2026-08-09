@@ -61,16 +61,19 @@ bun run check          # biome + tsc + bun test
 bun run build          # static export
 scripts/api-smoke.sh   # against https://kylet.se (default)
 ```
+## Amendment 2026-08-09 (b) — /activity counts = authored commits only, incl. private
 
-## Amendment 2026-08-09 (b) — /activity authority is live GitHub GraphQL
-
-- The Control Plane projection feed was stale/broken since 2026-07-16; the owner
-  chose **real GitHub commit numbers**. `/activity` commit counts come from the
-  GitHub commit **search** API (`author:shtse8` + `author-date`, all branches —
-  `contributionsCollection` only sees default-branch commits and under-reports
-  branch work ~10×); a light GraphQL query supplies repos-active-today and the
-  latest push. Same honesty ladder (TTL cache, durable last-good, stale-on-fail,
-  never fabricated zeros).
-- `commits_month` is a REAL 30-day series from GitHub — never week×4.
-- `CP_PROJECTION_*` / `CP_PUBLIC_*` env and the CP mapping code are retired.
-- `source` is `github` (live) / `github-stale` (fail-over).
+- The Control Plane projection feed was stale/broken since 2026-07-16. `/activity`
+  now counts **commits authored by the account (commits only — no PRs/issues/
+  reviews), including private repos, across ALL branches** via the GitHub commit
+  search API (`author:shtse8` + `author-date` windows).
+- Why not `contributionCalendar`: the calendar total mixes PRs/issues/reviews and
+  counts branch copies of commits, so it over-reports vs the owner's own view.
+  Search counts unique commits (verified: settled days match the owner's UI
+  within ~1–14%). The current day may lag GitHub's UI briefly because the search
+  index updates asynchronously.
+- `repos_active_today` / `last_push` come from a light GraphQL query; `month` is a
+  REAL `since`-window count (never week×4). Same honesty ladder: TTL cache,
+  durable last-good, stale-on-fail, never fabricated zeros. `source=github`.
+- Env: requires `GITHUB_TOKEN` with repo read (search counts private repos the
+  token can see). Budget: 3 search requests per 5-minute cache TTL.
