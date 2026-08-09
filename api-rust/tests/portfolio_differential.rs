@@ -108,14 +108,12 @@ fn daily_ip_cap_is_enforced() {
 #[test]
 fn github_activity_uses_true_30d_series_not_week_times_four() {
     let data = json!({
-        "u0_today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
+        "today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
             { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } }
         ] } },
-        "u0_week": { "contributionsCollection": { "totalCommitContributions": 9 } },
-        "u0_month": { "contributionsCollection": { "totalCommitContributions": 31 } },
-        "o1_today": { "repositories": { "nodes": [] } },
-        "o1_week": { "repositories": { "nodes": [] } },
-        "o1_month": { "repositories": { "nodes": [] } }
+        "week": { "contributionsCollection": { "totalCommitContributions": 9 } },
+        "month": { "contributionsCollection": { "totalCommitContributions": 31 } },
+        "repos": { "repositories": { "nodes": [] } }
     });
     let a = aggregate_github_activity(&data, 1_782_800_000_000, "2026-08-09T12:00:00Z");
     assert_eq!(a.commits_month, 31);
@@ -129,12 +127,10 @@ fn github_activity_uses_true_30d_series_not_week_times_four() {
 #[test]
 fn github_activity_rejects_week_times_four_shapes() {
     let data = json!({
-        "u0_today": { "contributionsCollection": { "totalCommitContributions": 5, "commitContributionsByRepository": [] } },
-        "u0_week": { "contributionsCollection": { "totalCommitContributions": 7 } },
-        "u0_month": { "contributionsCollection": { "totalCommitContributions": 28 } },
-        "o1_today": { "repositories": { "nodes": [] } },
-        "o1_week": { "repositories": { "nodes": [] } },
-        "o1_month": { "repositories": { "nodes": [] } }
+        "today": { "contributionsCollection": { "totalCommitContributions": 5, "commitContributionsByRepository": [] } },
+        "week": { "contributionsCollection": { "totalCommitContributions": 7 } },
+        "month": { "contributionsCollection": { "totalCommitContributions": 28 } },
+        "repos": { "repositories": { "nodes": [] } }
     });
     let a = aggregate_github_activity(&data, 1_782_800_000_000, "2026-08-09T12:00:00Z");
     assert!(assert_honest_windows(&a).is_err());

@@ -156,6 +156,9 @@ async fn fetch_github_activity() -> Result<ActivityPayload, String> {
     let week_start = days_ago_iso(now, 7);
     let month_start = days_ago_iso(now, 30);
     let query = github_activity_query(&now_iso, &today_start, &week_start, &month_start);
+    if !crate::contract::github_activity_query_balanced(&query) {
+        return Err("github activity query brace imbalance".to_string());
+    }
     let res = client()
         .post(crate::upstream::github_graphql_url())
         .header("authorization", format!("bearer {token}"))
@@ -300,32 +303,27 @@ mod tests {
     // Serialize tests that touch process-global env / file path.
     static TEST_LOCK: StdMutex<()> = StdMutex::new(());
 
-    #[test]
+        #[test]
     fn aggregate_uses_true_30d_series_not_week_times_four() {
         let data = json!({
-            "u0_today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
-                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } }
+            "today": { "contributionsCollection": { "totalCommitContributions": 2, "commitContributionsByRepository": [
+                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } },
+                { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z" }, "contributions": { "totalCount": 0 } }
             ] } },
-            "u0_week": { "contributionsCollection": { "totalCommitContributions": 9 } },
-            "u0_month": { "contributionsCollection": { "totalCommitContributions": 31 } },
-            "o1_today": { "repositories": { "nodes": [
-                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": 1 } } } }
-            ] } },
-            "o1_week": { "repositories": { "nodes": [
-                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": 4 } } } }
-            ] } },
-            "o1_month": { "repositories": { "nodes": [
-                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": 12 } } } }
+            "week": { "contributionsCollection": { "totalCommitContributions": 9 } },
+            "month": { "contributionsCollection": { "totalCommitContributions": 31 } },
+            "repos": { "repositories": { "nodes": [
+                { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z" }
             ] } }
         });
         let now = 1_782_800_000_000u64;
         let a = aggregate_github_activity(&data, now, "2026-08-09T12:00:00Z");
-        assert_eq!(a.commits_today, 3);
-        assert_eq!(a.commits_week, 13);
-        assert_eq!(a.commits_month, 43);
+        assert_eq!(a.commits_today, 2);
+        assert_eq!(a.commits_week, 9);
+        assert_eq!(a.commits_month, 31);
         assert_ne!(a.commits_month, a.commits_week * 4);
-        assert_eq!(a.repos_active_today, 2);
-        assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("pdf-reader-mcp"));
+        assert_eq!(a.repos_active_today, 1);
+        assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("newest"));
         assert_eq!(a.source.as_deref(), Some("github"));
         assert_eq!(a.freshness.as_deref(), Some("live"));
         assert!(assert_honest_windows(&a).is_ok());

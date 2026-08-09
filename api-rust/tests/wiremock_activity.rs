@@ -9,32 +9,20 @@ use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 fn graphql_fixture() -> serde_json::Value {
-    // Only shtse8 (user, u0_*) + SylphxAI (org, o1_*) are populated; the other
-    // owners return empty collections. Three windows each.
-    let mut body = serde_json::Map::new();
-    body.insert("u0_today".into(), json!({ "contributionsCollection": { "totalCommitContributions": 3, "commitContributionsByRepository": [
-        { "repository": { "nameWithOwner": "shtse8/tool-repo", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 3 } }
-    ] } }));
-    body.insert("u0_week".into(), json!({ "contributionsCollection": { "totalCommitContributions": 11 } }));
-    body.insert("u0_month".into(), json!({ "contributionsCollection": { "totalCommitContributions": 34 } }));
-    for win in ["today", "week", "month"] {
-        let count = if win == "today" { 1 } else if win == "week" { 5 } else { 21 };
-        body.insert(
-            format!("o1_{win}"),
-            json!({ "repositories": { "nodes": [
-                { "nameWithOwner": "SylphxAI/gateway", "pushedAt": "2026-08-08T00:00:00Z", "defaultBranchRef": { "target": { "history": { "totalCount": count } } } }
-            ] } }),
-        );
-    }
-    // Other owners: empty.
-    for (i, kind) in [(2usize, "o"), (3, "o"), (4, "o")] {
-        for win in ["today", "week", "month"] {
-            if kind == "o" {
-                body.insert(format!("o{i}_{win}"), json!({ "repositories": { "nodes": [] } }));
-            }
-        }
-    }
-    json!({ "data": body })
+    json!({ "data": {
+        "today": { "contributionsCollection": {
+            "totalCommitContributions": 3,
+            "commitContributionsByRepository": [
+                { "repository": { "nameWithOwner": "shtse8/tool-repo", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 3 } },
+                { "repository": { "nameWithOwner": "shtse8/idle", "pushedAt": "2026-08-01T00:00:00Z" }, "contributions": { "totalCount": 0 } }
+            ]
+        } },
+        "week": { "contributionsCollection": { "totalCommitContributions": 16 } },
+        "month": { "contributionsCollection": { "totalCommitContributions": 55 } },
+        "repos": { "repositories": { "nodes": [
+            { "nameWithOwner": "shtse8/tool-repo", "pushedAt": "2026-08-09T10:00:00Z" }
+        ] } }
+    } })
 }
 
 #[tokio::test]
@@ -66,10 +54,10 @@ async fn activity_from_github_graphql_is_live() {
     assert_eq!(res.status(), StatusCode::OK);
     let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
     let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["commitsToday"], json!(4));
+    assert_eq!(v["commitsToday"], json!(3));
     assert_eq!(v["commitsWeek"], json!(16));
     assert_eq!(v["commitsMonth"], json!(55));
-    assert_eq!(v["reposActiveToday"], json!(2));
+    assert_eq!(v["reposActiveToday"], json!(1));
     assert_eq!(v["source"], json!("github"));
     assert_eq!(v["freshness"], json!("live"));
     assert_ne!(v["commitsMonth"], json!(64)); // never week×4 (16×4)
@@ -78,7 +66,7 @@ async fn activity_from_github_graphql_is_live() {
 
 #[tokio::test]
 #[serial]
-async fn activity_cp_failure_serves_last_good_stale_without_fabrication() {
+async fn activity_github_failure_serves_last_good_stale_without_fabrication() {
     let server = MockServer::start().await;
     testing::reset_all();
     unsafe {

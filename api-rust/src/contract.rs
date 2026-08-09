@@ -217,6 +217,16 @@ pub fn simulate_burst_verdicts(ip: &str, base: u64) -> (Vec<String>, String) {
     (verdicts, final_verdict)
 }
 
+    #[test]
+    fn github_activity_query_is_balanced() {
+        let q = github_activity_query("2026-08-09T12:00:00Z", "2026-08-09T00:00:00Z", "2026-08-02T12:00:00Z", "2026-07-10T12:00:00Z");
+        assert!(github_activity_query_balanced(&q), "query braces must balance");
+        for alias in ["today:", "week:", "month:", "repos:"] {
+            assert!(q.contains(alias), "missing alias {alias}");
+        }
+        assert!(q.contains(ACTIVITY_GITHUB_USER));
+    }
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -317,148 +327,83 @@ mod tests {
 // (never week×4). These helpers are pure and unit-tested.
 // ─────────────────────────────────────────────────────────────────────────────
 
-pub const ACTIVITY_GITHUB_OWNERS: &[(&str, &str)] = &[
-    ("shtse8", "user"),
-    ("SylphxAI", "organization"),
-    ("Cubeage", "organization"),
-    ("EpiowAI", "organization"),
-    ("OzyrixLtd", "organization"),
-];
+pub const ACTIVITY_GITHUB_USER: &str = "shtse8";
 
-/// One GraphQL query with per-owner × per-window aliases:
-/// users use contributionsCollection; orgs use repo default-branch history.
+/// One small GraphQL query: the owner's contributions in three REAL windows
+/// (today / 7d / 30d) + their most recently pushed repos.
+/// `contributionsCollection` counts the user's commits across every repo
+/// (including their own orgs) — no double counting, no org history scans.
 pub fn github_activity_query(now_iso: &str, today_start: &str, week_start: &str, month_start: &str) -> String {
-    let mut blocks = Vec::new();
-    for (i, (login, kind)) in ACTIVITY_GITHUB_OWNERS.iter().enumerate() {
-        if *kind == "user" {
-            for (win, from) in [("today", today_start), ("week", week_start), ("month", month_start)] {
-                blocks.push(format!(
-                    "u{i}_{win}: user(login: \"{login}\") {{ contributionsCollection(from: \"{from}\", to: \"{now_iso}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }}"
-                ));
-            }
-        } else {
-            for (win, from) in [("today", today_start), ("week", week_start), ("month", month_start)] {
-                blocks.push(format!(
-                    "o{i}_{win}: organization(login: \"{login}\") {{ repositories(first: 50, orderBy: {{ field: PUSHED_AT, direction: DESC }}) {{ nodes {{ nameWithOwner pushedAt defaultBranchRef {{ target {{ ... on Commit {{ history(since: \"{from}\") {{ totalCount }} }} }} }} }} }}"
-                ));
-            }
-        }
-    }
-    format!("{{ {} }}", blocks.join("\n"))
+    format!(
+        "{{ today: user(login: \"{login}\") {{ contributionsCollection(from: \"{today}\", to: \"{now}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }} week: user(login: \"{login}\") {{ contributionsCollection(from: \"{week}\", to: \"{now}\") {{ totalCommitContributions }} }} month: user(login: \"{login}\") {{ contributionsCollection(from: \"{month}\", to: \"{now}\") {{ totalCommitContributions }} }} repos: user(login: \"{login}\") {{ repositories(first: 10, orderBy: {{ field: PUSHED_AT, direction: DESC }}, ownerAffiliations: OWNER) {{ nodes {{ nameWithOwner pushedAt }} }} }} }}",
+        login = ACTIVITY_GITHUB_USER,
+        today = today_start,
+        week = week_start,
+        month = month_start,
+        now = now_iso,
+    )
+}
+
+/// Brace balance sanity (must open and close what it opens).
+pub fn github_activity_query_balanced(query: &str) -> bool {
+    query.chars().filter(|c| *c == '{').count() == query.chars().filter(|c| *c == '}').count()
 }
 
 /// Aggregate the GitHub GraphQL activity response into the contract payload.
 /// `repos_active_today` counts repos with ≥1 commit since today's start;
-/// `last_push` is the newest pushedAt across all owner repos.
+/// `last_push` is the newest pushedAt across the owner's recent repos.
 pub fn aggregate_github_activity(data: &Value, now_ms: u64, updated_at: &str) -> ActivityPayload {
-    let mut commits_today = 0u64;
-    let mut commits_week = 0u64;
-    let mut commits_month = 0u64;
-    let mut repos_active_today = std::collections::HashSet::new();
-    let mut last_push: Option<(String, String)> = None;
-
-    let push_if_newer = |last: &mut Option<(String, String)>, repo: &str, pushed: &str| {
-        let ts = parse_iso_ms(pushed);
-        if last.as_ref().map_or(true, |(_, when)| ts > parse_iso_ms(when)) {
-            *last = Some((repo.to_string(), pushed.to_string()));
-        }
-    };
-
-    for (i, (login, kind)) in ACTIVITY_GITHUB_OWNERS.iter().enumerate() {
-        if *kind == "user" {
-            for (win, acc) in [
-                ("today", &mut commits_today),
-                ("week", &mut commits_week),
-                ("month", &mut commits_month),
-            ] {
-                let v = data
-                    .get(format!("u{i}_{win}"))
-                    .and_then(|x| x.get("contributionsCollection"))
-                    .and_then(|x| x.get("totalCommitContributions"))
+    let commits_today = data
+        .pointer("/today/contributionsCollection/totalCommitContributions")
+        .and_then(Value::as_u64)
+        .unwrap_or(0);
+    let commits_week = data
+        .pointer("/week/contributionsCollection/totalCommitContributions")
+        .and_then(Value::as_u64)
+        .unwrap_or(0);
+    let commits_month = data
+        .pointer("/month/contributionsCollection/totalCommitContributions")
+        .and_then(Value::as_u64)
+        .unwrap_or(0);
+    let mut repos_active_today = 0u64;
+    if let Some(by_repo) = data
+        .pointer("/today/contributionsCollection/commitContributionsByRepository")
+        .and_then(Value::as_array)
+    {
+        repos_active_today = by_repo
+            .iter()
+            .filter(|e| {
+                e.get("contributions")
+                    .and_then(|c| c.get("totalCount"))
                     .and_then(Value::as_u64)
-                    .unwrap_or(0);
-                *acc += v;
-            }
-            if let Some(by_repo) = data
-                .get(format!("u{i}_today"))
-                .and_then(|x| x.get("contributionsCollection"))
-                .and_then(|x| x.get("commitContributionsByRepository"))
-                .and_then(Value::as_array)
-            {
-                for entry in by_repo {
-                    let count = entry
-                        .get("contributions")
-                        .and_then(|c| c.get("totalCount"))
-                        .and_then(Value::as_u64)
-                        .unwrap_or(0);
-                    if count > 0 {
-                        let repo = entry
-                            .pointer("/repository/nameWithOwner")
-                            .and_then(Value::as_str)
-                            .unwrap_or("");
-                        repos_active_today.insert(repo.to_string());
-                    }
-                    if let Some(pushed) = entry.pointer("/repository/pushedAt").and_then(Value::as_str) {
-                        let repo = entry
-                            .pointer("/repository/nameWithOwner")
-                            .and_then(Value::as_str)
-                            .unwrap_or("");
-                        if !repo.is_empty() {
-                            push_if_newer(&mut last_push, repo, pushed);
-                        }
-                    }
-                }
-            }
-            // User contributions can land in any repo (PRs to other orgs); keep
-            // the personal owner count honest by noting the login when empty.
-            let _ = login;
-        } else {
-            for (win, acc) in [
-                ("today", &mut commits_today),
-                ("week", &mut commits_week),
-                ("month", &mut commits_month),
-            ] {
-                let nodes = data
-                    .get(format!("o{i}_{win}"))
-                    .and_then(|x| x.get("repositories"))
-                    .and_then(|x| x.get("nodes"))
-                    .and_then(Value::as_array);
-                if let Some(nodes) = nodes {
-                    for node in nodes {
-                        let count = node
-                            .pointer("/defaultBranchRef/target/history/totalCount")
-                            .and_then(Value::as_u64)
-                            .unwrap_or(0);
-                        *acc += count;
-                        if win == "today" && count > 0 {
-                            if let Some(name) = node.get("nameWithOwner").and_then(Value::as_str) {
-                                repos_active_today.insert(name.to_string());
-                            }
-                        }
-                        if let Some(pushed) = node.get("pushedAt").and_then(Value::as_str) {
-                            if let Some(name) = node.get("nameWithOwner").and_then(Value::as_str) {
-                                if !name.is_empty() {
-                                    push_if_newer(&mut last_push, name, pushed);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+                    .unwrap_or(0)
+                    > 0
+            })
+            .count() as u64;
     }
-
-    let last_push_display = last_push.map(|(repo, when)| LastPush {
-        repo: repo.split('/').nth(1).unwrap_or(&repo).to_string(),
-        ago: format_ago(now_ms, &when),
-    });
+    let last_push = data
+        .pointer("/repos/repositories/nodes")
+        .and_then(Value::as_array)
+        .and_then(|nodes| nodes.first())
+        .and_then(|n| {
+            let name = n.get("nameWithOwner").and_then(Value::as_str).unwrap_or("");
+            let pushed = n.get("pushedAt").and_then(Value::as_str).unwrap_or("");
+            if name.is_empty() || pushed.is_empty() {
+                None
+            } else {
+                Some(LastPush {
+                    repo: name.split('/').nth(1).unwrap_or(name).to_string(),
+                    ago: format_ago(now_ms, pushed),
+                })
+            }
+        });
 
     ActivityPayload {
         commits_today,
         commits_week,
         commits_month,
-        repos_active_today: repos_active_today.len() as u64,
-        last_push: last_push_display,
+        repos_active_today,
+        last_push,
         updated_at: updated_at.to_string(),
         stale: None,
         freshness: Some("live".to_string()),
