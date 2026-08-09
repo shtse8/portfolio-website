@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
-  MARK_BANNER_ORIGIN,
   localProjectArtPath,
+  MARK_BANNER_ORIGIN,
   markBannerUrl,
   projectArtPath,
 } from "./project-art";

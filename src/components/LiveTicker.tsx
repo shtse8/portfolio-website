@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { FaCodeBranch, FaFire, FaClock } from "react-icons/fa6";
-import { API_BASE } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { FaClock, FaCodeBranch, FaFire } from "react-icons/fa6";
 import { useCountUp } from "@/hooks/useCountUp";
+import { API_BASE } from "@/lib/api";
 
 /**
  * LiveTicker — portfolio development throughput strip.
@@ -86,7 +86,9 @@ export default function LiveTicker() {
   if (!data) return null;
 
   const stale =
-    data.freshness === "stale" || data.freshness === "not_observed" || data.stale;
+    data.freshness === "stale" ||
+    data.freshness === "not_observed" ||
+    data.stale;
 
   return (
     <div
@@ -119,16 +121,19 @@ export default function LiveTicker() {
           />
         </>
       )}
-      {data.lastPush && !String(data.source ?? "").startsWith("control-plane") && (
-        <>
-          <Dot />
-          <div className="flex items-center gap-1 truncate text-text-tertiary">
-            <FaClock className="h-2.5 w-2.5 shrink-0" />
-            <span className="truncate text-text-secondary">{data.lastPush.repo}</span>
-            <span className="shrink-0">{data.lastPush.ago}</span>
-          </div>
-        </>
-      )}
+      {data.lastPush &&
+        !String(data.source ?? "").startsWith("control-plane") && (
+          <>
+            <Dot />
+            <div className="flex items-center gap-1 truncate text-text-tertiary">
+              <FaClock className="h-2.5 w-2.5 shrink-0" />
+              <span className="truncate text-text-secondary">
+                {data.lastPush.repo}
+              </span>
+              <span className="shrink-0">{data.lastPush.ago}</span>
+            </div>
+          </>
+        )}
       <Dot />
       <div className="flex shrink-0 items-center gap-1.5 text-text-tertiary">
         <span className="relative flex h-1.5 w-1.5">

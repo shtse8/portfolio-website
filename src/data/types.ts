@@ -6,19 +6,27 @@
  * Represents a time period with structured start/end dates
  */
 export type Period = {
-  start: string;  // ISO date "YYYY-MM-DD" or "YYYY-MM" or "YYYY"
-  end?: string;   // undefined = present/ongoing
+  start: string; // ISO date "YYYY-MM-DD" or "YYYY-MM" or "YYYY"
+  end?: string; // undefined = present/ongoing
 };
 
 /**
  * Metric for quantifiable achievements
  */
 export type Metric = {
-  type: 'users' | 'downloads' | 'stars' | 'revenue' | 'engagement' | 'projects' | 'partners' | 'custom';
+  type:
+    | "users"
+    | "downloads"
+    | "stars"
+    | "revenue"
+    | "engagement"
+    | "projects"
+    | "partners"
+    | "custom";
   value: number | string;
-  label?: string;  // Display label (defaults to type if not specified)
+  label?: string; // Display label (defaults to type if not specified)
   unit?: string;
-  context?: 'monthly' | 'total' | 'peak' | 'daily' | 'concurrent';
+  context?: "monthly" | "total" | "peak" | "daily" | "concurrent";
   verified?: boolean;
   source?: string;
 };
@@ -34,26 +42,26 @@ export type Metric = {
 export type Organization = {
   id: string;
   name: string;
-  legalName?: string;      // "Sylphx Limited"
-  tradingName?: string;    // "Sylphx"
-  type: 'company' | 'github_org' | 'community' | 'personal';
-  status: 'active' | 'acquired' | 'closed' | 'dormant';
+  legalName?: string; // "Sylphx Limited"
+  tradingName?: string; // "Sylphx"
+  type: "company" | "github_org" | "community" | "personal";
+  status: "active" | "acquired" | "closed" | "dormant";
 
   description: string;
   logo: string;
 
   // Links
   website?: string;
-  github?: string;         // GitHub org username
+  github?: string; // GitHub org username
 
   // Meta
   location?: string;
   industry?: string;
   size?: string;
-  founded?: string;        // ISO date
+  founded?: string; // ISO date
 
   // Relationships
-  parentId?: string;       // For subsidiaries
+  parentId?: string; // For subsidiaries
 };
 
 /**
@@ -64,7 +72,15 @@ export type Role = {
   organizationId: string;
 
   title: string;
-  type: 'founder' | 'cofounder' | 'cto' | 'ceo' | 'employee' | 'contractor' | 'advisor' | 'freelance';
+  type:
+    | "founder"
+    | "cofounder"
+    | "cto"
+    | "ceo"
+    | "employee"
+    | "contractor"
+    | "advisor"
+    | "freelance";
 
   period: Period;
   location?: string;
@@ -91,8 +107,8 @@ export type Project = {
   images: string[] | null;
   skills: string[];
   category: string;
-  organizationId?: string;  // Which org owns this
-  roleId?: string;          // Which role created this
+  organizationId?: string; // Which org owns this
+  roleId?: string; // Which role created this
   details: string[] | string;
   teamSize?: string;
   duration?: string;
@@ -115,30 +131,21 @@ export type Project = {
       name: string;
       url: string;
       description?: string;
-      type?: 'review' | 'article' | 'video' | 'social' | 'award' | 'resource' | 'tool' | 'misc';
+      type?:
+        | "review"
+        | "article"
+        | "video"
+        | "social"
+        | "award"
+        | "resource"
+        | "tool"
+        | "misc";
     }>;
   };
 
   // Convenience aliases (computed from urls)
-  liveUrl?: string;  // alias for urls.website
-  github?: string;   // alias for urls.repository
-};
-
-export type TechSkill = {
-  id: string;
-  name: string;
-  description: string;
-  yearsOfExperience: number;
-  color: string;
-  bgColor: string;
-  category: string;
-  keywords: string[];
-  icon: string;
-  url?: string;             // Official website/docs
-
-  // Hierarchy
-  parentId?: string;        // e.g., TypeScript → JavaScript
-  relatedIds?: string[];    // Similar purpose techs
+  liveUrl?: string; // alias for urls.website
+  github?: string; // alias for urls.repository
 };
 
 export type PersonalInfo = {
@@ -171,7 +178,7 @@ export type PhilosophyPrinciple = {
   fullDescription: string;
   icon: string;
   visualElement?: string;
-  category: 'core' | 'design' | 'code' | 'approach';
+  category: "core" | "design" | "code" | "approach";
   keyPoints?: string[];
   colorScheme: {
     bg: string;

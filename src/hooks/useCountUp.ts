@@ -7,7 +7,11 @@ import { useEffect, useRef, useState } from "react";
  * Uses requestAnimationFrame with an ease-out curve. Respects prefers-reduced-motion
  * (jumps to target instantly). Starts when `start` flips to true (e.g. on scroll reveal).
  */
-export function useCountUp(target: number, duration = 1200, start = true): number {
+export function useCountUp(
+  target: number,
+  duration = 1200,
+  start = true,
+): number {
   const [value, setValue] = useState(0);
   const rafRef = useRef<number | null>(null);
   const startTime = useRef<number | null>(null);
@@ -16,7 +20,9 @@ export function useCountUp(target: number, duration = 1200, start = true): numbe
     if (!start) return;
 
     // Check prefers-reduced-motion
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     if (reduce) {
       setValue(target);
       return;

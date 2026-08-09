@@ -3,23 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 4311",
     "build": "next build",
-    "start": "next start -p 4311",
-    "preview": "npx -y serve -s out -l 4311",
-    "lint": "biome check .",
+    "check": "biome check . && tsc --noEmit && bun test",
+    "dev": "next dev --turbopack -p 4311",
     "format": "biome format --write src package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
     "format:check": "biome format src package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
+    "generate:banners": "bun scripts/generate-oss-banners.mjs",
+    "generate:covers": "bun scripts/generate-oss-covers.mjs",
+    "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "preview": "npx -y serve -s out -l 4311",
+    "start": "next start -p 4311",
+    "sync": "bun scripts/sync-github-portfolio.mjs && bun scripts/sync-stats.mjs",
+    "sync:github": "bun scripts/sync-github-portfolio.mjs",
+    "sync:stats": "bun scripts/sync-stats.mjs",
+    "test": "bun test",
     "test:api": "cd api-rust && cargo test --locked",
     "test:cinematic": "bun scripts/check-cinematic-markers.mjs",
-    "test:cinematic:export": "bun scripts/check-cinematic-markers.mjs --with-export",
-    "sync:github": "bun scripts/sync-github-portfolio.mjs",
-    "generate:covers": "bun scripts/generate-oss-covers.mjs",
-    "generate:banners": "bun scripts/generate-oss-banners.mjs",
-    "screenshot:oss-ui": "bun scripts/screenshot-oss-ui.mjs",
-    "apply:oss-banners": "bun scripts/apply-oss-banners-to-repos.mjs",
-    "lint:proto": "buf lint"
+    "test:cinematic:export": "bun scripts/check-cinematic-markers.mjs --with-export"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.5",
@@ -34,7 +35,6 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
@@ -45,7 +45,8 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "5.9.3",
-    "@sylphx/biome-config": "^0.4.1"
+    "@sylphx/biome-config": "^0.4.1",
+    "@types/bun": "^1.2.0"
   },
   "packageManager": "bun@1.3.12"
 }

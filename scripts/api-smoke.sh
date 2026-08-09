@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Production smoke for kylet-api-rust (ADR-168 drop-in authority).
+# Production smoke for kylet-api-rust (single JSON REST contract, ADR-169).
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-https://slim-pal-0k3stq.sylphx.app}"
+BASE_URL="${BASE_URL:-https://kylet.se}"
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
 pass() { echo "PASS: $*"; }

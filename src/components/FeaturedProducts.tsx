@@ -4,16 +4,18 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useId, useMemo, useState } from "react";
 import { FaArrowUpRightFromSquare, FaXmark } from "react-icons/fa6";
-import {
-  SHIPPED_PRODUCTS,
-  type ShippedProduct,
-} from "@/data/shipped-products";
+import { SHIPPED_PRODUCTS, type ShippedProduct } from "@/data/projects";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
 type Filter = "All" | "Mobile Games" | "Web Apps" | "Tools & Utilities";
 
-const FILTERS: Filter[] = ["All", "Mobile Games", "Web Apps", "Tools & Utilities"];
+const FILTERS: Filter[] = [
+  "All",
+  "Mobile Games",
+  "Web Apps",
+  "Tools & Utilities",
+];
 
 /**
  * Complete shipped products catalog (games + web + tools with screenshots).
@@ -103,12 +105,17 @@ export default function FeaturedProducts() {
       </div>
 
       {products.length === 0 && (
-        <p className="mt-8 text-sm text-text-tertiary">No products in this filter.</p>
+        <p className="mt-8 text-sm text-text-tertiary">
+          No products in this filter.
+        </p>
       )}
 
       <AnimatePresence>
         {selected && (
-          <ProductModal product={selected} onClose={() => setSelectedId(null)} />
+          <ProductModal
+            product={selected}
+            onClose={() => setSelectedId(null)}
+          />
         )}
       </AnimatePresence>
     </div>

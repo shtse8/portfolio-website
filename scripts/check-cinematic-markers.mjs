@@ -8,7 +8,7 @@
  *   bun scripts/check-cinematic-markers.mjs
  *   bun scripts/check-cinematic-markers.mjs --with-export
  */
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
@@ -40,9 +40,8 @@ const SOURCE_CHECKS = [
     patterns: [
       /data-design="signal-craft"/,
       /text-display/,
-      /BrandCover|signal-craft|text-display/,
-      /object-cover/,
-      /from-background via-background/,
+      /bg-grid mask-fade-b/,
+      /btn-primary btn-lg/,
     ],
   },
   {
@@ -85,7 +84,11 @@ function walk(dir, acc = []) {
     const p = join(dir, name);
     const st = statSync(p);
     if (st.isDirectory()) walk(p, acc);
-    else if (name.endsWith(".html") || name.endsWith(".css") || name.endsWith(".js"))
+    else if (
+      name.endsWith(".html") ||
+      name.endsWith(".css") ||
+      name.endsWith(".js")
+    )
       acc.push(p);
   }
   return acc;

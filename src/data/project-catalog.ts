@@ -31,7 +31,7 @@ export const PROJECT_CATALOG: ProjectCatalogEntry[] = [
     highlights: [
       "5–10× faster than typical alternatives via parallel processing",
       "94%+ test coverage · 103+ passing tests",
-      "801★ · 24K+ npm downloads/month",
+      "Live stars + npm downloads on the site (fetch /stats /downloads)",
       "Works with Claude Code, Desktop, VS Code, Cursor, Windsurf, Smithery",
     ],
     art: "/art/projects/pdf-reader-mcp.jpg",
@@ -161,7 +161,7 @@ export const PROJECT_CATALOG: ProjectCatalogEntry[] = [
     intro:
       "A personal high-signal utility for cleaning large Google Photos libraries: intelligent batch deletion, smart scrolling for 10k+ libraries, and a Chrome extension used by thousands. Actively maintained fork with 140+ GitHub stars.",
     highlights: [
-      "140+ GitHub stars · Chrome Web Store 4.7/5",
+      "Chrome Web Store 4.7/5 rating — live star count on the card",
       "Batch delete with progress + retry",
       "Handles large libraries (10,000+ photos)",
       "Extension + script-injection modes",

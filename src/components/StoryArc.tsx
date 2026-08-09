@@ -78,13 +78,15 @@ const ERA_META: Record<
     headline: "Organization operating system",
     // cache-bust: ambient was regenerated from official E-Orbit mark
     image: "/art/era-consulting.jpg?v=eorbit2",
-    imageAlt: "Ambient visual derived from the official Epiow E-Orbit brand mark",
+    imageAlt:
+      "Ambient visual derived from the official Epiow E-Orbit brand mark",
   },
   "sylphx-founder": {
     era: "AI · Open Source",
     headline: "The infrastructure AI agents run on",
     image: "/art/era-ai.jpg",
-    imageAlt: "Ambient visual derived from Sylphx brand mark and AI platform identity",
+    imageAlt:
+      "Ambient visual derived from Sylphx brand mark and AI platform identity",
   },
 };
 
@@ -179,11 +181,10 @@ export default function StoryArc() {
           className="absolute bottom-6 left-[1.15rem] top-6 hidden w-px bg-gradient-to-b from-accent/40 via-border to-border sm:block"
         />
 
-        {chapters.map((ch, i) => (
+        {chapters.map((ch) => (
           <EraCard
             key={ch.role.id}
             chapter={ch}
-            index={i}
             reduce={!!reduce}
             ask={ask}
             onOpenCompany={(id) => setOrgId(id)}
@@ -216,13 +217,11 @@ export default function StoryArc() {
 
 function EraCard({
   chapter,
-  index,
   reduce,
   ask,
   onOpenCompany,
 }: {
   chapter: EraChapter;
-  index: number;
   reduce: boolean;
   ask: (q: string) => void;
   onOpenCompany: (orgId: string) => void;
@@ -402,11 +401,7 @@ function CompanyDetailModal({
         </button>
 
         <div className="flex items-start gap-4 pr-10">
-          <CompanyLogo
-            src={org.logo}
-            alt={`${org.name} logo`}
-            size={64}
-          />
+          <CompanyLogo src={org.logo} alt={`${org.name} logo`} size={64} />
           <div>
             <h3
               id={titleId}
@@ -437,7 +432,9 @@ function CompanyDetailModal({
             <ul className="mt-2 space-y-1">
               {roles.map((r) => (
                 <li key={r.id} className="text-sm text-text-secondary">
-                  <span className="font-medium text-text-primary">{r.title}</span>
+                  <span className="font-medium text-text-primary">
+                    {r.title}
+                  </span>
                   {r.period?.start && (
                     <span className="text-text-tertiary">
                       {" "}

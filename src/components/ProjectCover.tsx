@@ -34,7 +34,7 @@ export default function ProjectCover({
       }}
     >
       {!failed ? (
-        // eslint-disable-next-line @next/next/no-img-element -- static portfolio art
+        // biome-ignore lint/performance/noImgElement: static portfolio art with explicit dimensions (no next/image optimization in static export)
         <img
           src={src}
           alt={label}

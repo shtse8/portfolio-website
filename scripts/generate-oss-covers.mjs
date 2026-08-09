@@ -9,7 +9,7 @@
  * Style: clean GitHub-product social card (not generative AI).
  * Usage: bun scripts/generate-oss-covers.mjs
  */
-import { mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { $ } from "bun";
 
@@ -47,7 +47,12 @@ function monogram(name) {
   const clean = name.replace(/[-_]/g, " ").trim();
   const parts = clean.split(/\s+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 2).toUpperCase() || "OS";
+  return (
+    name
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 2)
+      .toUpperCase() || "OS"
+  );
 }
 
 function escapeXml(s) {
@@ -92,6 +97,7 @@ function svgCover({ name, title, description, language, owner, archived }) {
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <title>${title}</title>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="640" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="${pal.from}"/>
@@ -130,7 +136,9 @@ function svgCover({ name, title, description, language, owner, archived }) {
 
 // Prefer active repos with stars, then anything else we still list
 const targets = portfolio.repos.filter(
-  (r) => !r.name.startsWith("scale-") && (r.stars >= 1 || /mcp|reader|rag/i.test(r.name)),
+  (r) =>
+    !r.name.startsWith("scale-") &&
+    (r.stars >= 1 || /mcp|reader|rag/i.test(r.name)),
 );
 
 let made = 0;

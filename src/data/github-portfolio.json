@@ -1,11 +1,6 @@
 {
   "syncedAt": "2026-07-17T00:24:28.430Z",
-  "adminOrgs": [
-    "Cubeage",
-    "SylphxAI",
-    "EpiowAI",
-    "OzyrixLtd"
-  ],
+  "adminOrgs": ["Cubeage", "SylphxAI", "EpiowAI", "OzyrixLtd"],
   "repos": [
     {
       "owner": "SylphxAI",
@@ -172,14 +167,7 @@
       "fork": false,
       "description": "WebGPU for Node.js via wgpu-rs (modern, lightweight alternative to Dawn)",
       "language": "Rust",
-      "topics": [
-        "gpu",
-        "napi-rs",
-        "nodejs",
-        "rust",
-        "webgpu",
-        "wgpu"
-      ],
+      "topics": ["gpu", "napi-rs", "nodejs", "rust", "webgpu", "wgpu"],
       "homepage": "https://webgpu-ruddy.vercel.app",
       "url": "https://github.com/SylphxAI/webgpu",
       "pushedAt": "2026-07-16T01:35:01Z",
@@ -349,13 +337,7 @@
       "fork": false,
       "description": "Type-safe, real-time API framework for TypeScript",
       "language": "TypeScript",
-      "topics": [
-        "api",
-        "real-time",
-        "type-safe",
-        "typescript",
-        "websocket"
-      ],
+      "topics": ["api", "real-time", "type-safe", "typescript", "websocket"],
       "homepage": "https://github.com/SylphxAI/Lens",
       "url": "https://github.com/SylphxAI/lens",
       "pushedAt": "2026-07-16T01:35:21Z",
@@ -419,11 +401,7 @@
       "fork": false,
       "description": "xserver is a Dart-based web server framework that leverages source generation for automatic handler registration, making it easier to manage and expand your web server's endpoints.",
       "language": "Dart",
-      "topics": [
-        "dart",
-        "framework",
-        "server"
-      ],
+      "topics": ["dart", "framework", "server"],
       "homepage": null,
       "url": "https://github.com/shtse8/xserver",
       "pushedAt": "2026-06-20T19:53:45Z",
@@ -610,13 +588,7 @@
       "fork": false,
       "description": "Pure functional MCP server SDK for Bun - zero dependencies, type-safe, high performance",
       "language": "Rust",
-      "topics": [
-        "ai",
-        "bun",
-        "mcp",
-        "model-context-protocol",
-        "typescript"
-      ],
+      "topics": ["ai", "bun", "mcp", "model-context-protocol", "typescript"],
       "homepage": "https://github.com/SylphxAI/mcp-server-sdk#readme",
       "url": "https://github.com/SylphxAI/mcp-server-sdk",
       "pushedAt": "2026-07-16T19:01:05Z",
@@ -661,11 +633,7 @@
       "fork": false,
       "description": "🎹 Synth - synthesis and generation tools",
       "language": "TypeScript",
-      "topics": [
-        "generation",
-        "synthesis",
-        "typescript"
-      ],
+      "topics": ["generation", "synthesis", "typescript"],
       "homepage": "https://synth-docs-rl9wivzhb-sylphx.vercel.app",
       "url": "https://github.com/SylphxAI/synth",
       "pushedAt": "2026-07-16T19:31:41Z",
@@ -710,12 +678,7 @@
       "fork": false,
       "description": "🌳 AST manipulation and code transformation utilities",
       "language": "TypeScript",
-      "topics": [
-        "ast",
-        "code-transformation",
-        "parser",
-        "typescript"
-      ],
+      "topics": ["ast", "code-transformation", "parser", "typescript"],
       "homepage": "https://ast-sylphx.vercel.app",
       "url": "https://github.com/SylphxAI/ast",
       "pushedAt": "2026-07-16T02:07:06Z",

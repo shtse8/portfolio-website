@@ -4,11 +4,7 @@
  * the JSON-LD navigation element.
  */
 
-export type SectionId =
-  | "hero"
-  | "story"
-  | "work"
-  | "contact";
+export type SectionId = "hero" | "story" | "work" | "contact";
 
 export interface SectionConfig {
   id: SectionId;
@@ -27,4 +23,6 @@ export const SECTIONS: SectionConfig[] = [
 
 export const NAV_SECTIONS = SECTIONS.filter((s) => s.nav);
 export const SECTION_IDS: SectionId[] = SECTIONS.map((s) => s.id);
-export const URL_SECTION_IDS: SectionId[] = SECTIONS.filter((s) => s.id !== "hero").map((s) => s.id);
+export const URL_SECTION_IDS: SectionId[] = SECTIONS.filter(
+  (s) => s.id !== "hero",
+).map((s) => s.id);

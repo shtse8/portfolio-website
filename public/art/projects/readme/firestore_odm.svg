@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" fill="none"><title>firestore_odm</title>
   <defs>
     <linearGradient id="bg" x1="0" y1="640" x2="1280" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#0a1210"/>

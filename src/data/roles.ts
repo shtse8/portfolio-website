@@ -1,156 +1,199 @@
-import type { Role } from './types';
+import type { Role } from "./types";
 
 /**
  * All Roles
  */
 export const ROLES: Role[] = [
   {
-    id: 'sylphx-founder',
-    organizationId: 'sylphx',
-    title: 'Founder',
-    type: 'founder',
-    period: { start: '2025-05' },
-    location: 'United Kingdom',
+    id: "sylphx-founder",
+    organizationId: "sylphx",
+    title: "Founder",
+    type: "founder",
+    period: { start: "2025-05" },
+    location: "United Kingdom",
     isRemote: true,
-    description: 'Building the infrastructure AI agents run on — MCP servers, RAG/semantic-search engines, an AI-native PaaS, and the high-performance libraries under them',
+    description:
+      "Building the infrastructure AI agents run on — MCP servers, RAG/semantic-search engines, an AI-native PaaS, and the high-performance libraries under them",
     responsibilities: [
-      'Created pdf-reader-mcp — the PDF reader for AI agents (801★, 24K+ npm downloads/month)',
-      'Building Sylphx — an AI-native PaaS that deploys app code, SDK, and infra from one place',
-      'Built CodeRAG — semantic code search with AST chunking across 15+ languages',
-      'Shipped Rapid, Craft, and Silk — benchmarked, zero/low-dependency TypeScript libraries',
-      'Published the @sylphx MCP toolchain on NPM — ~27K downloads/month across packages'
+      "Created pdf-reader-mcp — the PDF reader for AI agents (801★, 24K+ npm downloads/month)",
+      "Building Sylphx — an AI-native PaaS that deploys app code, SDK, and infra from one place",
+      "Built CodeRAG — semantic code search with AST chunking across 15+ languages",
+      "Shipped Rapid, Craft, and Silk — benchmarked, zero/low-dependency TypeScript libraries",
+      "Published the @sylphx MCP toolchain on NPM — ~27K downloads/month across packages",
     ],
     keyAchievements: [
-      '801★ + 24K downloads/mo on pdf-reader-mcp',
-      '~990 GitHub stars across the org'
+      "801★ + 24K downloads/mo on pdf-reader-mcp",
+      "~990 GitHub stars across the org",
     ],
     metrics: [
-      { type: 'stars', value: 801, context: 'total' },
-      { type: 'downloads', value: 27038, context: 'monthly' }
+      { type: "stars", value: 801, context: "total" },
+      { type: "downloads", value: 27038, context: "monthly" },
     ],
-    skills: ['typescript', 'mcp', 'ai-integration', 'nodejs', 'bun', 'performance-testing', 'open-source'],
-    logo: '/companys/sylphx.png',
-    liveUrl: 'https://sylphx.com'
+    skills: [
+      "typescript",
+      "mcp",
+      "ai-integration",
+      "nodejs",
+      "bun",
+      "performance-testing",
+      "open-source",
+    ],
+    logo: "/companys/sylphx.png",
+    liveUrl: "https://sylphx.com",
   },
   {
-    id: 'epiow-cto',
-    organizationId: 'epiow',
-    title: 'Co-Founder & CTO',
-    type: 'cofounder',
-    period: { start: '2025-11' },
-    location: 'United Kingdom',
+    id: "epiow-cto",
+    organizationId: "epiow",
+    title: "Co-Founder & CTO",
+    type: "cofounder",
+    period: { start: "2025-11" },
+    location: "United Kingdom",
     isRemote: true,
     description:
       "Building Epiow — the organization operating system for Hong Kong enterprises: modular HR, CRM, and ops with Employment Ordinance & MPF-native workflows",
     responsibilities: [
-      'Co-founded Epiow Limited — enterprise workspace / Platform OS',
-      'Product architecture for modular catalog-backed business apps',
-      'HK labour-law and MPF-native platform capabilities'
+      "Co-founded Epiow Limited — enterprise workspace / Platform OS",
+      "Product architecture for modular catalog-backed business apps",
+      "HK labour-law and MPF-native platform capabilities",
     ],
     keyAchievements: [
-      'Enterprise Platform OS product live at epiow.com',
-      'Modular HR / CRM / operations app catalog architecture'
+      "Enterprise Platform OS product live at epiow.com",
+      "Modular HR / CRM / operations app catalog architecture",
     ],
-    metrics: [
-      { type: 'custom', value: 'UK/HK', unit: 'Markets' }
+    metrics: [{ type: "custom", value: "UK/HK", unit: "Markets" }],
+    skills: [
+      "typescript",
+      "react",
+      "nextjs",
+      "nodejs",
+      "full-stack",
+      "enterprise-platform",
     ],
-    skills: ['typescript', 'react', 'nextjs', 'nodejs', 'full-stack', 'enterprise-platform'],
-    logo: '/companys/epiow.png?v=eorbit',
-    liveUrl: 'https://epiow.com'
+    logo: "/companys/epiow.png?v=eorbit",
+    liveUrl: "https://epiow.com",
   },
   {
-    id: 'cubeage-founder',
-    organizationId: 'cubeage',
-    title: 'Founder & CEO',
-    type: 'founder',
-    period: { start: '2014-01' },
-    location: 'Hong Kong / China',
-    description: 'Founded and led all technical development for mobile gaming company achieving 10M+ global downloads',
+    id: "cubeage-founder",
+    organizationId: "cubeage",
+    title: "Founder & CEO",
+    type: "founder",
+    period: { start: "2014-01" },
+    location: "Hong Kong / China",
+    description:
+      "Founded and led all technical development for mobile gaming company achieving 10M+ global downloads",
     responsibilities: [
-      'Developed and operated mobile games across multiple genres at Cubeage Limited',
-      'Achieved over 10 million total installs across global markets including China, Hong Kong, Taiwan and Southeast Asia',
-      'Built games using various frameworks including Unity3D, Cocos2d, Corona SDK and Flutter to optimize for different platforms and requirements',
-      'Implemented comprehensive backend infrastructure to support large-scale multiplayer games',
-      'Worked with development teams across Hong Kong and China offices',
-      'Created successful monetization strategies through IAP, ads and subscription models',
-      'Managed full game lifecycle from concept to live operations and updates'
+      "Developed and operated mobile games across multiple genres at Cubeage Limited",
+      "Achieved over 10 million total installs across global markets including China, Hong Kong, Taiwan and Southeast Asia",
+      "Built games using various frameworks including Unity3D, Cocos2d, Corona SDK and Flutter to optimize for different platforms and requirements",
+      "Implemented comprehensive backend infrastructure to support large-scale multiplayer games",
+      "Worked with development teams across Hong Kong and China offices",
+      "Created successful monetization strategies through IAP, ads and subscription models",
+      "Managed full game lifecycle from concept to live operations and updates",
     ],
     keyAchievements: [
-      'Reached 10M+ global downloads',
-      'Successfully launched in multiple markets',
-      'Built scalable multi-region infrastructure'
+      "Reached 10M+ global downloads",
+      "Successfully launched in multiple markets",
+      "Built scalable multi-region infrastructure",
     ],
     metrics: [
-      { type: 'downloads', value: 10000000, context: 'total' },
-      { type: 'projects', value: 4, unit: 'Game Frameworks' },
-      { type: 'custom', value: 2, unit: 'Regional Offices' }
+      { type: "downloads", value: 10000000, context: "total" },
+      { type: "projects", value: 4, unit: "Game Frameworks" },
+      { type: "custom", value: 2, unit: "Regional Offices" },
     ],
-    skills: ['unity3d', 'cocos2d', 'flutter', 'corona-sdk', 'gamedev', 'databases', 'ios', 'android'],
-    logo: '/companys/cubeage.jpeg',
-    liveUrl: 'https://cubeage.com'
+    skills: [
+      "unity3d",
+      "cocos2d",
+      "flutter",
+      "corona-sdk",
+      "gamedev",
+      "databases",
+      "ios",
+      "android",
+    ],
+    logo: "/companys/cubeage.jpeg",
+    liveUrl: "https://cubeage.com",
   },
   {
-    id: 'minimax-ceo',
-    organizationId: 'minimax',
-    title: 'Co-Founder & CEO',
-    type: 'cofounder',
-    period: { start: '2010-01', end: '2016-12' },
-    location: 'Hong Kong / Taiwan / China',
-    description: 'Co-founded social gaming company that reached 10M+ monthly active users on Facebook',
+    id: "minimax-ceo",
+    organizationId: "minimax",
+    title: "Co-Founder & CEO",
+    type: "cofounder",
+    period: { start: "2010-01", end: "2016-12" },
+    location: "Hong Kong / Taiwan / China",
+    description:
+      "Co-founded social gaming company that reached 10M+ monthly active users on Facebook",
     responsibilities: [
-      'Co-founded MiniMax Game Entertainment Limited, a social gaming company with offices in Hong Kong, Taiwan and China',
-      'Built and operated over 30 concurrent social games and apps on Facebook platform',
-      'Achieved over 10 million monthly active users (MAU) across portfolio of social games',
-      'Became a notable Facebook game developer in Hong Kong and Taiwan markets',
-      'Worked on Funimax platform, a major game distribution service with extensive retail network',
-      'Participated in multi-region game operations, distribution partnerships and agency relationships',
-      'Implemented comprehensive payment and analytics systems across physical and digital channels',
-      'Built scalable infrastructure to support millions of daily active users'
+      "Co-founded MiniMax Game Entertainment Limited, a social gaming company with offices in Hong Kong, Taiwan and China",
+      "Built and operated over 30 concurrent social games and apps on Facebook platform",
+      "Achieved over 10 million monthly active users (MAU) across portfolio of social games",
+      "Became a notable Facebook game developer in Hong Kong and Taiwan markets",
+      "Worked on Funimax platform, a major game distribution service with extensive retail network",
+      "Participated in multi-region game operations, distribution partnerships and agency relationships",
+      "Implemented comprehensive payment and analytics systems across physical and digital channels",
+      "Built scalable infrastructure to support millions of daily active users",
     ],
     keyAchievements: [
-      'Reached 10M+ monthly active users',
-      'Operated 30+ concurrent games',
-      'Top Facebook game developer in HK'
+      "Reached 10M+ monthly active users",
+      "Operated 30+ concurrent games",
+      "Top Facebook game developer in HK",
     ],
     metrics: [
-      { type: 'users', value: 10000000, context: 'monthly' },
-      { type: 'projects', value: 30, unit: 'Active Games' },
-      { type: 'custom', value: 3, unit: 'Regional Offices' }
+      { type: "users", value: 10000000, context: "monthly" },
+      { type: "projects", value: 30, unit: "Active Games" },
+      { type: "custom", value: 3, unit: "Regional Offices" },
     ],
-    skills: ['databases', 'php', 'nodejs', 'payment-integration', 'social-gaming', 'game-operations', 'facebook-platform'],
-    logo: '/companys/minimax.jpeg'
+    skills: [
+      "databases",
+      "php",
+      "nodejs",
+      "payment-integration",
+      "social-gaming",
+      "game-operations",
+      "facebook-platform",
+    ],
+    logo: "/companys/minimax.jpeg",
   },
   {
-    id: 'nakuz-cto',
-    organizationId: 'nakuz',
-    title: 'Co-Founder & CTO',
-    type: 'cofounder',
-    period: { start: '2006-01' },
-    location: 'Hong Kong',
-    description: 'Co-founded and built a Hong Kong gaming media platform with 500K+ registered users',
+    id: "nakuz-cto",
+    organizationId: "nakuz",
+    title: "Co-Founder & CTO",
+    type: "cofounder",
+    period: { start: "2006-01" },
+    location: "Hong Kong",
+    description:
+      "Co-founded and built a Hong Kong gaming media platform with 500K+ registered users",
     responsibilities: [
-      'Built and maintained a popular Hong Kong gaming information platform powered by Discuz!, PHP, MySQL and Ubuntu',
-      'Grew to over 500,000 registered users and 3,000+ concurrent online users',
-      'Established as the official discussion platform for 100+ game publishers and developers',
-      'Achieved strong rankings in Hong Kong gaming media',
-      'Created comprehensive game guides, news coverage and community features',
-      'Optimized infrastructure and performance for high-traffic loads',
-      'Built strong partnerships with major gaming companies across Asia'
+      "Built and maintained a popular Hong Kong gaming information platform powered by Discuz!, PHP, MySQL and Ubuntu",
+      "Grew to over 500,000 registered users and 3,000+ concurrent online users",
+      "Established as the official discussion platform for 100+ game publishers and developers",
+      "Achieved strong rankings in Hong Kong gaming media",
+      "Created comprehensive game guides, news coverage and community features",
+      "Optimized infrastructure and performance for high-traffic loads",
+      "Built strong partnerships with major gaming companies across Asia",
     ],
     keyAchievements: [
-      '500K+ Registered Users',
-      '100+ Official Game Partnerships',
-      '3K+ Concurrent Users'
+      "500K+ Registered Users",
+      "100+ Official Game Partnerships",
+      "3K+ Concurrent Users",
     ],
     metrics: [
-      { type: 'users', value: 500000, context: 'total' },
-      { type: 'users', value: 3000, context: 'concurrent' },
-      { type: 'partners', value: 100, unit: 'Game Partners' }
+      { type: "users", value: 500000, context: "total" },
+      { type: "users", value: 3000, context: "concurrent" },
+      { type: "partners", value: 100, unit: "Game Partners" },
     ],
-    skills: ['php', 'mysql', 'ubuntu', 'discuz', 'seo', 'community-management', 'digital-media', 'content-strategy'],
-    logo: '/companys/nakuz.jpeg',
-    liveUrl: 'https://nakuz.com'
-  }
+    skills: [
+      "php",
+      "mysql",
+      "ubuntu",
+      "discuz",
+      "seo",
+      "community-management",
+      "digital-media",
+      "content-strategy",
+    ],
+    logo: "/companys/nakuz.jpeg",
+    liveUrl: "https://nakuz.com",
+  },
 ];
 
 // ========================================
@@ -158,15 +201,15 @@ export const ROLES: Role[] = [
 // ========================================
 
 export function getRole(id: string): Role | undefined {
-  return ROLES.find(r => r.id === id);
+  return ROLES.find((r) => r.id === id);
 }
 
 export function getRolesByOrganization(organizationId: string): Role[] {
-  return ROLES.filter(r => r.organizationId === organizationId);
+  return ROLES.filter((r) => r.organizationId === organizationId);
 }
 
 export function getCurrentRoles(): Role[] {
-  return ROLES.filter(r => !r.period.end);
+  return ROLES.filter((r) => !r.period.end);
 }
 
 export function getRolesSortedByDate(): Role[] {
@@ -178,8 +221,9 @@ export function getRolesSortedByDate(): Role[] {
 }
 
 export function calculateTotalExperience(): number {
-  const sortedRoles = [...ROLES].sort((a, b) =>
-    new Date(a.period.start).getTime() - new Date(b.period.start).getTime()
+  const sortedRoles = [...ROLES].sort(
+    (a, b) =>
+      new Date(a.period.start).getTime() - new Date(b.period.start).getTime(),
   );
 
   if (sortedRoles.length === 0) return 0;
@@ -187,5 +231,7 @@ export function calculateTotalExperience(): number {
   const earliestStart = new Date(sortedRoles[0].period.start);
   const now = new Date();
 
-  return Math.floor((now.getTime() - earliestStart.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+  return Math.floor(
+    (now.getTime() - earliestStart.getTime()) / (365.25 * 24 * 60 * 60 * 1000),
+  );
 }

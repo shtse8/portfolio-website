@@ -9,10 +9,9 @@
  * the browser talks only to this BFF (or a BFF proxy).
  */
 const DEFAULT_API_BASE = "";
-export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE ?? DEFAULT_API_BASE).replace(
-  /\/$/,
-  "",
-);
+export const API_BASE = (
+  process.env.NEXT_PUBLIC_API_BASE ?? DEFAULT_API_BASE
+).replace(/\/$/, "");
 
 /**
  * Same-origin (empty base) still has a BFF. Set NEXT_PUBLIC_DISABLE_API=1 to

@@ -131,11 +131,7 @@ function CompanyModal({
         </button>
 
         <div className="flex items-start gap-4 pr-10">
-          <CompanyLogo
-            src={org.logo}
-            alt={`${org.name} logo`}
-            size={64}
-          />
+          <CompanyLogo src={org.logo} alt={`${org.name} logo`} size={64} />
           <div>
             <h3
               id={titleId}
@@ -144,7 +140,9 @@ function CompanyModal({
               {org.name}
             </h3>
             {org.legalName && (
-              <p className="mt-0.5 text-sm text-text-tertiary">{org.legalName}</p>
+              <p className="mt-0.5 text-sm text-text-tertiary">
+                {org.legalName}
+              </p>
             )}
             <p className="mt-1 font-mono text-[11px] uppercase tracking-wide text-text-tertiary">
               {org.status}
@@ -166,7 +164,9 @@ function CompanyModal({
             <ul className="mt-2 space-y-1.5">
               {roles.map((r) => (
                 <li key={r.id} className="text-sm text-text-secondary">
-                  <span className="font-medium text-text-primary">{r.title}</span>
+                  <span className="font-medium text-text-primary">
+                    {r.title}
+                  </span>
                   {r.period?.start && (
                     <span className="text-text-tertiary">
                       {" "}

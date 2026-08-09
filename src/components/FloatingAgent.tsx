@@ -1,21 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FaArrowUp,
   FaBolt,
+  FaDownload,
   FaMagnifyingGlass,
   FaRegStar,
   FaTerminal,
-  FaDownload,
-  FaXmark,
   FaWandMagicSparkles,
+  FaXmark,
 } from "react-icons/fa6";
-import { API_BASE, HAS_API } from "@/lib/api";
 import { useWorkGraph } from "@/context/WorkGraphContext";
+import { API_BASE, HAS_API } from "@/lib/api";
 import Markdown from "./ui/Markdown";
 
 const INITIAL_SUGGESTIONS = [
@@ -32,12 +32,13 @@ const INITIAL_SUGGESTIONS = [
  * about what to ask next.
  */
 function generateFollowUps(messages: UIMessage[]): string[] {
-  const lastAssistantText = [...messages]
-    .reverse()
-    .find((m) => m.role === "assistant")
-    ?.parts?.filter((p) => p.type === "text")
-    .map((p) => p.text ?? "")
-    .join(" ") ?? "";
+  const lastAssistantText =
+    [...messages]
+      .reverse()
+      .find((m) => m.role === "assistant")
+      ?.parts?.filter((p) => p.type === "text")
+      .map((p) => p.text ?? "")
+      .join(" ") ?? "";
 
   const lower = lastAssistantText.toLowerCase();
   const ups: string[] = [];
@@ -116,7 +117,9 @@ export default function FloatingAgent() {
     const isMobile = window.matchMedia("(max-width: 639px)").matches;
     if (!isMobile) return;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   // Listen for "open-agent" custom events (e.g. from Hero CTA)
@@ -156,7 +159,10 @@ export default function FloatingAgent() {
   }, []);
 
   const scrollToBottom = useCallback(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, []);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: messages is an intentional re-run trigger — scroll to bottom whenever the transcript changes.
@@ -222,7 +228,9 @@ export default function FloatingAgent() {
             <span className="absolute inset-0 rounded-full bg-accent/40 animate-ping-soft" />
             <FaWandMagicSparkles className="relative h-6 w-6" />
             {/* ⌘K hint (desktop, hidden on mobile) */}
-            <kbd className="absolute -left-12 top-1/2 hidden -translate-y-1/2 rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary opacity-0 shadow-sm transition-opacity group-hover:opacity-100 sm:block">⌘K</kbd>
+            <kbd className="absolute -left-12 top-1/2 hidden -translate-y-1/2 rounded-md border border-border bg-surface px-1.5 py-0.5 font-mono text-[10px] text-text-tertiary opacity-0 shadow-sm transition-opacity group-hover:opacity-100 sm:block">
+              ⌘K
+            </kbd>
           </motion.button>
         )}
       </AnimatePresence>
@@ -241,9 +249,13 @@ export default function FloatingAgent() {
               setShowHint(false);
             }}
           >
-            <span className="font-medium text-text-primary">Ask about my work →</span>
+            <span className="font-medium text-text-primary">
+              Ask about my work →
+            </span>
             <br />
-            <span className="text-text-tertiary">Real AI agent with live tools</span>
+            <span className="text-text-tertiary">
+              Real AI agent with live tools
+            </span>
             {/* arrow pointing down-right */}
             <span className="absolute -bottom-1 right-5 h-3 w-3 rotate-45 border-b border-r border-border bg-surface" />
           </motion.div>
@@ -278,13 +290,16 @@ export default function FloatingAgent() {
                     <FaWandMagicSparkles className="h-4 w-4 text-accent" />
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-text-primary">Ask my AI</div>
+                    <div className="text-sm font-semibold text-text-primary">
+                      Ask my AI
+                    </div>
                     <div className="font-mono text-[10px] text-text-tertiary">
                       Powered by sylphx/lumen · Gateway
                     </div>
                   </div>
                 </div>
-                <button type="button"
+                <button
+                  type="button"
                   onClick={() => setOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-full text-text-tertiary transition-colors hover:bg-surface-sunken hover:text-text-primary"
                   aria-label="Close"
@@ -298,13 +313,17 @@ export default function FloatingAgent() {
                 {!started && (
                   <div className="space-y-3">
                     <div className="rounded-2xl rounded-bl-sm bg-surface-sunken px-4 py-3 text-sm text-text-secondary">
-                      Hi — I&apos;m Kyle&apos;s AI agent. I answer from <strong className="text-text-primary">live data</strong> (real-time GitHub stars, npm downloads, project details).
-                      <br /><br />
+                      Hi — I&apos;m Kyle&apos;s AI agent. I answer from{" "}
+                      <strong className="text-text-primary">live data</strong>{" "}
+                      (real-time GitHub stars, npm downloads, project details).
+                      <br />
+                      <br />
                       Every answer is grounded — ask me anything about his work.
                     </div>
                     <div className="space-y-2">
                       {INITIAL_SUGGESTIONS.map((s) => (
-                        <button type="button"
+                        <button
+                          type="button"
                           key={s}
                           onClick={() => onSubmit(s)}
                           disabled={!HAS_API || busy}
@@ -330,19 +349,22 @@ export default function FloatingAgent() {
                       </div>
                     )}
                     {/* Follow-up suggestion chips after AI responds */}
-                    {!busy && started && messages[messages.length - 1]?.role === "assistant" && (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {generateFollowUps(messages).map((q) => (
-                          <button type="button"
-                            key={q}
-                            onClick={() => onSubmit(q)}
-                            className="rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] text-text-secondary transition-all hover:border-accent hover:text-text-primary"
-                          >
-                            {q}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    {!busy &&
+                      started &&
+                      messages[messages.length - 1]?.role === "assistant" && (
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {generateFollowUps(messages).map((q) => (
+                            <button
+                              type="button"
+                              key={q}
+                              onClick={() => onSubmit(q)}
+                              className="rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] text-text-secondary transition-all hover:border-accent hover:text-text-primary"
+                            >
+                              {q}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                   </div>
                 )}
                 {error && (
@@ -367,12 +389,18 @@ export default function FloatingAgent() {
                   className="flex items-end gap-2"
                 >
                   <input
-                    ref={(el) => { if (open && el) setTimeout(() => el.focus(), 100); }}
+                    ref={(el) => {
+                      if (open && el) setTimeout(() => el.focus(), 100);
+                    }}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     disabled={!HAS_API || busy}
                     aria-label="Ask the AI agent"
-                    placeholder={HAS_API ? "Ask about Kyle's work…" : "Agent coming online…"}
+                    placeholder={
+                      HAS_API
+                        ? "Ask about Kyle's work…"
+                        : "Agent coming online…"
+                    }
                     className="flex-1 rounded-2xl border border-border bg-surface px-4 py-2.5 text-sm text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-accent disabled:opacity-60"
                   />
                   <button
@@ -436,7 +464,10 @@ function MessageBubble({ message }: { message: UIMessage }) {
 
 // ── Tool call visualizer ─────────────────────────────────────────────────────
 
-const TOOL_META: Record<string, { icon: typeof FaMagnifyingGlass; label: string }> = {
+const TOOL_META: Record<
+  string,
+  { icon: typeof FaMagnifyingGlass; label: string }
+> = {
   list_projects: { icon: FaMagnifyingGlass, label: "Listing projects" },
   get_repo: { icon: FaRegStar, label: "Fetching repo details" },
   recent_activity: { icon: FaTerminal, label: "Checking recent activity" },

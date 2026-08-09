@@ -19,6 +19,7 @@ import {
   catalogForRepoName,
   type ProjectCatalogEntry,
 } from "@/data/project-catalog";
+import type { Capability } from "@/lib/capabilities";
 import {
   compact,
   fetchDownloads,
@@ -87,7 +88,9 @@ export default function WorkGraph() {
     capability
       ? projects.filter((p) => repoCapabilities(p).includes(capability))
       : projects
-  ).slice().sort(sortPortfolio);
+  )
+    .slice()
+    .sort(sortPortfolio);
 
   const primary = filtered.filter(isPrimaryRepo);
   const secondary = filtered.filter((p) => !isPrimaryRepo(p));
@@ -123,10 +126,11 @@ export default function WorkGraph() {
     };
   }, [selected]);
 
-  // Reset expansion when filter changes so the page stays scannable
-  useEffect(() => {
+  // Reset expansion when the filter changes so the page stays scannable.
+  const onCapability = (c: Capability | null) => {
+    setCapability(c);
     setShowMore(false);
-  }, [capability]);
+  };
 
   return (
     <div className="container-wide">
@@ -149,7 +153,7 @@ export default function WorkGraph() {
             <FilterChip
               key={c}
               active={capability === c}
-              onClick={() => setCapability(c)}
+              onClick={() => onCapability(c)}
               label={CAPABILITY_LABEL[c]}
               n={n}
             />

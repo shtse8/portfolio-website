@@ -44,10 +44,16 @@ export default function Hero() {
           },
         };
 
-  const stars = stats ? compact(stats.githubStars) : "~990";
-  const downloads = stats ? compact(stats.npmDownloads) : "27K+";
-  const flagStars = stats ? compact(stats.flagshipStars) : "800+";
-  const flagDl = stats ? compact(stats.flagshipDownloads) : "24K+";
+  const stars = stats ? compact(stats.githubStars) : STATS.githubStars.display;
+  const downloads = stats
+    ? compact(stats.npmDownloads)
+    : STATS.npmDownloads.display;
+  const flagStars = stats
+    ? compact(stats.flagshipStars)
+    : STATS.flagshipStars.display;
+  const flagDl = stats
+    ? compact(stats.flagshipDownloads)
+    : STATS.flagshipDownloads.display;
   const lastShip = recent[0];
   const liveLabel = loading ? "loading" : live ? "live" : "cached";
 
@@ -93,7 +99,9 @@ export default function Hero() {
               {PERSONAL_INFO.firstName} {PERSONAL_INFO.lastName}
             </span>
             <span className="mx-2 text-text-tertiary">·</span>
-            <span className="text-text-tertiary">AI infrastructure engineer</span>
+            <span className="text-text-tertiary">
+              AI infrastructure engineer
+            </span>
           </motion.div>
 
           <motion.h1 {...rise(0.08)} className="text-display text-text-primary">
@@ -106,8 +114,8 @@ export default function Hero() {
             className="mt-5 text-[15px] leading-relaxed text-text-secondary sm:text-base"
           >
             Open-source MCP servers and AI-native developer tools, plus{" "}
-            <strong className="font-semibold text-text-primary">Sylphx</strong> —
-            an AI-native PaaS with its own AI Gateway. Twenty years shipping
+            <strong className="font-semibold text-text-primary">Sylphx</strong>{" "}
+            — an AI-native PaaS with its own AI Gateway. Twenty years shipping
             before this; 10M+ app downloads at a Hong Kong gaming studio.
           </motion.p>
 
@@ -136,7 +144,9 @@ export default function Hero() {
             </a>
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new CustomEvent("open-agent"))}
+              onClick={() =>
+                window.dispatchEvent(new CustomEvent("open-agent"))
+              }
               className="btn-ghost btn-lg"
             >
               <FaBolt className="h-3.5 w-3.5 text-accent" /> Ask my AI

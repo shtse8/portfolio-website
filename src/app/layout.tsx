@@ -5,6 +5,7 @@ import AppShell from "@/components/layout/AppShell";
 import { SECTIONS } from "@/config/sections";
 import { NavigationProvider } from "@/context/NavigationContext";
 import { PERSONAL_INFO } from "@/data/personal";
+import { BAKED_STATS } from "@/lib/stats";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,17 +37,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 const fullName = `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`;
 const TITLE = `${fullName} — AI infrastructure builder`;
-const DESCRIPTION =
-  "Kyle Tse builds the infrastructure AI agents run on — MCP servers and AI-native developer tools. pdf-reader-mcp passed 800★ and ~24K npm downloads/month; building Sylphx (AI-native PaaS) plus RAG and semantic-search tooling. 20 years shipping software before this: 10M+ app downloads, 10M+ monthly players.";
-
-// Theme bootstrap — runs before paint to avoid a flash of the wrong theme.
-const themeScript = `
-(function(){try{
-  var p = localStorage.getItem('themePreference');
-  var dark = p === 'dark' || (!p && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  if (dark) document.documentElement.classList.add('dark');
-}catch(e){}})();
-`;
+const flagStars = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+}).format(BAKED_STATS.flagshipStars);
+const flagDl = new Intl.NumberFormat("en-US", { notation: "compact" }).format(
+  BAKED_STATS.flagshipDownloads,
+);
+const DESCRIPTION = `${fullName} builds the infrastructure AI agents run on — MCP servers and AI-native developer tools. pdf-reader-mcp at ${flagStars}★ and ${flagDl} npm downloads/month (verified ${BAKED_STATS.verifiedAt.slice(0, 10)}); building Sylphx (AI-native PaaS) plus RAG and semantic-search tooling. 20 years shipping software before this: 10M+ app downloads, 10M+ monthly players.`;
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -168,21 +165,20 @@ export default function RootLayout({
       className={`${inter.variable} ${syne.variable} ${jetbrainsMono.variable}`}
     >
       <head>
-        <link rel="icon" href="/og-icon-temp.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icons/icon-512x512.svg" />
+        <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input. */}
+        <script src="/theme-init.js" />
         <script
           type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input. */}
         <script
           type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: static structured data serialized from module-scoped constants, not user input.
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
-        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static theme-bootstrap IIFE string literal, not user input — standard Next.js flash-of-wrong-theme prevention pattern. */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-dvh antialiased">
         <NavigationProvider>

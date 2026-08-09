@@ -1,4 +1,4 @@
-import { SECTION_IDS, URL_SECTION_IDS } from '@/config/sections';
+import { SECTION_IDS, URL_SECTION_IDS } from "@/config/sections";
 
 /**
  * Application-wide constants (derived from centralized config)

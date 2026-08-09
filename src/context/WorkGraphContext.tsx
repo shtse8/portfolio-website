@@ -13,8 +13,23 @@
  * old. When the backend is unreachable the UI degrades to the build-time figures.
  */
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import githubPortfolio from "@/data/github-portfolio.json";
+import {
+  CAPABILITY_LABEL,
+  CAPABILITY_ORDER,
+  type Capability,
+  REPO_NPM,
+  repoCapabilities,
+} from "@/lib/capabilities";
 import {
   fetchProjects,
   fetchRecent,
@@ -23,39 +38,9 @@ import {
   type TermStats,
 } from "@/lib/terminal";
 
-// ── capability taxonomy — maps a repo to Kyle's positioning pillars ───────────
-export type Capability = "mcp" | "ai-infra" | "rag" | "tooling";
-export const CAPABILITY_LABEL: Record<Capability, string> = {
-  mcp: "MCP servers",
-  "ai-infra": "AI infra / PaaS",
-  rag: "RAG & search",
-  tooling: "Dev tooling",
-};
-export const CAPABILITY_ORDER: Capability[] = ["mcp", "ai-infra", "rag", "tooling"];
-
-/** Derive a repo's capabilities from its name + topics + description. */
-export function repoCapabilities(r: TermRepo): Capability[] {
-  const hay = `${r.name} ${r.description ?? ""} ${(r.topics ?? []).join(" ")}`.toLowerCase();
-  const caps = new Set<Capability>();
-  if (/mcp|model.?context|protocol/.test(hay)) caps.add("mcp");
-  if (/gateway|paas|platform|infra|deploy|kubernetes|serverless|sylphx/.test(hay)) caps.add("ai-infra");
-  if (/rag|embed|semantic|search|retrieval|vector|coderag/.test(hay)) caps.add("rag");
-  if (/cli|tool|sdk|filesystem|reader|downloader|state|css|util|lib/.test(hay)) caps.add("tooling");
-  if (caps.size === 0) caps.add("tooling");
-  return [...caps];
-}
-
-/** npm package backing a repo (for the per-project download trend), if any. */
-export const REPO_NPM: Record<string, string> = {
-  "pdf-reader-mcp": "@sylphx/pdf-reader-mcp",
-  "filesystem-mcp": "@sylphx/filesystem-mcp",
-  coderag: "@sylphx/coderag",
-  flow: "@sylphx/flow",
-  silk: "@sylphx/silk",
-  craft: "@sylphx/craft",
-  rapid: "@sylphx/rapid",
-  "cursor-ai-downloads": "@shtse8/cursor-ai-downloads",
-};
+export type { Capability };
+// Capability taxonomy + npm map live in the pure module (unit-testable).
+export { CAPABILITY_LABEL, CAPABILITY_ORDER, REPO_NPM, repoCapabilities };
 
 // ── static fallback from synced GitHub admin-org + personal owner repos ───────
 // Source of truth: `bun scripts/sync-github-portfolio.mjs` → github-portfolio.json
@@ -143,7 +128,10 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
     if (flashing.current) {
       if (h === null) return;
       flashing.current = false;
-      if (flashTimer.current) { clearTimeout(flashTimer.current); flashTimer.current = null; }
+      if (flashTimer.current) {
+        clearTimeout(flashTimer.current);
+        flashTimer.current = null;
+      }
     }
     setHighlightRaw(h);
   }, []);
@@ -159,17 +147,29 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
       }, 3000);
     }
   }, []);
-  useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current); }, []);
+  useEffect(
+    () => () => {
+      if (flashTimer.current) clearTimeout(flashTimer.current);
+    },
+    [],
+  );
   const [selected, setSelected] = useState<string | null>(null);
   const [askSeed, setAskSeed] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [s, p, r] = await Promise.allSettled([fetchStats(), fetchProjects(40), fetchRecent(8)]);
+      const [s, p, r] = await Promise.allSettled([
+        fetchStats(),
+        fetchProjects(40),
+        fetchRecent(8),
+      ]);
       if (!alive) return;
       let any = false;
-      if (s.status === "fulfilled") { setStats(s.value); any = true; }
+      if (s.status === "fulfilled") {
+        setStats(s.value);
+        any = true;
+      }
       // only overlay live projects if the call actually returned some — never
       // replace the curated fallback with an empty list.
       if (p.status === "fulfilled" && p.value.projects.length > 0) {
@@ -195,11 +195,16 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
         setLiveProjects(true);
         any = true;
       }
-      if (r.status === "fulfilled") { setRecent(r.value.recent); any = true; }
+      if (r.status === "fulfilled") {
+        setRecent(r.value.recent);
+        any = true;
+      }
       setLive(any);
       setLoading(false);
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const isHighlighted = useCallback(
@@ -217,13 +222,41 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<WorkGraphState>(
     () => ({
-      stats, projects, recent, loading, live, liveProjects,
-      highlight, setHighlight, flashHighlight, isHighlighted,
-      capability, setCapability,
-      selected, setSelected,
-      askSeed, ask, clearAsk,
+      stats,
+      projects,
+      recent,
+      loading,
+      live,
+      liveProjects,
+      highlight,
+      setHighlight,
+      flashHighlight,
+      isHighlighted,
+      capability,
+      setCapability,
+      selected,
+      setSelected,
+      askSeed,
+      ask,
+      clearAsk,
     }),
-    [stats, projects, recent, loading, live, liveProjects, highlight, setHighlight, flashHighlight, isHighlighted, capability, selected, askSeed, ask, clearAsk],
+    [
+      stats,
+      projects,
+      recent,
+      loading,
+      live,
+      liveProjects,
+      highlight,
+      setHighlight,
+      flashHighlight,
+      isHighlighted,
+      capability,
+      selected,
+      askSeed,
+      ask,
+      clearAsk,
+    ],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

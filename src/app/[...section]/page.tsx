@@ -1,33 +1,35 @@
-import { VALID_URL_SECTIONS } from '@/lib/constants';
-import Home from '../page';
-import { notFound } from 'next/navigation';
+import { notFound } from "next/navigation";
+import { VALID_URL_SECTIONS } from "@/lib/constants";
+import Home from "../page";
 
 // This function is required for static site generation with dynamic routes
 // It tells Next.js which static paths to generate at build time
 export function generateStaticParams() {
-  return VALID_URL_SECTIONS.map(section => ({
+  return VALID_URL_SECTIONS.map((section) => ({
     section: [section],
   }));
 }
 
 // This is a special Next.js metadata function for static exports
-export async function generateMetadata(props: { params: Promise<{ section: string[] }> }) {
+export async function generateMetadata(props: {
+  params: Promise<{ section: string[] }>;
+}) {
   const params = await props.params;
   const section = params.section[0];
-  
+
   // Validate the section
   if (!VALID_URL_SECTIONS.includes(section)) {
     return {
-      title: 'Page Not Found',
-      description: 'The requested section does not exist',
+      title: "Page Not Found",
+      description: "The requested section does not exist",
     };
   }
 
   // Format the section name for display (capitalize, replace hyphens with spaces)
   const formattedSection = section
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
   // Section URLs are shareable deep-link entry points that load the one-page site and
   // scroll to a section. The home page (/) is the single indexable page, so these routes
@@ -36,26 +38,28 @@ export async function generateMetadata(props: { params: Promise<{ section: strin
     title: `${formattedSection} — Kyle Tse`,
     description: `View information about ${formattedSection}`,
     robots: { index: false, follow: true },
-    alternates: { canonical: '/' },
+    alternates: { canonical: "/" },
   };
 }
 
-export default async function SectionPage(props: { params: Promise<{ section: string[] }> }) {
+export default async function SectionPage(props: {
+  params: Promise<{ section: string[] }>;
+}) {
   // Get section from URL
   const params = await props.params;
   const section = params.section[0];
-  
+
   // Validate if this is a known section
   if (!VALID_URL_SECTIONS.includes(section)) {
     notFound();
   }
-  
+
   // Pass the section to the Home component for client-side navigation
   // Also pass a key based on the section to force a re-render when changing sections directly
   return (
-    <Home 
+    <Home
       initialSection={section}
       key={`section-page-${section}`} // Add key to force re-render when visiting different sections directly
     />
   );
-} 
+}

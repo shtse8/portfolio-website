@@ -15,7 +15,7 @@
  *
  * Usage: bun scripts/generate-oss-banners.mjs
  */
-import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { $ } from "bun";
 
@@ -237,7 +237,9 @@ function domainFor(name, language, description) {
   if (/mcp|agent|llm|rag|reader|skill/.test(hay)) return "mcp";
   if (/photo|media|image|video|curator|gpu|webgpu|3d|flutter3d/.test(hay))
     return "media";
-  if (/talos|k8s|cluster|fleet|platform|infra|deploy|controller|gateway/.test(hay))
+  if (
+    /talos|k8s|cluster|fleet|platform|infra|deploy|controller|gateway/.test(hay)
+  )
     return "infra";
   if (/firestore|odm|schema|sql|db|data|spectra|json/.test(hay)) return "data";
   if (/math|num|arbimath|tsnum|synth/.test(hay)) return "math";
@@ -253,7 +255,12 @@ function monogram(name) {
   if (humps && humps.length >= 2) {
     return (humps[0][0] + humps[1][0]).toUpperCase();
   }
-  return name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 2).toUpperCase() || "OS";
+  return (
+    name
+      .replace(/[^a-zA-Z0-9]/g, "")
+      .slice(0, 2)
+      .toUpperCase() || "OS"
+  );
 }
 
 function titleCase(name) {
@@ -374,7 +381,9 @@ function bannerSvg({ name, title, tagline, owner, language, description }) {
   const tag = escapeXml((tagline || "").slice(0, 88));
   const ownerLine = escapeXml(`${owner}`);
   const repoLine = escapeXml(name);
-  const domainLabel = escapeXml(domainKey === "default" ? "open source" : domainKey);
+  const domainLabel = escapeXml(
+    domainKey === "default" ? "open source" : domainKey,
+  );
 
   // Title size: shorter names get larger display
   const titleSize = title.length > 22 ? 52 : title.length > 16 ? 58 : 64;
@@ -488,7 +497,9 @@ print("ok")
   const res = await $`python3 -c ${py}`.quiet().nothrow();
   if (res.exitCode === 0) {
     n++;
-    process.stdout.write(`✓ ${r.name} [${domainFor(r.name, r.language, r.description)}]\n`);
+    process.stdout.write(
+      `✓ ${r.name} [${domainFor(r.name, r.language, r.description)}]\n`,
+    );
   } else {
     process.stderr.write(`✗ ${r.name}: ${res.stderr.toString()}\n`);
   }

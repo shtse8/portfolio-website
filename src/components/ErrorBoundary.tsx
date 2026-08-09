@@ -1,8 +1,8 @@
 "use client";
 
-import React, { Component, type ErrorInfo, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import { FaTriangleExclamation } from 'react-icons/fa6';
+import { motion } from "framer-motion";
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import { FaTriangleExclamation } from "react-icons/fa6";
 
 interface Props {
   children: ReactNode;
@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
 
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -52,20 +52,21 @@ export class ErrorBoundary extends Component<Props, State> {
             transition={{ duration: 0.3 }}
           >
             <div className="flex justify-center mb-4">
-              <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-full">
-                <FaTriangleExclamation className="w-8 h-8 text-red-500 dark:text-red-400" />
+              <div className="rounded-full bg-accent-subtle p-4">
+                <FaTriangleExclamation className="h-8 w-8 text-accent" />
               </div>
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            <h2 className="mb-2 text-xl font-semibold text-text-primary">
               Something went wrong
             </h2>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We encountered an error while loading this section. Please try again.
+            <p className="mb-6 text-text-secondary">
+              We encountered an error while loading this section. Please try
+              again.
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="mb-6 text-left">
                 <summary className="cursor-pointer text-sm text-gray-500 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
                   Error details
@@ -76,9 +77,10 @@ export class ErrorBoundary extends Component<Props, State> {
               </details>
             )}
 
-            <button type="button"
+            <button
+              type="button"
               onClick={this.handleReset}
-              className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
+              className="btn btn-primary px-6 py-2"
             >
               Try Again
             </button>

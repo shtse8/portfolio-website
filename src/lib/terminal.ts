@@ -37,7 +37,10 @@ export interface TermStats {
 }
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, { headers: { accept: "application/json" }, signal });
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { accept: "application/json" },
+    signal,
+  });
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
     throw new Error(body.error || `request failed (${res.status})`);
@@ -46,20 +49,35 @@ async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export const fetchProjects = (limit = 12, signal?: AbortSignal) =>
-  get<{ projects: TermRepo[]; updatedAt: string }>(`/projects?limit=${limit}`, signal);
-export const fetchRepo = (name: string, signal?: AbortSignal) =>
-  get<{ repo: TermRepo; updatedAt: string }>(`/repo?name=${encodeURIComponent(name)}`, signal);
-export const fetchRecent = (limit = 6, signal?: AbortSignal) =>
-  get<{ recent: TermRepo[]; updatedAt: string }>(`/recent?limit=${limit}`, signal);
-export const fetchStats = (signal?: AbortSignal) => get<TermStats>(`/stats`, signal);
-export const fetchDownloads = (pkg: string, signal?: AbortSignal) =>
-  get<{ pkg: string; series: { day: string; downloads: number }[]; total: number; updatedAt: string }>(
-    `/downloads?pkg=${encodeURIComponent(pkg)}`,
+  get<{ projects: TermRepo[]; updatedAt: string }>(
+    `/projects?limit=${limit}`,
     signal,
   );
+export const fetchRepo = (name: string, signal?: AbortSignal) =>
+  get<{ repo: TermRepo; updatedAt: string }>(
+    `/repo?name=${encodeURIComponent(name)}`,
+    signal,
+  );
+export const fetchRecent = (limit = 6, signal?: AbortSignal) =>
+  get<{ recent: TermRepo[]; updatedAt: string }>(
+    `/recent?limit=${limit}`,
+    signal,
+  );
+export const fetchStats = (signal?: AbortSignal) =>
+  get<TermStats>(`/stats`, signal);
+export const fetchDownloads = (pkg: string, signal?: AbortSignal) =>
+  get<{
+    pkg: string;
+    series: { day: string; downloads: number }[];
+    total: number;
+    updatedAt: string;
+  }>(`/downloads?pkg=${encodeURIComponent(pkg)}`, signal);
 
 // ── formatting helpers ──────────────────────────────────────────────────────
-const compactFmt = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+const compactFmt = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
 /** "27038" → "27K" via the built-in Intl compact notation (no hand-rolled math). */
 export const compact = (n: number): string => compactFmt.format(n);
 
@@ -71,13 +89,22 @@ export function sparkline(values: number[]): string {
   const max = Math.max(...values);
   const span = max - min || 1;
   return values
-    .map((v) => SPARK[Math.min(SPARK.length - 1, Math.round(((v - min) / span) * (SPARK.length - 1)))])
+    .map(
+      (v) =>
+        SPARK[
+          Math.min(
+            SPARK.length - 1,
+            Math.round(((v - min) / span) * (SPARK.length - 1)),
+          )
+        ],
+    )
     .join("");
 }
 
 /** Human relative time, e.g. "3 hours ago" — date-fns, not hand-rolled date math. */
 export function timeAgo(iso: string): string {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "—" : formatDistanceToNowStrict(d, { addSuffix: true });
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : formatDistanceToNowStrict(d, { addSuffix: true });
 }
-

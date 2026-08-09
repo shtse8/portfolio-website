@@ -1,4 +1,6 @@
 #!/usr/bin/env bun
+import { writeFileSync } from "node:fs";
+import { join } from "node:path";
 /**
  * Sync public repos from GitHub orgs where the authenticated user is admin/owner
  * (plus personal owner repos). Writes src/data/github-portfolio.json
@@ -12,8 +14,6 @@
  * Requires: gh auth with repo read.
  */
 import { $ } from "bun";
-import { writeFileSync } from "node:fs";
-import { join } from "node:path";
 
 const root = join(import.meta.dir, "..");
 const SKIP_NAME =
@@ -130,6 +130,4 @@ const payload = {
 const path = join(root, "src/data/github-portfolio.json");
 writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
 const archivedN = uniq.filter((r) => r.archived).length;
-console.log(
-  `wrote ${uniq.length} repos (${archivedN} archived) → ${path}`,
-);
+console.log(`wrote ${uniq.length} repos (${archivedN} archived) → ${path}`);

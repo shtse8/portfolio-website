@@ -1,21 +1,21 @@
 {
-  "name": "TypeScript + Bun Development",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:18",
+  "name": "TypeScript + Bun + Rust",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "18"
-    }
+      "version": "22"
+    },
+    "ghcr.io/devcontainers/features/rust:1": {}
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
-        "oven.bun-vscode"
+        "oven.bun-vscode",
+        "rust-lang.rust-analyzer"
       ]
     }
   },
-  "postCreateCommand": "curl -fsSL https://bun.sh/install | bash && npm install",
+  "postCreateCommand": "curl -fsSL https://bun.sh/install | bash && bun install",
   "remoteUser": "node"
-} 
+}
