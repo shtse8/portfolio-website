@@ -30,7 +30,10 @@ use uuid::Uuid;
 const MAX_TURNS: usize = 14;
 const CHAT_TIMEOUT: Duration = Duration::from_secs(60);
 const MAX_STEPS: usize = 3;
-const AI_MODEL: &str = "sylphx/lumen";
+/// Default product for public portfolio chat. Prefer `sylphx/auto` (capacity
+/// cascade works with tenant data-plane keys); `sylphx/lumen` requires
+/// first-party capacity pins that are not always present on the public edge.
+const AI_MODEL: &str = "sylphx/auto";
 const DEFAULT_SYLPHX_AI_URL: &str = "https://api.sylphx.ai";
 
 #[derive(Debug, Clone)]

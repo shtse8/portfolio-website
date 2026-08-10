@@ -20,7 +20,7 @@ Rust live API. Clean-break contract model per [ADR-169](./docs/adr/ADR-169-contr
 | `SYLPHX_AI_URL` | Gateway base (default `https://api.sylphx.ai`, normalized to `/v1`) |
 | `SYLPHX_AI_API_KEY` | Gateway bearer credential (`ck_*` / `sk-sx-*`) |
 | `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` / `AI_GATEWAY_API_KEY` | Explicit overrides (optional) |
-| `AI_MODEL` | Responses model (default `sylphx/lumen`) |
+| `AI_MODEL` | Responses model (default `sylphx/auto`) |
 
 **Must not** set `AI_GATEWAY_BASE_URL` to Platform management (`api.sylphx.com`)
 or `AI_GATEWAY_KEY` to a Platform product secret (`sk_prod_*`) — those produce
