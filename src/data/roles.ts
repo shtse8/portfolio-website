@@ -15,20 +15,17 @@ export const ROLES: Role[] = [
     description:
       "Building the infrastructure AI agents run on — MCP servers, RAG/semantic-search engines, an AI-native PaaS, and the high-performance libraries under them",
     responsibilities: [
-      "Created pdf-reader-mcp — the PDF reader for AI agents (801★, 24K+ npm downloads/month)",
+      "Created pdf-reader-mcp — the PDF reader AI agents reach for (live stars + npm on site)",
       "Building Sylphx — an AI-native PaaS that deploys app code, SDK, and infra from one place",
       "Built CodeRAG — semantic code search with AST chunking across 15+ languages",
       "Shipped Rapid, Craft, and Silk — benchmarked, zero/low-dependency TypeScript libraries",
-      "Published the @sylphx MCP toolchain on NPM — ~27K downloads/month across packages",
+      "Published the @sylphx MCP toolchain on NPM — live aggregate downloads on the site",
     ],
     keyAchievements: [
-      "801★ + 24K downloads/mo on pdf-reader-mcp",
-      "~990 GitHub stars across the org",
+      "Flagship pdf-reader-mcp with live GitHub stars + npm downloads (see site instruments)",
+      "Sylphx AI Gateway dogfooded by this portfolio's agent",
     ],
-    metrics: [
-      { type: "stars", value: 801, context: "total" },
-      { type: "downloads", value: 27038, context: "monthly" },
-    ],
+    metrics: [],
     skills: [
       "typescript",
       "mcp",

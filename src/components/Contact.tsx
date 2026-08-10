@@ -38,11 +38,16 @@ export default function Contact() {
   const reduce = useReducedMotion();
 
   function openAgent() {
+    // Prefer agent when ready; always keep mailto as Correctness fallback.
     window.dispatchEvent(
       new CustomEvent("open-agent", {
         detail: { seed: "I'd like to get in touch with Kyle" },
       }),
     );
+    // If the agent is fail-closed, FloatingAgent won't open — still surface email.
+    window.setTimeout(() => {
+      // no-op intentional: panel open is agent-owned; primary CTA below keeps mailto.
+    }, 0);
   }
 
   return (
@@ -58,20 +63,30 @@ export default function Contact() {
       <Reveal delay={0.1}>
         <div className="mt-12 flex flex-col items-center gap-8 py-10 text-center">
           {/* AI CTA */}
-          <motion.button
-            onClick={openAgent}
-            whileHover={reduce ? undefined : { scale: 1.03 }}
-            whileTap={{ scale: 0.98 }}
-            className="group flex items-center gap-3 rounded-full bg-accent px-8 py-3.5 text-[15px] font-semibold text-accent-contrast transition-shadow hover:shadow-md sm:px-9 sm:py-4 sm:text-base"
-          >
-            <FaWandMagicSparkles className="h-5 w-5" />
-            Talk to my AI
-            <FaArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </motion.button>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <motion.button
+              onClick={openAgent}
+              whileHover={reduce ? undefined : { scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="group flex items-center gap-3 rounded-full bg-accent px-8 py-3.5 text-[15px] font-semibold text-accent-contrast transition-shadow hover:shadow-md sm:px-9 sm:py-4 sm:text-base"
+            >
+              <FaWandMagicSparkles className="h-5 w-5" />
+              Talk to my AI
+              <FaArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </motion.button>
+            <a
+              href={`mailto:${email}`}
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-6 py-3.5 text-[15px] font-semibold text-text-primary transition-colors hover:border-accent/40"
+            >
+              <FaEnvelope className="h-4 w-4" />
+              {email}
+            </a>
+          </div>
 
           <p className="max-w-md text-sm text-text-tertiary">
-            The agent asks your name, what you need, and composes a
-            ready-to-send email. Powered by Sylphx AI Gateway.
+            Prefer the agent when it&apos;s live — it asks what you need and
+            drafts a ready-to-send email. Always available: direct mailto.
+            Powered by Sylphx AI Gateway when wired.
           </p>
 
           {/* Social links */}

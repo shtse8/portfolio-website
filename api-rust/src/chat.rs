@@ -55,32 +55,131 @@ fn normalize_v1_url(raw: Option<&str>) -> String {
     }
 }
 
+/// Host of a URL-like string (best-effort; empty when unparseable).
+fn url_host(raw: &str) -> String {
+    let s = raw.trim();
+    let without_scheme = s
+        .strip_prefix("https://")
+        .or_else(|| s.strip_prefix("http://"))
+        .unwrap_or(s);
+    without_scheme
+        .split('/')
+        .next()
+        .unwrap_or("")
+        .split('@')
+        .next_back()
+        .unwrap_or("")
+        .split(':')
+        .next()
+        .unwrap_or("")
+        .to_ascii_lowercase()
+}
+
+/// Platform management hosts must never be used as the AI Gateway.
+/// Live incident (2026-08-10): `AI_GATEWAY_BASE_URL=https://api.sylphx.com`
+/// produced `unsupported_credential` because that host is Platform product API.
+fn is_forbidden_gateway_host(host: &str) -> bool {
+    let h = host.trim().to_ascii_lowercase();
+    if h.is_empty() {
+        return false;
+    }
+    h == "api.sylphx.com"
+        || h.ends_with(".api.sylphx.com")
+        || h == "console.sylphx.com"
+        || h == "app.sylphx.com"
+}
+
+/// Reject credentials that belong to Platform product/management planes.
+/// Live incident (2026-08-10): `AI_GATEWAY_KEY=sk_prod_…` is a Platform
+/// project secret, not a Sylphx AI data-plane key (`ck_*` / `sk-sx-*`).
+fn is_plausible_gateway_key(key: &str) -> bool {
+    let k = key.trim();
+    if k.is_empty() || k.len() < 8 {
+        return false;
+    }
+    if k.starts_with("sk_prod_")
+        || k.starts_with("sk_prev_")
+        || k.starts_with("pk_prod_")
+        || k.starts_with("pk_prev_")
+        || k.starts_with("sylphx://")
+        || k.starts_with("eyJ")
+    {
+        return false;
+    }
+    true
+}
+
+fn first_env(names: &[&str]) -> Option<String> {
+    for name in names {
+        if let Ok(v) = env::var(name) {
+            let t = v.trim();
+            if !t.is_empty() {
+                return Some(t.to_string());
+            }
+        }
+    }
+    None
+}
+
 /// Resolve the AI gateway config from server-side env only.
 ///
-/// Precedence: `AI_GATEWAY_BASE_URL`/`AI_GATEWAY_KEY` (explicit overrides)
-/// → `SYLPHX_AI_URL`/`SYLPHX_AI_API_KEY` (canonical gateway env, per spiron).
-/// `SYLPHX_URL` (platform public browser connection URL) is deliberately
-/// ignored — it is not a server credential and must never be forwarded.
+/// Candidates (first *valid* wins):
+/// - Base: `AI_GATEWAY_BASE_URL` → `SYLPHX_AI_URL` → default `https://api.sylphx.ai`
+/// - Key: `AI_GATEWAY_KEY` → `AI_GATEWAY_API_KEY` → `SYLPHX_AI_API_KEY`
+///
+/// Invalid candidates (Platform hosts / Platform product keys) are skipped,
+/// not forwarded. `SYLPHX_URL` is never used.
 pub fn resolve_ai() -> AiConfig {
-    let override_base = env::var("AI_GATEWAY_BASE_URL")
-        .ok()
-        .filter(|s| !s.trim().is_empty());
-    let override_key = env::var("AI_GATEWAY_KEY")
-        .ok()
-        .filter(|s| !s.trim().is_empty());
-    let base = normalize_v1_url(
-        override_base
-            .as_deref()
-            .or(env::var("SYLPHX_AI_URL").ok().as_deref()),
-    );
-    let key = override_key
-        .or_else(|| env::var("SYLPHX_AI_API_KEY").ok().filter(|s| !s.trim().is_empty()))
-        .unwrap_or_default();
+    let base_candidates = [
+        first_env(&["AI_GATEWAY_BASE_URL"]),
+        first_env(&["SYLPHX_AI_URL"]),
+    ];
+    let base_raw = base_candidates
+        .into_iter()
+        .flatten()
+        .find(|raw| !is_forbidden_gateway_host(&url_host(raw)))
+        .unwrap_or_else(|| DEFAULT_SYLPHX_AI_URL.to_string());
+    let base = normalize_v1_url(Some(&base_raw));
+
+    let key = [
+        first_env(&["AI_GATEWAY_KEY"]),
+        first_env(&["AI_GATEWAY_API_KEY"]),
+        first_env(&["SYLPHX_AI_API_KEY"]),
+    ]
+    .into_iter()
+    .flatten()
+    .find(|k| is_plausible_gateway_key(k))
+    .unwrap_or_default();
+
     AiConfig {
         base_url: base,
         key,
-        model: env::var("AI_MODEL").unwrap_or_else(|_| AI_MODEL.to_string()),
+        model: env::var("AI_MODEL")
+            .ok()
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .unwrap_or_else(|| AI_MODEL.to_string()),
     }
+}
+
+/// Non-secret readiness report for UI fail-closed + ops probes.
+pub fn chat_readiness() -> Value {
+    let ai = resolve_ai();
+    let host = url_host(&ai.base_url);
+    let ready = !ai.key.is_empty() && !is_forbidden_gateway_host(&host);
+    let reason = if ai.key.is_empty() {
+        Some("missing_or_invalid_gateway_key")
+    } else if is_forbidden_gateway_host(&host) {
+        Some("forbidden_gateway_host")
+    } else {
+        None
+    };
+    json!({
+        "ready": ready,
+        "host": host,
+        "model": ai.model,
+        "reason": reason,
+    })
 }
 
 #[derive(Debug, Deserialize)]
@@ -779,5 +878,25 @@ mod tests {
             normalize_v1_url(Some("https://gateway.example/v1/")),
             "https://gateway.example/v1"
         );
+    }
+
+    #[test]
+    fn forbids_platform_management_hosts() {
+        assert!(is_forbidden_gateway_host("api.sylphx.com"));
+        assert!(is_forbidden_gateway_host("API.sylphx.com"));
+        assert!(!is_forbidden_gateway_host("api.sylphx.ai"));
+        assert!(!is_forbidden_gateway_host("gateway.sylphx-ai-prod.svc.cluster.local"));
+        assert!(!is_forbidden_gateway_host("127.0.0.1"));
+    }
+
+    #[test]
+    fn rejects_platform_product_keys() {
+        assert!(!is_plausible_gateway_key("sk_prod_0288deadbeef"));
+        assert!(!is_plausible_gateway_key("pk_prod_abc"));
+        assert!(!is_plausible_gateway_key("sylphx://pk_prod_x@unit.api.sylphx.com"));
+        assert!(!is_plausible_gateway_key("eyJhbGciOiJIUzI1NiJ9.e30.sig"));
+        assert!(is_plausible_gateway_key("ck_8cdf15c1c_testkey"));
+        assert!(is_plausible_gateway_key("sk-sx-abcdefghijklmnop"));
+        assert!(is_plausible_gateway_key("sk-wiremock"));
     }
 }

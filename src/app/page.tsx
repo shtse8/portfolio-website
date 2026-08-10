@@ -25,9 +25,6 @@ const FeaturedProducts = dynamic(
     loading: () => sectionFallback,
   },
 );
-const Companies = dynamic(() => import("@/components/Companies"), {
-  loading: () => sectionFallback,
-});
 const StoryArc = dynamic(() => import("@/components/StoryArc"), {
   loading: () => sectionFallback,
 });
@@ -36,6 +33,9 @@ const FloatingAgent = dynamic(() => import("@/components/FloatingAgent"), {
 });
 const Contact = dynamic(() => import("@/components/Contact"), {
   loading: () => sectionFallback,
+});
+const ClaimPack = dynamic(() => import("@/components/ClaimPack"), {
+  loading: () => null,
 });
 
 interface HomeProps {
@@ -100,20 +100,17 @@ export default function Home({ initialSection }: HomeProps) {
         <StoryArc />
       </Section>
 
-      <Section id="companies">
-        <Companies />
-      </Section>
-
       <Section id="work">
         <WorkGraph />
       </Section>
 
-      <Section id="products" className="bg-surface-sunken/20">
+      <Section id="archive" className="bg-surface-sunken/20">
         <FeaturedProducts />
       </Section>
 
       <Section id="contact" className="bg-surface-sunken/30">
         <Contact />
+        <ClaimPack />
       </Section>
 
       <FloatingAgent />

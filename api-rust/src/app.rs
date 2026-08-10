@@ -69,6 +69,58 @@ async fn healthz() -> &'static str {
     "ok"
 }
 
+/// Non-secret chat readiness (UI fail-closed; ops). Never leaks credentials.
+async fn chat_ready_handler(headers: HeaderMap) -> Response {
+    let origin = origin_from_headers(&headers);
+    json_value_with_cors(crate::chat::chat_readiness(), origin.as_deref())
+}
+
+/// Machine-readable claim pack — one structured identity snapshot for humans
+/// and external agents. Numbers are live when available; otherwise absent.
+async fn claim_pack_handler(headers: HeaderMap) -> Response {
+    let origin = origin_from_headers(&headers);
+    let stats = match stats::get_stats().await {
+        Ok(s) => Some(s),
+        Err(_) => stats::cached_snapshot(),
+    };
+    let activity = match activity::get_activity().await {
+        Ok(a) => Some(a),
+        Err(_) => activity::cached_snapshot(),
+    };
+    let flagship = tools::get_repo_detail("pdf-reader-mcp").await;
+    let ready = crate::chat::chat_readiness();
+    let pack = serde_json::json!({
+        "schema": "kylet.se/claim-pack/v1",
+        "promise": "I build the infrastructure AI agents run on.",
+        "person": {
+            "name": "Kyle Tse",
+            "title": "AI infrastructure builder",
+            "location": "London, UK",
+            "openTo": "new ventures",
+            "email": "hi@kylet.se",
+            "github": "https://github.com/shtse8",
+            "site": "https://kylet.se"
+        },
+        "flagship": flagship.as_ref().map(|r| serde_json::json!({
+            "repo": r.repo,
+            "url": r.url,
+            "stars": r.stars,
+            "npm": "@sylphx/pdf-reader-mcp",
+            "description": r.description,
+        })),
+        "metrics": stats.as_ref().map(crate::rest_projection::stats_json),
+        "activity": activity.as_ref().map(crate::rest_projection::activity_json),
+        "chat": ready,
+        "activityDefinition": {
+            "unit": "authored_commits",
+            "includes": "commits authored by the account across all branches, including private repos the token can see",
+            "excludes": "PRs, issues, reviews, and contribution-calendar inflation"
+        },
+        "updatedAt": stats::iso_now(),
+    });
+    json_value_with_cors(pack, origin.as_deref())
+}
+
 async fn stats_handler(headers: HeaderMap) -> Response {
     let origin = origin_from_headers(&headers);
     match stats::get_stats().await {
@@ -145,7 +197,7 @@ async fn activity_handler(headers: HeaderMap) -> Response {
 
 async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) -> Response {
     let origin = origin_from_headers(&headers);
-    let pkg = q.pkg.unwrap_or_default();
+    let pkg = tools::resolve_npm_pkg(&q.pkg.unwrap_or_default());
     let valid = contract::valid_pkg(&pkg);
     let series = if valid {
         tools::npm_range(&pkg).await
@@ -193,6 +245,8 @@ pub fn router() -> Router {
     Router::new()
         .route("/healthz", get(healthz))
         .route("/readyz", get(healthz))
+        .route("/chat/ready", get(chat_ready_handler))
+        .route("/claims", get(claim_pack_handler))
         .route("/stats", get(stats_handler))
         .route("/projects", get(projects_handler))
         .route("/repo", get(repo_handler))

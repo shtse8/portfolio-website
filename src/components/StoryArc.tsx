@@ -7,10 +7,8 @@ import { FaArrowUpRightFromSquare, FaGithub, FaXmark } from "react-icons/fa6";
 import { useWorkGraph } from "@/context/WorkGraphContext";
 import { formatNumber } from "@/data";
 import { getOrganization, ORGANIZATIONS } from "@/data/organizations";
-import { PROJECTS } from "@/data/projects";
 import {
   calculateTotalExperience,
-  getRole,
   getRolesByOrganization,
   getRolesSortedByDate,
 } from "@/data/roles";
@@ -21,8 +19,9 @@ import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
 
 /**
- * StoryArc — career timeline with brand ambient art fused into each card.
- * Logos stay out of the layout; company name is a soft entry into a detail modal.
+ * StoryArc — eras of proof (story + companies integrated).
+ * One object model: Era → Role → proof points → outlinks.
+ * Does not read the dual PROJECTS inventory; achievements come from roles.
  */
 
 interface EraChapter {
@@ -36,20 +35,13 @@ interface EraChapter {
   projects?: string[];
 }
 
-function eraProjects(roleId: string, orgId: string): string[] {
-  return PROJECTS.filter((p) => {
-    if (p.roleId === roleId) return true;
-    if (p.organizationId === orgId) return true;
-    if (p.roleId) {
-      const role = getRole(p.roleId);
-      return role?.organizationId === orgId;
-    }
-    return false;
-  })
-    .sort((a, b) => (b.details?.length ?? 0) - (a.details?.length ?? 0))
-    .slice(0, 5)
-    .map((p) => p.title);
+function eraProofPoints(role: Role): string[] {
+  const fromAchievements = role.keyAchievements?.slice(0, 5) ?? [];
+  if (fromAchievements.length > 0) return fromAchievements;
+  return (role.responsibilities ?? []).slice(0, 4);
 }
+
+const ORG_ORDER = ["sylphx", "epiow", "cubeage", "minimax", "nakuz"] as const;
 
 const ERA_META: Record<
   string,
@@ -134,11 +126,12 @@ export default function StoryArc() {
         image: meta.image,
         imageAlt: meta.imageAlt,
         scaleNumber: getScaleNumber(role),
-        projects: eraProjects(role.id, role.organizationId),
+        projects: eraProofPoints(role),
       };
     })
     .filter(Boolean) as EraChapter[];
 
+  const orgs = ORG_ORDER.map((id) => ORGANIZATIONS[id]).filter(Boolean);
   const selectedOrg = orgId ? ORGANIZATIONS[orgId] : null;
 
   useEffect(() => {
@@ -160,8 +153,27 @@ export default function StoryArc() {
         index="01"
         eyebrow="The journey"
         title="Twenty years. Five eras. One builder."
-        description="From a Hong Kong gaming forum in 2006 to AI infrastructure today — every chapter proved Kyle can ship and scale."
+        description="From a Hong Kong gaming forum in 2006 to AI infrastructure today — every chapter proved Kyle can ship and scale. Companies are chapters of the same proof, not a second product."
       />
+
+      <Reveal delay={0.05}>
+        <div className="mt-7 flex flex-wrap items-center gap-2">
+          {orgs.map((org) => (
+            <button
+              key={org.id}
+              type="button"
+              onClick={() => setOrgId(org.id)}
+              className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-surface/80 px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:border-accent/40 hover:text-text-primary"
+            >
+              <CompanyLogo src={org.logo} alt="" size={18} />
+              {org.name}
+              <span className="font-mono text-[10px] text-text-tertiary">
+                {org.status === "closed" ? "past" : "active"}
+              </span>
+            </button>
+          ))}
+        </div>
+      </Reveal>
 
       <Reveal delay={0.08}>
         <div className="mt-6 flex flex-wrap items-center gap-x-2.5 gap-y-2 font-mono text-[11px] text-text-tertiary">
@@ -363,11 +375,14 @@ function CompanyDetailModal({
 }) {
   const titleId = useId();
   const roles = getRolesByOrganization(org.id);
-  const related = PROJECTS.filter((p) => {
-    if (p.organizationId === org.id) return true;
-    if (p.roleId) return getRole(p.roleId)?.organizationId === org.id;
-    return false;
-  }).slice(0, 14);
+  // Proof points from roles only — no dual PROJECTS inventory.
+  const related = roles
+    .flatMap((r) => [
+      ...(r.keyAchievements ?? []),
+      ...(r.responsibilities ?? []).slice(0, 2),
+    ])
+    .filter(Boolean)
+    .slice(0, 10);
 
   return (
     <motion.div
@@ -451,18 +466,18 @@ function CompanyDetailModal({
         {related.length > 0 && (
           <div className="mt-5">
             <div className="font-mono text-[10px] uppercase tracking-wide text-text-tertiary">
-              Related products ({related.length})
+              Proof points ({related.length})
             </div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {related.map((p) => (
-                <span
-                  key={p.id}
-                  className="rounded-md border border-border-subtle bg-surface-sunken/50 px-2 py-0.5 text-[11px] text-text-secondary"
+            <ul className="mt-2 space-y-1.5">
+              {related.map((line) => (
+                <li
+                  key={line}
+                  className="rounded-md border border-border-subtle bg-surface-sunken/50 px-2.5 py-1.5 text-[12px] leading-snug text-text-secondary"
                 >
-                  {p.title}
-                </span>
+                  {line}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 

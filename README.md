@@ -18,12 +18,17 @@ Rust live API. Clean-break contract model per [ADR-169](./docs/adr/ADR-169-contr
 | Var | Purpose |
 | --- | --- |
 | `SYLPHX_AI_URL` | Gateway base (default `https://api.sylphx.ai`, normalized to `/v1`) |
-| `SYLPHX_AI_API_KEY` | Gateway bearer credential |
-| `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` | Explicit overrides (optional) |
+| `SYLPHX_AI_API_KEY` | Gateway bearer credential (`ck_*` / `sk-sx-*`) |
+| `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` / `AI_GATEWAY_API_KEY` | Explicit overrides (optional) |
+| `AI_MODEL` | Responses model (default `sylphx/lumen`) |
 
-`SYLPHX_URL` (the platform public browser connection URL) is **never** used as a
-server credential. Without a credential the API fails closed
-(`503 chat is warming up`).
+**Must not** set `AI_GATEWAY_BASE_URL` to Platform management (`api.sylphx.com`)
+or `AI_GATEWAY_KEY` to a Platform product secret (`sk_prod_*`) — those produce
+`unsupported_credential` and are rejected by `resolve_ai()` (ADR-169 honesty).
+
+`SYLPHX_URL` is **never** used as a server credential. Without a valid gateway
+credential the API fails closed (`503 chat is warming up`). UI probes
+`GET /chat/ready` and fail-closes the agent launcher when not ready.
 
 ## Dev
 

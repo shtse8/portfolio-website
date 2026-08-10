@@ -235,15 +235,42 @@ pub struct NpmDay {
     pub downloads: u64,
 }
 
+/// Map short repo/package names visitors and the agent naturally use to the
+/// scoped npm package that actually exists. Unscoped `pdf-reader-mcp` returns
+/// empty from the registry; `@sylphx/pdf-reader-mcp` is the live package.
+const NPM_PKG_ALIASES: &[(&str, &str)] = &[
+    ("pdf-reader-mcp", "@sylphx/pdf-reader-mcp"),
+    ("filesystem-mcp", "@sylphx/filesystem-mcp"),
+    ("coderag", "@sylphx/coderag"),
+    ("flow", "@sylphx/flow"),
+    ("silk", "@sylphx/silk"),
+    ("craft", "@sylphx/craft"),
+    ("rapid", "@sylphx/rapid"),
+    ("cursor-ai-downloads", "@shtse8/cursor-ai-downloads"),
+];
+
+/// Resolve a visitor/agent package argument to the registry package name.
+#[must_use]
+pub fn resolve_npm_pkg(pkg: &str) -> String {
+    let trimmed = pkg.trim();
+    for (alias, full) in NPM_PKG_ALIASES {
+        if trimmed.eq_ignore_ascii_case(alias) {
+            return (*full).to_string();
+        }
+    }
+    trimmed.to_string()
+}
+
 pub async fn npm_range(pkg: &str) -> Vec<NpmDay> {
+    let pkg = resolve_npm_pkg(pkg);
     // Enforce the contract pkg rule on every entry point (REST handler AND
     // chat tool) — never forward unvalidated package names upstream.
-    if !crate::contract::valid_pkg(pkg) {
+    if !crate::contract::valid_pkg(&pkg) {
         return Vec::new();
     }
     let url = upstream::npm_url(&format!(
         "/downloads/range/last-month/{}",
-        urlencoding_encode(pkg)
+        urlencoding_encode(&pkg)
     ));
     match client().get(&url).send().await {
         Ok(res) if res.status().is_success() => res
@@ -269,6 +296,8 @@ fn urlencoding_encode(s: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    use super::resolve_npm_pkg;
+
     #[test]
     fn repo_name_validation_matches_bun_sanitization() {
         // Bun strips to the last path segment before validating.
@@ -276,6 +305,19 @@ mod tests {
         assert!(get_repo_detail_sync_name("valid-repo"));
         assert!(!get_repo_detail_sync_name(""));
         assert!(!get_repo_detail_sync_name("has spaces"));
+    }
+
+    #[test]
+    fn npm_pkg_aliases_map_flagship_unscoped_names() {
+        assert_eq!(
+            resolve_npm_pkg("pdf-reader-mcp"),
+            "@sylphx/pdf-reader-mcp"
+        );
+        assert_eq!(
+            resolve_npm_pkg("@sylphx/pdf-reader-mcp"),
+            "@sylphx/pdf-reader-mcp"
+        );
+        assert_eq!(resolve_npm_pkg("coderag"), "@sylphx/coderag");
     }
 
     fn get_repo_detail_sync_name(name: &str) -> bool {

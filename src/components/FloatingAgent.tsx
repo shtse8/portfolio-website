@@ -91,11 +91,35 @@ export default function FloatingAgent() {
   const pendingSeed = useRef<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showHint, setShowHint] = useState(false);
+  /** null = probing; true = gateway ready; false = fail-closed (no broken theater) */
+  const [chatReady, setChatReady] = useState<boolean | null>(
+    HAS_API ? null : false,
+  );
 
   const { messages, sendMessage, status, error } = useChat({
     transport: new DefaultChatTransport({ api: `${API_BASE}/chat` }),
   });
   const busy = status === "submitted" || status === "streaming";
+
+  // Probe readiness — Correctness: never present a chat that streams 401s.
+  useEffect(() => {
+    if (!HAS_API) {
+      setChatReady(false);
+      return;
+    }
+    let alive = true;
+    fetch(`${API_BASE}/chat/ready`)
+      .then((r) => (r.ok ? r.json() : { ready: false }))
+      .then((d: { ready?: boolean }) => {
+        if (alive) setChatReady(Boolean(d?.ready));
+      })
+      .catch(() => {
+        if (alive) setChatReady(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // Cmd+K / Ctrl+K to open agent (power-user shortcut)
   useEffect(() => {
@@ -103,12 +127,16 @@ export default function FloatingAgent() {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
+        if (chatReady === false) {
+          window.location.href = "mailto:hi@kylet.se";
+          return;
+        }
         setOpen((v) => !v);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [chatReady]);
 
   // Mobile: lock body scroll when bottom sheet is open
   useEffect(() => {
@@ -205,6 +233,26 @@ export default function FloatingAgent() {
   }
 
   const started = messages.length > 0;
+  const agentLive = chatReady === true;
+
+  // Fail-closed: never mount a broken chat launcher (Correctness > theater).
+  if (chatReady === false) {
+    return (
+      <a
+        href="mailto:hi@kylet.se"
+        className="group fixed bottom-5 right-5 z-50 flex h-14 items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-medium text-text-primary shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-7 sm:right-7"
+        aria-label="Email Kyle at hi@kylet.se"
+      >
+        <FaBolt className="h-4 w-4 text-accent" />
+        Email Kyle
+      </a>
+    );
+  }
+
+  if (chatReady === null) {
+    // Still probing — render nothing rather than a false-ready button.
+    return null;
+  }
 
   return (
     <>
@@ -237,7 +285,7 @@ export default function FloatingAgent() {
 
       {/* ── One-time hint bubble ── */}
       <AnimatePresence>
-        {showHint && !open && (
+        {showHint && !open && agentLive && (
           <motion.div
             initial={reduce ? { opacity: 0 } : { opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
@@ -326,7 +374,7 @@ export default function FloatingAgent() {
                           type="button"
                           key={s}
                           onClick={() => onSubmit(s)}
-                          disabled={!HAS_API || busy}
+                          disabled={!agentLive || busy}
                           className="block w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-left text-[13px] text-text-secondary transition-all hover:border-accent hover:text-text-primary disabled:opacity-50"
                         >
                           {s}
@@ -376,11 +424,6 @@ export default function FloatingAgent() {
 
               {/* Input bar */}
               <div className="border-t border-border-subtle p-3">
-                {!HAS_API && (
-                  <p className="mb-2 px-1 text-[11px] text-text-tertiary">
-                    The agent is coming online — everything else here is live.
-                  </p>
-                )}
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -394,18 +437,14 @@ export default function FloatingAgent() {
                     }}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    disabled={!HAS_API || busy}
+                    disabled={!agentLive || busy}
                     aria-label="Ask the AI agent"
-                    placeholder={
-                      HAS_API
-                        ? "Ask about Kyle's work…"
-                        : "Agent coming online…"
-                    }
+                    placeholder="Ask about Kyle's work…"
                     className="flex-1 rounded-2xl border border-border bg-surface px-4 py-2.5 text-sm text-text-primary outline-none transition-colors placeholder:text-text-tertiary focus:border-accent disabled:opacity-60"
                   />
                   <button
                     type="submit"
-                    disabled={!HAS_API || busy || !input.trim()}
+                    disabled={!agentLive || busy || !input.trim()}
                     aria-label="Send"
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-accent p-0 text-accent-contrast transition-transform hover:scale-105 active:scale-95 disabled:opacity-40"
                   >

@@ -1,16 +1,18 @@
 /**
- * Centralized section configuration — the single source of truth for the
- * one-page narrative. Drives nav, the IntersectionObserver, deep links, and
- * the JSON-LD navigation element.
+ * One-page narrative SSOT — Promise · Evidence · Engage.
+ * Drives nav, IntersectionObserver, deep links, and JSON-LD.
+ *
+ * DOM section ids must match this list. `archive` is secondary depth
+ * (historical shipped products), not a primary decision surface.
  */
 
-export type SectionId = "hero" | "story" | "work" | "contact";
+export type SectionId = "hero" | "story" | "work" | "archive" | "contact";
 
 export interface SectionConfig {
   id: SectionId;
   label: string;
   path: string;
-  /** Show in the primary header nav (a curated subset keeps the header clean). */
+  /** Show in the primary header nav (curated — keeps chrome clean). */
   nav?: boolean;
 }
 
@@ -18,6 +20,7 @@ export const SECTIONS: SectionConfig[] = [
   { id: "hero", label: "Home", path: "/" },
   { id: "story", label: "Story", path: "/story", nav: true },
   { id: "work", label: "Work", path: "/work", nav: true },
+  { id: "archive", label: "Archive", path: "/archive", nav: true },
   { id: "contact", label: "Contact", path: "/contact", nav: true },
 ];
 

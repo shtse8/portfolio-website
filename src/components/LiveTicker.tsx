@@ -98,7 +98,7 @@ export default function LiveTicker() {
       <Item
         icon={<FaCodeBranch className="h-3 w-3 text-accent" />}
         value={data.commitsToday}
-        label="today"
+        label="commits today"
         highlight={data.commitsToday > 0}
         reduce={!!reduce}
       />
@@ -106,7 +106,7 @@ export default function LiveTicker() {
       <Item
         icon={<FaFire className="h-3 w-3 text-positive" />}
         value={data.commitsWeek}
-        label="7d"
+        label="commits 7d"
         reduce={!!reduce}
       />
       {typeof data.commitsMonth === "number" && (
@@ -115,7 +115,7 @@ export default function LiveTicker() {
           <Item
             icon={<FaFire className="h-3 w-3 text-text-tertiary" />}
             value={data.commitsMonth}
-            label="30d"
+            label="commits 30d"
             reduce={!!reduce}
           />
         </>

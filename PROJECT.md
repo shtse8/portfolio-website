@@ -28,7 +28,7 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 | Concern | Owner in this repo |
 | --- | --- |
 | Static pages, components, content | `src/`, `public/`, Next static export |
-| Live API (`/stats`, `/activity`, `/projects`, `/recent`, `/repo`, `/downloads`, `/chat`) | `api-rust/` (single REST JSON contract; `/activity` = live GitHub GraphQL commits) |
+| Live API (`/stats`, `/activity`, `/projects`, `/recent`, `/repo`, `/downloads`, `/chat`, `/chat/ready`, `/claims`) | `api-rust/` (single REST JSON contract; evidence graph + claim pack) |
 | Contract SSOT | `api-rust/src/contract.rs` + `api-rust/src/tool_schemas.rs` |
 | Deploy manifest | `sylphx.toml` (web + api services) |
 
@@ -52,3 +52,9 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 ## Commercial Direction
 
 `not-applicable` — personal portfolio; no paid entitlements in this repository.
+
+## North Star
+
+See [`docs/NORTH_STAR.md`](./docs/NORTH_STAR.md): proof surface =
+**Promise · Evidence · Agent · Engage**. Clean-break: no dual content
+authorities, no Platform credentials as AI Gateway secrets, no broken chat theater.

@@ -59,9 +59,9 @@ export default function FeaturedProducts() {
     <div className="container-wide">
       <SectionHeader
         index="02b"
-        eyebrow="Shipped products"
+        eyebrow="Archive · scale pedigree"
         title={`${SHIPPED_PRODUCTS.length} games and products with real screenshots.`}
-        description="Full catalog from the gaming and product eras — not a short sample. Screenshots stay real; only framing is tuned. Click any card for the full intro."
+        description="Historical shipped work — secondary depth after live AI evidence. Screenshots stay real; only framing is tuned. Click any card for the full intro."
       />
 
       <Reveal delay={0.05}>
