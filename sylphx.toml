@@ -27,7 +27,7 @@ service = "api"
 name = "web"
 type = "web"
 port = 3000
-# Transitional until edge routing is live: nginx proxies /activity|/stats|/chat|/healthz → api:3001.
+# Transitional until edge routing is live: nginx proxies the API paths → api:3001.
 # Platform injects API_INTERNAL_URL and opens NetworkPolicy web→api.
 connect = { services = ["api"] }
 watch_paths = ["src/**", "public/**", "package.json", "nginx.conf", "Dockerfile", "sylphx.toml"]
@@ -39,7 +39,7 @@ port = 3001
 deploy_priority = 100
 # Shared-host path routing: the edge sends these prefixes directly to this
 # service; web keeps catch-all `/` on kylet.se.
-path_prefixes = ["/stats", "/activity", "/projects", "/recent", "/repo", "/downloads", "/chat", "/healthz"]
+path_prefixes = ["/stats", "/activity", "/projects", "/recent", "/repo", "/downloads", "/claims", "/chat", "/healthz"]
 # Chat requires server-side env (project secrets): SYLPHX_AI_URL + SYLPHX_AI_API_KEY
 # (or AI_GATEWAY_BASE_URL/AI_GATEWAY_KEY). SYLPHX_URL is the public browser URL and
 # must never be used. Without a credential /chat fails closed with 503.
