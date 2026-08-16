@@ -19,7 +19,7 @@ concurrency:
 jobs:
   web:
     name: Web (biome, tsc, tests, static export)
-    runs-on: ubuntu-latest
+    runs-on: sylphx-linux-standard
     steps:
       - uses: actions/checkout@v4
 
@@ -49,7 +49,7 @@ jobs:
 
   api:
     name: Rust API (clippy, tests)
-    runs-on: ubuntu-latest
+    runs-on: sylphx-linux-standard
     steps:
       - uses: actions/checkout@v4
 
