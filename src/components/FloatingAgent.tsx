@@ -121,6 +121,18 @@ export default function FloatingAgent() {
     };
   }, []);
 
+  // A configured gateway can still fail at request time (for example when its
+  // auth service is unavailable). Fail closed on the first stream error so a
+  // broken agent never remains as public UI theater; the mailto fallback stays
+  // available through the normal chatReady=false branch.
+  useEffect(() => {
+    if (!error) return;
+    setChatReady(false);
+    setOpen(false);
+    setShowHint(false);
+    pendingSeed.current = null;
+  }, [error]);
+
   // Cmd+K / Ctrl+K to open agent (power-user shortcut)
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -342,7 +354,7 @@ export default function FloatingAgent() {
                       Ask my AI
                     </div>
                     <div className="font-mono text-[10px] text-text-tertiary">
-                      Powered by sylphx/lumen · Gateway
+                      Powered by Sylphx AI Gateway · live tools
                     </div>
                   </div>
                 </div>
