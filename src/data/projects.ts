@@ -42,7 +42,7 @@ export const PROJECTS: Project[] = [
       "Built MCP server for PDF processing with parallel processing support",
       "Implemented Y-coordinate based layout preservation for natural reading flow",
       "Supports local files (Windows/Unix) and HTTP/HTTPS URLs",
-      "801 GitHub stars · 24K+ npm downloads/month · 94%+ test coverage (103 passing tests)",
+      "Live GitHub stars and npm downloads are shown in the evidence graph above; testing and performance details live in the linked repository.",
       "Integrated with Claude Code, Claude Desktop, VS Code, Cursor, Windsurf, and Smithery",
       "Published on NPM as @sylphx/pdf-reader-mcp",
     ],
