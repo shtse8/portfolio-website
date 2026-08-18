@@ -121,13 +121,15 @@ whole proof surface.
 
 ## North Star Metric
 
-**Metric: weekly evidence-backed visitor decisions.**
+No validated customer-value metric is declared for kylet.se. The product vision
+and `KYLE-PROOF` oracle express the desired decision outcome, but neither
+authorizes visitor telemetry nor turns a proxy into proof of that outcome.
 
-One decision is counted when a visitor performing one of the target jobs opens
-an engagement route or a primary work, package, or partner destination after
-inspecting at least one named proof item with provenance and observation time.
-Page views, API calls, agent opens, health probes, and unverified clicks are
-inputs or activity, not completed decisions.
+Proof-item inspection and outbound engagement are input observations only; they
+do not establish a completed visitor decision. Page views, API calls, agent
+opens, health probes, and clicks remain activity unless an accepted measurement
+contract separately defines outcome validation, privacy and retention
+authority, and the corresponding product capability ownership.
 
 ## Boundaries and non-goals
 
