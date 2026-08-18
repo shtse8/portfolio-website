@@ -53,8 +53,9 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 
 `not-applicable` — personal portfolio; no paid entitlements in this repository.
 
-## North Star
+## Product authority
 
-See [`docs/NORTH_STAR.md`](./docs/NORTH_STAR.md): proof surface =
-**Promise · Evidence · Agent · Engage**. Clean-break: no dual content
-authorities, no Platform credentials as AI Gateway secrets, no broken chat theater.
+- [Product vision](./docs/vision.md) — canonical destination and North Star
+  Metric.
+- [Capability DAG](./docs/capabilities.md) — stable `KYLE-*` responsibilities,
+  prerequisites, and completion oracles.
