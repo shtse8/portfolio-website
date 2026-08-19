@@ -1,7 +1,12 @@
-# portfolio-website — kylet.se
+# kylet.se
 
-Kyle Tse's personal portfolio (`kylet.se`): a static marketing site with a small
-Rust live API. Clean-break contract model per [ADR-169](./docs/adr/ADR-169-contract-simplification-clean-break.md).
+Kyle Tse's personal proof surface: a static portfolio with a small Rust live API for evidence and the on-site agent.
+
+- Ordinary: https://kylet.se — customer domain for this personal proof surface. HTML reachability is not the product contract.
+- Preview: none — no product-owned current preview URL is declared. `https://portfolio-website-phi-six-53.vercel.app` is a leftover Vercel host, not production.
+- Vision: [docs/vision.md](docs/vision.md)
+- Capabilities: [docs/capabilities.md](docs/capabilities.md)
+- Decisions: [docs/adr/](docs/adr/)
 
 ## Stack
 
