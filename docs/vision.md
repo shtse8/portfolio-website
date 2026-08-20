@@ -1,9 +1,10 @@
 # kylet.se product vision
 
-This is the canonical destination for `shtse8/portfolio-website`. Capability
-responsibilities and prerequisites live in [`capabilities.md`](capabilities.md);
+This is the canonical destination for `shtse8/portfolio-website`. Identities,
+fates, dependencies, and oracles live in [`capabilities.md`](capabilities.md);
 interfaces and technical choices remain owned by code, tests, and the accepted
-ADRs. This file contains no current work or delivery claim.
+ADRs. This file contains no current work or delivery claim. The finished
+product identity is `KYLE-PROOF`.
 
 ## Destination
 
@@ -161,4 +162,5 @@ still works.
 The same promise and evidence remain retrievable through the public
 machine-readable surface. The result is not established by source, CI, an
 artifact, a health response, cached data, a preview, or a deploy signal without
-that exact live journey.
+that exact live journey. The live identity is `KYLE-PROOF` in
+[`capabilities.md`](capabilities.md).
