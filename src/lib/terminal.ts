@@ -34,6 +34,10 @@ export interface TermStats {
   byOwner: Record<string, number>;
   repos: number;
   updatedAt: string;
+  /** True when the API served a previously verified snapshot. */
+  stale?: boolean;
+  /** `live` | `stale` | `unavailable` | `not_observed` when the API reports it. */
+  freshness?: string;
 }
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
