@@ -6,11 +6,9 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
-FROM nginx:alpine AS runner
+# nginxinc unprivileged: uid 101, no chown on start, works with capabilities.drop=ALL.
+FROM nginxinc/nginx-unprivileged:1.27-alpine AS runner
 COPY --from=builder /app/out /usr/share/nginx/html
-# Provide the server config as a template so nginx's entrypoint substitutes ${PORT}
-# (the platform injects PORT=3000). NGINX_ENVSUBST_FILTER limits substitution to PORT
-# so nginx runtime vars ($uri, $host, …) are preserved.
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 ENV PORT=3000
 # Default matches Platform connect URL host:port (Knative private :80).
@@ -19,4 +17,3 @@ ENV API_INTERNAL_URL=http://api.portfolio-website.svc.cluster.local
 # survive envsubst. Platform injects API_INTERNAL_URL at runtime.
 ENV NGINX_ENVSUBST_FILTER=PORT|API_INTERNAL_URL
 EXPOSE 3000
-CMD ["nginx", "-g", "daemon off;"]
