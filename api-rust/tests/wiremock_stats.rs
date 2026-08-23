@@ -68,4 +68,8 @@ async fn stats_endpoint_uses_wiremock_github_and_npm() {
     assert_eq!(v["flagshipStars"], 99);
     assert_eq!(v["npmDownloads"], 70); // 10 packages * 7
     assert_eq!(v["flagshipDownloads"], 7);
+    assert_eq!(v["freshness"], "live");
+    assert_eq!(v["stale"], false);
+    assert!(v.get("verifiedAt").and_then(|x| x.as_str()).is_some());
+    assert_eq!(v["verifiedAt"], v["updatedAt"]);
 }

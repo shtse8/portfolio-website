@@ -15,7 +15,7 @@ healthz="$(curl -fsS "$BASE_URL/healthz")"
 pass "/healthz"
 
 stats="$(curl -fsS "$BASE_URL/stats")"
-echo "$stats" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'githubStars' in d" \
+echo "$stats" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'githubStars' in d; assert d.get('freshness')=='live', d; assert d.get('verifiedAt') or d.get('updatedAt')" \
   || fail "/stats: $stats"
 pass "/stats"
 

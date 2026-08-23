@@ -20,6 +20,9 @@ pub fn stats_json(payload: &StatsPayload) -> Value {
         "byOwner": by_owner,
         "repos": payload.repos,
         "updatedAt": payload.updated_at,
+        "verifiedAt": payload.updated_at,
+        "freshness": "live",
+        "stale": false,
     })
 }
 
@@ -27,6 +30,8 @@ pub fn stats_json_stale(payload: &StatsPayload) -> Value {
     let mut v = stats_json(payload);
     if let Some(obj) = v.as_object_mut() {
         obj.insert("stale".to_string(), Value::Bool(true));
+        obj.insert("freshness".to_string(), Value::String("stale".into()));
+        obj.insert("verifiedAt".to_string(), json!(payload.updated_at));
     }
     v
 }
@@ -143,5 +148,8 @@ mod tests {
         assert!(v.get("npmDownloads").is_some());
         assert!(v.get("byOwner").is_some());
         assert!(v.get("github_stars").is_none());
+        assert_eq!(v["freshness"], "live");
+        assert_eq!(v["verifiedAt"], "2026-08-09T00:00:00Z");
+        assert_eq!(v["stale"], false);
     }
 }

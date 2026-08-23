@@ -16,6 +16,8 @@ fn stale_projection_adds_flag() {
     };
     let v = stats_json_stale(&stats);
     assert_eq!(v["stale"], true);
+    assert_eq!(v["freshness"], "stale");
+    assert_eq!(v["verifiedAt"], "t");
     assert_eq!(v["githubStars"], 10);
 
     let act = ActivityPayload {
