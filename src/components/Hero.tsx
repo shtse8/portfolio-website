@@ -6,7 +6,8 @@ import { useNavigationStore } from "@/context/NavigationContext";
 import { type HighlightKind, useWorkGraph } from "@/context/WorkGraphContext";
 import { PERSONAL_INFO } from "@/data/personal";
 import { useCountUp } from "@/hooks/useCountUp";
-import { STATS } from "@/lib/stats";
+import { proofBoardDotClass, proofBoardObservation } from "@/lib/proof-board";
+import { BAKED_STATS, STATS } from "@/lib/stats";
 import { compact, timeAgo } from "@/lib/terminal";
 import LiveTicker from "./LiveTicker";
 
@@ -16,15 +17,8 @@ import LiveTicker from "./LiveTicker";
  */
 export default function Hero() {
   const reduce = useReducedMotion();
-  const {
-    stats,
-    recent,
-    live,
-    loading,
-    setHighlight,
-    flashHighlight,
-    setSelected,
-  } = useWorkGraph();
+  const { stats, recent, live, setHighlight, flashHighlight, setSelected } =
+    useWorkGraph();
   const navigate = useNavigationStore((s) => s.navigateToSection);
 
   const rise = (delay: number, y = 14) =>
@@ -55,7 +49,12 @@ export default function Hero() {
     ? compact(stats.flagshipDownloads)
     : STATS.flagshipDownloads.display;
   const lastShip = recent[0];
-  const liveLabel = loading ? "loading" : live ? "live" : "cached";
+  const board = proofBoardObservation({
+    live,
+    stats,
+    bakedVerifiedAt: BAKED_STATS.verifiedAt,
+  });
+  const liveDot = board.freshness === "live";
 
   function jump(highlight: HighlightKind) {
     setSelected(null);
@@ -166,18 +165,29 @@ export default function Hero() {
           <div className="card w-full max-w-md overflow-hidden border-border/80 bg-surface/80 shadow-md backdrop-blur-xl">
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-2.5">
               <span className="font-mono text-[11px] text-text-tertiary">
-                live · from GitHub &amp; npm
+                from GitHub &amp; npm
               </span>
-              <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-text-tertiary">
+              <span
+                className="inline-flex items-center gap-1.5 font-mono text-[10.5px] text-text-tertiary"
+                data-freshness={board.freshness}
+                data-observed-at={board.observedAt ?? ""}
+              >
                 <span className="relative flex h-1.5 w-1.5">
-                  {live && (
+                  {liveDot && (
                     <span className="absolute inline-flex h-full w-full rounded-full bg-positive animate-ping-soft" />
                   )}
                   <span
-                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${live ? "bg-positive" : "bg-text-tertiary"}`}
+                    className={`relative inline-flex h-1.5 w-1.5 rounded-full ${proofBoardDotClass(board.freshness)}`}
                   />
                 </span>
-                {liveLabel}
+                {board.freshness}
+                {board.observedAt ? (
+                  <>
+                    {" "}
+                    ·{" "}
+                    <time dateTime={board.observedAt}>{board.observedAt}</time>
+                  </>
+                ) : null}
               </span>
             </div>
 
