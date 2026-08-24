@@ -44,6 +44,9 @@ jobs:
       - name: No TS backend authority (sole Rust API)
         run: bash scripts/check-no-ts-backend.sh
 
+      - name: BFF upstream is api ksvc :80 (not Platform :3001)
+        run: bash scripts/check-bff-upstream.sh
+
       - name: Design markers gate
         run: bun scripts/check-cinematic-markers.mjs
 
