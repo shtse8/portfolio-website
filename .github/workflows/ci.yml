@@ -25,6 +25,8 @@ jobs:
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
 
       - name: Install dependencies (frozen)
         run: bun install --frozen-lockfile
@@ -58,6 +60,8 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
 
       - name: Clippy (production code)
         working-directory: api-rust
