@@ -233,6 +233,21 @@ fn message_text(m: &UIMessage) -> String {
     }
 }
 
+/// Official Responses EasyInputMessage. Gateway 400s `$.input[n].type`
+/// with "non-empty string is required" when `type` is omitted.
+fn responses_message_item(role: &str, text: String) -> Value {
+    let content_type = if role == "assistant" {
+        "output_text"
+    } else {
+        "input_text"
+    };
+    json!({
+        "type": "message",
+        "role": role,
+        "content": [{ "type": content_type, "text": text }],
+    })
+}
+
 /// Map UI messages to Responses `input` items (user/assistant text only;
 /// tool state is server-local across the loop).
 fn ui_messages_to_input_items(messages: &[UIMessage]) -> Vec<Value> {
@@ -244,14 +259,7 @@ fn ui_messages_to_input_items(messages: &[UIMessage]) -> Vec<Value> {
                 return None;
             }
             match m.role.as_str() {
-                "user" => Some(json!({
-                    "role": "user",
-                    "content": [{ "type": "input_text", "text": text }],
-                })),
-                "assistant" => Some(json!({
-                    "role": "assistant",
-                    "content": [{ "type": "output_text", "text": text }],
-                })),
+                "user" | "assistant" => Some(responses_message_item(&m.role, text)),
                 _ => None,
             }
         })
@@ -469,10 +477,7 @@ pub async fn handle_chat(body: ChatRequest, headers: &HeaderMap, cors: HeaderMap
                         StepOutcome::ToolCalls { text, calls } => {
                             // Append assistant items + tool outputs, then loop.
                             if !text.is_empty() {
-                                conversation_input.push(json!({
-                                    "role": "assistant",
-                                    "content": [{ "type": "output_text", "text": text }],
-                                }));
+                                conversation_input.push(responses_message_item("assistant", text));
                             }
                             for call in &calls {
                                 emit_event(&tx, json!({ "type": "tool-input-start", "toolCallId": call.id, "toolName": call.name }));
@@ -842,10 +847,42 @@ mod tests {
         ];
         let items = ui_messages_to_input_items(&messages);
         assert_eq!(items.len(), 2);
+        assert_eq!(items[0]["type"], "message");
         assert_eq!(items[0]["role"], "user");
         assert_eq!(items[0]["content"][0]["type"], "input_text");
+        assert_eq!(items[1]["type"], "message");
         assert_eq!(items[1]["role"], "assistant");
         assert_eq!(items[1]["content"][0]["type"], "output_text");
+        for (i, item) in items.iter().enumerate() {
+            let ty = item.get("type").and_then(Value::as_str).unwrap_or("");
+            assert!(
+                !ty.is_empty(),
+                "Responses input[{i}] omitted type (gateway 400): {item}"
+            );
+        }
+    }
+
+    #[test]
+    fn responses_input_items_pin_fails_without_type_message() {
+        let missing_type = json!({
+            "role": "user",
+            "content": [{ "type": "input_text", "text": "hello" }],
+        });
+        assert!(
+            missing_type
+                .get("type")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .is_empty(),
+            "fixture must omit type so the pin can fail closed"
+        );
+        let typed = responses_message_item("user", "hello".into());
+        assert_eq!(typed["type"], "message");
+        assert_ne!(
+            typed.get("type"),
+            missing_type.get("type"),
+            "typed message item must not match the untyped payload that 400s the gateway"
+        );
     }
 
     #[test]
