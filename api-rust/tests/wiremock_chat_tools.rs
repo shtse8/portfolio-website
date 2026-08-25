@@ -94,4 +94,38 @@ data: {\"type\":\"response.completed\",\"response\":{\"id\":\"r2\",\"status\":\"
     assert!(text.contains("tool-output-available"), "{text}");
     assert!(text.contains("tool-repo"), "{text}");
     assert!(text.contains("Grounded."), "{text}");
+
+    let received = gw.received_requests().await.expect("received");
+    assert_eq!(received.len(), 2, "tool loop should call gateway twice");
+    for (n, req) in received.iter().enumerate() {
+        let payload: serde_json::Value =
+            serde_json::from_slice(&req.body).expect("gateway JSON");
+        let input = payload["input"].as_array().expect("input");
+        for (i, item) in input.iter().enumerate() {
+            let ty = item.get("type").and_then(|v| v.as_str()).unwrap_or("");
+            assert!(
+                !ty.is_empty(),
+                "step {n} $.input[{i}].type omitted: {item}"
+            );
+            let role = item.get("role").and_then(|v| v.as_str()).unwrap_or("");
+            if role == "user" || role == "assistant" {
+                assert_eq!(
+                    ty, "message",
+                    "step {n} $.input[{i}] must be type=message: {item}"
+                );
+            }
+        }
+        assert_eq!(payload["tools"].as_array().map(Vec::len), Some(5));
+    }
+    let second: serde_json::Value =
+        serde_json::from_slice(&received[1].body).expect("second gateway JSON");
+    let types: Vec<&str> = second["input"]
+        .as_array()
+        .expect("input")
+        .iter()
+        .filter_map(|item| item.get("type").and_then(|v| v.as_str()))
+        .collect();
+    assert!(types.contains(&"message"), "{types:?}");
+    assert!(types.contains(&"function_call"), "{types:?}");
+    assert!(types.contains(&"function_call_output"), "{types:?}");
 }
