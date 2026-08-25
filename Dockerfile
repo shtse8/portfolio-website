@@ -11,9 +11,7 @@ FROM nginxinc/nginx-unprivileged:1.27-alpine AS runner
 COPY --from=builder /app/out /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 ENV PORT=3000
-# Default matches Platform connect URL host:port (Knative private :80).
-ENV API_INTERNAL_URL=http://api.portfolio-website.svc.cluster.local
-# Substitute only these so nginx runtime vars ($uri, $host, $bff_upstream, …)
-# survive envsubst. Platform injects API_INTERNAL_URL at runtime.
-ENV NGINX_ENVSUBST_FILTER=PORT|API_INTERNAL_URL
+# BFF upstream is hardcoded to the api ksvc :80 in nginx.conf. Do not
+# envsubst Platform API_INTERNAL_URL (:3001 container port) into proxy_pass.
+ENV NGINX_ENVSUBST_FILTER=PORT
 EXPOSE 3000
