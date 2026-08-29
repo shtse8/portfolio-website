@@ -156,17 +156,16 @@ describe("proofBoardDotClass", () => {
 });
 
 describe("shipped baked stats file", () => {
-  test("WorkGraph live=false surfaces stats-baked verifiedAt and never live", () => {
+  test("shipped fallback contains no pre-cut aggregate", () => {
     const board = proofBoardObservation({
       live: false,
       stats: null,
       bakedVerifiedAt: BAKED_STATS.verifiedAt,
     });
-    expect(board.freshness).toBe("stale");
-    expect(board.freshness).not.toBe("live");
-    expect(board.observedAt).toBe(
-      normalizeObservationTime(BAKED_STATS.verifiedAt),
-    );
-    expect(board.observedAt).toBeTruthy();
+    expect(BAKED_STATS.repositoryVisibility).toBe("public-only/v1");
+    expect(BAKED_STATS.githubStars).toBeNull();
+    expect(BAKED_STATS.repos).toBeNull();
+    expect(board.freshness).toBe("unavailable");
+    expect(board.observedAt).toBeNull();
   });
 });

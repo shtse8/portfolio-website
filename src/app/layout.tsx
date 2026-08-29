@@ -5,7 +5,6 @@ import AppShell from "@/components/layout/AppShell";
 import { SECTIONS } from "@/config/sections";
 import { NavigationProvider } from "@/context/NavigationContext";
 import { PERSONAL_INFO } from "@/data/personal";
-import { BAKED_STATS } from "@/lib/stats";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,13 +36,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 const fullName = `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName}`;
 const TITLE = `${fullName} — AI infrastructure builder`;
-const flagStars = new Intl.NumberFormat("en-US", {
-  notation: "compact",
-}).format(BAKED_STATS.flagshipStars);
-const flagDl = new Intl.NumberFormat("en-US", { notation: "compact" }).format(
-  BAKED_STATS.flagshipDownloads,
-);
-const DESCRIPTION = `${fullName} builds the infrastructure AI agents run on — MCP servers and AI-native developer tools. pdf-reader-mcp at ${flagStars}★ and ${flagDl} npm downloads/month (verified ${BAKED_STATS.verifiedAt.slice(0, 10)}); building Sylphx (AI-native PaaS) plus RAG and semantic-search tooling. 20 years shipping software before this: 10M+ app downloads, 10M+ monthly players.`;
+const DESCRIPTION = `${fullName} builds the infrastructure AI agents run on — MCP servers and AI-native developer tools, including pdf-reader-mcp; building Sylphx (AI-native PaaS) plus RAG and semantic-search tooling. 20 years shipping software before this: 10M+ app downloads, 10M+ monthly players.`;
 
 export const viewport: Viewport = {
   width: "device-width",

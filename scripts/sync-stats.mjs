@@ -25,22 +25,30 @@ if (!res.ok) {
   process.exit(1);
 }
 const stats = await res.json();
+if (stats.repositoryVisibility !== "public-only/v1") {
+  console.error("FAIL /stats is not attested public-only/v1");
+  process.exit(1);
+}
 for (const key of [
   "githubStars",
   "npmDownloads",
   "flagshipStars",
   "flagshipDownloads",
   "repos",
-  "updatedAt",
 ]) {
-  if (!(key in stats)) {
-    console.error(`FAIL /stats missing key ${key}`);
+  if (typeof stats[key] !== "number" || !Number.isFinite(stats[key])) {
+    console.error(`FAIL /stats invalid numeric key ${key}`);
     process.exit(1);
   }
+}
+if (typeof stats.updatedAt !== "string" || stats.updatedAt.length === 0) {
+  console.error("FAIL /stats missing updatedAt");
+  process.exit(1);
 }
 const baked = {
   verifiedAt: new Date().toISOString(),
   source: `${base}/stats`,
+  repositoryVisibility: "public-only/v1",
   githubStars: stats.githubStars,
   npmDownloads: stats.npmDownloads,
   flagshipStars: stats.flagshipStars,

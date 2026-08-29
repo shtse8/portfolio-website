@@ -1,7 +1,7 @@
 //! Development activity authority — GitHub GraphQL (ADR-169 amendment 2026-08-09).
 //!
 //! `/activity` is computed live from GitHub: commits today / 7d / 30d across
-//! Kyle's personal account + owned orgs (users via `contributionsCollection`,
+//! Kyle's public repositories + owned orgs (users via `contributionsCollection`,
 //! orgs via default-branch commit history). The Control Plane projection feed
 //! was stale/broken since 2026-07-16, so the owner chose real GitHub numbers.
 //!
@@ -17,7 +17,7 @@
 
 use crate::contract::{
     aggregate_github_activity, days_ago_iso, github_activity_query, start_of_day_iso,
-    ActivityPayload,
+    ActivityPayload, PUBLIC_ACTIVITY_PROJECTION_REVISION,
 };
 use reqwest::Client;
 use serde_json::Value;
@@ -125,9 +125,15 @@ fn read_last_good_file() -> Option<ActivityPayload> {
     read_last_good_from_path(&path)
 }
 
+fn is_current_public_projection(data: &ActivityPayload) -> bool {
+    data.projection_revision.as_deref() == Some(PUBLIC_ACTIVITY_PROJECTION_REVISION)
+}
+
 fn read_last_good_from_path(path: &Path) -> Option<ActivityPayload> {
     let bytes = fs::read(path).ok()?;
-    serde_json::from_slice(&bytes).ok()
+    serde_json::from_slice::<ActivityPayload>(&bytes)
+        .ok()
+        .filter(is_current_public_projection)
 }
 
 /// Pure mapping guard: d30 must not be a week×4 rewrite on the BFF.
@@ -146,10 +152,8 @@ pub fn assert_honest_windows(payload: &ActivityPayload) -> Result<(), String> {
 }
 
 async fn search_count(token: &str, since_iso: &str) -> Result<u64, String> {
-    let url = crate::contract::github_activity_search_url(
-        &crate::upstream::github_api_base(),
-        since_iso,
-    );
+    let url =
+        crate::contract::github_activity_search_url(&crate::upstream::github_api_base(), since_iso);
     let res = client()
         .get(&url)
         .header("authorization", format!("bearer {token}"))
@@ -161,7 +165,10 @@ async fn search_count(token: &str, since_iso: &str) -> Result<u64, String> {
     if !res.status().is_success() {
         return Err(format!("github search {}", res.status()));
     }
-    let body: Value = res.json().await.map_err(|e| format!("github search decode: {e}"))?;
+    let body: Value = res
+        .json()
+        .await
+        .map_err(|e| format!("github search decode: {e}"))?;
     body.get("total_count")
         .and_then(Value::as_u64)
         .ok_or_else(|| "github search missing total_count".to_string())
@@ -194,7 +201,10 @@ async fn fetch_github_activity() -> Result<ActivityPayload, String> {
     if !res.status().is_success() {
         return Err(format!("github graphql {}", res.status()));
     }
-    let body: Value = res.json().await.map_err(|e| format!("github graphql decode: {e}"))?;
+    let body: Value = res
+        .json()
+        .await
+        .map_err(|e| format!("github graphql decode: {e}"))?;
     if let Some(errors) = body.get("errors") {
         return Err(format!(
             "github graphql: {}",
@@ -206,7 +216,7 @@ async fn fetch_github_activity() -> Result<ActivityPayload, String> {
         .cloned()
         .ok_or_else(|| "github graphql missing data".to_string())?;
 
-    // Commit counts: commit search covers ALL branches (contributionsCollection
+    // Commit counts: public-only commit search covers all public branches (contributionsCollection
     // only counts default-branch commits and under-reports branch work).
     let commits_today = search_count(&token, &today_start).await?;
     let commits_week = search_count(&token, &week_start).await?;
@@ -232,7 +242,7 @@ pub async fn compute_activity() -> Result<ActivityPayload, String> {
 fn mark_stale(mut data: ActivityPayload) -> ActivityPayload {
     data.stale = Some(true);
     data.freshness = Some("stale".into());
-    data.source = Some("github-stale".into());
+    data.source = Some("github-public-stale".into());
     data
 }
 
@@ -248,7 +258,10 @@ fn store_success(now: u64, data: &ActivityPayload) {
 
 fn take_last_good() -> Option<ActivityPayload> {
     if let Ok(guard) = last_good().lock() {
-        if let Some(data) = guard.as_ref() {
+        if let Some(data) = guard
+            .as_ref()
+            .filter(|data| is_current_public_projection(data))
+        {
             return Some(data.clone());
         }
     }
@@ -266,7 +279,10 @@ pub async fn get_activity() -> Result<ActivityPayload, String> {
     let now = now_ms();
 
     if let Ok(guard) = cache().lock() {
-        if let Some((at, data)) = guard.as_ref() {
+        if let Some((at, data)) = guard
+            .as_ref()
+            .filter(|(_, data)| is_current_public_projection(data))
+        {
             if now.saturating_sub(*at) < activity_ttl_ms() {
                 return Ok(data.clone());
             }
@@ -300,7 +316,10 @@ pub fn cached_snapshot() -> Option<ActivityPayload> {
         return Some(mark_stale(data));
     }
     if let Ok(guard) = cache().lock() {
-        return guard.as_ref().map(|(_, d)| mark_stale(d.clone()));
+        return guard
+            .as_ref()
+            .filter(|(_, data)| is_current_public_projection(data))
+            .map(|(_, data)| mark_stale(data.clone()));
     }
     None
 }
@@ -340,25 +359,35 @@ mod tests {
     // Serialize tests that touch process-global env / file path.
     static TEST_LOCK: StdMutex<()> = StdMutex::new(());
 
-        #[test]
+    #[test]
     fn aggregate_uses_search_counts_and_graphql_side_data() {
         let data = json!({
             "today": { "contributionsCollection": { "commitContributionsByRepository": [
-                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } },
-                { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z" }, "contributions": { "totalCount": 0 } }
+                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }, "contributions": { "totalCount": 2 } },
+                { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }, "contributions": { "totalCount": 0 } }
             ] } },
             "repos": { "repositories": { "nodes": [
-                { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z" }
+                { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }
             ] } }
         });
-        let a = aggregate_github_activity(&data, 275, 12_023, 24_682, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+        let a = aggregate_github_activity(
+            &data,
+            275,
+            12_023,
+            24_682,
+            1_782_800_000_000,
+            "2026-08-09T12:00:00Z",
+        );
         assert_eq!(a.commits_today, 275);
         assert_eq!(a.commits_week, 12_023);
         assert_eq!(a.commits_month, 24_682);
         assert_ne!(a.commits_month, a.commits_week * 4);
         assert_eq!(a.repos_active_today, 1);
-        assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("newest"));
-        assert_eq!(a.source.as_deref(), Some("github"));
+        assert_eq!(
+            a.last_push.as_ref().map(|l| l.repo.as_str()),
+            Some("newest")
+        );
+        assert_eq!(a.source.as_deref(), Some("github-public"));
         assert_eq!(a.freshness.as_deref(), Some("live"));
         assert!(assert_honest_windows(&a).is_ok());
     }
@@ -375,7 +404,7 @@ mod tests {
             stale: Some(false),
             freshness: Some("live".into()),
             source: Some("github".into()),
-            projection_revision: None,
+            projection_revision: Some(PUBLIC_ACTIVITY_PROJECTION_REVISION.to_string()),
         };
         assert!(assert_honest_windows(&a).is_err());
     }
@@ -392,12 +421,12 @@ mod tests {
             stale: Some(false),
             freshness: Some("live".into()),
             source: Some("github".into()),
-            projection_revision: None,
+            projection_revision: Some(PUBLIC_ACTIVITY_PROJECTION_REVISION.to_string()),
         };
         let s = mark_stale(live);
         assert_eq!(s.stale, Some(true));
         assert_eq!(s.freshness.as_deref(), Some("stale"));
-        assert_eq!(s.source.as_deref(), Some("github-stale"));
+        assert_eq!(s.source.as_deref(), Some("github-public-stale"));
         assert_eq!(s.commits_week, 5);
     }
 
@@ -410,6 +439,35 @@ mod tests {
         assert!(today.ends_with("T00:00:00Z"));
         assert!(week < today);
         assert!(month < week);
+    }
+
+    #[test]
+    fn pre_cut_last_good_without_public_revision_is_rejected() {
+        let dir = std::env::temp_dir().join(format!(
+            "portfolio-activity-pre-cut-test-{}",
+            std::process::id()
+        ));
+        let _ = fs::create_dir_all(&dir);
+        let path = dir.join("activity-last-good.json");
+        let old = ActivityPayload {
+            commits_today: 900,
+            commits_week: 901,
+            commits_month: 902,
+            repos_active_today: 9,
+            last_push: Some(crate::contract::LastPush {
+                repo: "nonpublic-synthetic-a".into(),
+                ago: "now".into(),
+            }),
+            updated_at: "2026-08-09T01:00:00Z".into(),
+            stale: Some(false),
+            freshness: Some("live".into()),
+            source: Some("github-public".into()),
+            projection_revision: None,
+        };
+        fs::write(&path, serde_json::to_vec(&old).unwrap()).unwrap();
+        assert!(read_last_good_from_path(&path).is_none());
+        let _ = fs::remove_file(path);
+        let _ = fs::remove_dir(dir);
     }
 
     #[test]
@@ -434,8 +492,8 @@ mod tests {
             updated_at: "2026-08-09T01:00:00Z".into(),
             stale: Some(false),
             freshness: Some("live".into()),
-            source: Some("github".into()),
-            projection_revision: None,
+            source: Some("github-public".into()),
+            projection_revision: Some(PUBLIC_ACTIVITY_PROJECTION_REVISION.to_string()),
         };
         seed_last_good_for_tests(payload.clone());
         assert!(path.is_file(), "durable file must exist");
@@ -450,7 +508,7 @@ mod tests {
         let restored = take_last_good().expect("file-backed last_good");
         assert_eq!(restored.commits_week, 11);
         assert_eq!(restored.commits_month, 41);
-        assert_eq!(restored.source.as_deref(), Some("github"));
+        assert_eq!(restored.source.as_deref(), Some("github-public"));
         assert!(assert_honest_windows(&restored).is_ok());
 
         unsafe { std::env::remove_var("ACTIVITY_LAST_GOOD_PATH") };

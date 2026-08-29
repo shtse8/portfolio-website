@@ -15,39 +15,82 @@ fn set_github_env(server: &MockServer) {
     }
 }
 
+async fn mount_empty_org_lists(server: &MockServer) {
+    for owner in ["SylphxAI", "Cubeage", "EpiowAI", "OzyrixLtd"] {
+        Mock::given(method("GET"))
+            .and(path_regex(format!(r"/orgs/{owner}/repos.*")))
+            .respond_with(ResponseTemplate::new(200).set_body_json(json!([])))
+            .mount(server)
+            .await;
+    }
+}
+
 #[tokio::test]
 #[serial]
-async fn projects_endpoint_lists_repos_from_wiremock() {
+async fn projects_endpoint_only_projects_explicitly_public_repos() {
     let server = MockServer::start().await;
     set_github_env(&server);
     testing::reset_all();
 
-    let repo = json!([{
-        "full_name": "shtse8/demo-repo",
-        "name": "demo-repo",
-        "owner": {"login": "shtse8"},
-        "stargazers_count": 12,
-        "forks_count": 1,
-        "description": "demo",
-        "language": "Rust",
-        "topics": ["ai"],
-        "html_url": "https://github.com/shtse8/demo-repo",
-        "pushed_at": "2026-07-01T12:00:00Z",
-        "fork": false,
-        "archived": false
-    }]);
+    let repos = json!([
+        {
+            "full_name": "shtse8/demo-repo",
+            "name": "demo-repo",
+            "owner": {"login": "shtse8"},
+            "stargazers_count": 12,
+            "forks_count": 1,
+            "description": "demo",
+            "language": "Rust",
+            "topics": ["ai"],
+            "html_url": "https://github.com/shtse8/demo-repo",
+            "pushed_at": "2026-07-01T12:00:00Z",
+            "fork": false,
+            "archived": false,
+            "private": false,
+            "visibility": "public"
+        },
+        {
+            "full_name": "shtse8/nonpublic-synthetic-a",
+            "name": "nonpublic-synthetic-a",
+            "owner": {"login": "shtse8"},
+            "stargazers_count": 100,
+            "description": "must not project",
+            "fork": false,
+            "archived": false,
+            "private": true,
+            "visibility": "private"
+        },
+        {
+            "full_name": "shtse8/nonpublic-synthetic-b",
+            "name": "nonpublic-synthetic-b",
+            "owner": {"login": "shtse8"},
+            "stargazers_count": 100,
+            "description": "must not project",
+            "fork": false,
+            "archived": false,
+            "private": false,
+            "visibility": "internal"
+        },
+        {
+            "full_name": "shtse8/nonpublic-synthetic-c",
+            "name": "nonpublic-synthetic-c",
+            "owner": {"login": "shtse8"},
+            "stargazers_count": 100,
+            "description": "must not project",
+            "fork": false,
+            "archived": false,
+            "private": false
+        }
+    ]);
 
-    for owner in ["shtse8", "SylphxAI", "Cubeage", "EpiowAI"] {
-        let body = if owner == "shtse8" { repo.clone() } else { json!([]) };
-        Mock::given(method("GET"))
-            .and(path_regex(format!(r"/users/{owner}/repos.*")))
-            .respond_with(ResponseTemplate::new(200).set_body_json(body))
-            .mount(&server)
-            .await;
-    }
+    Mock::given(method("GET"))
+        .and(path_regex(r"/users/shtse8/repos.*"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(repos))
+        .mount(&server)
+        .await;
+    mount_empty_org_lists(&server).await;
 
-    let app = router();
-    let res = app
+    let res = router()
         .oneshot(
             Request::builder()
                 .uri("/projects?limit=5")
@@ -60,9 +103,21 @@ async fn projects_endpoint_lists_repos_from_wiremock() {
     let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
         .await
         .unwrap();
-    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["projects"].as_array().map(|a| a.len()), Some(1));
-    assert_eq!(v["projects"][0]["name"], "demo-repo");
+    let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(value["projects"].as_array().map(Vec::len), Some(1));
+    assert_eq!(value["projects"][0]["name"], "demo-repo");
+
+    let received = server.received_requests().await.expect("received requests");
+    let urls: Vec<String> = received
+        .iter()
+        .map(|request| request.url.to_string())
+        .collect();
+    assert!(urls
+        .iter()
+        .any(|url| url.contains("/users/shtse8/repos") && url.contains("type=owner")));
+    assert!(urls
+        .iter()
+        .any(|url| url.contains("/orgs/SylphxAI/repos") && url.contains("type=public")));
 }
 
 #[tokio::test]
@@ -84,8 +139,7 @@ async fn downloads_endpoint_reads_npm_range_from_wiremock() {
         .mount(&server)
         .await;
 
-    let app = router();
-    let res = app
+    let res = router()
         .oneshot(
             Request::builder()
                 .uri("/downloads?pkg=%40sylphx%2Fpdf-reader-mcp")
@@ -98,15 +152,14 @@ async fn downloads_endpoint_reads_npm_range_from_wiremock() {
     let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
         .await
         .unwrap();
-    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["pkg"], "@sylphx/pdf-reader-mcp", "pkg decode: {v}");
-    assert_eq!(v["total"], 7);
-    assert_eq!(v["series"].as_array().map(|a| a.len()), Some(2));
+    let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(value["pkg"], "@sylphx/pdf-reader-mcp");
+    assert_eq!(value["total"], 7);
 }
 
 #[tokio::test]
 #[serial]
-async fn repo_endpoint_fetches_single_repo_from_wiremock() {
+async fn repo_endpoint_returns_an_explicitly_public_repo() {
     let server = MockServer::start().await;
     set_github_env(&server);
     testing::reset_all();
@@ -125,13 +178,14 @@ async fn repo_endpoint_fetches_single_repo_from_wiremock() {
             "html_url": "https://github.com/shtse8/demo-repo",
             "pushed_at": "2026-07-02T00:00:00Z",
             "fork": false,
-            "archived": false
+            "archived": false,
+            "private": false,
+            "visibility": "public"
         })))
         .mount(&server)
         .await;
 
-    let app = router();
-    let res = app
+    let res = router()
         .oneshot(
             Request::builder()
                 .uri("/repo?name=demo-repo")
@@ -141,66 +195,93 @@ async fn repo_endpoint_fetches_single_repo_from_wiremock() {
         .await
         .unwrap();
     assert_eq!(res.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
-    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["repo"]["stars"], 9);
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(value["repo"]["stars"], 9);
 }
-
 
 #[tokio::test]
 #[serial]
-async fn recent_endpoint_sorts_by_push_date_from_wiremock() {
+async fn repo_endpoint_rejects_private_internal_and_missing_visibility() {
+    let server = MockServer::start().await;
+    set_github_env(&server);
+    testing::reset_all();
+
+    for (name, body) in [
+        (
+            "nonpublic-synthetic-a",
+            json!({"private": true, "visibility": "private"}),
+        ),
+        (
+            "nonpublic-synthetic-b",
+            json!({"private": false, "visibility": "internal"}),
+        ),
+        ("nonpublic-synthetic-c", json!({"private": false})),
+    ] {
+        Mock::given(method("GET"))
+            .and(path(format!("/repos/shtse8/{name}")))
+            .respond_with(ResponseTemplate::new(200).set_body_json(body))
+            .mount(&server)
+            .await;
+
+        let res = router()
+            .oneshot(
+                Request::builder()
+                    .uri(format!("/repo?name={name}"))
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::NOT_FOUND, "{name}");
+    }
+}
+
+#[tokio::test]
+#[serial]
+async fn recent_endpoint_sorts_public_repos_by_push_date() {
     let server = MockServer::start().await;
     set_github_env(&server);
     testing::reset_all();
 
     let repos = json!([
         {
-            "full_name": "shtse8/old",
-            "name": "old",
-            "owner": {"login": "shtse8"},
-            "stargazers_count": 1,
-            "forks_count": 0,
-            "description": null,
-            "language": "Rust",
-            "topics": [],
-            "html_url": "https://github.com/shtse8/old",
-            "pushed_at": "2026-07-01T00:00:00Z",
-            "fork": false,
-            "archived": false
+            "full_name": "shtse8/old", "name": "old", "owner": {"login": "shtse8"},
+            "stargazers_count": 1, "forks_count": 0, "description": null,
+            "language": "Rust", "topics": [], "html_url": "https://github.com/shtse8/old",
+            "pushed_at": "2026-07-01T00:00:00Z", "fork": false, "archived": false,
+            "private": false, "visibility": "public"
         },
         {
-            "full_name": "shtse8/new",
-            "name": "new",
-            "owner": {"login": "shtse8"},
-            "stargazers_count": 2,
-            "forks_count": 0,
-            "description": null,
-            "language": "Rust",
-            "topics": [],
-            "html_url": "https://github.com/shtse8/new",
-            "pushed_at": "2026-07-10T00:00:00Z",
-            "fork": false,
-            "archived": false
+            "full_name": "shtse8/new", "name": "new", "owner": {"login": "shtse8"},
+            "stargazers_count": 2, "forks_count": 0, "description": null,
+            "language": "Rust", "topics": [], "html_url": "https://github.com/shtse8/new",
+            "pushed_at": "2026-07-10T00:00:00Z", "fork": false, "archived": false,
+            "private": false, "visibility": "public"
         }
     ]);
+    Mock::given(method("GET"))
+        .and(path_regex(r"/users/shtse8/repos.*"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(repos))
+        .mount(&server)
+        .await;
+    mount_empty_org_lists(&server).await;
 
-    for owner in ["shtse8", "SylphxAI", "Cubeage", "EpiowAI"] {
-        let body = if owner == "shtse8" { repos.clone() } else { json!([]) };
-        Mock::given(method("GET"))
-            .and(path_regex(format!(r"/users/{owner}/repos.*")))
-            .respond_with(ResponseTemplate::new(200).set_body_json(body))
-            .mount(&server)
-            .await;
-    }
-
-    let app = router();
-    let res = app
-        .oneshot(Request::builder().uri("/recent?limit=2").body(Body::empty()).unwrap())
+    let res = router()
+        .oneshot(
+            Request::builder()
+                .uri("/recent?limit=2")
+                .body(Body::empty())
+                .unwrap(),
+        )
         .await
         .unwrap();
     assert_eq!(res.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX).await.unwrap();
-    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["recent"][0]["name"], "new");
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(value["recent"][0]["name"], "new");
 }

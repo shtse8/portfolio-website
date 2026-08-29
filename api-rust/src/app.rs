@@ -113,7 +113,7 @@ async fn claim_pack_handler(headers: HeaderMap) -> Response {
         "chat": ready,
         "activityDefinition": {
             "unit": "authored_commits",
-            "includes": "commits authored by the account across all branches, including private repos the token can see",
+            "includes": "commits authored by the account across public repositories and all branches",
             "excludes": "PRs, issues, reviews, and contribution-calendar inflation"
         },
         "updatedAt": stats::iso_now(),

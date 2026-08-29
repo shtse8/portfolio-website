@@ -109,7 +109,8 @@ async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
         .ok_or_else(|| "missing data".to_string())
 }
 
-async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, u64>, u64), String> {
+async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, u64>, u64), String>
+{
     let blocks: String = GITHUB_OWNERS
         .iter()
         .enumerate()
@@ -118,12 +119,12 @@ async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, 
                 format!(
                     // Include owned forks so notable personal tools (e.g. Google-Photos-Delete-Tool)
                     // count toward portfolio star totals.
-                    "o{i}: user(login: \"{}\") {{ repositories(ownerAffiliations: OWNER, first: 100, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount isFork }} }} }}",
+                    "o{i}: user(login: \"{}\") {{ repositories(ownerAffiliations: OWNER, privacy: PUBLIC, first: 100, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount isFork isPrivate visibility }} }} }}",
                     o.login
                 )
             } else {
                 format!(
-                    "o{i}: organization(login: \"{}\") {{ repositories(first: 100, isFork: false, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount }} }} }}",
+                    "o{i}: organization(login: \"{}\") {{ repositories(first: 100, privacy: PUBLIC, isFork: false, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount isPrivate visibility }} }} }}",
                     o.login
                 )
             }
@@ -138,12 +139,27 @@ async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, 
         let conn = data
             .get(format!("o{i}"))
             .and_then(|v| v.get("repositories"));
+        if conn
+            .and_then(|c| c.get("nodes"))
+            .and_then(|n| n.as_array())
+            .is_some_and(|nodes| {
+                nodes
+                    .iter()
+                    .any(|repo| !crate::github_visibility::graphql_repo_is_explicitly_public(repo))
+            })
+        {
+            return Err(format!(
+                "github public-only stats query returned unverifiable repository for {}",
+                o.login
+            ));
+        }
         let stars: u64 = conn
             .and_then(|c| c.get("nodes"))
             .and_then(|n| n.as_array())
             .map(|nodes| {
                 nodes
                     .iter()
+                    .filter(|n| crate::github_visibility::graphql_repo_is_explicitly_public(n))
                     .filter(|n| {
                         // Orgs: isFork not present → keep. User: keep non-forks + notable forks (≥30★).
                         let is_fork = n.get("isFork").and_then(|v| v.as_bool()).unwrap_or(false);
@@ -200,37 +216,43 @@ async fn fetch_npm_downloads() -> (u64, u64) {
     (total, flagship)
 }
 
-async fn fetch_flagship_stars() -> u64 {
+async fn fetch_flagship_stars() -> Result<u64, String> {
     let token = env::var("GITHUB_TOKEN").ok();
     let mut req = client()
-        .get(upstream::github_rest_url(&format!("/repos/{FLAGSHIP_REPO}")))
+        .get(upstream::github_rest_url(&format!(
+            "/repos/{FLAGSHIP_REPO}"
+        )))
         .header("user-agent", "kylet-api-rust");
     if let Some(t) = token {
         req = req.header("authorization", format!("bearer {t}"));
     }
-    match req.send().await {
-        Ok(res) if res.status().is_success() => res
-            .json::<serde_json::Value>()
-            .await
-            .ok()
-            .and_then(|v| v.get("stargazers_count").and_then(|s| s.as_u64()))
-            .unwrap_or(0),
-        _ => 0,
+    let res = req
+        .send()
+        .await
+        .map_err(|error| format!("github flagship transport: {error}"))?;
+    if !res.status().is_success() {
+        return Err(format!("github flagship {}", res.status()));
     }
+    let repo: serde_json::Value = res
+        .json()
+        .await
+        .map_err(|error| format!("github flagship decode: {error}"))?;
+    if !crate::github_visibility::rest_value_is_explicitly_public(&repo) {
+        return Err("github flagship repository is not explicitly public".to_string());
+    }
+    repo.get("stargazers_count")
+        .and_then(|stars| stars.as_u64())
+        .ok_or_else(|| "github flagship missing stargazers_count".to_string())
 }
 
 async fn compute_stats() -> Result<StatsPayload, String> {
     let (gh_total, by_owner, repos) = fetch_github_stars().await?;
     let (npm_total, npm_flagship) = fetch_npm_downloads().await;
-    let flagship_stars = fetch_flagship_stars().await;
+    let flagship_stars = fetch_flagship_stars().await?;
     Ok(StatsPayload {
         github_stars: gh_total,
         npm_downloads: npm_total,
-        flagship_stars: if flagship_stars > 0 {
-            flagship_stars
-        } else {
-            *by_owner.get("SylphxAI").unwrap_or(&0)
-        },
+        flagship_stars,
         flagship_downloads: npm_flagship,
         by_owner,
         repos,
@@ -271,8 +293,6 @@ pub async fn get_stats() -> Result<StatsPayload, String> {
     }
     Ok(data)
 }
-
-
 
 #[doc(hidden)]
 pub fn reset_cache_for_tests() {

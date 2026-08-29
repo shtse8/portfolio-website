@@ -46,8 +46,9 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 - **Source CI (fast trunk):** biome, `tsc`, `bun test`, static export build, `cargo clippy -D warnings`, `cargo test --locked`.
 - **Production proof:** `scripts/api-smoke.sh` (default `https://kylet.se`): health, stats,
   projects, activity, chat SSE.
-- **Baked fallbacks:** `bun run sync` refreshes `src/data/github-portfolio.json` and
-  `src/data/stats-baked.json` (with `verifiedAt`).
+- **Baked fallbacks:** `bun run sync` refreshes explicit-public repository records
+  and accepts stats only from a `repositoryVisibility=public-only/v1` response.
+  Until then the repository-derived aggregate fallback is unavailable.
 
 ## Commercial Direction
 
