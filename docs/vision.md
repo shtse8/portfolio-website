@@ -12,6 +12,8 @@ kylet.se (`https://kylet.se`) is the decision-proving portfolio of Kyle Tse — 
 
 The promise is delivered by the **least system**: the fewest concepts, surfaces, services, and copy that still produce those three outcomes for every primary visitor job. The Rust `api-rust` is the sole live data-plane authority (single JSON REST contract: `GET /healthz`, `GET /stats`, `GET /activity`, `GET /projects`, `GET /recent`, `GET /repo`, `GET /downloads`, `POST /chat` via Sylphx AI Gateway `POST /v1/responses`); the site itself is the dogfood of the builder's AI stack (live stats/activity + agent contact plane).
 
+GitHub repository publication is explicit-public only. A repository fact is publishable only when upstream data positively proves `private=false` and `visibility=public` (or the GraphQL equivalents `isPrivate=false` and `visibility=PUBLIC`). A server credential is upstream read capability, never publication authority. Non-public or unverifiable repository facts fail closed before entering anonymous responses, `WEB-CHAT` repository tools, caches, claims, activity, or baked/generated fallbacks. This boundary covers `GET /repo`, repository lists in `GET /projects` and `GET /recent`, `GET /stats`, `GET /activity`, `GET /claims`, and every repository-dependent chat tool.
+
 ## Users and their jobs
 
 - **Decision-makers** who need one short session to answer "right person/stack/builder for X" and act on it.
@@ -24,6 +26,6 @@ The promise is delivered by the **least system**: the fewest concepts, surfaces,
 
 ## Product oracle
 
-The destination is true only when a first-time visitor at `https://kylet.se` can, in one short live session, state the one promise, verify live GitHub stars/npm downloads/repos/activity via `api-rust` (`freshness=live`, `verifiedAt` honesty ladder, never-fabricated zeros), and successfully `POST /chat` a message that reaches Sylphx AI Gateway and returns an answer grounded in the 5 tools without `401 unsupported_credential`, at the live layer via the `sylphx.toml` nginx BFF + api deployment.
+The destination is true only when a first-time visitor at `https://kylet.se` can, in one short live session, state the one promise, verify live explicit-public GitHub stars/npm downloads/repos/activity via `api-rust` (`freshness=live`, `verifiedAt` honesty ladder, never-fabricated zeros), and successfully `POST /chat` a message that reaches Sylphx AI Gateway and returns an answer grounded in the 5 tools without `401 unsupported_credential`, at the live layer via the `sylphx.toml` nginx BFF + api deployment. The public-repository oracle additionally requires `GET /stats` to attest `repositoryVisibility=public-only/v1`, `GET /activity` to attest `projectionRevision=github-public-only/v1`, and a redacted protected canary to be absent from every applicable repository response, list/recent/project projection, activity/claim/fallback, and `WEB-CHAT` repository tool while an explicit-public control remains available on the same customer path.
 
 A static export (`out/`) build or `GET /healthz` on preview is not the live-chat-and-verify oracle. The broken `POST /chat` gateway credential boundary captured 2026-08-10 is the outstanding false for this oracle.
