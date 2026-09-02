@@ -44,7 +44,7 @@ pub struct ActivityPayload {
     /// `live` | `stale` | `not_observed` | …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub freshness: Option<String>,
-    /// `github` | `github-stale` | …
+    /// `github-public` | `github-public-stale` | …
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub source: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -95,13 +95,21 @@ pub fn valid_pkg(pkg: &str) -> bool {
 /// Returns the origin to echo in CORS headers, or `None` when the request
 /// origin is not allowlisted (browser will block the response).
 pub fn allowed_origin(origin: Option<&str>) -> Option<&'static str> {
-    origin.and_then(|o| ALLOWED_ORIGINS.iter().copied().find(|&allowed| allowed == o))
+    origin.and_then(|o| {
+        ALLOWED_ORIGINS
+            .iter()
+            .copied()
+            .find(|&allowed| allowed == o)
+    })
 }
 
 pub fn cors_header_map(origin: Option<&str>) -> BTreeMap<String, String> {
     let mut map = BTreeMap::new();
     if let Some(allowed) = allowed_origin(origin) {
-        map.insert("access-control-allow-origin".to_string(), allowed.to_string());
+        map.insert(
+            "access-control-allow-origin".to_string(),
+            allowed.to_string(),
+        );
     }
     map.insert(
         "access-control-allow-methods".to_string(),
@@ -126,15 +134,29 @@ pub fn client_ip(headers: &[(String, String)]) -> String {
             .map(|(_, v)| v.clone())
     };
     let raw = pick("cf-connecting-ip")
-        .map(|v| v.split(',').next().map(str::trim).map(str::to_string).unwrap_or_default())
+        .map(|v| {
+            v.split(',')
+                .next()
+                .map(str::trim)
+                .map(str::to_string)
+                .unwrap_or_default()
+        })
         .filter(|v| !v.is_empty())
-        .or_else(|| pick("x-real-ip").map(|v| v.trim().to_string()).filter(|v| !v.is_empty()))
+        .or_else(|| {
+            pick("x-real-ip")
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty())
+        })
         .or_else(|| {
             pick("x-forwarded-for")
                 .and_then(|v| v.rsplit(',').next().map(str::trim).map(str::to_string))
                 .filter(|v| !v.is_empty())
         })
-        .or_else(|| pick("x-envoy-external-address").map(|v| v.trim().to_string()).filter(|v| !v.is_empty()))
+        .or_else(|| {
+            pick("x-envoy-external-address")
+                .map(|v| v.trim().to_string())
+                .filter(|v| !v.is_empty())
+        })
         .unwrap_or_else(|| "unknown".to_string());
     raw.chars().take(45).collect()
 }
@@ -217,24 +239,26 @@ pub fn simulate_burst_verdicts(ip: &str, base: u64) -> (Vec<String>, String) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 pub const ACTIVITY_GITHUB_USER: &str = "shtse8";
+pub const PUBLIC_ACTIVITY_PROJECTION_REVISION: &str = "github-public-only/v1";
 
 /// Lightweight GraphQL: today-contributions by repo (for `repos_active_today`)
 /// + the 10 most recently pushed repos (for `last_push`).
 pub fn github_activity_query(now_iso: &str, today_start: &str) -> String {
     format!(
-        "{{ today: user(login: \"{login}\") {{ contributionsCollection(from: \"{today}\", to: \"{now}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt }} contributions {{ totalCount }} }} }} }} repos: user(login: \"{login}\") {{ repositories(first: 10, orderBy: {{ field: PUSHED_AT, direction: DESC }}, ownerAffiliations: OWNER) {{ nodes {{ nameWithOwner pushedAt }} }} }} }}",
+        "{{ today: user(login: \"{login}\") {{ contributionsCollection(from: \"{today}\", to: \"{now}\") {{ totalCommitContributions commitContributionsByRepository(maxRepositories: 20) {{ repository {{ nameWithOwner pushedAt isPrivate visibility }} contributions {{ totalCount }} }} }} }} repos: user(login: \"{login}\") {{ repositories(first: 10, privacy: PUBLIC, orderBy: {{ field: PUSHED_AT, direction: DESC }}, ownerAffiliations: OWNER) {{ nodes {{ nameWithOwner pushedAt isPrivate visibility }} }} }} }}",
         login = ACTIVITY_GITHUB_USER,
         today = today_start,
         now = now_iso,
     )
 }
 
-/// Commit search query URL: authored commits (all branches, incl. private with
-/// the service token) since the given ISO instant. `per_page=1` keeps it cheap;
-/// `total_count` is the real number.
+/// Commit search query URL: authored commits on public repositories only.
+/// `is:public` is mandatory even when the service token can see more. The
+/// window starts at the given ISO instant; `per_page=1` keeps it cheap and
+/// `total_count` is the public-only count.
 pub fn github_activity_search_url(api_base: &str, since_iso: &str) -> String {
     format!(
-        "{base}/search/commits?q=author:{user}+author-date:%3E%3D{since}&per_page=1",
+        "{base}/search/commits?q=author:{user}+author-date:%3E%3D{since}+is:public&per_page=1",
         base = api_base.trim_end_matches('/'),
         user = ACTIVITY_GITHUB_USER,
         since = since_iso,
@@ -246,7 +270,7 @@ pub fn github_activity_query_balanced(query: &str) -> bool {
     query.chars().filter(|c| *c == '{').count() == query.chars().filter(|c| *c == '}').count()
 }
 
-/// Aggregate GitHub activity: commit COUNTS come from the commit search API
+/// Aggregate GitHub activity: commit COUNTS come from the public-only commit search API
 /// (all branches); the GraphQL `data` supplies repos-with-contributions-today
 /// and the most recently pushed repo.
 pub fn aggregate_github_activity(
@@ -265,18 +289,24 @@ pub fn aggregate_github_activity(
         repos_active_today = by_repo
             .iter()
             .filter(|e| {
-                e.get("contributions")
-                    .and_then(|c| c.get("totalCount"))
-                    .and_then(Value::as_u64)
-                    .unwrap_or(0)
-                    > 0
+                e.get("repository")
+                    .is_some_and(crate::github_visibility::graphql_repo_is_explicitly_public)
+                    && e.get("contributions")
+                        .and_then(|c| c.get("totalCount"))
+                        .and_then(Value::as_u64)
+                        .unwrap_or(0)
+                        > 0
             })
             .count() as u64;
     }
     let last_push = data
         .pointer("/repos/repositories/nodes")
         .and_then(Value::as_array)
-        .and_then(|nodes| nodes.first())
+        .and_then(|nodes| {
+            nodes
+                .iter()
+                .find(|repo| crate::github_visibility::graphql_repo_is_explicitly_public(repo))
+        })
         .and_then(|n| {
             let name = n.get("nameWithOwner").and_then(Value::as_str).unwrap_or("");
             let pushed = n.get("pushedAt").and_then(Value::as_str).unwrap_or("");
@@ -299,8 +329,8 @@ pub fn aggregate_github_activity(
         updated_at: updated_at.to_string(),
         stale: None,
         freshness: Some("live".to_string()),
-        source: Some("github".to_string()),
-        projection_revision: None,
+        source: Some("github-public".to_string()),
+        projection_revision: Some(PUBLIC_ACTIVITY_PROJECTION_REVISION.to_string()),
     }
 }
 
@@ -361,7 +391,10 @@ mod tests {
     #[test]
     fn github_activity_query_is_balanced() {
         let q = github_activity_query("2026-08-09T12:00:00Z", "2026-08-09T00:00:00Z");
-        assert!(github_activity_query_balanced(&q), "query braces must balance");
+        assert!(
+            github_activity_query_balanced(&q),
+            "query braces must balance"
+        );
         for alias in ["today:", "repos:"] {
             assert!(q.contains(alias), "missing alias {alias}");
         }
@@ -372,7 +405,7 @@ mod tests {
     fn github_activity_search_url_is_well_formed() {
         let url = github_activity_search_url("https://api.github.com", "2026-08-09T00:00:00Z");
         assert!(url.starts_with(
-            "https://api.github.com/search/commits?q=author:shtse8+author-date:%3E%3D2026-08-09T00:00:00Z&per_page=1"
+            "https://api.github.com/search/commits?q=author:shtse8+author-date:%3E%3D2026-08-09T00:00:00Z+is:public&per_page=1"
         ));
         let url2 = github_activity_search_url("http://127.0.0.1:9/", "2026-08-09T00:00:00Z");
         assert!(url2.starts_with("http://127.0.0.1:9/search/commits?"));
@@ -382,21 +415,31 @@ mod tests {
     fn aggregate_uses_search_counts_and_graphql_side_data() {
         let data = json!({
             "today": { "contributionsCollection": { "commitContributionsByRepository": [
-                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } },
-                { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z" }, "contributions": { "totalCount": 0 } }
+                { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }, "contributions": { "totalCount": 2 } },
+                { "repository": { "nameWithOwner": "shtse8/other", "pushedAt": "2026-08-08T00:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }, "contributions": { "totalCount": 0 } }
             ] } },
             "repos": { "repositories": { "nodes": [
-                { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z" }
+                { "nameWithOwner": "shtse8/newest", "pushedAt": "2026-08-09T11:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }
             ] } }
         });
-        let a = aggregate_github_activity(&data, 275, 12_023, 24_682, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+        let a = aggregate_github_activity(
+            &data,
+            275,
+            12_023,
+            24_682,
+            1_782_800_000_000,
+            "2026-08-09T12:00:00Z",
+        );
         assert_eq!(a.commits_today, 275);
         assert_eq!(a.commits_week, 12_023);
         assert_eq!(a.commits_month, 24_682);
         assert_ne!(a.commits_month, a.commits_week * 4);
         assert_eq!(a.repos_active_today, 1);
-        assert_eq!(a.last_push.as_ref().map(|l| l.repo.as_str()), Some("newest"));
-        assert_eq!(a.source.as_deref(), Some("github"));
+        assert_eq!(
+            a.last_push.as_ref().map(|l| l.repo.as_str()),
+            Some("newest")
+        );
+        assert_eq!(a.source.as_deref(), Some("github-public"));
         assert_eq!(a.freshness.as_deref(), Some("live"));
         assert!(assert_honest_windows(&a).is_ok());
     }

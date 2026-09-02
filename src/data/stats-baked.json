@@ -1,10 +1,11 @@
 {
-  "verifiedAt": "2026-08-09T20:40:47.787Z",
-  "source": "https://kylet.se/stats",
-  "githubStars": 1239,
-  "npmDownloads": 31751,
-  "flagshipStars": 887,
-  "flagshipDownloads": 28801,
-  "repos": 657,
-  "updatedAt": "2026-08-09T20:40:47.776934306Z"
+  "verifiedAt": null,
+  "source": null,
+  "repositoryVisibility": "public-only/v1",
+  "githubStars": null,
+  "npmDownloads": null,
+  "flagshipStars": null,
+  "flagshipDownloads": null,
+  "repos": null,
+  "updatedAt": null
 }

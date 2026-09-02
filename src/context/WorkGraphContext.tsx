@@ -51,6 +51,8 @@ export const FALLBACK_PROJECTS: TermRepo[] = (
     name: string;
     stars: number;
     archived?: boolean;
+    private?: boolean;
+    visibility?: string;
     description: string;
     language: string | null;
     topics: string[];
@@ -59,6 +61,9 @@ export const FALLBACK_PROJECTS: TermRepo[] = (
     pushedAt: string;
   }>
 )
+  // The build may run with credentials that see more. Missing, internal, and
+  // private visibility never becomes a browser fallback.
+  .filter((r) => r.private === false && r.visibility === "public")
   // Keep inventory for expand; UI primary-filters by stars + active.
   .filter((r) => !r.name.startsWith("scale-"))
   .slice(0, 60)

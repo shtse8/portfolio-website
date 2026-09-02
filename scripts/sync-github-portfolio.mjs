@@ -11,7 +11,7 @@ import { join } from "node:path";
  * - Paginated org/user lists (not a single page of 100)
  *
  * Usage: bun scripts/sync-github-portfolio.mjs
- * Requires: gh auth with repo read.
+ * Requires: gh authentication; only explicit-public responses are baked.
  */
 import { $ } from "bun";
 
@@ -24,12 +24,6 @@ const KEEP_ALWAYS =
 /** Owned forks with real portfolio signal (personal flagship tools that began as forks). */
 const NOTABLE_FORK_STARS = 30;
 const NOTABLE_FORK_NAMES = /google-photos-delete-tool/i;
-
-async function ghJson(path) {
-  const r = await $`gh api ${path}`.quiet().nothrow();
-  if (r.exitCode !== 0) return null;
-  return JSON.parse(r.stdout.toString());
-}
 
 /** Paginate gh api (Link headers) into one array. */
 async function ghJsonAll(path) {
@@ -52,17 +46,18 @@ async function ghJsonAll(path) {
   return [];
 }
 
-const memberships = (await ghJson("user/memberships/orgs")) ?? [];
-const adminOrgs = memberships
-  .filter((m) => m.role === "admin" && m.state === "active")
-  .map((m) => m.organization.login)
-  .filter((login) => !/test|family|hypothesis/i.test(login));
-
-console.log("admin orgs:", adminOrgs.join(", "));
+const publicOrgs = ["Cubeage", "SylphxAI", "EpiowAI", "OzyrixLtd"];
 
 const repos = [];
 
+function isExplicitlyPublic(r) {
+  return r?.private === false && r?.visibility === "public";
+}
+
 function keepRepo(r) {
+  // Authenticated gh can see non-public repositories. This is the projection
+  // boundary: missing/internal/private visibility is never baked.
+  if (!isExplicitlyPublic(r)) return false;
   if (SKIP_NAME.test(r.name)) return false;
   const stars = r.stargazers_count ?? 0;
   const archived = Boolean(r.archived);
@@ -89,6 +84,8 @@ function pushRepo(r, source, orgLogin) {
     stars,
     archived,
     fork: Boolean(r.fork),
+    private: false,
+    visibility: "public",
     description: r.description ?? "",
     language: r.language,
     topics: r.topics ?? [],
@@ -100,11 +97,13 @@ function pushRepo(r, source, orgLogin) {
   });
 }
 
-for (const org of adminOrgs) {
+for (const org of publicOrgs) {
+  // Upstream public-only selector plus local strict predicate in pushRepo.
   const list = await ghJsonAll(`orgs/${org}/repos?per_page=100&type=public`);
   for (const r of list) pushRepo(r, "org", org);
 }
 
+// This user endpoint is public by contract; local strict predicate still applies.
 const personal = await ghJsonAll("users/shtse8/repos?per_page=100&type=owner");
 for (const r of personal) pushRepo(r, "personal", null);
 
@@ -123,11 +122,26 @@ for (const r of repos.sort((a, b) => {
 
 const payload = {
   syncedAt: new Date().toISOString(),
-  adminOrgs,
   repos: uniq,
 };
 
-const path = join(root, "src/data/github-portfolio.json");
+const relativePath = "src/data/github-portfolio.json";
+const path = join(root, relativePath);
 writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
+const formatted = Bun.spawnSync({
+  cmd: [
+    join(root, "node_modules/.bin/biome"),
+    "format",
+    "--write",
+    relativePath,
+  ],
+  cwd: root,
+  stdout: "ignore",
+  stderr: "ignore",
+});
+if (formatted.exitCode !== 0) {
+  console.error("FAIL formatting generated public repository snapshot");
+  process.exit(1);
+}
 const archivedN = uniq.filter((r) => r.archived).length;
 console.log(`wrote ${uniq.length} repos (${archivedN} archived) → ${path}`);

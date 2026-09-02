@@ -15,7 +15,7 @@ healthz="$(curl -fsS "$BASE_URL/healthz")"
 pass "/healthz"
 
 stats="$(curl -fsS "$BASE_URL/stats")"
-echo "$stats" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'githubStars' in d; assert d.get('freshness')=='live', d; assert d.get('verifiedAt') or d.get('updatedAt')" \
+echo "$stats" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'githubStars' in d; assert d.get('freshness')=='live', d; assert d.get('verifiedAt') or d.get('updatedAt'); assert d.get('repositoryVisibility')=='public-only/v1', d" \
   || fail "/stats: $stats"
 pass "/stats"
 
@@ -25,12 +25,12 @@ echo "$projects" | python3 -c "import json,sys; d=json.load(sys.stdin); assert i
 pass "/projects"
 
 activity="$(curl -fsS "$BASE_URL/activity")"
-echo "$activity" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'commitsToday' in d; assert 'commitsWeek' in d; assert 'reposActiveToday' in d" \
+echo "$activity" | python3 -c "import json,sys; d=json.load(sys.stdin); assert 'commitsToday' in d; assert 'commitsWeek' in d; assert 'reposActiveToday' in d; assert d.get('projectionRevision')=='github-public-only/v1', d" \
   || fail "/activity: $activity"
 pass "/activity"
 
 claims="$(curl -fsS "$BASE_URL/claims")"
-echo "$claims" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('schema')=='kylet.se/claim-pack/v1'; assert d.get('promise')" \
+echo "$claims" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('schema')=='kylet.se/claim-pack/v1'; assert d.get('promise'); inc=d.get('activityDefinition',{}).get('includes','').lower(); assert 'public repositories' in inc and 'private' not in inc, d" \
   || fail "/claims: $claims"
 pass "/claims"
 

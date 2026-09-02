@@ -4,7 +4,40 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::time::Duration;
 
-const GH_OWNERS: &[&str] = &["shtse8", "SylphxAI", "Cubeage", "EpiowAI", "OzyrixLtd"];
+#[derive(Clone, Copy)]
+enum GithubOwnerKind {
+    User,
+    Organization,
+}
+
+#[derive(Clone, Copy)]
+struct GithubOwnerConfig {
+    login: &'static str,
+    kind: GithubOwnerKind,
+}
+
+const GH_OWNERS: &[GithubOwnerConfig] = &[
+    GithubOwnerConfig {
+        login: "shtse8",
+        kind: GithubOwnerKind::User,
+    },
+    GithubOwnerConfig {
+        login: "SylphxAI",
+        kind: GithubOwnerKind::Organization,
+    },
+    GithubOwnerConfig {
+        login: "Cubeage",
+        kind: GithubOwnerKind::Organization,
+    },
+    GithubOwnerConfig {
+        login: "EpiowAI",
+        kind: GithubOwnerKind::Organization,
+    },
+    GithubOwnerConfig {
+        login: "OzyrixLtd",
+        kind: GithubOwnerKind::Organization,
+    },
+];
 const UPSTREAM_TIMEOUT: Duration = Duration::from_secs(8);
 const REPOS_TTL_MS: u64 = 5 * 60 * 1000;
 /// Owned forks with real portfolio signal (e.g. Google-Photos-Delete-Tool).
@@ -42,10 +75,16 @@ struct GhRepo {
     pushed_at: Option<String>,
     fork: Option<bool>,
     archived: Option<bool>,
+    private: Option<bool>,
+    visibility: Option<String>,
+}
+
+fn is_public_repo(r: &GhRepo) -> bool {
+    crate::github_visibility::is_explicitly_public(r.private, r.visibility.as_deref())
 }
 
 fn keep_live_repo(r: &GhRepo) -> bool {
-    if r.archived.unwrap_or(false) {
+    if !is_public_repo(r) || r.archived.unwrap_or(false) {
         return false;
     }
     let stars = r.stargazers_count.unwrap_or(0);
@@ -81,7 +120,10 @@ fn gh_token() -> Option<String> {
     env::var("GITHUB_TOKEN").ok().filter(|t| !t.is_empty())
 }
 
-fn to_summary(r: GhRepo) -> RepoSummary {
+fn to_public_summary(r: GhRepo) -> Option<RepoSummary> {
+    if !is_public_repo(&r) {
+        return None;
+    }
     let full = r.full_name.unwrap_or_default();
     let owner = r
         .owner
@@ -89,9 +131,11 @@ fn to_summary(r: GhRepo) -> RepoSummary {
         .or_else(|| full.split('/').next().map(str::to_string))
         .unwrap_or_default();
     let pushed_at = r.pushed_at.unwrap_or_default();
-    RepoSummary {
+    Some(RepoSummary {
         repo: full.clone(),
-        name: r.name.unwrap_or_else(|| full.split('/').nth(1).unwrap_or("").to_string()),
+        name: r
+            .name
+            .unwrap_or_else(|| full.split('/').nth(1).unwrap_or("").to_string()),
         owner,
         stars: r.stargazers_count.unwrap_or(0),
         forks: r.forks_count.unwrap_or(0),
@@ -102,14 +146,26 @@ fn to_summary(r: GhRepo) -> RepoSummary {
         url: r.html_url.unwrap_or_default(),
         pushed: pushed_at.chars().take(10).collect(),
         pushed_at,
+    })
+}
+
+fn owner_repos_path(owner: GithubOwnerConfig) -> String {
+    match owner.kind {
+        GithubOwnerKind::User => format!(
+            "/users/{}/repos?per_page=100&sort=updated&type=owner",
+            owner.login
+        ),
+        GithubOwnerKind::Organization => format!(
+            "/orgs/{}/repos?per_page=100&sort=updated&type=public",
+            owner.login
+        ),
     }
 }
 
 async fn gh_get(path: &str) -> Result<reqwest::Response, reqwest::Error> {
-    let mut req = client().get(upstream::github_rest_url(path)).header(
-        "user-agent",
-        "kylet-api-rust",
-    );
+    let mut req = client()
+        .get(upstream::github_rest_url(path))
+        .header("user-agent", "kylet-api-rust");
     if let Some(token) = gh_token() {
         req = req.header("authorization", format!("bearer {token}"));
     }
@@ -132,14 +188,13 @@ pub async fn list_all_repos() -> Vec<RepoSummary> {
 
     let mut out = Vec::new();
     for owner in GH_OWNERS {
-        if let Ok(res) = gh_get(&format!("/users/{owner}/repos?per_page=100&sort=updated&type=owner")).await
-        {
+        if let Ok(res) = gh_get(&owner_repos_path(*owner)).await {
             if res.status().is_success() {
                 if let Ok(raw) = res.json::<Vec<GhRepo>>().await {
                     out.extend(
                         raw.into_iter()
                             .filter(keep_live_repo)
-                            .map(to_summary),
+                            .filter_map(to_public_summary),
                     );
                 }
             }
@@ -178,10 +233,12 @@ pub async fn get_repo_detail(name_raw: &str) -> Option<RepoSummary> {
         return None;
     }
     for owner in GH_OWNERS {
-        if let Ok(res) = gh_get(&format!("/repos/{owner}/{raw}")).await {
+        if let Ok(res) = gh_get(&format!("/repos/{}/{raw}", owner.login)).await {
             if res.status().is_success() {
                 if let Ok(repo) = res.json::<GhRepo>().await {
-                    return Some(to_summary(repo));
+                    if let Some(summary) = to_public_summary(repo) {
+                        return Some(summary);
+                    }
                 }
             }
         }
@@ -277,9 +334,7 @@ pub async fn npm_range(pkg: &str) -> Vec<NpmDay> {
             .json::<serde_json::Value>()
             .await
             .ok()
-            .and_then(|v| {
-                serde_json::from_value::<Vec<NpmDay>>(v.get("downloads")?.clone()).ok()
-            })
+            .and_then(|v| serde_json::from_value::<Vec<NpmDay>>(v.get("downloads")?.clone()).ok())
             .unwrap_or_default(),
         _ => Vec::new(),
     }
@@ -309,10 +364,7 @@ mod tests {
 
     #[test]
     fn npm_pkg_aliases_map_flagship_unscoped_names() {
-        assert_eq!(
-            resolve_npm_pkg("pdf-reader-mcp"),
-            "@sylphx/pdf-reader-mcp"
-        );
+        assert_eq!(resolve_npm_pkg("pdf-reader-mcp"), "@sylphx/pdf-reader-mcp");
         assert_eq!(
             resolve_npm_pkg("@sylphx/pdf-reader-mcp"),
             "@sylphx/pdf-reader-mcp"
@@ -321,7 +373,9 @@ mod tests {
     }
 
     fn get_repo_detail_sync_name(name: &str) -> bool {
-        let raw = name.trim().trim_start_matches(|c: char| c == '/' || c == '.');
+        let raw = name
+            .trim()
+            .trim_start_matches(|c: char| c == '/' || c == '.');
         let raw = raw.rsplit('/').next().unwrap_or(raw);
         raw.chars()
             .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')

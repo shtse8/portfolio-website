@@ -3,12 +3,12 @@
 //! is the authority for policy behavior (origin, IP trust, rate limits, pkg
 //! validation, honest CP windows).
 
+use kylet_api_rust::activity::assert_honest_windows;
+use kylet_api_rust::contract::aggregate_github_activity;
 use kylet_api_rust::contract::{
     allowed_origin, check_rate_limit_isolated, client_ip, cors_header_map, rate_limit_constants,
     simulate_burst_verdicts, valid_pkg, RateLimitState, IP_MAX_IN_WINDOW,
 };
-use kylet_api_rust::activity::assert_honest_windows;
-use kylet_api_rust::contract::aggregate_github_activity;
 use serde_json::json;
 
 #[test]
@@ -29,7 +29,10 @@ fn pkg_validation_contract() {
 
 #[test]
 fn cors_allowlist_contract() {
-    assert_eq!(allowed_origin(Some("https://kylet.se")), Some("https://kylet.se"));
+    assert_eq!(
+        allowed_origin(Some("https://kylet.se")),
+        Some("https://kylet.se")
+    );
     assert_eq!(
         allowed_origin(Some("https://www.kylet.se")),
         Some("https://www.kylet.se")
@@ -44,7 +47,9 @@ fn cors_allowlist_contract() {
 
 #[test]
 fn cors_map_never_echoes_foreign_origins() {
-    assert!(!cors_header_map(Some("https://evil.example")).contains_key("access-control-allow-origin"));
+    assert!(
+        !cors_header_map(Some("https://evil.example")).contains_key("access-control-allow-origin")
+    );
     assert_eq!(
         cors_header_map(Some("https://kylet.se"))
             .get("access-control-allow-origin")
@@ -64,7 +69,10 @@ fn client_ip_contract_rejects_spoofed_first_xff() {
     );
     assert_eq!(
         client_ip(&[
-            ("x-forwarded-for".to_string(), "6.6.6.6, 203.0.113.9".to_string()),
+            (
+                "x-forwarded-for".to_string(),
+                "6.6.6.6, 203.0.113.9".to_string()
+            ),
             ("cf-connecting-ip".to_string(), "198.51.100.7".to_string()),
         ]),
         "198.51.100.7"
@@ -109,15 +117,22 @@ fn daily_ip_cap_is_enforced() {
 fn github_activity_uses_search_counts_with_true_30d_series() {
     let data = json!({
         "today": { "contributionsCollection": { "commitContributionsByRepository": [
-            { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z" }, "contributions": { "totalCount": 2 } }
+            { "repository": { "nameWithOwner": "shtse8/pdf-reader-mcp", "pushedAt": "2026-08-09T10:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }, "contributions": { "totalCount": 2 } }
         ] } },
         "repos": { "repositories": { "nodes": [] } }
     });
-    let a = aggregate_github_activity(&data, 275, 12_023, 24_682, 1_782_800_000_000, "2026-08-09T12:00:00Z");
+    let a = aggregate_github_activity(
+        &data,
+        275,
+        12_023,
+        24_682,
+        1_782_800_000_000,
+        "2026-08-09T12:00:00Z",
+    );
     assert_eq!(a.commits_month, 24_682);
     assert_eq!(a.commits_week, 12_023);
     assert_ne!(a.commits_month, a.commits_week * 4);
-    assert_eq!(a.source.as_deref(), Some("github"));
+    assert_eq!(a.source.as_deref(), Some("github-public"));
     assert_eq!(a.freshness.as_deref(), Some("live"));
     assert!(assert_honest_windows(&a).is_ok());
 }

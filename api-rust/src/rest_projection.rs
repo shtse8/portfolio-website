@@ -23,6 +23,7 @@ pub fn stats_json(payload: &StatsPayload) -> Value {
         "verifiedAt": payload.updated_at,
         "freshness": "live",
         "stale": false,
+        "repositoryVisibility": "public-only/v1",
     })
 }
 
@@ -44,10 +45,7 @@ pub fn activity_json(payload: &ActivityPayload) -> Value {
     obj.insert("reposActiveToday".into(), json!(payload.repos_active_today));
     obj.insert("updatedAt".into(), json!(payload.updated_at));
     if let Some(ref lp) = payload.last_push {
-        obj.insert(
-            "lastPush".into(),
-            json!({ "repo": lp.repo, "ago": lp.ago }),
-        );
+        obj.insert("lastPush".into(), json!({ "repo": lp.repo, "ago": lp.ago }));
     } else {
         obj.insert("lastPush".into(), Value::Null);
     }
