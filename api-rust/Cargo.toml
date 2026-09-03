@@ -2,7 +2,7 @@
 name = "kylet-api-rust"
 version = "0.1.7"
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.85"
 description = "Rust sole authority for kylet.se live API (stats, activity, projects, AI chat)"
 license = "MIT"
 
@@ -17,7 +17,7 @@ path = "src/main.rs"
 [dependencies]
 axum = { version = "0.8", features = ["json"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "net", "time", "io-util"] }
-reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "stream", "rustls"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tracing = "0.1"
