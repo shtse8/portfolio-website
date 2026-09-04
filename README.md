@@ -23,13 +23,14 @@ Kyle Tse's personal proof surface: a static portfolio with a small Rust live API
 | Var | Purpose |
 | --- | --- |
 | `SYLPHX_AI_URL` | Gateway base (default `https://api.sylphx.ai`, normalized to `/v1`) |
-| `SYLPHX_AI_API_KEY` | Gateway bearer credential (`ck_*` / `sk-sx-*`) |
+| `SYLPHX_AI_API_KEY` | Gateway bearer credential (`sk-sx-*` only; dest AI peel) |
 | `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` / `AI_GATEWAY_API_KEY` | Explicit overrides (optional) |
 | `AI_MODEL` | Responses model (default `sylphx/auto`) |
 
 **Must not** set `AI_GATEWAY_BASE_URL` to Platform management (`api.sylphx.com`)
-or `AI_GATEWAY_KEY` to a Platform product secret (`sk_prod_*`) — those produce
-`unsupported_credential` and are rejected by `resolve_ai()` (ADR-169 honesty).
+or `AI_GATEWAY_KEY` to a Platform product secret (`sk_prod_*`), leftover
+internal `ck_*`, or any non-`sk-sx-*` bearer — those are rejected by
+`resolve_ai()` so `GET /chat/ready` stays fail-closed (ADR-169 honesty).
 
 `SYLPHX_URL` is **never** used as a server credential. Without a valid gateway
 credential the API fails closed (`503 chat is warming up`). UI probes
