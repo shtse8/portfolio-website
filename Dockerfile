@@ -7,7 +7,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
 # nginxinc unprivileged: uid 101, no chown on start, works with capabilities.drop=ALL.
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS runner
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS runner
 COPY --from=builder /app/out /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 ENV PORT=3000
