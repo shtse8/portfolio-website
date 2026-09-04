@@ -21,7 +21,7 @@ jobs:
     name: Web (biome, tsc, tests, static export)
     runs-on: sylphx-linux-standard
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -56,7 +56,7 @@ jobs:
     name: Rust API (clippy, tests)
     runs-on: sylphx-linux-standard
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
