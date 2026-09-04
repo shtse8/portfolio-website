@@ -8,12 +8,18 @@ WORKDIR /workspace
 COPY api-rust /workspace/api-rust
 WORKDIR /workspace/api-rust
 ENV CARGO_BUILD_JOBS=2
-RUN cargo build --locked --release
+# Stage the binary at /out: #65 compiled kylet-api-rust (~97s) then
+# runtime `COPY --from=builder .../target/release/kylet-api-rust` was
+# CACHED and the pushed digest stayed sha256:1de4ea600a9f… (same as the
+# stale 3646fb2 tag). A path that never existed in that cache cannot hit.
+RUN cargo build --locked --release \
+    && mkdir -p /out \
+    && cp target/release/kylet-api-rust /out/kylet-api-rust
 
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=builder /workspace/api-rust/target/release/kylet-api-rust /usr/local/bin/kylet-api-rust
+COPY --from=builder /out/kylet-api-rust /usr/local/bin/kylet-api-rust
 ENV PORT=3001
 EXPOSE 3001
 USER 65532:65532
