@@ -47,7 +47,7 @@ async fn chat_endpoint_streams_gateway_responses_sse_from_wiremock() {
     testing::reset_all();
     unsafe {
         std::env::set_var("SYLPHX_AI_URL", server.uri());
-        std::env::set_var("SYLPHX_AI_API_KEY", "sk-wiremock");
+        std::env::set_var("SYLPHX_AI_API_KEY", "sk-sx-wiremock");
         std::env::remove_var("SYLPHX_URL");
         std::env::remove_var("AI_GATEWAY_BASE_URL");
         std::env::remove_var("AI_GATEWAY_KEY");
@@ -102,7 +102,7 @@ async fn chat_posts_responses_input_items_with_type_message() {
     testing::reset_all();
     unsafe {
         std::env::set_var("SYLPHX_AI_URL", server.uri());
-        std::env::set_var("SYLPHX_AI_API_KEY", "sk-wiremock");
+        std::env::set_var("SYLPHX_AI_API_KEY", "sk-sx-wiremock");
         std::env::remove_var("SYLPHX_URL");
         std::env::remove_var("AI_GATEWAY_BASE_URL");
         std::env::remove_var("AI_GATEWAY_KEY");
@@ -200,6 +200,102 @@ async fn chat_fails_closed_without_gateway_credentials() {
         .await
         .unwrap();
     assert_eq!(res.status(), StatusCode::SERVICE_UNAVAILABLE);
+}
+
+#[tokio::test]
+#[serial]
+async fn chat_ready_fails_closed_for_leftover_internal_ck_key() {
+    // Live 2026-09-04: dest host + leftover ck_* reported ready=true while
+    // POST /chat streamed gateway 401 invalid_api_key.
+    testing::reset_all();
+    unsafe {
+        std::env::set_var("AI_GATEWAY_BASE_URL", "https://api.sylphx.ai");
+        std::env::set_var("SYLPHX_AI_URL", "https://api.sylphx.ai");
+        std::env::set_var("AI_GATEWAY_KEY", "ck_8cdf15c1c_testkey");
+        std::env::set_var("SYLPHX_AI_API_KEY", "ck_8cdf15c1c_testkey");
+        std::env::remove_var("SYLPHX_URL");
+        std::env::remove_var("AI_GATEWAY_API_KEY");
+    }
+    let app = router();
+    let res = app
+        .oneshot(
+            Request::builder()
+                .method("GET")
+                .uri("/chat/ready")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: serde_json::Value = serde_json::from_slice(&bytes).expect("ready json");
+    assert_eq!(body["ready"], false, "{body}");
+    assert_eq!(body["reason"], "missing_or_invalid_gateway_key", "{body}");
+    assert_eq!(body["host"], "api.sylphx.ai", "{body}");
+}
+
+#[tokio::test]
+#[serial]
+async fn chat_post_fails_closed_for_leftover_internal_ck_key() {
+    testing::reset_all();
+    unsafe {
+        std::env::set_var("AI_GATEWAY_BASE_URL", "https://api.sylphx.ai");
+        std::env::set_var("AI_GATEWAY_KEY", "ck_8cdf15c1c_testkey");
+        std::env::set_var("SYLPHX_AI_API_KEY", "ck_8cdf15c1c_testkey");
+        std::env::remove_var("SYLPHX_URL");
+        std::env::remove_var("AI_GATEWAY_API_KEY");
+    }
+    let body = json!({
+        "messages": [{"role": "user", "parts": [{"type": "text", "text": "hi"}]}]
+    });
+    let app = router();
+    let res = app
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/chat")
+                .header("content-type", "application/json")
+                .body(Body::from(body.to_string()))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(res.status(), StatusCode::SERVICE_UNAVAILABLE);
+}
+
+#[tokio::test]
+#[serial]
+async fn chat_ready_true_for_dest_sk_sx_key() {
+    testing::reset_all();
+    unsafe {
+        std::env::set_var("AI_GATEWAY_BASE_URL", "https://api.sylphx.ai");
+        std::env::set_var("SYLPHX_AI_API_KEY", "sk-sx-wiremock");
+        std::env::remove_var("AI_GATEWAY_KEY");
+        std::env::remove_var("AI_GATEWAY_API_KEY");
+        std::env::remove_var("SYLPHX_URL");
+    }
+    let app = router();
+    let res = app
+        .oneshot(
+            Request::builder()
+                .method("GET")
+                .uri("/chat/ready")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let body: serde_json::Value = serde_json::from_slice(&bytes).expect("ready json");
+    assert_eq!(body["ready"], true, "{body}");
+    assert_eq!(body["reason"], serde_json::Value::Null, "{body}");
+    assert_eq!(body["host"], "api.sylphx.ai", "{body}");
 }
 
 #[tokio::test]

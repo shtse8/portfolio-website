@@ -92,24 +92,13 @@ fn is_forbidden_gateway_host(host: &str) -> bool {
         || h == "app.sylphx.com"
 }
 
-/// Reject credentials that belong to Platform product/management planes.
-/// Live incident (2026-08-10): `AI_GATEWAY_KEY=sk_prod_…` is a Platform
-/// project secret, not a Sylphx AI data-plane key (`ck_*` / `sk-sx-*`).
+/// Dest AI peel admits `sk-sx-…` only (`AI-SERVICE-KEY-AUTH`).
+/// Platform `sk_prod_*` / JWT / `sylphx://` and leftover internal `ck_*`
+/// mint public `401 invalid_api_key` at `api.sylphx.ai`. A non-empty check
+/// used to report `GET /chat/ready` ready=true for `ck_*` (live 2026-09-04).
 fn is_plausible_gateway_key(key: &str) -> bool {
     let k = key.trim();
-    if k.is_empty() || k.len() < 8 {
-        return false;
-    }
-    if k.starts_with("sk_prod_")
-        || k.starts_with("sk_prev_")
-        || k.starts_with("pk_prod_")
-        || k.starts_with("pk_prev_")
-        || k.starts_with("sylphx://")
-        || k.starts_with("eyJ")
-    {
-        return false;
-    }
-    true
+    k.len() >= 8 && k.starts_with("sk-sx-")
 }
 
 fn first_env(names: &[&str]) -> Option<String> {
@@ -930,13 +919,15 @@ mod tests {
     }
 
     #[test]
-    fn rejects_platform_product_keys() {
+    fn rejects_non_dest_gateway_keys() {
         assert!(!is_plausible_gateway_key("sk_prod_0288deadbeef"));
         assert!(!is_plausible_gateway_key("pk_prod_abc"));
         assert!(!is_plausible_gateway_key("sylphx://pk_prod_x@unit.api.sylphx.com"));
         assert!(!is_plausible_gateway_key("eyJhbGciOiJIUzI1NiJ9.e30.sig"));
-        assert!(is_plausible_gateway_key("ck_8cdf15c1c_testkey"));
+        assert!(!is_plausible_gateway_key("ck_8cdf15c1c_testkey"));
+        assert!(!is_plausible_gateway_key("sk-wiremock"));
+        assert!(!is_plausible_gateway_key("sk-sx-"));
         assert!(is_plausible_gateway_key("sk-sx-abcdefghijklmnop"));
-        assert!(is_plausible_gateway_key("sk-wiremock"));
+        assert!(is_plausible_gateway_key("sk-sx-wiremock"));
     }
 }

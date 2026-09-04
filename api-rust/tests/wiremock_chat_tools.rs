@@ -18,7 +18,7 @@ async fn chat_tool_loop_list_projects_grounded_by_wiremock_github() {
         std::env::set_var("GITHUB_API_BASE", gh.uri());
         std::env::set_var("GITHUB_TOKEN", "wiremock-token");
         std::env::set_var("SYLPHX_AI_URL", gw.uri());
-        std::env::set_var("SYLPHX_AI_API_KEY", "sk-wiremock");
+        std::env::set_var("SYLPHX_AI_API_KEY", "sk-sx-wiremock");
         std::env::remove_var("SYLPHX_URL");
         std::env::remove_var("AI_GATEWAY_BASE_URL");
         std::env::remove_var("AI_GATEWAY_KEY");
@@ -134,7 +134,7 @@ async fn chat_get_repo_returns_null_for_non_public_repository() {
         std::env::set_var("GITHUB_API_BASE", gh.uri());
         std::env::set_var("GITHUB_TOKEN", "wiremock-token");
         std::env::set_var("SYLPHX_AI_URL", gw.uri());
-        std::env::set_var("SYLPHX_AI_API_KEY", "sk-wiremock");
+        std::env::set_var("SYLPHX_AI_API_KEY", "sk-sx-wiremock");
         std::env::remove_var("SYLPHX_URL");
         std::env::remove_var("AI_GATEWAY_BASE_URL");
         std::env::remove_var("AI_GATEWAY_KEY");
