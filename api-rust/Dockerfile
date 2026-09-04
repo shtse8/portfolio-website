@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # kylet-api-rust — Rust sole authority for kylet.se live API (ADR-169).
 # Build context is the repository root (api-rust/ only).
 FROM rust:1-bookworm AS builder
@@ -19,7 +20,14 @@ RUN cargo build --locked --release \
 FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=builder /out/kylet-api-rust /usr/local/bin/kylet-api-rust
+# Do not COPY --from the binary: #67 compiled then CACHED
+# `COPY --from=builder /out/kylet-api-rust` to /usr/local/bin/kylet-api-rust
+# and reused cache layers 146ce355/581dba8a/a8ac7f6c/f588acd2 (config-only
+# digest sha256:29d192fa…). Install via RUN --mount so this layer cannot
+# be that destination-keyed COPY.
+RUN --mount=from=builder,source=/out,target=/mnt \
+    cp /mnt/kylet-api-rust /usr/local/bin/kylet-api-rust \
+    && chmod 0755 /usr/local/bin/kylet-api-rust
 ENV PORT=3001
 EXPOSE 3001
 USER 65532:65532
