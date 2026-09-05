@@ -1,12 +1,9 @@
 // Single data surface for the portfolio.
-// PROJECTS + SHIPPED_PRODUCTS live in `./projects`; organizations/roles in
-// their own files; `PERSONAL_INFO` in `./personal`. Legacy skill/philosophy
-// catalogs and unused formatters are retired (ADR-169).
+// Organizations/roles in their own files; `PERSONAL_INFO` in `./personal`.
+// Dual `PROJECTS` / `SHIPPED_PRODUCTS` catalog is retired (WEB-LEGACY dead).
 
 export * from "./organizations";
 export { PERSONAL_INFO } from "./personal";
-export type { ShippedProduct } from "./projects";
-export { PROJECT_CATEGORIES, PROJECTS, SHIPPED_PRODUCTS } from "./projects";
 export * from "./roles";
 export * from "./types";
 

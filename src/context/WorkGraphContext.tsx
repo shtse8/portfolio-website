@@ -31,6 +31,10 @@ import {
   repoCapabilities,
 } from "@/lib/capabilities";
 import {
+  adoptLiveProjects,
+  fallbackProjectsFromSnapshot,
+} from "@/lib/project-inventory";
+import {
   fetchProjects,
   fetchRecent,
   fetchStats,
@@ -44,44 +48,10 @@ export { CAPABILITY_LABEL, CAPABILITY_ORDER, REPO_NPM, repoCapabilities };
 
 // ── static fallback from synced GitHub admin-org + personal owner repos ───────
 // Source of truth: `bun scripts/sync-github-portfolio.mjs` → github-portfolio.json
-// Live /projects fetch overlays fresher numbers when the API is up.
-export const FALLBACK_PROJECTS: TermRepo[] = (
-  githubPortfolio.repos as Array<{
-    owner: string;
-    name: string;
-    stars: number;
-    archived?: boolean;
-    private?: boolean;
-    visibility?: string;
-    description: string;
-    language: string | null;
-    topics: string[];
-    homepage: string | null;
-    url: string;
-    pushedAt: string;
-  }>
-)
-  // The build may run with credentials that see more. Missing, internal, and
-  // private visibility never becomes a browser fallback.
-  .filter((r) => r.private === false && r.visibility === "public")
-  // Keep inventory for expand; UI primary-filters by stars + active.
-  .filter((r) => !r.name.startsWith("scale-"))
-  .slice(0, 60)
-  .map((r) => ({
-    repo: `${r.owner}/${r.name}`,
-    name: r.name,
-    owner: r.owner,
-    stars: r.stars,
-    forks: 0,
-    description: r.description || null,
-    language: r.language,
-    topics: r.topics ?? [],
-    homepage: r.homepage,
-    url: r.url,
-    pushed: r.pushedAt,
-    pushedAt: r.pushedAt,
-    archived: Boolean(r.archived),
-  }));
+// Live /projects fetch *replaces* this list when the API returns repos.
+export const FALLBACK_PROJECTS: TermRepo[] = fallbackProjectsFromSnapshot(
+  githubPortfolio.repos,
+);
 
 // ── highlight model — what a hovered hero stat lights up in the graph ─────────
 export type HighlightKind = "stars" | "downloads" | "flagship" | null;
@@ -92,7 +62,7 @@ interface WorkGraphState {
   recent: TermRepo[];
   loading: boolean;
   live: boolean; // true once at least one live fetch landed
-  liveProjects: boolean; // true once the projects fetch overlaid the fallback
+  liveProjects: boolean; // true once live /projects replaced the fallback inventory
   // cross-section selection
   highlight: HighlightKind;
   setHighlight: (h: HighlightKind) => void;
@@ -112,8 +82,8 @@ const Ctx = createContext<WorkGraphState | null>(null);
 
 export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
   const [stats, setStats] = useState<TermStats | null>(null);
-  // seed with the curated fallback so the graph is never empty (API-down safe);
-  // the live fetch replaces it the moment it lands.
+  // Seed with the synced explicit-public fallback so the graph is never empty
+  // (API-down safe). A successful live /projects list replaces it; it is not merged.
   const [projects, setProjects] = useState<TermRepo[]>(FALLBACK_PROJECTS);
   const [recent, setRecent] = useState<TermRepo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -175,30 +145,15 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
         setStats(s.value);
         any = true;
       }
-      // only overlay live projects if the call actually returned some — never
-      // replace the curated fallback with an empty list.
-      if (p.status === "fulfilled" && p.value.projects.length > 0) {
-        // Merge live overlay with synced catalog so owned-org repos never disappear
-        // when the API returns a shorter top-N list.
-        const byRepo = new Map<string, TermRepo>();
-        for (const r of FALLBACK_PROJECTS) byRepo.set(r.repo.toLowerCase(), r);
-        for (const r of p.value.projects) {
-          const key = r.repo.toLowerCase();
-          const prev = byRepo.get(key);
-          // Live API may omit archived — keep snapshot flag from sync.
-          byRepo.set(key, {
-            ...r,
-            archived: r.archived ?? prev?.archived,
-          });
+      // Replace fallback with live inventory when the call returns repos.
+      // An empty payload is treated as fetch failure (keep fallback).
+      if (p.status === "fulfilled") {
+        const adopted = adoptLiveProjects(FALLBACK_PROJECTS, p.value.projects);
+        setProjects(adopted.projects);
+        if (adopted.liveProjects) {
+          setLiveProjects(true);
+          any = true;
         }
-        const merged = [...byRepo.values()].sort((a, b) => {
-          if (Boolean(a.archived) !== Boolean(b.archived))
-            return a.archived ? 1 : -1;
-          return b.stars - a.stars;
-        });
-        setProjects(merged);
-        setLiveProjects(true);
-        any = true;
       }
       if (r.status === "fulfilled") {
         setRecent(r.value.recent);

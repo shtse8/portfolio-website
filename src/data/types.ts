@@ -91,61 +91,12 @@ export type Role = {
   keyAchievements?: string[];
   metrics: Metric[];
 
-  // Skills and projects
+  // Skills
   skills?: string[];
-  projectIds?: string[];
 
   // Display
   logo?: string;
   liveUrl?: string;
-};
-
-export type Project = {
-  id: string;
-  title: string;
-  description: string;
-  images: string[] | null;
-  skills: string[];
-  category: string;
-  organizationId?: string; // Which org owns this
-  roleId?: string; // Which role created this
-  details: string[] | string;
-  teamSize?: string;
-  duration?: string;
-  role?: string;
-  period?: Period;
-  challenges?: {
-    title: string;
-    description: string;
-  }[];
-  urls?: {
-    wikipedia?: string;
-    appStore?: string;
-    googlePlay?: string;
-    website?: string;
-    repository?: string;
-    documentation?: string;
-    demo?: string;
-    timemachine?: string;
-    other?: Array<{
-      name: string;
-      url: string;
-      description?: string;
-      type?:
-        | "review"
-        | "article"
-        | "video"
-        | "social"
-        | "award"
-        | "resource"
-        | "tool"
-        | "misc";
-    }>;
-  };
-
-  // Convenience aliases (computed from urls)
-  liveUrl?: string; // alias for urls.website
-  github?: string; // alias for urls.repository
 };
 
 export type PersonalInfo = {

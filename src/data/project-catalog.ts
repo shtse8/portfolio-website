@@ -1,7 +1,7 @@
 /**
  * Curated deep catalog for open-source products shown on the site.
- * Keys match GitHub repo `name` (as returned by /projects and FALLBACK_PROJECTS).
- * Art files live at public/art/projects/{id}.jpg
+ * Keys match GitHub repo `name` (as returned by /projects and the explicit-public fallback).
+ * Art files live at public/art/projects/{id}.jpg. This overlay does not invent repos.
  */
 
 export type ProjectCatalogEntry = {
@@ -166,7 +166,7 @@ export const PROJECT_CATALOG: ProjectCatalogEntry[] = [
       "Handles large libraries (10,000+ photos)",
       "Extension + script-injection modes",
     ],
-    art: "/projects/google-photos-delete/1.jpg",
+    art: "/art/projects/Google-Photos-Delete-Tool.jpg",
     artAlt: "Google Photos Delete Tool",
     docsUrl:
       "https://chromewebstore.google.com/detail/google-photos-delete-tool/jiahfbbfpacpolomdjlpdpiljllcdenb",

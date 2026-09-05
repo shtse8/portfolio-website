@@ -2,11 +2,11 @@
  * One-page narrative SSOT — Promise · Evidence · Engage.
  * Drives nav, IntersectionObserver, deep links, and JSON-LD.
  *
- * DOM section ids must match this list. `archive` is secondary depth
- * (historical shipped products), not a primary decision surface.
+ * DOM section ids must match this list. Historical shipped-product
+ * screenshot archive is not a product path (WEB-LEGACY dead).
  */
 
-export type SectionId = "hero" | "story" | "work" | "archive" | "contact";
+export type SectionId = "hero" | "story" | "work" | "contact";
 
 export interface SectionConfig {
   id: SectionId;
@@ -20,7 +20,6 @@ export const SECTIONS: SectionConfig[] = [
   { id: "hero", label: "Home", path: "/" },
   { id: "story", label: "Story", path: "/story", nav: true },
   { id: "work", label: "Work", path: "/work", nav: true },
-  { id: "archive", label: "Archive", path: "/archive", nav: true },
   { id: "contact", label: "Contact", path: "/contact", nav: true },
 ];
 

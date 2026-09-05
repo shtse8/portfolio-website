@@ -58,5 +58,5 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 
 - [Product vision](./docs/vision.md) — canonical destination and North Star
   Metric.
-- [Capability DAG](./docs/capabilities.md) — stable `KYLE-*` responsibilities,
+- [Capability DAG](./docs/capabilities.md) — stable `WEB-*` responsibilities,
   prerequisites, and completion oracles.
