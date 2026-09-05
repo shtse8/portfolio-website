@@ -34,6 +34,7 @@ import {
   adoptLiveProjects,
   fallbackProjectsFromSnapshot,
 } from "@/lib/project-inventory";
+import { isFlagshipRepo } from "@/lib/project-presentation";
 import {
   fetchProjects,
   fetchRecent,
@@ -170,7 +171,7 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
   const isHighlighted = useCallback(
     (r: TermRepo) => {
       if (!highlight) return false;
-      if (highlight === "flagship") return /pdf-reader-mcp/i.test(r.name);
+      if (highlight === "flagship") return isFlagshipRepo(r);
       if (highlight === "downloads") return r.name in REPO_NPM;
       return r.stars > 0; // stars: every starred repo contributes
     },

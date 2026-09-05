@@ -1,6 +1,7 @@
 // Single data surface for the portfolio.
 // Organizations/roles in their own files; `PERSONAL_INFO` in `./personal`.
 // Dual `PROJECTS` / `SHIPPED_PRODUCTS` catalog is retired (WEB-LEGACY dead).
+// Curated `PROJECT_CATALOG` overlay copy is retired (WEB-STATS one authority).
 
 export * from "./organizations";
 export { PERSONAL_INFO } from "./personal";
