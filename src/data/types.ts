@@ -13,6 +13,8 @@ export type Period = {
 /**
  * Metric for quantifiable achievements
  */
+export type MetricHonesty = "live-measured" | "self-attested";
+
 export type Metric = {
   type:
     | "users"
@@ -29,6 +31,8 @@ export type Metric = {
   context?: "monthly" | "total" | "peak" | "daily" | "concurrent";
   verified?: boolean;
   source?: string;
+  /** Career-scale metrics are self-attested historical pedigree. */
+  honesty?: MetricHonesty;
 };
 
 // ========================================
@@ -114,7 +118,6 @@ export type PersonalInfo = {
     linkedin: string;
     stackoverflow: string;
   };
-  contactFormSubjects: string[];
   portfolioUrl: string;
   company: string;
   specialties?: string[];

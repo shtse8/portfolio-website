@@ -1,3 +1,4 @@
+import { SELF_ATTESTED_HISTORICAL } from "@/lib/claim-honesty";
 import type { Role } from "./types";
 
 /**
@@ -76,11 +77,10 @@ export const ROLES: Role[] = [
     type: "founder",
     period: { start: "2014-01" },
     location: "Hong Kong / China",
-    description:
-      "Founded and led all technical development for mobile gaming company achieving 10M+ global downloads",
+    description: `Founded and led all technical development for mobile gaming company achieving 10M+ global downloads (${SELF_ATTESTED_HISTORICAL})`,
     responsibilities: [
       "Developed and operated mobile games across multiple genres at Cubeage Limited",
-      "Achieved over 10 million total installs across global markets including China, Hong Kong, Taiwan and Southeast Asia",
+      `Achieved over 10 million total installs across global markets including China, Hong Kong, Taiwan and Southeast Asia (${SELF_ATTESTED_HISTORICAL})`,
       "Built games using various frameworks including Unity3D, Cocos2d, Corona SDK and Flutter to optimize for different platforms and requirements",
       "Implemented comprehensive backend infrastructure to support large-scale multiplayer games",
       "Worked with development teams across Hong Kong and China offices",
@@ -88,12 +88,19 @@ export const ROLES: Role[] = [
       "Managed full game lifecycle from concept to live operations and updates",
     ],
     keyAchievements: [
-      "Reached 10M+ global downloads",
+      `Reached 10M+ global downloads (${SELF_ATTESTED_HISTORICAL})`,
       "Successfully launched in multiple markets",
       "Built scalable multi-region infrastructure",
     ],
     metrics: [
-      { type: "downloads", value: 10000000, context: "total" },
+      {
+        type: "downloads",
+        value: 10000000,
+        context: "total",
+        honesty: "self-attested",
+        verified: false,
+        source: SELF_ATTESTED_HISTORICAL,
+      },
       { type: "projects", value: 4, unit: "Game Frameworks" },
       { type: "custom", value: 2, unit: "Regional Offices" },
     ],
@@ -117,25 +124,31 @@ export const ROLES: Role[] = [
     type: "cofounder",
     period: { start: "2010-01", end: "2016-12" },
     location: "Hong Kong / Taiwan / China",
-    description:
-      "Co-founded social gaming company that reached 10M+ monthly active users on Facebook",
+    description: `Co-founded social gaming company that reached 10M+ monthly active users on Facebook (${SELF_ATTESTED_HISTORICAL})`,
     responsibilities: [
       "Co-founded MiniMax Game Entertainment Limited, a social gaming company with offices in Hong Kong, Taiwan and China",
       "Built and operated over 30 concurrent social games and apps on Facebook platform",
-      "Achieved over 10 million monthly active users (MAU) across portfolio of social games",
+      `Achieved over 10 million monthly active users (MAU) across portfolio of social games (${SELF_ATTESTED_HISTORICAL})`,
       "Became a notable Facebook game developer in Hong Kong and Taiwan markets",
       "Worked on Funimax platform, a major game distribution service with extensive retail network",
       "Participated in multi-region game operations, distribution partnerships and agency relationships",
       "Implemented comprehensive payment and analytics systems across physical and digital channels",
-      "Built scalable infrastructure to support millions of daily active users",
+      `Built scalable infrastructure to support millions of daily active users (${SELF_ATTESTED_HISTORICAL})`,
     ],
     keyAchievements: [
-      "Reached 10M+ monthly active users",
+      `Reached 10M+ monthly active users (${SELF_ATTESTED_HISTORICAL})`,
       "Operated 30+ concurrent games",
       "Top Facebook game developer in HK",
     ],
     metrics: [
-      { type: "users", value: 10000000, context: "monthly" },
+      {
+        type: "users",
+        value: 10000000,
+        context: "monthly",
+        honesty: "self-attested",
+        verified: false,
+        source: SELF_ATTESTED_HISTORICAL,
+      },
       { type: "projects", value: 30, unit: "Active Games" },
       { type: "custom", value: 3, unit: "Regional Offices" },
     ],
@@ -157,11 +170,10 @@ export const ROLES: Role[] = [
     type: "cofounder",
     period: { start: "2006-01" },
     location: "Hong Kong",
-    description:
-      "Co-founded and built a Hong Kong gaming media platform with 500K+ registered users",
+    description: `Co-founded and built a Hong Kong gaming media platform with 500K+ registered users (${SELF_ATTESTED_HISTORICAL})`,
     responsibilities: [
       "Built and maintained a popular Hong Kong gaming information platform powered by Discuz!, PHP, MySQL and Ubuntu",
-      "Grew to over 500,000 registered users and 3,000+ concurrent online users",
+      `Grew to over 500,000 registered users and 3,000+ concurrent online users (${SELF_ATTESTED_HISTORICAL})`,
       "Established as the official discussion platform for 100+ game publishers and developers",
       "Achieved strong rankings in Hong Kong gaming media",
       "Created comprehensive game guides, news coverage and community features",
@@ -169,13 +181,27 @@ export const ROLES: Role[] = [
       "Built strong partnerships with major gaming companies across Asia",
     ],
     keyAchievements: [
-      "500K+ Registered Users",
+      `500K+ Registered Users (${SELF_ATTESTED_HISTORICAL})`,
       "100+ Official Game Partnerships",
-      "3K+ Concurrent Users",
+      `3K+ Concurrent Users (${SELF_ATTESTED_HISTORICAL})`,
     ],
     metrics: [
-      { type: "users", value: 500000, context: "total" },
-      { type: "users", value: 3000, context: "concurrent" },
+      {
+        type: "users",
+        value: 500000,
+        context: "total",
+        honesty: "self-attested",
+        verified: false,
+        source: SELF_ATTESTED_HISTORICAL,
+      },
+      {
+        type: "users",
+        value: 3000,
+        context: "concurrent",
+        honesty: "self-attested",
+        verified: false,
+        source: SELF_ATTESTED_HISTORICAL,
+      },
       { type: "partners", value: 100, unit: "Game Partners" },
     ],
     skills: [
