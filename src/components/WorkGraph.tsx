@@ -11,15 +11,22 @@ import {
 import {
   CAPABILITY_LABEL,
   CAPABILITY_ORDER,
-  REPO_NPM,
   repoCapabilities,
   useWorkGraph,
 } from "@/context/WorkGraphContext";
-import {
-  catalogForRepoName,
-  type ProjectCatalogEntry,
-} from "@/data/project-catalog";
 import type { Capability } from "@/lib/capabilities";
+import {
+  isArchivedRepo,
+  isFlagshipRepo,
+  isPrimaryRepo,
+  PRIMARY_STAR_MIN,
+  projectDocsUrl,
+  projectIntro,
+  projectNpm,
+  projectTagline,
+  projectTitle,
+  sortPortfolio,
+} from "@/lib/project-presentation";
 import {
   compact,
   fetchDownloads,
@@ -43,33 +50,11 @@ const SKELETON_CARD_KEYS = [
 /**
  * WorkGraph — visual product grid with deep project detail.
  *
- * Visibility policy (portfolio signal, not exhaustiveness):
- * - Primary: active (not archived) + (stars ≥ 3 OR catalog flagship/npm)
+ * Visibility policy (GitHub traction, not a curated overlay):
+ * - Primary: active (not archived) + stars ≥ PRIMARY_STAR_MIN
  * - Expanded ("See more"): low-star + archived (archived always last)
  * Covers: public/art/projects/{name}.jpg (README twins under art/projects/readme/)
  */
-const PRIMARY_STAR_MIN = 3;
-
-function isArchived(repo: TermRepo): boolean {
-  return Boolean(repo.archived);
-}
-
-function isPrimaryRepo(repo: TermRepo): boolean {
-  if (isArchived(repo)) return false; // never lead with archived
-  if (repo.stars >= PRIMARY_STAR_MIN) return true;
-  const catalog = catalogForRepoName(repo.name);
-  if (catalog?.flagship) return true;
-  if (catalog?.npm || REPO_NPM[repo.name]) return true;
-  return false;
-}
-
-function sortPortfolio(a: TermRepo, b: TermRepo): number {
-  // active before archived, then stars desc
-  const aa = isArchived(a) ? 1 : 0;
-  const ba = isArchived(b) ? 1 : 0;
-  if (aa !== ba) return aa - ba;
-  return b.stars - a.stars || a.name.localeCompare(b.name);
-}
 
 export default function WorkGraph() {
   const {
@@ -95,7 +80,7 @@ export default function WorkGraph() {
   const primary = filtered.filter(isPrimaryRepo);
   const secondary = filtered.filter((p) => !isPrimaryRepo(p));
   const shown = showMore ? filtered : primary;
-  const archivedHidden = secondary.filter(isArchived).length;
+  const archivedHidden = secondary.filter(isArchivedRepo).length;
 
   const counts = CAPABILITY_ORDER.map((c) => ({
     c,
@@ -138,7 +123,7 @@ export default function WorkGraph() {
         index="02"
         eyebrow="Open source · live"
         title="Tools with proof — open a product."
-        description="Primary grid: active projects with real traction (3+ stars or catalogued products). Archived and lower-signal repos stay one click away."
+        description="Primary grid: active projects with real GitHub traction (3+ stars). Archived and lower-signal repos stay one click away."
       />
 
       <Reveal delay={0.05}>
@@ -189,8 +174,8 @@ export default function WorkGraph() {
           </button>
           {!showMore && (
             <p className="max-w-md text-center font-mono text-[11px] text-text-tertiary">
-              Hidden by default: under {PRIMARY_STAR_MIN}★, not catalogued, or
-              GitHub-archived — still openable after expand.
+              Hidden by default: under {PRIMARY_STAR_MIN}★ or GitHub-archived —
+              still openable after expand.
             </p>
           )}
         </div>
@@ -206,7 +191,6 @@ export default function WorkGraph() {
         {selectedRepo && (
           <ProjectDetail
             repo={selectedRepo}
-            catalog={catalogForRepoName(selectedRepo.name)}
             onClose={() => setSelected(null)}
           />
         )}
@@ -259,10 +243,9 @@ function ProjectCard({
   lit: boolean;
   onOpen: () => void;
 }) {
-  const catalog = catalogForRepoName(repo.name);
   const caps = repoCapabilities(repo);
-  const title = catalog?.title ?? repo.name;
-  const tagline = catalog?.tagline ?? repo.description ?? "";
+  const title = projectTitle(repo);
+  const tagline = projectTagline(repo);
 
   return (
     <motion.article
@@ -290,7 +273,7 @@ function ProjectCard({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/70 via-black/25 to-transparent px-3 pb-3 pt-10">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5">
-                {catalog?.flagship && (
+                {isFlagshipRepo(repo) && (
                   <span className="rounded bg-white/20 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-white ring-1 ring-white/30">
                     flagship
                   </span>
@@ -339,16 +322,14 @@ function ProjectCard({
 
 function ProjectDetail({
   repo,
-  catalog,
   onClose,
 }: {
   repo: TermRepo;
-  catalog?: ProjectCatalogEntry;
   onClose: () => void;
 }) {
   const { ask } = useWorkGraph();
   const titleId = useId();
-  const npm = catalog?.npm ?? REPO_NPM[repo.name];
+  const npm = projectNpm(repo);
   const [spark, setSpark] = useState<{ s: string; total: number } | null>(null);
 
   useEffect(() => {
@@ -368,12 +349,9 @@ function ProjectDetail({
     };
   }, [npm]);
 
-  const title = catalog?.title ?? repo.name;
-  const intro =
-    catalog?.intro ??
-    repo.description ??
-    "Open-source work shipping in production.";
-  const highlights = catalog?.highlights ?? [];
+  const title = projectTitle(repo);
+  const intro = projectIntro(repo);
+  const docsUrl = projectDocsUrl(repo);
   return (
     <motion.div
       className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center sm:p-6"
@@ -422,7 +400,7 @@ function ProjectDetail({
                 >
                   {title}
                 </h3>
-                {catalog?.flagship && (
+                {isFlagshipRepo(repo) && (
                   <span className="rounded bg-accent-subtle px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-accent">
                     flagship
                   </span>
@@ -433,11 +411,6 @@ function ProjectDetail({
                   </span>
                 )}
               </div>
-              {catalog?.tagline && (
-                <p className="mt-1 text-sm text-text-secondary">
-                  {catalog.tagline}
-                </p>
-              )}
             </div>
             <div className="text-right">
               <div className="font-mono text-xl font-semibold tabular-nums text-text-primary">
@@ -454,20 +427,6 @@ function ProjectDetail({
           <p className="mt-5 max-w-2xl text-[15px] leading-relaxed text-text-secondary">
             {intro}
           </p>
-
-          {highlights.length > 0 && (
-            <ul className="mt-5 space-y-2">
-              {highlights.map((h) => (
-                <li
-                  key={h}
-                  className="flex items-start gap-2.5 text-sm text-text-secondary"
-                >
-                  <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent" />
-                  {h}
-                </li>
-              ))}
-            </ul>
-          )}
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <div className="rounded-xl border border-border-subtle bg-surface-sunken/50 p-4">
@@ -508,15 +467,14 @@ function ProjectDetail({
                 >
                   <FaGithub className="h-3.5 w-3.5" /> {repo.repo}
                 </a>
-                {(catalog?.docsUrl || repo.homepage) && (
+                {docsUrl && (
                   <a
-                    href={catalog?.docsUrl || repo.homepage || undefined}
+                    href={docsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm text-text-secondary transition-colors hover:text-accent"
                   >
-                    <FaArrowUpRightFromSquare className="h-3 w-3" />{" "}
-                    {catalog?.docsUrl ? "npm / docs" : "homepage"}
+                    <FaArrowUpRightFromSquare className="h-3 w-3" /> homepage
                   </a>
                 )}
                 <div className="font-mono text-[10.5px] text-text-tertiary">
