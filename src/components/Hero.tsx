@@ -5,10 +5,11 @@ import { FaArrowRight, FaBolt, FaGithub } from "react-icons/fa6";
 import { useNavigationStore } from "@/context/NavigationContext";
 import { type HighlightKind, useWorkGraph } from "@/context/WorkGraphContext";
 import { PERSONAL_INFO } from "@/data/personal";
-import { useCountUp } from "@/hooks/useCountUp";
+import { heroProofBoard } from "@/lib/hero-proof-board";
 import { proofBoardDotClass, proofBoardObservation } from "@/lib/proof-board";
-import { BAKED_STATS, HERO_PROOF } from "@/lib/stats";
-import { compact, timeAgo } from "@/lib/terminal";
+import { BAKED_STATS } from "@/lib/stats";
+import { timeAgo } from "@/lib/terminal";
+import { HeroProofGrid } from "./HeroProofGrid";
 import LiveTicker from "./LiveTicker";
 
 /**
@@ -38,18 +39,7 @@ export default function Hero() {
           },
         };
 
-  const stars = stats
-    ? compact(stats.githubStars)
-    : HERO_PROOF.githubStars.display;
-  const downloads = stats
-    ? compact(stats.npmDownloads)
-    : HERO_PROOF.npmDownloads.display;
-  const flagStars = stats
-    ? compact(stats.flagshipStars)
-    : HERO_PROOF.flagshipStars.display;
-  const flagDl = stats
-    ? compact(stats.flagshipDownloads)
-    : HERO_PROOF.flagshipDownloads.display;
+  const cells = heroProofBoard(stats);
   const lastShip = recent[0];
   const board = proofBoardObservation({
     live,
@@ -193,39 +183,11 @@ export default function Hero() {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-px bg-border-subtle">
-              <ProofNode
-                label="GitHub stars"
-                value={stars}
-                suffix="★"
-                kind="stars"
-                hint="across all repos"
-                onHover={setHighlight}
-                onClick={jump}
-                numeric={stats?.githubStars}
-              />
-              <ProofNode
-                label="npm downloads"
-                value={downloads}
-                suffix="/mo"
-                kind="downloads"
-                hint="across packages"
-                onHover={setHighlight}
-                onClick={jump}
-                numeric={stats?.npmDownloads}
-              />
-              <ProofNode
-                label="pdf-reader-mcp"
-                value={flagStars}
-                suffix="★"
-                kind="flagship"
-                hint={`${flagDl}/mo · the flagship`}
-                onHover={setHighlight}
-                onClick={jump}
-                wide
-                numeric={stats?.flagshipStars}
-              />
-            </div>
+            <HeroProofGrid
+              cells={cells}
+              onHover={setHighlight}
+              onClick={jump}
+            />
 
             <button
               type="button"
@@ -255,52 +217,5 @@ export default function Hero() {
         </motion.div>
       </div>
     </section>
-  );
-}
-
-function ProofNode({
-  label,
-  value,
-  suffix,
-  kind,
-  hint,
-  onHover,
-  onClick,
-  wide,
-  numeric,
-}: {
-  label: string;
-  value: string;
-  suffix: string;
-  kind: HighlightKind;
-  hint: string;
-  onHover: (h: HighlightKind) => void;
-  onClick: (h: HighlightKind) => void;
-  wide?: boolean;
-  numeric?: number;
-}) {
-  const animated = useCountUp(numeric ?? 0, 1400, true);
-  const display = numeric ? animated.toLocaleString() : value;
-  return (
-    <button
-      type="button"
-      onMouseEnter={() => onHover(kind)}
-      onMouseLeave={() => onHover(null)}
-      onFocus={() => onHover(kind)}
-      onBlur={() => onHover(null)}
-      onClick={() => onClick(kind)}
-      className={`group bg-surface/70 px-4 py-4 text-left transition-colors hover:bg-accent-subtle/50 ${wide ? "col-span-2" : ""}`}
-    >
-      <div className="flex items-baseline gap-1 font-mono text-xl font-semibold tracking-tight text-text-primary tabular-nums transition-colors group-hover:text-accent sm:text-2xl">
-        {display}
-        <span className="text-sm text-text-tertiary group-hover:text-accent">
-          {suffix}
-        </span>
-      </div>
-      <div className="mt-1 text-xs text-text-tertiary">{label}</div>
-      <div className="mt-0.5 font-mono text-[10.5px] text-text-tertiary/70 group-hover:text-text-secondary">
-        {hint}
-      </div>
-    </button>
   );
 }

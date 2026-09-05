@@ -10,20 +10,6 @@ export type ClaimHonesty = "live-measured" | "self-attested";
 
 export const SELF_ATTESTED_HISTORICAL = "self-attested historical pedigree";
 
-export const LIVE_INSTRUMENT_IDS = [
-  "githubStars",
-  "npmDownloads",
-  "flagshipStars",
-  "flagshipDownloads",
-  "repos",
-] as const;
-
-export const CAREER_PEDIGREE_IDS = [
-  "yearsExperience",
-  "appDownloads",
-  "monthlyPlayers",
-] as const;
-
 export function careerScaleCaption(label: string): string {
   return `${label} · ${SELF_ATTESTED_HISTORICAL}`;
 }

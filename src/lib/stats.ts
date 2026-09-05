@@ -126,10 +126,3 @@ export const HERO_PROOF = {
   flagshipStars: STATS.flagshipStars,
   flagshipDownloads: STATS.flagshipDownloads,
 } as const;
-
-export const HERO_STATS: Stat[] = [
-  HERO_PROOF.githubStars,
-  HERO_PROOF.npmDownloads,
-  HERO_PROOF.flagshipStars,
-  HERO_PROOF.flagshipDownloads,
-];

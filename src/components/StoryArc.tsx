@@ -5,20 +5,20 @@ import Image from "next/image";
 import { useEffect, useId, useState } from "react";
 import { FaArrowUpRightFromSquare, FaGithub, FaXmark } from "react-icons/fa6";
 import { useWorkGraph } from "@/context/WorkGraphContext";
-import { formatNumber } from "@/data";
 import { getOrganization, ORGANIZATIONS } from "@/data/organizations";
 import {
   calculateTotalExperience,
   getRolesByOrganization,
   getRolesSortedByDate,
 } from "@/data/roles";
-import type { Organization, Role } from "@/data/types";
+import type { Organization } from "@/data/types";
 import { useCountUp } from "@/hooks/useCountUp";
 import {
-  careerScaleCaption,
-  SELF_ATTESTED_HISTORICAL,
-  STORY_SCALE_HEADLINES,
-} from "@/lib/claim-honesty";
+  type EraChapter,
+  STORY_SECTION,
+  storyChapters,
+  storyYears,
+} from "@/lib/story-surface";
 import CompanyLogo from "./CompanyLogo";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
@@ -29,112 +29,15 @@ import SectionHeader from "./ui/SectionHeader";
  * Achievements come from roles, not a second project catalog.
  */
 
-interface EraChapter {
-  role: Role;
-  era: string;
-  startYear: string;
-  headline: string;
-  image: string;
-  imageAlt: string;
-  scaleNumber?: { value: number; label: string; display: string };
-  projects?: string[];
-}
-
-function eraProofPoints(role: Role): string[] {
-  const fromAchievements = role.keyAchievements?.slice(0, 5) ?? [];
-  if (fromAchievements.length > 0) return fromAchievements;
-  return (role.responsibilities ?? []).slice(0, 4);
-}
-
 const ORG_ORDER = ["sylphx", "epiow", "cubeage", "minimax", "nakuz"] as const;
-
-const ERA_META: Record<
-  string,
-  { era: string; headline: string; image: string; imageAlt: string }
-> = {
-  "nakuz-cto": {
-    era: "Web · Community",
-    headline: "Hong Kong's gaming portal",
-    image: "/art/era-web.jpg",
-    imageAlt: "Ambient visual derived from Nakuz brand and portal materials",
-  },
-  "minimax-ceo": {
-    era: "Social Gaming",
-    headline: STORY_SCALE_HEADLINES["minimax-ceo"],
-    image: "/art/era-social.jpg",
-    imageAlt: "Ambient visual derived from MiniMax / Funimax social games",
-  },
-  "cubeage-founder": {
-    era: "Mobile Gaming",
-    headline: STORY_SCALE_HEADLINES["cubeage-founder"],
-    image: "/art/era-mobile.jpg",
-    imageAlt: "Ambient visual derived from Cubeage mobile game products",
-  },
-  "epiow-cto": {
-    era: "Enterprise · Platform",
-    headline: "Organization operating system",
-    // cache-bust: ambient was regenerated from official E-Orbit mark
-    image: "/art/era-consulting.jpg?v=eorbit2",
-    imageAlt:
-      "Ambient visual derived from the official Epiow E-Orbit brand mark",
-  },
-  "sylphx-founder": {
-    era: "AI · Open Source",
-    headline: "The infrastructure AI agents run on",
-    image: "/art/era-ai.jpg",
-    imageAlt:
-      "Ambient visual derived from Sylphx brand mark and AI platform identity",
-  },
-};
-
-function getScaleNumber(
-  role: Role,
-): { value: number; label: string; display: string } | undefined {
-  if (!role.metrics.length) return undefined;
-  const m = role.metrics.reduce((best, cur) => {
-    if (typeof cur.value !== "number") return best;
-    if (!best || typeof best.value !== "number" || cur.value > best.value)
-      return cur;
-    return best;
-  });
-  if (typeof m.value !== "number" || m.value < 1000) return undefined;
-  return {
-    value: m.value,
-    label:
-      m.label ||
-      m.unit ||
-      (m.type === "downloads"
-        ? "Downloads"
-        : m.type === "users"
-          ? "Users"
-          : "Scale"),
-    display: formatNumber(m.value),
-  };
-}
 
 export default function StoryArc() {
   const reduce = useReducedMotion();
   const roles = getRolesSortedByDate();
-  const years = calculateTotalExperience();
+  const years = storyYears(calculateTotalExperience());
   const { ask } = useWorkGraph();
   const [orgId, setOrgId] = useState<string | null>(null);
-
-  const chapters: EraChapter[] = roles
-    .map((role) => {
-      const meta = ERA_META[role.id];
-      if (!meta) return null;
-      return {
-        role,
-        era: meta.era,
-        startYear: role.period.start.substring(0, 4),
-        headline: meta.headline,
-        image: meta.image,
-        imageAlt: meta.imageAlt,
-        scaleNumber: getScaleNumber(role),
-        projects: eraProofPoints(role),
-      };
-    })
-    .filter(Boolean) as EraChapter[];
+  const chapters = storyChapters(roles);
 
   const orgs = ORG_ORDER.map((id) => ORGANIZATIONS[id]).filter(Boolean);
   const selectedOrg = orgId ? ORGANIZATIONS[orgId] : null;
@@ -155,10 +58,10 @@ export default function StoryArc() {
   return (
     <div className="container-wide">
       <SectionHeader
-        index="01"
-        eyebrow="The journey"
-        title="Twenty years. Five eras. One builder."
-        description="From a Hong Kong gaming forum in 2006 to AI infrastructure today. Scale figures in this section are self-attested historical pedigree — not live GitHub/npm instruments. Companies are chapters of the same career, not a second product catalog."
+        index={STORY_SECTION.index}
+        eyebrow={STORY_SECTION.eyebrow}
+        title={STORY_SECTION.title}
+        description={STORY_SECTION.description}
       />
 
       <Reveal delay={0.05}>
@@ -212,13 +115,13 @@ export default function StoryArc() {
       <Reveal>
         <div className="mt-14 flex flex-col items-center gap-1.5 py-8 text-center">
           <div className="font-display text-4xl font-semibold tracking-tight text-accent sm:text-5xl">
-            {years}+
+            {years.display}
           </div>
           <div className="font-mono text-xs uppercase tracking-[0.2em] text-text-tertiary">
-            years of building
+            {years.label}
           </div>
           <div className="font-mono text-[10px] text-text-tertiary">
-            {SELF_ATTESTED_HISTORICAL}
+            {years.caption}
           </div>
         </div>
       </Reveal>
@@ -296,7 +199,7 @@ function EraCard({
           {scaleNumber && (
             <AnimatedScale
               value={scaleNumber.value}
-              label={careerScaleCaption(scaleNumber.label)}
+              label={scaleNumber.caption}
             />
           )}
 
