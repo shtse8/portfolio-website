@@ -7,7 +7,7 @@ import { type HighlightKind, useWorkGraph } from "@/context/WorkGraphContext";
 import { PERSONAL_INFO } from "@/data/personal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { proofBoardDotClass, proofBoardObservation } from "@/lib/proof-board";
-import { BAKED_STATS, STATS } from "@/lib/stats";
+import { BAKED_STATS, HERO_PROOF } from "@/lib/stats";
 import { compact, timeAgo } from "@/lib/terminal";
 import LiveTicker from "./LiveTicker";
 
@@ -38,16 +38,18 @@ export default function Hero() {
           },
         };
 
-  const stars = stats ? compact(stats.githubStars) : STATS.githubStars.display;
+  const stars = stats
+    ? compact(stats.githubStars)
+    : HERO_PROOF.githubStars.display;
   const downloads = stats
     ? compact(stats.npmDownloads)
-    : STATS.npmDownloads.display;
+    : HERO_PROOF.npmDownloads.display;
   const flagStars = stats
     ? compact(stats.flagshipStars)
-    : STATS.flagshipStars.display;
+    : HERO_PROOF.flagshipStars.display;
   const flagDl = stats
     ? compact(stats.flagshipDownloads)
-    : STATS.flagshipDownloads.display;
+    : HERO_PROOF.flagshipDownloads.display;
   const lastShip = recent[0];
   const board = proofBoardObservation({
     live,
@@ -114,8 +116,8 @@ export default function Hero() {
           >
             Open-source MCP servers and AI-native developer tools, plus{" "}
             <strong className="font-semibold text-text-primary">Sylphx</strong>{" "}
-            — an AI-native PaaS with its own AI Gateway. Twenty years shipping
-            before this; 10M+ app downloads at a Hong Kong gaming studio.
+            — an AI-native PaaS with its own AI Gateway. Career since 2006 is on
+            Story as self-attested history, not live GitHub/npm.
           </motion.p>
 
           <motion.div {...rise(0.16)} className="mt-5">
@@ -242,10 +244,7 @@ export default function Hero() {
                     {timeAgo(lastShip.pushedAt)}
                   </>
                 ) : (
-                  <>
-                    actively shipping —{" "}
-                    {STATS.yearsExperience?.display ?? "20+"} years building
-                  </>
+                  <>actively shipping — live GitHub activity on this board</>
                 )}
               </span>
             </button>

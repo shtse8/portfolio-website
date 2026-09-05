@@ -5,7 +5,7 @@ export const PERSONAL_INFO: PersonalInfo = {
   lastName: "Tse",
   title: "AI Infrastructure Builder",
   shortBio:
-    "I build the infrastructure AI agents run on — MCP servers and AI-native developer tools. My PDF reader for AI agents has thousands of GitHub stars and tens of thousands of monthly npm downloads; I'm building Sylphx, an AI-native PaaS, plus RAG and semantic-search tooling. 20 years shipping software before this: 10M+ mobile-game downloads (Cubeage), 10M+ monthly players (MiniMax), and Hong Kong's leading gaming portal (Nakuz).",
+    "I build the infrastructure AI agents run on — MCP servers and AI-native developer tools. Flagship pdf-reader-mcp and live GitHub/npm figures are instruments on this site. Career since 2006 (Nakuz, MiniMax, Cubeage, Epiow, Sylphx) is on Story as self-attested historical pedigree, not live GitHub/npm.",
   email: "hi@kylet.se",
   location: {
     base: "London, UK",
@@ -16,13 +16,6 @@ export const PERSONAL_INFO: PersonalInfo = {
     linkedin: "https://linkedin.com/in/shtse8",
     stackoverflow: "https://stackoverflow.com/users/4380384/shtse8",
   },
-  contactFormSubjects: [
-    "Project Inquiry",
-    "Job Opportunity",
-    "Consultation Request",
-    "Open Source Collaboration",
-    "Other",
-  ],
   portfolioUrl: "https://kylet.se",
   company: "Sylphx",
   specialties: [
@@ -33,7 +26,7 @@ export const PERSONAL_INFO: PersonalInfo = {
     "Developer Tools & DX",
     "System Architecture",
     "Full Stack Development",
-    "Shipping at Scale (10M+ users)",
+    "Shipping at scale (self-attested Cubeage / MiniMax pedigree)",
   ],
   tagline:
     "Building the infrastructure AI agents run on — MCP servers & AI-native developer tools",
@@ -45,3 +38,5 @@ export const PERSONAL_INFO: PersonalInfo = {
     "Technical Founder",
   ],
 } as const;
+
+export const SITE_DESCRIPTION = `${PERSONAL_INFO.firstName} ${PERSONAL_INFO.lastName} builds the infrastructure AI agents run on — MCP servers and AI-native developer tools, including pdf-reader-mcp, plus Sylphx (AI-native PaaS). Live GitHub/npm proof on kylet.se; career history on /story (self-attested historical pedigree).`;

@@ -14,6 +14,11 @@ import {
 } from "@/data/roles";
 import type { Organization, Role } from "@/data/types";
 import { useCountUp } from "@/hooks/useCountUp";
+import {
+  careerScaleCaption,
+  SELF_ATTESTED_HISTORICAL,
+  STORY_SCALE_HEADLINES,
+} from "@/lib/claim-honesty";
 import CompanyLogo from "./CompanyLogo";
 import Reveal from "./ui/Reveal";
 import SectionHeader from "./ui/SectionHeader";
@@ -55,13 +60,13 @@ const ERA_META: Record<
   },
   "minimax-ceo": {
     era: "Social Gaming",
-    headline: "Facebook games at 10M scale",
+    headline: STORY_SCALE_HEADLINES["minimax-ceo"],
     image: "/art/era-social.jpg",
     imageAlt: "Ambient visual derived from MiniMax / Funimax social games",
   },
   "cubeage-founder": {
     era: "Mobile Gaming",
-    headline: "25+ games, 10M downloads",
+    headline: STORY_SCALE_HEADLINES["cubeage-founder"],
     image: "/art/era-mobile.jpg",
     imageAlt: "Ambient visual derived from Cubeage mobile game products",
   },
@@ -153,7 +158,7 @@ export default function StoryArc() {
         index="01"
         eyebrow="The journey"
         title="Twenty years. Five eras. One builder."
-        description="From a Hong Kong gaming forum in 2006 to AI infrastructure today — every chapter proved Kyle can ship and scale. Companies are chapters of the same proof, not a second product."
+        description="From a Hong Kong gaming forum in 2006 to AI infrastructure today. Scale figures in this section are self-attested historical pedigree — not live GitHub/npm instruments. Companies are chapters of the same career, not a second product catalog."
       />
 
       <Reveal delay={0.05}>
@@ -211,6 +216,9 @@ export default function StoryArc() {
           </div>
           <div className="font-mono text-xs uppercase tracking-[0.2em] text-text-tertiary">
             years of building
+          </div>
+          <div className="font-mono text-[10px] text-text-tertiary">
+            {SELF_ATTESTED_HISTORICAL}
           </div>
         </div>
       </Reveal>
@@ -288,7 +296,7 @@ function EraCard({
           {scaleNumber && (
             <AnimatedScale
               value={scaleNumber.value}
-              label={scaleNumber.label}
+              label={careerScaleCaption(scaleNumber.label)}
             />
           )}
 

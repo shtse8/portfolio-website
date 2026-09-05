@@ -43,7 +43,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     type: "company",
     status: "active",
     description:
-      "Mobile gaming company — card and casino games with 10M+ downloads",
+      "Mobile gaming company — card and casino games. Download scale is self-attested historical pedigree.",
     logo: "/company/cubeage.jpeg",
     website: "https://cubeage.com",
     github: "Cubeage",
@@ -59,7 +59,7 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     type: "company",
     status: "active",
     description:
-      "Hong Kong gaming media platform and community with 500K+ users",
+      "Hong Kong gaming media platform and community. User scale is self-attested historical pedigree.",
     logo: "/company/nakuz.jpeg",
     website: "https://nakuz.com",
     location: "Hong Kong",
@@ -91,7 +91,8 @@ export const ORGANIZATIONS: Record<string, Organization> = {
     tradingName: "Funimax",
     type: "company",
     status: "closed",
-    description: "Social gaming company — Facebook games with 10M+ MAU",
+    description:
+      "Social gaming company — Facebook games. MAU scale is self-attested historical pedigree.",
     logo: "/company/minimax.jpeg",
     website: "https://funimax.com",
     location: "Hong Kong",

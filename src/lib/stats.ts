@@ -6,8 +6,13 @@
  * only aggregate fallback the site may ship. Pre-cut values are null until a
  * `public-only/v1` response regenerates them, so unverifiable numbers are never
  * presented as stale or fresh.
+ *
+ * Career-scale figures (years, app downloads, monthly players) are
+ * self-attested historical pedigree. They must not appear on the hero
+ * proof board or use freshness=live vocabulary.
  */
 import baked from "@/data/stats-baked.json";
+import type { ClaimHonesty } from "./claim-honesty";
 
 export interface BakedStats {
   verifiedAt: string | null;
@@ -29,6 +34,7 @@ export interface Stat {
   display: string;
   label: string;
   source: string; // URL or short attestation note
+  honesty: ClaimHonesty;
   verifiedAt?: string | null;
 }
 
@@ -48,6 +54,7 @@ export const STATS: Record<string, Stat> = {
     display: "20+",
     label: "Years building",
     source: "Career since Nakuz (2006)",
+    honesty: "self-attested",
   },
   appDownloads: {
     id: "downloads",
@@ -55,6 +62,7 @@ export const STATS: Record<string, Stat> = {
     display: "10M+",
     label: "App downloads",
     source: "Cubeage — global mobile game installs",
+    honesty: "self-attested",
   },
   monthlyPlayers: {
     id: "players",
@@ -62,6 +70,7 @@ export const STATS: Record<string, Stat> = {
     display: "10M+",
     label: "Monthly players",
     source: "MiniMax / Funimax — peak Facebook MAU",
+    honesty: "self-attested",
   },
   githubStars: {
     id: "stars",
@@ -69,6 +78,7 @@ export const STATS: Record<string, Stat> = {
     display: compact(baked.githubStars),
     label: "GitHub stars",
     source: "Live: SylphxAI + @shtse8 + Cubeage / EpiowAI (non-fork)",
+    honesty: "live-measured",
     verifiedAt: baked.verifiedAt,
   },
   npmDownloads: {
@@ -77,6 +87,7 @@ export const STATS: Record<string, Stat> = {
     display: compact(baked.npmDownloads),
     label: "npm downloads / month",
     source: "@sylphx + @shtse8 packages — npm last-month",
+    honesty: "live-measured",
     verifiedAt: baked.verifiedAt,
   },
   flagshipStars: {
@@ -85,6 +96,7 @@ export const STATS: Record<string, Stat> = {
     display: compact(baked.flagshipStars),
     label: "Stars · pdf-reader-mcp",
     source: "github.com/SylphxAI/pdf-reader-mcp",
+    honesty: "live-measured",
     verifiedAt: baked.verifiedAt,
   },
   flagshipDownloads: {
@@ -93,6 +105,7 @@ export const STATS: Record<string, Stat> = {
     display: compact(baked.flagshipDownloads),
     label: "Downloads / mo · pdf-reader-mcp",
     source: "npmjs.com/package/@sylphx/pdf-reader-mcp — last-month",
+    honesty: "live-measured",
     verifiedAt: baked.verifiedAt,
   },
   repos: {
@@ -101,14 +114,22 @@ export const STATS: Record<string, Stat> = {
     display: compact(baked.repos),
     label: "Public repositories",
     source: "GitHub aggregate across owned orgs",
+    honesty: "live-measured",
     verifiedAt: baked.verifiedAt,
   },
 };
 
-/** Curated 4-stat set for the hero — AI-adoption first, then scale credibility. */
+/** Hero proof-board instruments — live-measured GitHub/npm only. */
+export const HERO_PROOF = {
+  githubStars: STATS.githubStars,
+  npmDownloads: STATS.npmDownloads,
+  flagshipStars: STATS.flagshipStars,
+  flagshipDownloads: STATS.flagshipDownloads,
+} as const;
+
 export const HERO_STATS: Stat[] = [
-  STATS.npmDownloads,
-  STATS.githubStars,
-  STATS.appDownloads,
-  STATS.yearsExperience,
+  HERO_PROOF.githubStars,
+  HERO_PROOF.npmDownloads,
+  HERO_PROOF.flagshipStars,
+  HERO_PROOF.flagshipDownloads,
 ];
