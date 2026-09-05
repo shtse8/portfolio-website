@@ -13,7 +13,7 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 ## Goals
 
 - Ship fast, static portfolio UX from `src/` → `out/` (no server runtime in the web image).
-- Run all live API authority in Rust with a **single JSON REST contract** (ADR-169).
+- Run all live API authority in Rust with a **single JSON REST contract** (`api-rust/src/contract.rs`).
 - Chat calls the Sylphx AI Gateway Responses wire with server-side credentials only.
 
 ## Non-Goals

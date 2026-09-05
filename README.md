@@ -30,7 +30,7 @@ Kyle Tse's personal proof surface: a static portfolio with a small Rust live API
 **Must not** set `AI_GATEWAY_BASE_URL` to Platform management (`api.sylphx.com`)
 or `AI_GATEWAY_KEY` to a Platform product secret (`sk_prod_*`), leftover
 internal `ck_*`, or any non-`sk-sx-*` bearer — those are rejected by
-`resolve_ai()` so `GET /chat/ready` stays fail-closed (ADR-169 honesty).
+`resolve_ai()` so `GET /chat/ready` stays fail-closed.
 
 `SYLPHX_URL` is **never** used as a server credential. Without a valid gateway
 credential the API fails closed (`503 chat is warming up`). UI probes
