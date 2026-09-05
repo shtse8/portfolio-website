@@ -21,7 +21,7 @@ import SectionHeader from "./ui/SectionHeader";
 /**
  * StoryArc — eras of proof (story + companies integrated).
  * One object model: Era → Role → proof points → outlinks.
- * Does not read the dual PROJECTS inventory; achievements come from roles.
+ * Achievements come from roles, not a second project catalog.
  */
 
 interface EraChapter {
@@ -375,7 +375,7 @@ function CompanyDetailModal({
 }) {
   const titleId = useId();
   const roles = getRolesByOrganization(org.id);
-  // Proof points from roles only — no dual PROJECTS inventory.
+  // Proof points from roles only.
   const related = roles
     .flatMap((r) => [
       ...(r.keyAchievements ?? []),

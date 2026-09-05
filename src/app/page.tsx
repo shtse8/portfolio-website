@@ -19,12 +19,6 @@ const sectionFallback = (
 const WorkGraph = dynamic(() => import("@/components/WorkGraph"), {
   loading: () => sectionFallback,
 });
-const FeaturedProducts = dynamic(
-  () => import("@/components/FeaturedProducts"),
-  {
-    loading: () => sectionFallback,
-  },
-);
 const StoryArc = dynamic(() => import("@/components/StoryArc"), {
   loading: () => sectionFallback,
 });
@@ -102,10 +96,6 @@ export default function Home({ initialSection }: HomeProps) {
 
       <Section id="work">
         <WorkGraph />
-      </Section>
-
-      <Section id="archive" className="bg-surface-sunken/20">
-        <FeaturedProducts />
       </Section>
 
       <Section id="contact" className="bg-surface-sunken/30">
