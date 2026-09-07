@@ -6,7 +6,6 @@ Kyle Tse's personal proof surface: a static portfolio with a small Rust live API
 - Preview: none — no product-owned current preview URL is declared. `https://portfolio-website-phi-six-53.vercel.app` is a leftover Vercel host, not production.
 - Vision: [docs/vision.md](docs/vision.md)
 - Capabilities: [docs/capabilities.md](docs/capabilities.md)
-- Decisions: [docs/adr/](docs/adr/)
 
 ## Stack
 
