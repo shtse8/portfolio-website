@@ -1,5 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { checks } from "./apps-product-probe";
+
 const saved = globalThis.fetch;
 afterEach(() => {
   globalThis.fetch = saved;
@@ -34,6 +35,31 @@ test("live public stats accepted; stale and fabricated empty data rejected", asy
   ]) {
     respond({ ...valid, ...patch });
     await expect(checks["WEB-PUBLIC-STATS"](input)).rejects.toThrow();
+  }
+});
+test("live activity is accepted without the optional stale marker; stale serving is rejected", async () => {
+  const valid = {
+    freshness: "live",
+    projectionRevision: "github-public-only/v1",
+    updatedAt: now(),
+    commitsToday: 3,
+    commitsWeek: 9,
+    commitsMonth: 40,
+    reposActiveToday: 2,
+  };
+  respond(valid);
+  await checks["WEB-PUBLIC-ACTIVITY"](input);
+  respond({ ...valid, stale: false });
+  await checks["WEB-PUBLIC-ACTIVITY"](input);
+  for (const patch of [
+    { stale: true },
+    { freshness: "stale" },
+    { projectionRevision: "github-public-only/v0" },
+    { updatedAt: "2020-01-01T00:00:00Z" },
+    { commitsToday: -1 },
+  ]) {
+    respond({ ...valid, ...patch });
+    await expect(checks["WEB-PUBLIC-ACTIVITY"](input)).rejects.toThrow();
   }
 });
 test("download alias requires actual conserving series", async () => {

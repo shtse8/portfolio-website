@@ -2,10 +2,11 @@ import { afterEach, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import {
   canonical,
-  readContext,
   fresh,
+  readContext,
   runProbe,
 } from "./lib/product-probe-protocol";
+
 const ids = ["one"];
 const context = () => ({
   organizationId: "org",

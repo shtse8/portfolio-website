@@ -1,9 +1,10 @@
 import {
-  runProbe,
+  fresh,
   getJson,
   requireValue,
-  fresh,
+  runProbe,
 } from "./lib/product-probe-protocol";
+
 const count = (v: unknown) => Number.isSafeInteger(v) && Number(v) >= 0;
 export const checks = {
   "WEB-PUBLIC-STATS": async ({ origin }: any) => {
@@ -42,9 +43,11 @@ export const checks = {
   "WEB-PUBLIC-ACTIVITY": async ({ origin }: any) => {
     const d = await getJson(origin, "/activity");
     fresh(d.updatedAt);
+    // api-rust/src/contract.rs: `stale` is the optional failure marker —
+    // omitted on live serving, `true` only when a stale snapshot is served.
     requireValue(
       d.freshness === "live" &&
-        d.stale === false &&
+        d.stale !== true &&
         d.projectionRevision === "github-public-only/v1" &&
         ["commitsToday", "commitsWeek", "reposActiveToday"].every((k) =>
           count(d[k]),

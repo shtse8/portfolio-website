@@ -6,7 +6,7 @@ Apps builds an immutable runner from this source with `Dockerfile.product-probe`
 
 - `WEB-PUBLIC-STATS`: live, non-stale public-only stats, valid counts and real repository data with timestamp within one hour.
 - `WEB-PUBLIC-PROJECTS`: nonempty real repository identities/URLs and fresh projection timestamp.
-- `WEB-PUBLIC-ACTIVITY`: non-stale live public-only activity revision, valid counts and fresh timestamp.
+- `WEB-PUBLIC-ACTIVITY`: non-stale live public-only activity revision, valid counts and fresh timestamp. `stale` is the API's optional failure marker (absent on live serving, `true` on stale serving), so only `stale: true` is rejected.
 - `WEB-PUBLIC-CLAIMS`: public claim-pack schema, promise and explicitly public repository activity definition.
 - `WEB-PUBLIC-DOWNLOADS`: flagship alias resolves to scoped package with nonempty real daily series and positive total equal to the series sum; fresh projection timestamp.
 
