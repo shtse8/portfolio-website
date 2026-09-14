@@ -30,10 +30,10 @@ use uuid::Uuid;
 const MAX_TURNS: usize = 14;
 const CHAT_TIMEOUT: Duration = Duration::from_secs(60);
 const MAX_STEPS: usize = 3;
-/// Default product for public portfolio chat. Prefer `sylphx/auto` (capacity
-/// cascade works with tenant data-plane keys); `sylphx/lumen` requires
-/// first-party capacity pins that are not always present on the public edge.
-const AI_MODEL: &str = "sylphx/auto";
+/// Default product for public portfolio chat: a concrete Models catalog SKU.
+/// The door retired the `sylphx/auto` router and the `lumen`/`executor`
+/// aliases (`model_not_available`), so an alias can no longer serve.
+const AI_MODEL: &str = "openai/gpt-5.6-luna";
 const DEFAULT_SYLPHX_AI_URL: &str = "https://api.models.sylphx.ai";
 
 #[derive(Debug, Clone)]
