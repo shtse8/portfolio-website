@@ -4,7 +4,7 @@
 //! `text-start|text-delta|text-end|tool-input-start|tool-input-available|
 //! tool-output-available|error` + `[DONE]`.
 //!
-//! Gateway contract (ADR-169): `SYLPHX_AI_URL` (default `https://api.sylphx.ai`,
+//! Gateway contract (ADR-169): `SYLPHX_AI_URL` (default `https://api.models.sylphx.ai`,
 //! normalized to `/v1`) + `SYLPHX_AI_API_KEY` bearer → `POST /v1/responses`
 //! (OpenAI Responses API, SSE). Public `/v1/chat/completions` is retired
 //! (2026-08-09); `SYLPHX_URL` is the platform *public browser* connection URL
@@ -30,11 +30,11 @@ use uuid::Uuid;
 const MAX_TURNS: usize = 14;
 const CHAT_TIMEOUT: Duration = Duration::from_secs(60);
 const MAX_STEPS: usize = 3;
-/// Default product for public portfolio chat. Prefer `sylphx/auto` (capacity
-/// cascade works with tenant data-plane keys); `sylphx/lumen` requires
-/// first-party capacity pins that are not always present on the public edge.
-const AI_MODEL: &str = "sylphx/auto";
-const DEFAULT_SYLPHX_AI_URL: &str = "https://api.sylphx.ai";
+/// Default product for public portfolio chat: a concrete Models catalog SKU.
+/// The door retired the `sylphx/auto` router and the `lumen`/`executor`
+/// aliases (`model_not_available`), so an alias can no longer serve.
+const AI_MODEL: &str = "openai/gpt-5.6-luna";
+const DEFAULT_SYLPHX_AI_URL: &str = "https://api.models.sylphx.ai";
 
 #[derive(Debug, Clone)]
 pub struct AiConfig {
@@ -116,7 +116,7 @@ fn first_env(names: &[&str]) -> Option<String> {
 /// Resolve the AI gateway config from server-side env only.
 ///
 /// Candidates (first *valid* wins):
-/// - Base: `AI_GATEWAY_BASE_URL` → `SYLPHX_AI_URL` → default `https://api.sylphx.ai`
+/// - Base: `AI_GATEWAY_BASE_URL` → `SYLPHX_AI_URL` → default `https://api.models.sylphx.ai`
 /// - Key: `AI_GATEWAY_KEY` → `AI_GATEWAY_API_KEY` → `SYLPHX_AI_API_KEY`
 ///
 /// Invalid candidates (Platform hosts / Platform product keys) are skipped,
@@ -894,7 +894,7 @@ mod tests {
 
     #[test]
     fn normalize_v1_url_rules() {
-        assert_eq!(normalize_v1_url(None), "https://api.sylphx.ai/v1");
+        assert_eq!(normalize_v1_url(None), "https://api.models.sylphx.ai/v1");
         assert_eq!(
             normalize_v1_url(Some("https://gateway.example")),
             "https://gateway.example/v1"
@@ -913,7 +913,7 @@ mod tests {
     fn forbids_platform_management_hosts() {
         assert!(is_forbidden_gateway_host("api.sylphx.com"));
         assert!(is_forbidden_gateway_host("API.sylphx.com"));
-        assert!(!is_forbidden_gateway_host("api.sylphx.ai"));
+        assert!(!is_forbidden_gateway_host("api.models.sylphx.ai"));
         assert!(!is_forbidden_gateway_host("gateway.sylphx-ai-prod.svc.cluster.local"));
         assert!(!is_forbidden_gateway_host("127.0.0.1"));
     }
