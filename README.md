@@ -22,9 +22,9 @@ Kyle Tse's personal proof surface: a static portfolio with a small Rust live API
 
 | Var | Purpose |
 | --- | --- |
-| `SYLPHX_AI_URL` | Gateway base (default `https://api.sylphx.ai`, normalized to `/v1`) |
+| `SYLPHX_AI_URL` | Gateway base (default `https://api.models.sylphx.ai`, normalized to `/v1`) |
 | `SYLPHX_AI_API_KEY` | Gateway bearer credential (`sk-sx-*` only; dest AI peel) |
-| `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` / `AI_GATEWAY_API_KEY` | Explicit overrides (optional) |
+| `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` / `AI_GATEWAY_API_KEY` | Explicit overrides (optional; the manifest declares `AI_GATEWAY_BASE_URL` = Models door as product-contract config) |
 | `AI_MODEL` | Responses model (default `sylphx/auto`) |
 
 **Must not** set `AI_GATEWAY_BASE_URL` to Platform management (`api.sylphx.com`)

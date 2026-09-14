@@ -10,6 +10,15 @@ strategy = "dockerfile"
 dockerfile = "Dockerfile"
 context = "."
 
+# AI gateway base is public product-contract config, not secret material.
+# Declared as a manifest plain value so the product contract is the live writer
+# for this key (the platform materializes manifest plain values over shadowed
+# secret-store duplicates); the value is the Sylphx AI family Models door
+# (api.models.sylphx.ai). The retired predecessor host api.sylphx.ai must not
+# come back through an ad-hoc secret-store row.
+[env.AI_GATEWAY_BASE_URL]
+value = "https://api.models.sylphx.ai/v1"
+
 # Shared-domain edge routing (platform [[domains]] + service path_prefixes,
 # same model as cubeage-platform): the edge (Envoy HTTPRoute) sends the api
 # service's path prefixes straight to api:3001 and everything else to web.
