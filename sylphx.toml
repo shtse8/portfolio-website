@@ -19,10 +19,11 @@ context = "."
 [env.AI_GATEWAY_BASE_URL]
 value = "https://api.models.sylphx.ai/v1"
 
-# Concrete catalog SKU: the Models door retired the `sylphx/auto` router
-# (`model_not_available`), so the alias cannot serve.
+# Concrete catalog SKU (owner-selected): DeepSeek V4.1 Flash. The Models door
+# retired the `sylphx/auto` router (`model_not_available`), so an alias
+# cannot serve.
 [env.AI_MODEL]
-value = "openai/gpt-5.6-luna"
+value = "deepseek/deepseek-v4.1-flash"
 
 # Shared-domain edge routing (platform [[domains]] + service path_prefixes,
 # same model as cubeage-platform): the edge (Envoy HTTPRoute) sends the api

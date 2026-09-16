@@ -25,7 +25,7 @@ Kyle Tse's personal proof surface: a static portfolio with a small Rust live API
 | `SYLPHX_AI_URL` | Gateway base (default `https://api.models.sylphx.ai`, normalized to `/v1`) |
 | `SYLPHX_AI_API_KEY` | Gateway bearer credential (`sk-sx-*` only; dest AI peel) |
 | `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` / `AI_GATEWAY_API_KEY` | Explicit overrides (optional; the manifest declares `AI_GATEWAY_BASE_URL` = Models door as product-contract config) |
-| `AI_MODEL` | Responses model (default `openai/gpt-5.6-luna`, a concrete Models catalog SKU; the `sylphx/auto` alias is retired) |
+| `AI_MODEL` | Responses model (default `deepseek/deepseek-v4.1-flash`, a concrete Models catalog SKU; the `sylphx/auto` alias is retired) |
 
 **Must not** set `AI_GATEWAY_BASE_URL` to Platform management (`api.sylphx.com`)
 or `AI_GATEWAY_KEY` to a Platform product secret (`sk_prod_*`), leftover
