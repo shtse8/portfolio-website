@@ -29,46 +29,57 @@ export const CAREER_BOARD_STATS: readonly Stat[] = [
 ];
 
 export function heroProofBoard(stats: TermStats | null): HeroProofCell[] {
-  const stars = stats
-    ? compact(stats.githubStars)
-    : HERO_PROOF.githubStars.display;
-  const downloads = stats
-    ? compact(stats.npmDownloads)
-    : HERO_PROOF.npmDownloads.display;
-  const flagStars = stats
-    ? compact(stats.flagshipStars)
-    : HERO_PROOF.flagshipStars.display;
-  const flagDl = stats
-    ? compact(stats.flagshipDownloads)
-    : HERO_PROOF.flagshipDownloads.display;
+  // An `absent` payload carries nulls; fall back to the verified baked snapshot
+  // rather than printing a fabricated 0 for a number nobody measured.
+  const figure = (
+    live: number | null | undefined,
+    baked: string,
+  ): { display: string; numeric?: number } =>
+    typeof live === "number"
+      ? { display: compact(live), numeric: live }
+      : { display: baked };
+
+  const stars = figure(stats?.githubStars, HERO_PROOF.githubStars.display);
+  const downloads = figure(
+    stats?.npmDownloads,
+    HERO_PROOF.npmDownloads.display,
+  );
+  const flagStars = figure(
+    stats?.flagshipStars,
+    HERO_PROOF.flagshipStars.display,
+  );
+  const flagDl = figure(
+    stats?.flagshipDownloads,
+    HERO_PROOF.flagshipDownloads.display,
+  );
 
   return [
     {
       id: HERO_PROOF.githubStars.id,
       label: "GitHub stars",
-      display: stars,
+      display: stars.display,
       suffix: "★",
       kind: "stars",
       hint: "across all repos",
-      numeric: stats?.githubStars,
+      numeric: stars.numeric,
     },
     {
       id: HERO_PROOF.npmDownloads.id,
       label: "npm downloads",
-      display: downloads,
+      display: downloads.display,
       suffix: "/mo",
       kind: "downloads",
       hint: "across packages",
-      numeric: stats?.npmDownloads,
+      numeric: downloads.numeric,
     },
     {
       id: HERO_PROOF.flagshipStars.id,
       label: "pdf-reader-mcp",
-      display: flagStars,
+      display: flagStars.display,
       suffix: "★",
       kind: "flagship",
-      hint: `${flagDl}/mo · the flagship`,
-      numeric: stats?.flagshipStars,
+      hint: `${flagDl.display}/mo · the flagship`,
+      numeric: flagStars.numeric,
       wide: true,
     },
   ];

@@ -52,10 +52,29 @@ export default function LiveTicker() {
           d.freshness ?? (d.stale ? "stale" : undefined);
         const stale =
           !!d.stale || freshness === "stale" || freshness === "not_observed";
+        const today = d.commitsToday ?? d.commits_today;
+        const week = d.commitsWeek ?? d.commits_week;
+        // An `absent` payload has no measurement at all. Rendering it as 0
+        // would fabricate a number nobody measured, so show the honest
+        // unavailable state instead.
+        if (
+          freshness === "absent" ||
+          typeof today !== "number" ||
+          typeof week !== "number"
+        ) {
+          setData(null);
+          setUnavailable(true);
+          return;
+        }
         setData({
-          commitsToday: d.commitsToday ?? d.commits_today ?? 0,
-          commitsWeek: d.commitsWeek ?? d.commits_week ?? 0,
-          commitsMonth: d.commitsMonth ?? d.commits_month,
+          commitsToday: today,
+          commitsWeek: week,
+          commitsMonth:
+            typeof d.commitsMonth === "number"
+              ? d.commitsMonth
+              : typeof d.commits_month === "number"
+                ? d.commits_month
+                : undefined,
           reposActiveToday: d.reposActiveToday ?? d.repos_active_today ?? 0,
           lastPush: d.lastPush ?? d.last_push ?? null,
           source: d.source ?? "bff",

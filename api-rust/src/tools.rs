@@ -39,6 +39,13 @@ const GH_OWNERS: &[GithubOwnerConfig] = &[
     },
 ];
 const UPSTREAM_TIMEOUT: Duration = Duration::from_secs(8);
+/// `/repo` probes every candidate owner concurrently, so this budget bounds the
+/// whole lookup rather than one request. It must stay under the edge timeout
+/// that produced the observed 504s (nginx/Envoy answer a visitor in ~5 s).
+const REPO_PROBE_TIMEOUT: Duration = Duration::from_secs(3);
+/// Owners that host a known repo, tried before the general owner list so a
+/// deep link resolves on the first (concurrent) probe rather than the last.
+const KNOWN_REPO_OWNERS: &[(&str, &str)] = &[("pdf-reader-mcp", "SylphxAI")];
 const REPOS_TTL_MS: u64 = 5 * 60 * 1000;
 /// Owned forks with real portfolio signal (e.g. Google-Photos-Delete-Tool).
 const NOTABLE_FORK_STARS: u64 = 30;
@@ -221,29 +228,123 @@ pub async fn list_projects(limit: usize) -> Vec<RepoSummary> {
     repos
 }
 
-pub async fn get_repo_detail(name_raw: &str) -> Option<RepoSummary> {
-    let raw = name_raw.trim().trim_start_matches(['/', '.']);
-    let raw = raw.rsplit('/').next().unwrap_or(raw);
-    if !raw
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
-        || raw.is_empty()
-        || raw.len() > 100
-    {
-        return None;
+/// Outcome of a single-repo lookup, so callers can tell "no such public
+/// repository" from "the upstream did not answer".
+pub enum RepoLookup {
+    Found(Box<RepoSummary>),
+    NotFound,
+    UpstreamUnavailable(String),
+}
+
+fn valid_repo_segment(raw: &str) -> bool {
+    !raw.is_empty()
+        && raw.len() <= 100
+        && raw
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
+}
+
+fn valid_owner_segment(raw: &str) -> bool {
+    !raw.is_empty()
+        && raw.len() <= 100
+        && raw
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+}
+
+/// Candidate owners for a lookup: an explicit `?owner=` wins (one probe), a
+/// known-repo owner comes next, then the portfolio owners.
+fn candidate_owners(owner: Option<&str>, repo: &str) -> Vec<String> {
+    if let Some(explicit) = owner.map(str::trim).filter(|o| !o.is_empty()) {
+        return if valid_owner_segment(explicit) {
+            vec![explicit.to_string()]
+        } else {
+            Vec::new()
+        };
     }
+    let mut out: Vec<String> = KNOWN_REPO_OWNERS
+        .iter()
+        .filter(|(name, _)| name.eq_ignore_ascii_case(repo))
+        .map(|(_, login)| (*login).to_string())
+        .collect();
     for owner in GH_OWNERS {
-        if let Ok(res) = gh_get(&format!("/repos/{}/{raw}", owner.login)).await {
-            if res.status().is_success() {
-                if let Ok(repo) = res.json::<GhRepo>().await {
-                    if let Some(summary) = to_public_summary(repo) {
-                        return Some(summary);
-                    }
-                }
-            }
+        if !out.iter().any(|o| o.eq_ignore_ascii_case(owner.login)) {
+            out.push(owner.login.to_string());
         }
     }
-    None
+    out
+}
+
+/// Probe one owner for one repository. `Ok(None)` means the upstream answered
+/// and the repo is absent or not provably public; `Err` means it did not answer.
+async fn probe_repo(owner: &str, repo: &str) -> Result<Option<RepoSummary>, String> {
+    let client = Client::builder()
+        .timeout(REPO_PROBE_TIMEOUT)
+        .build()
+        .unwrap_or_else(|_| Client::new());
+    let mut req = client
+        .get(upstream::github_rest_url(&format!("/repos/{owner}/{repo}")))
+        .header("user-agent", "kylet-api-rust");
+    if let Some(token) = gh_token() {
+        req = req.header("authorization", format!("bearer {token}"));
+    }
+    let res = req
+        .send()
+        .await
+        .map_err(|e| format!("github repo transport: {e}"))?;
+    match res.status().as_u16() {
+        200 => {
+            let repo: GhRepo = res
+                .json()
+                .await
+                .map_err(|e| format!("github repo decode: {e}"))?;
+            Ok(to_public_summary(repo))
+        }
+        404 => Ok(None),
+        // 401/403 (credential/visibility proof unavailable) and 5xx/429 are
+        // "the upstream did not answer", not "this repo does not exist".
+        status => Err(format!("github repo {status}")),
+    }
+}
+
+/// Single-repo lookup under the explicit-public publication authority. Owners
+/// are probed concurrently so the visitor-visible answer cannot time out the
+/// way the previous sequential probe did.
+pub async fn get_repo_detail_in(owner: Option<&str>, name_raw: &str) -> RepoLookup {
+    let raw = name_raw.trim().trim_start_matches(['/', '.']);
+    let raw = raw.rsplit('/').next().unwrap_or(raw).to_string();
+    if !valid_repo_segment(&raw) {
+        return RepoLookup::NotFound;
+    }
+    let owners = candidate_owners(owner, &raw);
+    if owners.is_empty() {
+        return RepoLookup::NotFound;
+    }
+    let probes = owners.iter().map(|o| probe_repo(o, &raw));
+    let outcomes = futures::future::join_all(probes).await;
+    let mut answered_absent = false;
+    let mut unavailable = String::new();
+    for outcome in outcomes {
+        match outcome {
+            Ok(Some(summary)) => return RepoLookup::Found(Box::new(summary)),
+            Ok(None) => answered_absent = true,
+            Err(err) => unavailable = err,
+        }
+    }
+    if answered_absent {
+        RepoLookup::NotFound
+    } else if unavailable.is_empty() {
+        RepoLookup::UpstreamUnavailable("no candidate owner".to_string())
+    } else {
+        RepoLookup::UpstreamUnavailable(unavailable)
+    }
+}
+
+pub async fn get_repo_detail(name_raw: &str) -> Option<RepoSummary> {
+    match get_repo_detail_in(None, name_raw).await {
+        RepoLookup::Found(repo) => Some(*repo),
+        RepoLookup::NotFound | RepoLookup::UpstreamUnavailable(_) => None,
+    }
 }
 
 pub async fn recent_activity(limit: usize) -> Vec<RepoSummary> {

@@ -153,7 +153,7 @@ async fn activity_github_failure_serves_last_good_stale_without_fabrication() {
 
 #[tokio::test]
 #[serial]
-async fn activity_unavailable_when_unconfigured_and_no_last_good() {
+async fn activity_absent_not_502_when_unconfigured_and_no_last_good() {
     testing::reset_all();
     unsafe {
         std::env::remove_var("GITHUB_API_BASE");
@@ -170,5 +170,55 @@ async fn activity_unavailable_when_unconfigured_and_no_last_good() {
         )
         .await
         .unwrap();
-    assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
+    // Honest absence, not a gateway error: null counts (never zeros), a
+    // verifiedAt that admits it never observed anything, and the projection
+    // revision attestation kept.
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(v["freshness"], "absent");
+    assert_eq!(v["stale"], true);
+    assert!(v["verifiedAt"].is_null());
+    assert!(v["commitsToday"].is_null());
+    assert!(v["commitsWeek"].is_null());
+    assert!(v["lastPush"].is_null());
+    assert_eq!(v["projectionRevision"], "github-public-only/v1");
+}
+
+#[tokio::test]
+#[serial]
+async fn activity_absent_not_502_when_upstream_fails_and_no_last_good() {
+    let server = MockServer::start().await;
+    testing::reset_all();
+    unsafe {
+        std::env::set_var("GITHUB_API_BASE", server.uri());
+        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
+    }
+
+    Mock::given(method("POST"))
+        .and(path("/graphql"))
+        .respond_with(ResponseTemplate::new(500))
+        .mount(&server)
+        .await;
+
+    let res = router()
+        .oneshot(
+            Request::builder()
+                .uri("/activity")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(v["freshness"], "absent");
+    assert!(v["commitsToday"].is_null());
+    assert!(v["verifiedAt"].is_null());
+    assert_eq!(v["projectionRevision"], "github-public-only/v1");
 }

@@ -26,6 +26,9 @@ struct LimitQuery {
 #[derive(Debug, Deserialize)]
 struct RepoQuery {
     name: Option<String>,
+    /// Optional explicit owner — a deep link may name the owner, which turns
+    /// the lookup into a single probe instead of an owner sweep.
+    owner: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -81,7 +84,7 @@ async fn claim_pack_handler(headers: HeaderMap) -> Response {
     let origin = origin_from_headers(&headers);
     let stats = match stats::get_stats().await {
         Ok(s) => Some(s),
-        Err(_) => stats::cached_snapshot(),
+        Err(_) => stats::last_good_snapshot(),
     };
     let activity = match activity::get_activity().await {
         Ok(a) => Some(a),
@@ -127,14 +130,16 @@ async fn stats_handler(headers: HeaderMap) -> Response {
         Ok(data) => json_value_with_cors(crate::rest_projection::stats_json(&data), origin.as_deref()),
         Err(err) => {
             tracing::error!("stats error: {err}");
-            if let Some(stale) = stats::cached_snapshot() {
-                return json_value_with_cors(crate::rest_projection::stats_json_stale(&stale), origin.as_deref());
+            // Fail soft, never 5xx: serve the last verified snapshot marked
+            // stale, or an explicit `absent` payload. A visitor always gets a
+            // valid JSON answer with a freshness label and verifiedAt.
+            if let Some(stale) = stats::last_good_snapshot() {
+                return json_value_with_cors(
+                    crate::rest_projection::stats_json_stale(&stale),
+                    origin.as_deref(),
+                );
             }
-            error_json(
-                StatusCode::BAD_GATEWAY,
-                "live data is briefly unavailable — try again shortly.",
-                origin.as_deref(),
-            )
+            json_value_with_cors(crate::rest_projection::stats_json_absent(), origin.as_deref())
         }
     }
 }
@@ -152,13 +157,21 @@ async fn projects_handler(headers: HeaderMap, Query(q): Query<LimitQuery>) -> Re
 async fn repo_handler(headers: HeaderMap, Query(q): Query<RepoQuery>) -> Response {
     let origin = origin_from_headers(&headers);
     let name = q.name.unwrap_or_default();
-    let repo = tools::get_repo_detail(&name).await;
-    match repo {
-        Some(repo) => json_value_with_cors(
+    match tools::get_repo_detail_in(q.owner.as_deref(), &name).await {
+        tools::RepoLookup::Found(repo) => json_value_with_cors(
             crate::rest_projection::get_repo_json(&repo, &stats::iso_now()),
             origin.as_deref(),
         ),
-        None => error_json(StatusCode::NOT_FOUND, "repo not found", origin.as_deref()),
+        // The upstream answered and proved no public repository of that name.
+        tools::RepoLookup::NotFound => {
+            error_json(StatusCode::NOT_FOUND, "repo not found", origin.as_deref())
+        }
+        // The upstream did not answer. Never substitute a repo, and never make
+        // the visitor wear an edge 5xx: an explicit null + reason is honest.
+        tools::RepoLookup::UpstreamUnavailable(reason) => {
+            tracing::warn!(reason = %reason, repo = %name, "repo lookup: upstream unavailable");
+            json_value_with_cors(crate::rest_projection::repo_absent_json(), origin.as_deref())
+        }
     }
 }
 
@@ -180,17 +193,15 @@ async fn activity_handler(headers: HeaderMap) -> Response {
         }
         Err(err) => {
             tracing::error!("activity error: {err}");
+            // Fail soft, never 5xx — last verified snapshot as stale, else an
+            // explicit `absent` payload with null (never zero) counts.
             if let Some(stale) = activity::cached_snapshot() {
                 return json_value_with_cors(
                     crate::rest_projection::activity_json_stale(&stale),
                     origin.as_deref(),
                 );
             }
-            error_json(
-                StatusCode::BAD_GATEWAY,
-                "activity data briefly unavailable",
-                origin.as_deref(),
-            )
+            json_value_with_cors(crate::rest_projection::activity_json_absent(), origin.as_deref())
         }
     }
 }
