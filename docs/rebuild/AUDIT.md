@@ -456,7 +456,130 @@ ThemeSwitch.tsx:181); pinch-zoom explicitly allowed (layout.tsx:41-44); 28/28 im
 
 ## 13. Phased Implementation Plan
 
+Sequencing rule: **Phases 1-2 are the only phases that close the destination oracle** (vision.md:40-48);
+Phases 3-5 are quality and coherence; Phase 6 is optional and gated on D-6. Every phase states the
+evidence that closes it — no phase is "done" on a preview URL or a green build (capabilities.md:30).
+PR-sized means one oracle statement per PR, and each PR is independently revertable.
+
+**Phase 0 — Audit & plan (this document).** *Closes when:* this doc carries file:line or live-response
+evidence for every claim, Unknown where Phase 0 did not measure, and is pushed on
+`docs/phase0-rebuild-audit` with a Ready PR. *Not merged.*
+
+**Phase 1 — Restore the live data plane (WEB-STATS).** Entry: D-5 owner identified.
+- 1a Diagnose the GitHub upstream failure (`api-rust/src/upstream.rs`, `github_visibility.rs`): `/stats`
+  and `/activity` 502, `/repo` 404/504, empty `/projects`/`/recent`/`/downloads`.
+- 1b Make failure soft and honest: a 5xx at the edge must become a `stale` snapshot carrying
+  `verifiedAt`, never a Cloudflare 502 page (§5.1).
+- 1c `GET /repo` resolves the flagship explicit-public repo on the customer path.
+- 1d Canary oracle: add the in-repo fixture/test for "redacted protected canary absent + explicit-public
+  control present" (§5.5), or document the external verification path and re-grade.
+- *Closes when:* `GET /stats` returns 200 attesting `repositoryVisibility=public-only/v1` with
+  `freshness=live|stale` + `verifiedAt`; `GET /activity` returns 200 attesting
+  `projectionRevision=github-public-only/v1`; `/repo` returns the flagship; canary+control oracle
+  passes on the same customer path; `scripts/api-smoke.sh` green against `https://kylet.se`.
+
+**Phase 2 — Grounded chat turn (WEB-CHAT).** Entry: Phase 1 landed (hard prerequisite,
+capabilities.md:30).
+- 2a Reconcile the deployment with `sylphx.toml`: live reports host `api.sylphx.ai` / model
+  `sylphx/auto` while the manifest declares `api.models.sylphx.ai` / `deepseek/deepseek-v4.1-flash`
+  (§5.2, §6).
+- 2b Ship the gateway credential (`SYLPHX_AI_URL` + `SYLPHX_AI_API_KEY`, AGENTS.md:4) so
+  `/chat/ready` reports `ready:true` with the manifest's host/model.
+- 2c Prove one grounded `POST /chat` turn at `https://kylet.se` using the 5 tools, with rate limits
+  (12/3 min, 60/day, global 500/day) intact and no gateway 401.
+- *Closes when:* the live `POST /chat` turn returns a grounded answer and deep-links; `/chat/ready`
+  matches the manifest; fail-closed behaviour remains for genuine gateway failure (never a false-ready
+  button, FloatingAgent.tsx:265).
+
+**Phase 3 — IA, naming and indexability (D-1, D-2).**
+- 3a Fourth-surface naming: ship `/act` (or alias + canonical) and align nav labels with
+  vision.md:15-18.
+- 3b Implement the indexability decision: if surfaces become indexable, add `src/app/sitemap.ts` and
+  per-surface titles/canonicals and drop the `noindex` from [...section]/page.tsx:37-42; if not,
+  document why in `docs/vision.md` so the next audit does not re-open it.
+- 3c Give 404 its own metadata (S-2) and one consistent not-found behaviour (S-5).
+- *Closes when:* every surface named in vision.md:15-18 resolves at `https://kylet.se`; `/sitemap.xml`
+  matches the decision; an unknown path returns one predictable response with its own title.
+
+**Phase 4 — Visual and UX upgrade (D-4).**
+- 4a Revise the doctrine in writing (type scale, surface/graphic treatment, imagery policy) — the
+  current "no gimmicks / no art" rules are what produce the complaint (§7.1).
+- 4b Hero presence + CTA hierarchy: four peer buttons → one primary path plus a secondary
+  (§7.3, Hero.tsx:121-151).
+- 4c Ship chrome in the static document: render header/nav without the `mounted` gate (§7.2).
+- 4d Interaction parity: touch reveal for the proof board, and no hover-only instruction (§7.3).
+- 4e Copy-honesty pass: the hero "live GitHub activity" sentence, the Contact agent promise, and the
+  Work heading "open a product" (§7.3, §7.5).
+- *Closes when:* `<header>` and the primary nav exist in the exported static HTML; no user-visible
+  instruction names an interaction the device cannot perform; every live claim is gated by
+  `proof-board` freshness; the work-graph heading matches its authority.
+
+**Phase 5 — SEO, a11y, performance hardening.**
+- 5a Run axe + Lighthouse and close A-1..A-5, measuring the A-5 contrast estimate with a real tool.
+- 5b Structured data for the work graph (S-3).
+- 5c Bundle and font reduction (19 chunks / ~330 KB JS / 3 fonts for a one-page site, §9).
+- 5d Edge/404 consistency and confirmed HTML compression on every route.
+- *Closes when:* all body text measures ≥ 4.5:1; axe reports no critical/serious findings; Lighthouse
+  mobile performance/accessibility/SEO ≥ 95 with the numbers recorded in the PR; unknown paths behave
+  identically.
+
+**Phase 6 — Instrumentation (D-6, optional).** Cookieless, CSP-compatible events for mailto clicks,
+work-graph opens and chat turns, plus `/privacy`. *Closes when:* an event fires for each of those
+three actions from the live site, and the CSP change is deliberate and documented.
+
 ## 14. Blockers & Owning Authority
+
+| ID | Blocker | Owner / route to unblock |
+| --- | --- | --- |
+| **B-1** | **Live data plane is down or empty.** `/stats` 502, `/activity` 502, `/repo` 404/504, empty `/projects`/`/recent`/`/downloads`, `null` `/claims` metrics. Root cause Unknown (no api log access from this session). | Repo owner + Sylphx Platform (GitHub upstream credential/visibility; api deployment + logs). Blocks Phases 1-2 → blocks the destination oracle. |
+| **B-2** | **Gateway credential missing/invalid at live**, and the live api reports host `api.sylphx.ai` / model `sylphx/auto` against a manifest declaring `api.models.sylphx.ai` / `deepseek/deepseek-v4.1-flash` — unshipped revision or shadowing secret. | Repo owner + platform secret store. |
+| **B-3** | **Six owner decisions** (D-1..D-7 in §12) freeze IA, naming, design doctrine, instrumentation and language scope. | Product owner. |
+| **B-4** | **No build/test evidence in Phase 0** (`bun run check`, `cargo test --locked`, `bun run build` not run here). | Phase 1 must run them (AGENTS.md:5) before behaviour changes. |
+| **B-5** | **Canary oracle has no in-repo implementation** (§5.5) — recorded Unknown, not False. | Repo owner / canary fixture owner. |
+| **B-6** | **No live observability** from this session (no api logs, no analytics), so every live finding is point-in-time. | Platform logs + Phase 6. |
 
 ## 15. Appendix — Raw Evidence
 
+Worktree and commit this document was written from:
+```text
+$HOME/workspace/.worktrees/github.com/shtse8/portfolio-website/kylet-se-phase0
+branch docs/phase0-rebuild-audit   (base main @ 5517734)
+git rev-parse HEAD -> see the PR head; every section was committed and pushed as it was written
+```
+
+Page and API probes (2026-09-18, this host):
+```bash
+curl -sS -o /tmp/pb -w '%{http_code} %{size_download} %{time_total}' --max-time 20 https://kylet.se$p
+curl -sS -o /tmp/ab -w '%{http_code} %{size_download} %{time_total}' --max-time 20 https://kylet.se$a
+```
+
+Counts measured on the live `/` document:
+```text
+<h1>: 1        <h2>: 4        <h3>: 23
+<img ...>: 28  without alt: 0
+<script type="application/ld+json">: 2   ('application/ld+json' substring: 4 = 2 real + 2 escaped in the RSC flight payload)
+<script>:: 30  JS chunk requests: 19 (329,727 B compressed)  CSS: 1 (11,817 B)  woff2: 3 (123,472 B)
+hreflang: 0    <header>: 0     aria-label="Primary": 0
+content-encoding: br (vary: accept-encoding)
+```
+
+Source-negative greps used for §4 and §11:
+```bash
+grep -rn '<form' src                                  # → only FloatingAgent.tsx:439 (the chat input)
+grep -rniE 'gtag|googletagmanager|plausible|umami|posthog|vercel/analytics' src public next.config.ts
+grep -rn 'aria-live' src                              # → no hits (role="status" exists at LiveTicker.tsx:80)
+grep -rni 'canary' --include='*.rs' --include='*.ts' --include='*.tsx' .   # → docs only, no code/test
+grep -rn 'application/ld+json' src                    # → layout.tsx:166, layout.tsx:171
+grep -rn '<form\|<header' src/components/Header.tsx   # → Header.tsx:43 returns null before mount
+```
+
+Live responses quoted in full (§6): `/healthz` → `ok`; `/stats` → `error code: 502`;
+`/activity` → `error code: 502`; `/projects` → `{"projects":[],"updatedAt":"2026-09-18T13:24:46.662410966Z"}`;
+`/recent` → `{"recent":[],"updatedAt":"2026-09-18T13:24:47.444254045Z"}`;
+`/downloads` → `{"pkg":"","series":[],"total":0,"updatedAt":"2026-09-18T13:24:47.602037884Z"}`;
+`/repo?owner=shtse8&name=pdf-reader-mcp` → `404 {"error":"repo not found"}`;
+`/chat/ready` → `{"host":"api.sylphx.ai","model":"sylphx/auto","ready":false,"reason":"missing_or_invalid_gateway_key"}`;
+`/claims` → `{"activity":null, …, "flagship":null, "metrics":null, "schema":"kylet.se/claim-pack/v1", …}`.
+
+Live plan and gap inventory, for cross-reference: `docs/vision.md` (4 surfaces, oracle), `docs/capabilities.md`
+(WEB-STATS/WEB-CHAT/WEB-SITE/WEB-LEGACY), this document §5.
