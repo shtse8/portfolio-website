@@ -241,6 +241,11 @@ pub fn simulate_burst_verdicts(ip: &str, base: u64) -> (Vec<String>, String) {
 pub const ACTIVITY_GITHUB_USER: &str = "shtse8";
 pub const PUBLIC_ACTIVITY_PROJECTION_REVISION: &str = "github-public-only/v1";
 
+/// Stats projection revision. Recorded in every `/stats` response and stamped
+/// into the durable stats snapshot, so a snapshot written under another
+/// revision can never be replayed as an honest answer.
+pub const PUBLIC_STATS_REVISION: &str = "public-only/v1";
+
 /// Lightweight GraphQL: today-contributions by repo (for `repos_active_today`)
 /// + the 10 most recently pushed repos (for `last_push`).
 pub fn github_activity_query(now_iso: &str, today_start: &str) -> String {

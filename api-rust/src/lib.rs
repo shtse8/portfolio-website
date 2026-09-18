@@ -4,6 +4,7 @@
 
 pub mod activity;
 pub mod app;
+pub mod canary;
 pub mod chat;
 pub mod contract;
 pub mod cors;

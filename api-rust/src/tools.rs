@@ -39,6 +39,13 @@ const GH_OWNERS: &[GithubOwnerConfig] = &[
     },
 ];
 const UPSTREAM_TIMEOUT: Duration = Duration::from_secs(8);
+/// `/repo` probes every candidate owner concurrently, so this budget bounds the
+/// whole lookup rather than one request. It must stay under the edge timeout
+/// that produced the observed 504s (nginx/Envoy answer a visitor in ~5 s).
+const REPO_PROBE_TIMEOUT: Duration = Duration::from_secs(3);
+/// Owners that host a known repo, tried before the general owner list so a
+/// deep link resolves on the first (concurrent) probe rather than the last.
+const KNOWN_REPO_OWNERS: &[(&str, &str)] = &[("pdf-reader-mcp", "SylphxAI")];
 const REPOS_TTL_MS: u64 = 5 * 60 * 1000;
 /// Owned forks with real portfolio signal (e.g. Google-Photos-Delete-Tool).
 const NOTABLE_FORK_STARS: u64 = 30;
@@ -109,11 +116,22 @@ fn repos_cache() -> &'static std::sync::Mutex<Option<(u64, Vec<RepoSummary>)>> {
     REPOS_CACHE.get_or_init(|| std::sync::Mutex::new(None))
 }
 
+/// One process-wide HTTP client (N2). `reqwest::Client` is an `Arc` handle
+/// over a connection pool: reusing it is a refcount bump, whereas building a
+/// fresh one per owner re-binds the TLS root store and spends ~0.1 s of the
+/// request budget inside the walk's own deadline. The timeout is unchanged;
+/// only the construction cost moves out of the walk.
+static HTTP_CLIENT: std::sync::OnceLock<Client> = std::sync::OnceLock::new();
+
 fn client() -> Client {
-    Client::builder()
-        .timeout(UPSTREAM_TIMEOUT)
-        .build()
-        .unwrap_or_else(|_| Client::new())
+    HTTP_CLIENT
+        .get_or_init(|| {
+            Client::builder()
+                .timeout(UPSTREAM_TIMEOUT)
+                .build()
+                .unwrap_or_else(|_| Client::new())
+        })
+        .clone()
 }
 
 fn gh_token() -> Option<String> {
@@ -172,33 +190,50 @@ async fn gh_get(path: &str) -> Result<reqwest::Response, reqwest::Error> {
     req.send().await
 }
 
-pub async fn list_all_repos() -> Vec<RepoSummary> {
-    let now = std::time::SystemTime::now()
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
-        .unwrap_or(0);
+        .unwrap_or(0)
+}
+
+/// Portfolio inventory plus the wall-clock time (ms since epoch) at which the
+/// payload was actually observed. A cache hit reports the time of the *fetch*,
+/// not the time of the response — the honest `verifiedAt` source for
+/// `/projects` and `/recent`, mirroring how `/stats` reports the payload's own
+/// `updated_at`.
+pub async fn list_all_repos_with_observed_at() -> (Vec<RepoSummary>, u64) {
+    let now = now_ms();
 
     if let Ok(guard) = repos_cache().lock() {
         if let Some((at, data)) = guard.as_ref() {
             if now.saturating_sub(*at) < REPOS_TTL_MS {
-                return data.clone();
+                return (data.clone(), *at);
             }
         }
     }
 
-    let mut out = Vec::new();
-    for owner in GH_OWNERS {
-        if let Ok(res) = gh_get(&owner_repos_path(*owner)).await {
-            if res.status().is_success() {
-                if let Ok(raw) = res.json::<Vec<GhRepo>>().await {
-                    out.extend(
-                        raw.into_iter()
-                            .filter(keep_live_repo)
-                            .filter_map(to_public_summary),
-                    );
-                }
+    // Probe every owner concurrently. The previous sequential walk spent one
+    // 8 s client timeout per owner (5 x 8 s), so a hanging upstream outlived the
+    // edge timeout five times over; the request budget now bounds the whole walk
+    // to one deadline. `join_all` preserves the owner order, so the assembled
+    // payload is identical to the sequential walk — only the wall time changes.
+    let fetches = GH_OWNERS.iter().map(|owner| {
+        let owner = *owner;
+        async move {
+            match gh_get(&owner_repos_path(owner)).await {
+                Ok(res) if res.status().is_success() => res.json::<Vec<GhRepo>>().await.ok(),
+                _ => None,
             }
         }
+    });
+    let mut out = Vec::new();
+    for raw in futures::future::join_all(fetches).await.into_iter().flatten() {
+        out.extend(
+            raw.into_iter()
+                .filter(keep_live_repo)
+                .filter_map(to_public_summary),
+        );
     }
 
     if !out.is_empty() {
@@ -206,56 +241,169 @@ pub async fn list_all_repos() -> Vec<RepoSummary> {
             *guard = Some((now, out.clone()));
         }
     }
-    out
+    (out, now)
 }
 
-pub async fn list_projects(limit: usize) -> Vec<RepoSummary> {
+pub async fn list_all_repos() -> Vec<RepoSummary> {
+    list_all_repos_with_observed_at().await.0
+}
+
+/// `/projects` plus the observation time of the payload it was derived from.
+pub async fn list_projects_with_observed_at(limit: usize) -> (Vec<RepoSummary>, u64) {
     let lim = limit.clamp(1, 80);
-    let mut repos: Vec<_> = list_all_repos()
-        .await
+    let (all, observed_ms) = list_all_repos_with_observed_at().await;
+    let mut repos: Vec<_> = all
         .into_iter()
         .filter(|r| r.stars > 0 || r.description.as_ref().is_some_and(|d| !d.is_empty()))
         .collect();
     repos.sort_by_key(|b| std::cmp::Reverse(b.stars));
     repos.truncate(lim);
-    repos
+    (repos, observed_ms)
+}
+
+pub async fn list_projects(limit: usize) -> Vec<RepoSummary> {
+    list_projects_with_observed_at(limit).await.0
+}
+
+/// Outcome of a single-repo lookup, so callers can tell "no such public
+/// repository" from "the upstream did not answer".
+pub enum RepoLookup {
+    Found(Box<RepoSummary>),
+    NotFound,
+    UpstreamUnavailable(String),
+}
+
+fn valid_repo_segment(raw: &str) -> bool {
+    !raw.is_empty()
+        && raw.len() <= 100
+        && raw
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
+}
+
+fn valid_owner_segment(raw: &str) -> bool {
+    !raw.is_empty()
+        && raw.len() <= 100
+        && raw
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '_')
+}
+
+/// Candidate owners for a lookup: an explicit `?owner=` wins (one probe), a
+/// known-repo owner comes next, then the portfolio owners.
+fn candidate_owners(owner: Option<&str>, repo: &str) -> Vec<String> {
+    if let Some(explicit) = owner.map(str::trim).filter(|o| !o.is_empty()) {
+        return if valid_owner_segment(explicit) {
+            vec![explicit.to_string()]
+        } else {
+            Vec::new()
+        };
+    }
+    let mut out: Vec<String> = KNOWN_REPO_OWNERS
+        .iter()
+        .filter(|(name, _)| name.eq_ignore_ascii_case(repo))
+        .map(|(_, login)| (*login).to_string())
+        .collect();
+    for owner in GH_OWNERS {
+        if !out.iter().any(|o| o.eq_ignore_ascii_case(owner.login)) {
+            out.push(owner.login.to_string());
+        }
+    }
+    out
+}
+
+/// Probe one owner for one repository. `Ok(None)` means the upstream answered
+/// and the repo is absent or not provably public; `Err` means it did not answer.
+async fn probe_repo(owner: &str, repo: &str) -> Result<Option<RepoSummary>, String> {
+    let client = Client::builder()
+        .timeout(REPO_PROBE_TIMEOUT)
+        .build()
+        .unwrap_or_else(|_| Client::new());
+    let mut req = client
+        .get(upstream::github_rest_url(&format!("/repos/{owner}/{repo}")))
+        .header("user-agent", "kylet-api-rust");
+    if let Some(token) = gh_token() {
+        req = req.header("authorization", format!("bearer {token}"));
+    }
+    let res = req
+        .send()
+        .await
+        .map_err(|e| format!("github repo transport: {e}"))?;
+    match res.status().as_u16() {
+        200 => {
+            let repo: GhRepo = res
+                .json()
+                .await
+                .map_err(|e| format!("github repo decode: {e}"))?;
+            Ok(to_public_summary(repo))
+        }
+        404 => Ok(None),
+        // 401/403 (credential/visibility proof unavailable) and 5xx/429 are
+        // "the upstream did not answer", not "this repo does not exist".
+        status => Err(format!("github repo {status}")),
+    }
+}
+
+/// Single-repo lookup under the explicit-public publication authority. Owners
+/// are probed concurrently so the visitor-visible answer cannot time out the
+/// way the previous sequential probe did.
+pub async fn get_repo_detail_in(owner: Option<&str>, name_raw: &str) -> RepoLookup {
+    let raw = name_raw.trim().trim_start_matches(['/', '.']);
+    let raw = raw.rsplit('/').next().unwrap_or(raw).to_string();
+    if !valid_repo_segment(&raw) {
+        return RepoLookup::NotFound;
+    }
+    let owners = candidate_owners(owner, &raw);
+    if owners.is_empty() {
+        return RepoLookup::NotFound;
+    }
+    let probes = owners.iter().map(|o| probe_repo(o, &raw));
+    let outcomes = futures::future::join_all(probes).await;
+    let mut answered_absent = false;
+    let mut unavailable = String::new();
+    for outcome in outcomes {
+        match outcome {
+            Ok(Some(summary)) => return RepoLookup::Found(Box::new(summary)),
+            Ok(None) => answered_absent = true,
+            Err(err) => unavailable = err,
+        }
+    }
+    // A 404 is authoritative only for the owner that produced it. A probe that
+    // errored (401/403/5xx/429, or a transport failure) leaves an unresolved
+    // candidate owner, so the sweep must not claim "repo not found" while the
+    // owner that actually hosts the repo may simply have refused to answer.
+    // UpstreamUnavailable therefore wins over any answered-absent 404s.
+    if !unavailable.is_empty() {
+        RepoLookup::UpstreamUnavailable(unavailable)
+    } else if answered_absent {
+        RepoLookup::NotFound
+    } else {
+        RepoLookup::UpstreamUnavailable("no candidate owner".to_string())
+    }
 }
 
 pub async fn get_repo_detail(name_raw: &str) -> Option<RepoSummary> {
-    let raw = name_raw.trim().trim_start_matches(['/', '.']);
-    let raw = raw.rsplit('/').next().unwrap_or(raw);
-    if !raw
-        .chars()
-        .all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-' || c == '_')
-        || raw.is_empty()
-        || raw.len() > 100
-    {
-        return None;
+    match get_repo_detail_in(None, name_raw).await {
+        RepoLookup::Found(repo) => Some(*repo),
+        RepoLookup::NotFound | RepoLookup::UpstreamUnavailable(_) => None,
     }
-    for owner in GH_OWNERS {
-        if let Ok(res) = gh_get(&format!("/repos/{}/{raw}", owner.login)).await {
-            if res.status().is_success() {
-                if let Ok(repo) = res.json::<GhRepo>().await {
-                    if let Some(summary) = to_public_summary(repo) {
-                        return Some(summary);
-                    }
-                }
-            }
-        }
-    }
-    None
 }
 
-pub async fn recent_activity(limit: usize) -> Vec<RepoSummary> {
+/// `/recent` plus the observation time of the payload it was derived from.
+pub async fn recent_activity_with_observed_at(limit: usize) -> (Vec<RepoSummary>, u64) {
     let lim = limit.clamp(1, 12);
-    let mut repos: Vec<_> = list_all_repos()
-        .await
+    let (all, observed_ms) = list_all_repos_with_observed_at().await;
+    let mut repos: Vec<_> = all
         .into_iter()
         .filter(|r| !r.pushed_at.is_empty())
         .collect();
     repos.sort_by(|a, b| b.pushed_at.cmp(&a.pushed_at));
     repos.truncate(lim);
-    repos
+    (repos, observed_ms)
+}
+
+pub async fn recent_activity(limit: usize) -> Vec<RepoSummary> {
+    recent_activity_with_observed_at(limit).await.0
 }
 
 pub async fn search_projects(query: &str) -> Vec<RepoSummary> {

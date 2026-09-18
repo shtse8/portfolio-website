@@ -26,7 +26,12 @@ export interface ProofBoardObservation {
   observedAt: string | null;
 }
 
-const NON_LIVE_FRESHNESS = new Set(["stale", "unavailable", "not_observed"]);
+const NON_LIVE_FRESHNESS = new Set([
+  "stale",
+  "unavailable",
+  "not_observed",
+  "absent",
+]);
 
 /** RFC3339 UTC without fractional seconds, or null if unparseable. */
 export function normalizeObservationTime(

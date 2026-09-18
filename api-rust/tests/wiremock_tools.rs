@@ -285,3 +285,108 @@ async fn recent_endpoint_sorts_public_repos_by_push_date() {
     let value: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
     assert_eq!(value["recent"][0]["name"], "new");
 }
+
+/// F2: a 404 is authoritative only for the owner that produced it. When the
+/// known owner (and another candidate) fail with 401/500 while the rest 404, the
+/// sweep must answer 200 "upstream unavailable" - never a false 404.
+#[tokio::test]
+#[serial]
+async fn repo_sweep_prefers_upstream_unavailable_over_cross_owner_404() {
+    let server = MockServer::start().await;
+    set_github_env(&server);
+    testing::reset_all();
+
+    Mock::given(method("GET"))
+        .and(path("/repos/SylphxAI/pdf-reader-mcp"))
+        .respond_with(ResponseTemplate::new(401))
+        .mount(&server)
+        .await;
+    Mock::given(method("GET"))
+        .and(path("/repos/shtse8/pdf-reader-mcp"))
+        .respond_with(ResponseTemplate::new(500))
+        .mount(&server)
+        .await;
+    // Every other candidate owner is unmatched, so wiremock answers 404.
+
+    let res = router()
+        .oneshot(
+            Request::builder()
+                .uri("/repo?owner=SylphxAI&name=pdf-reader-mcp")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(res.status(), StatusCode::OK);
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(v["freshness"], "absent");
+    assert!(v["repo"].is_null());
+
+    let res = router()
+        .oneshot(
+            Request::builder()
+                .uri("/repo?name=pdf-reader-mcp")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(res.status(), StatusCode::OK, "sweep must not emit a false 404");
+    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+        .await
+        .unwrap();
+    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    assert!(v["repo"].is_null());
+    assert_eq!(v["freshness"], "absent");
+}
+
+/// F3: verifiedAt must be the payload's own observation time. Within the repo
+/// TTL the second request is a cache hit, so its verifiedAt must equal the
+/// first's instead of drifting with the response time.
+#[tokio::test]
+#[serial]
+async fn projects_verified_at_is_the_observation_time() {
+    let server = MockServer::start().await;
+    set_github_env(&server);
+    testing::reset_all();
+
+    Mock::given(method("GET"))
+        .and(path_regex(r"/users/shtse8/repos.*"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!([{
+            "full_name": "shtse8/demo-repo", "name": "demo-repo",
+            "owner": {"login": "shtse8"}, "stargazers_count": 12,
+            "forks_count": 1, "description": "demo", "language": "Rust",
+            "topics": [], "html_url": "https://github.com/shtse8/demo-repo",
+            "pushed_at": "2026-07-01T12:00:00Z", "fork": false,
+            "archived": false, "private": false, "visibility": "public"
+        }])))
+        .mount(&server)
+        .await;
+    mount_empty_org_lists(&server).await;
+
+    async fn fetch(uri: &str) -> serde_json::Value {
+        let res = router()
+            .oneshot(Request::builder().uri(uri).body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        serde_json::from_slice(&bytes).unwrap()
+    }
+
+    let first = fetch("/projects").await;
+    assert_eq!(first["freshness"], "live");
+    std::thread::sleep(std::time::Duration::from_millis(30));
+    let second = fetch("/projects").await;
+    assert_eq!(second["freshness"], "live");
+    assert_eq!(first["updatedAt"], first["verifiedAt"]);
+    assert_eq!(
+        first["verifiedAt"], second["verifiedAt"],
+        "a cache hit must keep the payload observation time, not the response time"
+    );
+}
+

@@ -23,7 +23,8 @@ pub fn stats_json(payload: &StatsPayload) -> Value {
         "verifiedAt": payload.updated_at,
         "freshness": "live",
         "stale": false,
-        "repositoryVisibility": "public-only/v1",
+        "source": "github-public",
+        "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
     })
 }
 
@@ -33,8 +34,30 @@ pub fn stats_json_stale(payload: &StatsPayload) -> Value {
         obj.insert("stale".to_string(), Value::Bool(true));
         obj.insert("freshness".to_string(), Value::String("stale".into()));
         obj.insert("verifiedAt".to_string(), json!(payload.updated_at));
+        obj.insert("source".to_string(), Value::String("github-public-stale".into()));
     }
     v
+}
+
+/// No verified measurement exists at all. The honest answer is an explicit
+/// `absent` payload with a null `verifiedAt` — never fabricated zeros, and
+/// never a gateway error shown to a visitor. The visibility attestation stays
+/// because the payload carries no repository fact to fence.
+pub fn stats_json_absent() -> Value {
+    json!({
+        "githubStars": Value::Null,
+        "npmDownloads": Value::Null,
+        "flagshipStars": Value::Null,
+        "flagshipDownloads": Value::Null,
+        "byOwner": {},
+        "repos": Value::Null,
+        "updatedAt": crate::stats::iso_now(),
+        "verifiedAt": Value::Null,
+        "freshness": "absent",
+        "stale": true,
+        "source": "github-public-absent",
+        "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
+    })
 }
 
 pub fn activity_json(payload: &ActivityPayload) -> Value {
@@ -62,6 +85,25 @@ pub fn activity_json(payload: &ActivityPayload) -> Value {
         obj.insert("projectionRevision".into(), Value::String(rev.clone()));
     }
     Value::Object(obj)
+}
+
+/// No verified activity measurement exists. Counts are null (not zero) and the
+/// projection revision attestation stays, because nothing repository-derived
+/// is present to fence.
+pub fn activity_json_absent() -> Value {
+    json!({
+        "commitsToday": Value::Null,
+        "commitsWeek": Value::Null,
+        "commitsMonth": Value::Null,
+        "reposActiveToday": Value::Null,
+        "lastPush": Value::Null,
+        "updatedAt": crate::stats::iso_now(),
+        "verifiedAt": Value::Null,
+        "freshness": "absent",
+        "stale": true,
+        "source": "github-public-absent",
+        "projectionRevision": crate::contract::PUBLIC_ACTIVITY_PROJECTION_REVISION,
+    })
 }
 
 pub fn activity_json_stale(payload: &ActivityPayload) -> Value {
@@ -93,24 +135,73 @@ fn repo_json(repo: &RepoSummary) -> Value {
     })
 }
 
-pub fn list_projects_json(projects: &[RepoSummary], updated_at: &str) -> Value {
+/// List projections carry the same honesty ladder as `/stats`: an empty list is
+/// `absent` (nothing verifiably public was measured), a non-empty list is
+/// `live`, and the visibility attestation always travels with it.
+///
+/// `observed_at` must be the payload's own observation time, not the response
+/// time: `verifiedAt` claims when the data was actually measured, so a cached
+/// list served after the upstream died must keep its original timestamp.
+pub fn list_projects_json(projects: &[RepoSummary], observed_at: &str) -> Value {
+    let freshness = if projects.is_empty() { "absent" } else { "live" };
     json!({
         "projects": projects.iter().map(repo_json).collect::<Vec<_>>(),
-        "updatedAt": updated_at,
+        "updatedAt": observed_at,
+        "verifiedAt": if projects.is_empty() { Value::Null } else { json!(observed_at) },
+        "freshness": freshness,
+        "stale": projects.is_empty(),
+        "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
     })
 }
 
-pub fn list_recent_json(recent: &[RepoSummary], updated_at: &str) -> Value {
+pub fn list_recent_json(recent: &[RepoSummary], observed_at: &str) -> Value {
+    let freshness = if recent.is_empty() { "absent" } else { "live" };
     json!({
         "recent": recent.iter().map(repo_json).collect::<Vec<_>>(),
-        "updatedAt": updated_at,
+        "updatedAt": observed_at,
+        "verifiedAt": if recent.is_empty() { Value::Null } else { json!(observed_at) },
+        "freshness": freshness,
+        "stale": recent.is_empty(),
+        "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
     })
+}
+
+/// The request budget elapsed before the owner walk produced a verified list.
+/// Same honesty ladder as `stats_json_absent`: an explicit `absent` payload
+/// with a null `verifiedAt` and an empty list — never a fabricated row, and
+/// never a gateway error shown to a visitor.
+pub fn list_projects_absent_json() -> Value {
+    list_projects_json(&[], &crate::stats::iso_now())
+}
+
+pub fn list_recent_absent_json() -> Value {
+    list_recent_json(&[], &crate::stats::iso_now())
 }
 
 pub fn get_repo_json(repo: &RepoSummary, updated_at: &str) -> Value {
     json!({
         "repo": repo_json(repo),
         "updatedAt": updated_at,
+        "verifiedAt": updated_at,
+        "freshness": "live",
+        "stale": false,
+        "source": "github-public",
+        "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
+    })
+}
+
+/// `/repo` could not reach the upstream. The repo is explicitly `null` — never a
+/// substituted or guessed repository — and the answer is still a valid 200.
+pub fn repo_absent_json() -> Value {
+    json!({
+        "repo": Value::Null,
+        "updatedAt": crate::stats::iso_now(),
+        "verifiedAt": Value::Null,
+        "freshness": "absent",
+        "stale": true,
+        "source": "github-public-absent",
+        "reason": "github upstream unavailable",
+        "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
     })
 }
 
