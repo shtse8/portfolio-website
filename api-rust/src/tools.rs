@@ -179,16 +179,25 @@ async fn gh_get(path: &str) -> Result<reqwest::Response, reqwest::Error> {
     req.send().await
 }
 
-pub async fn list_all_repos() -> Vec<RepoSummary> {
-    let now = std::time::SystemTime::now()
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
-        .unwrap_or(0);
+        .unwrap_or(0)
+}
+
+/// Portfolio inventory plus the wall-clock time (ms since epoch) at which the
+/// payload was actually observed. A cache hit reports the time of the *fetch*,
+/// not the time of the response — the honest `verifiedAt` source for
+/// `/projects` and `/recent`, mirroring how `/stats` reports the payload's own
+/// `updated_at`.
+pub async fn list_all_repos_with_observed_at() -> (Vec<RepoSummary>, u64) {
+    let now = now_ms();
 
     if let Ok(guard) = repos_cache().lock() {
         if let Some((at, data)) = guard.as_ref() {
             if now.saturating_sub(*at) < REPOS_TTL_MS {
-                return data.clone();
+                return (data.clone(), *at);
             }
         }
     }
@@ -213,19 +222,28 @@ pub async fn list_all_repos() -> Vec<RepoSummary> {
             *guard = Some((now, out.clone()));
         }
     }
-    out
+    (out, now)
 }
 
-pub async fn list_projects(limit: usize) -> Vec<RepoSummary> {
+pub async fn list_all_repos() -> Vec<RepoSummary> {
+    list_all_repos_with_observed_at().await.0
+}
+
+/// `/projects` plus the observation time of the payload it was derived from.
+pub async fn list_projects_with_observed_at(limit: usize) -> (Vec<RepoSummary>, u64) {
     let lim = limit.clamp(1, 80);
-    let mut repos: Vec<_> = list_all_repos()
-        .await
+    let (all, observed_ms) = list_all_repos_with_observed_at().await;
+    let mut repos: Vec<_> = all
         .into_iter()
         .filter(|r| r.stars > 0 || r.description.as_ref().is_some_and(|d| !d.is_empty()))
         .collect();
     repos.sort_by_key(|b| std::cmp::Reverse(b.stars));
     repos.truncate(lim);
-    repos
+    (repos, observed_ms)
+}
+
+pub async fn list_projects(limit: usize) -> Vec<RepoSummary> {
+    list_projects_with_observed_at(limit).await.0
 }
 
 /// Outcome of a single-repo lookup, so callers can tell "no such public
@@ -331,12 +349,17 @@ pub async fn get_repo_detail_in(owner: Option<&str>, name_raw: &str) -> RepoLook
             Err(err) => unavailable = err,
         }
     }
-    if answered_absent {
-        RepoLookup::NotFound
-    } else if unavailable.is_empty() {
-        RepoLookup::UpstreamUnavailable("no candidate owner".to_string())
-    } else {
+    // A 404 is authoritative only for the owner that produced it. A probe that
+    // errored (401/403/5xx/429, or a transport failure) leaves an unresolved
+    // candidate owner, so the sweep must not claim "repo not found" while the
+    // owner that actually hosts the repo may simply have refused to answer.
+    // UpstreamUnavailable therefore wins over any answered-absent 404s.
+    if !unavailable.is_empty() {
         RepoLookup::UpstreamUnavailable(unavailable)
+    } else if answered_absent {
+        RepoLookup::NotFound
+    } else {
+        RepoLookup::UpstreamUnavailable("no candidate owner".to_string())
     }
 }
 
@@ -347,16 +370,21 @@ pub async fn get_repo_detail(name_raw: &str) -> Option<RepoSummary> {
     }
 }
 
-pub async fn recent_activity(limit: usize) -> Vec<RepoSummary> {
+/// `/recent` plus the observation time of the payload it was derived from.
+pub async fn recent_activity_with_observed_at(limit: usize) -> (Vec<RepoSummary>, u64) {
     let lim = limit.clamp(1, 12);
-    let mut repos: Vec<_> = list_all_repos()
-        .await
+    let (all, observed_ms) = list_all_repos_with_observed_at().await;
+    let mut repos: Vec<_> = all
         .into_iter()
         .filter(|r| !r.pushed_at.is_empty())
         .collect();
     repos.sort_by(|a, b| b.pushed_at.cmp(&a.pushed_at));
     repos.truncate(lim);
-    repos
+    (repos, observed_ms)
+}
+
+pub async fn recent_activity(limit: usize) -> Vec<RepoSummary> {
+    recent_activity_with_observed_at(limit).await.0
 }
 
 pub async fn search_projects(query: &str) -> Vec<RepoSummary> {

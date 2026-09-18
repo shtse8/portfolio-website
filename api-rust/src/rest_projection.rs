@@ -138,24 +138,28 @@ fn repo_json(repo: &RepoSummary) -> Value {
 /// List projections carry the same honesty ladder as `/stats`: an empty list is
 /// `absent` (nothing verifiably public was measured), a non-empty list is
 /// `live`, and the visibility attestation always travels with it.
-pub fn list_projects_json(projects: &[RepoSummary], updated_at: &str) -> Value {
+///
+/// `observed_at` must be the payload's own observation time, not the response
+/// time: `verifiedAt` claims when the data was actually measured, so a cached
+/// list served after the upstream died must keep its original timestamp.
+pub fn list_projects_json(projects: &[RepoSummary], observed_at: &str) -> Value {
     let freshness = if projects.is_empty() { "absent" } else { "live" };
     json!({
         "projects": projects.iter().map(repo_json).collect::<Vec<_>>(),
-        "updatedAt": updated_at,
-        "verifiedAt": if projects.is_empty() { Value::Null } else { json!(updated_at) },
+        "updatedAt": observed_at,
+        "verifiedAt": if projects.is_empty() { Value::Null } else { json!(observed_at) },
         "freshness": freshness,
         "stale": projects.is_empty(),
         "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
     })
 }
 
-pub fn list_recent_json(recent: &[RepoSummary], updated_at: &str) -> Value {
+pub fn list_recent_json(recent: &[RepoSummary], observed_at: &str) -> Value {
     let freshness = if recent.is_empty() { "absent" } else { "live" };
     json!({
         "recent": recent.iter().map(repo_json).collect::<Vec<_>>(),
-        "updatedAt": updated_at,
-        "verifiedAt": if recent.is_empty() { Value::Null } else { json!(updated_at) },
+        "updatedAt": observed_at,
+        "verifiedAt": if recent.is_empty() { Value::Null } else { json!(observed_at) },
         "freshness": freshness,
         "stale": recent.is_empty(),
         "repositoryVisibility": crate::contract::PUBLIC_STATS_REVISION,
