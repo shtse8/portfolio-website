@@ -40,14 +40,29 @@ function read(rel) {
 console.log(`static-shell check · root=${root}`);
 
 // 1. Source regression guard: the header must not re-acquire a
-//    "render nothing until mounted" gate.
+//    "render nothing until mounted" gate. Match the intent, not one exact
+//    spelling: an early `return null` behind any negated flag (braced or not,
+//    across a line break) and a ternary whose alternate is `null`. The export
+//    check below is the load-bearing guard; this names the regression where it
+//    is introduced.
 {
   const header = read("src/components/Header.tsx");
   if (header) {
-    if (/if\s*\(\s*!mounted\s*\)\s*return\s+null/.test(header)) {
-      fail(
-        "Header.tsx gates its markup behind mount again (return null until mounted)",
-      );
+    const MOUNT_GATE_PATTERNS = [
+      {
+        // `if (!mounted) return null;` · `if (!hydrated) { return null; }`
+        re: /if\s*\(\s*!\s*[A-Za-z_$][\w$]*\s*\)\s*\{?\s*return\s+null\b/,
+        label: "an early `return null` behind a negated mount flag",
+      },
+      {
+        // `mounted ? <nav>…</nav> : null` · `{ready ? (<header/>) : null}`
+        re: /[A-Za-z_$][\w$.]*\s*\?\s*[^;?]*?\s*:\s*null\b/,
+        label: "a ternary that renders `null` before mount",
+      },
+    ];
+    const gate = MOUNT_GATE_PATTERNS.find((pattern) => pattern.re.test(header));
+    if (gate) {
+      fail(`Header.tsx gates its markup behind mount again (${gate.label})`);
     } else {
       ok("header-source-renders-without-mount");
     }
