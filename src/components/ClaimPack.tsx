@@ -6,7 +6,9 @@ import { API_BASE, HAS_API } from "@/lib/api";
 
 /**
  * Claim Pack — one structured, copyable identity snapshot for recruiters
- * and external agents. Live numbers when `/claims` is available.
+ * and external agents. Numbers are live when they were measured in time; a
+ * last-good snapshot served after an upstream stall is labelled stale rather
+ * than advertised as live (mirrors `/claims` → `metrics.freshness`).
  */
 
 type ClaimPackPayload = {
@@ -19,6 +21,9 @@ type ClaimPackPayload = {
     flagshipStars?: number;
     flagshipDownloads?: number;
     updatedAt?: string;
+    verifiedAt?: string | null;
+    freshness?: string;
+    stale?: boolean;
   };
   activityDefinition?: { unit?: string; includes?: string };
   updatedAt?: string;
@@ -55,7 +60,7 @@ export default function ClaimPack() {
       ? `Flagship: ${pack.flagship.repo} · ${pack.flagship.stars ?? "—"}★ · npm ${pack.flagship.npm ?? ""}`
       : null,
     pack.metrics
-      ? `Live: ${pack.metrics.githubStars ?? "—"} GitHub stars · ${pack.metrics.npmDownloads ?? "—"} npm downloads/mo (as of ${pack.metrics.updatedAt ?? pack.updatedAt ?? "live"})`
+      ? `${pack.metrics.stale === true || pack.metrics.freshness === "stale" ? "Snapshot (stale)" : "Live"}: ${pack.metrics.githubStars ?? "—"} GitHub stars · ${pack.metrics.npmDownloads ?? "—"} npm downloads/mo (as of ${pack.metrics.verifiedAt ?? pack.metrics.updatedAt ?? pack.updatedAt ?? "live"})`
       : null,
     pack.activityDefinition?.unit
       ? `Activity unit: ${pack.activityDefinition.unit} — ${pack.activityDefinition.includes ?? ""}`
