@@ -11,13 +11,23 @@ import { cn } from "@/lib/utils";
 import DeepLink from "./DeepLink";
 import ThemeSwitch from "./ThemeSwitch";
 
+/**
+ * Header — primary navigation.
+ *
+ * Navigation is the site's wayfinding proof, so it must exist in the static
+ * export: this component renders its markup on the server and hydrates in
+ * place. Every value it renders is deterministic before hydration
+ * (`isScrolled` false, `menuOpen` false, store `activeSection` "hero"), so
+ * there is no hydration mismatch to gate away.
+ *
+ * Do not reintroduce a "return null until mounted" guard — it removed the
+ * entire header from `out/*.html` and left no-JS / slow-hydration visitors
+ * with no navigation at all.
+ */
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const activeSection = useNavigationStore((s) => s.activeSection);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 24);
@@ -39,8 +49,6 @@ export default function Header() {
     (id: string) => activeSection === id,
     [activeSection],
   );
-
-  if (!mounted) return null;
 
   return (
     <>
