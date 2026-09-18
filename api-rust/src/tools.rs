@@ -116,11 +116,22 @@ fn repos_cache() -> &'static std::sync::Mutex<Option<(u64, Vec<RepoSummary>)>> {
     REPOS_CACHE.get_or_init(|| std::sync::Mutex::new(None))
 }
 
+/// One process-wide HTTP client (N2). `reqwest::Client` is an `Arc` handle
+/// over a connection pool: reusing it is a refcount bump, whereas building a
+/// fresh one per owner re-binds the TLS root store and spends ~0.1 s of the
+/// request budget inside the walk's own deadline. The timeout is unchanged;
+/// only the construction cost moves out of the walk.
+static HTTP_CLIENT: std::sync::OnceLock<Client> = std::sync::OnceLock::new();
+
 fn client() -> Client {
-    Client::builder()
-        .timeout(UPSTREAM_TIMEOUT)
-        .build()
-        .unwrap_or_else(|_| Client::new())
+    HTTP_CLIENT
+        .get_or_init(|| {
+            Client::builder()
+                .timeout(UPSTREAM_TIMEOUT)
+                .build()
+                .unwrap_or_else(|_| Client::new())
+        })
+        .clone()
 }
 
 fn gh_token() -> Option<String> {
