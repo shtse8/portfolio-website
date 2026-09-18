@@ -390,6 +390,18 @@ pub fn iso_now() -> String {
         .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
 }
 
+/// RFC3339 rendering of a millisecond Unix observation time. Projections that
+/// serve a possibly-cached payload must report the payload's own observation
+/// time as `verifiedAt` — never the time the response happened to be built.
+pub fn iso_from_millis(ms: u64) -> String {
+    time::OffsetDateTime::from_unix_timestamp_nanos(i128::from(ms) * 1_000_000)
+        .map(|dt| {
+            dt.format(&time::format_description::well_known::Rfc3339)
+                .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
+        })
+        .unwrap_or_else(|_| "1970-01-01T00:00:00Z".to_string())
+}
+
 pub fn cached_snapshot() -> Option<StatsPayload> {
     let now = now_ms();
     if let Ok(guard) = cache().lock() {
