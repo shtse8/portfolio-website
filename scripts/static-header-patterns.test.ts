@@ -9,7 +9,8 @@ const root = join(import.meta.dir, "..");
  * Mutation-style self-check for the source half of the static-shell gate.
  *
  * N3 widened `MOUNT_GATE_PATTERNS` to cover gates that return an empty fragment
- * (`return <></>;`) or nothing at all (`return;`) — previously only a literal
+ * (`return <></>;` / `return (<></>);`) or nothing at all (`return;`) — previously
+ * only a literal
  * `return null` was caught. Reverting that widening leaves `findMountGate`
  * undefined for those cases and fails this test.
  */
@@ -23,6 +24,10 @@ describe("static-header source gate", () => {
     // N3: the widened forms — an empty fragment or a bare return.
     "if (!mounted) { return <></>; }",
     'if (typeof window === "undefined") { return <></>; }',
+    // Wrapped forms: the empty value inside parentheses.
+    "if (!mounted) return (<></>);",
+    'if (typeof window === "undefined") { return (<></>); }',
+    "if (!mounted) { return (null); }",
     "if (!mounted) return;",
     "const tree = mounted && <header/>;",
     "const gate = mounted ? <nav/> : null;",

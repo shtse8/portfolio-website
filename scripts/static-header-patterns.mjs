@@ -9,7 +9,7 @@
  *
  * These patterns match the *intent*, not one exact spelling: an early `return`
  * behind any negated flag that yields nothing renderable — `null`,
- * `undefined`, or an empty fragment (`return <></>;`) — a bare `return;`
+ * `undefined`, or an empty fragment (`return <></>;` / `return (<></>);`) — a bare `return;`
  * behind a flag whose name reads as a mount/hydration gate, the canonical
  * Next.js SSR gate `if (typeof window === "undefined")`, markup
  * short-circuited behind a truthiness gate (`mounted && <header/>`), and a
@@ -23,7 +23,7 @@
 
 /** A `return` that yields no renderable value: an explicit `null`,
  * `undefined`, or an empty fragment (`return <></>;` / `return (<></>);`). */
-const UNRENDERABLE_RETURN = String.raw`(?:null\b|undefined\b|\(\s*<\s*>\s*\)|<\s*>\s*</\s*>)`;
+const UNRENDERABLE_RETURN = String.raw`\(?\s*(?:null\b|undefined\b|<\s*>\s*</\s*>)\s*\)?`;
 
 /** A `return` with no value at all: `return;` or `return }`. */
 const BARE_RETURN = String.raw`(?:;|(?=\}))`;
