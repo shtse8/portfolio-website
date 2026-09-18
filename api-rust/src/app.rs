@@ -71,8 +71,15 @@ fn error_json(status: StatusCode, error: &str, origin: Option<&str>) -> Response
 /// Hard visitor-facing budget for every upstream-derived answer. It must stay
 /// under the ~5 s edge timeout cited in `tools.rs` (nginx/Envoy), so a hanging
 /// upstream — a socket that accepts and never answers — still yields the honest
-/// 200 stale/absent payload instead of an edge 504. `/repo` additionally keeps
-/// its own tighter `tools::REPO_PROBE_TIMEOUT`.
+/// 200 stale/absent payload instead of an edge 504.
+///
+/// All six upstream-derived routes are wrapped in `within_request_budget`:
+/// `/stats`, `/activity`, `/claims`, `/projects`, `/recent` and
+/// `/downloads`. The owner-walking list routes (`/projects`, `/recent`) probe
+/// the five owners *concurrently* (`tools::list_all_repos_with_observed_at`),
+/// so one deadline bounds the whole walk instead of one 8 s client timeout per
+/// owner. `/repo` additionally keeps its own tighter
+/// `tools::REPO_PROBE_TIMEOUT`.
 const REQUEST_BUDGET: Duration = Duration::from_secs(4);
 
 /// Absolute deadline for one visitor request. It is anchored *before* any
@@ -117,13 +124,20 @@ async fn claim_pack_handler(headers: HeaderMap) -> Response {
         within_request_budget(deadline, activity::get_activity()),
         within_request_budget(deadline, tools::get_repo_detail("pdf-reader-mcp")),
     );
-    let stats = match stats_out {
-        Some(Ok(s)) => Some(s),
-        _ => stats::last_good_snapshot(),
+    // Track whether each part was actually measured *in time*. A last-good
+    // snapshot served because the deadline elapsed (or the upstream failed) is
+    // not live: projecting it through `stats_json` would stamp
+    // `freshness:"live"` / `source:"github-public"` on data that `/stats`
+    // answers with `stale` / `github-public-stale`. The numbers stay the real
+    // measurements; only the label follows the same honesty ladder as `/stats`
+    // and `/activity`.
+    let (stats, stats_live) = match stats_out {
+        Some(Ok(s)) => (Some(s), true),
+        _ => (stats::last_good_snapshot(), false),
     };
-    let activity = match activity_out {
-        Some(Ok(a)) => Some(a),
-        _ => activity::cached_snapshot(),
+    let (activity, activity_live) = match activity_out {
+        Some(Ok(a)) => (Some(a), true),
+        _ => (activity::cached_snapshot(), false),
     };
     let flagship = flagship_out.flatten();
     let ready = crate::chat::chat_readiness();
@@ -146,8 +160,20 @@ async fn claim_pack_handler(headers: HeaderMap) -> Response {
             "npm": "@sylphx/pdf-reader-mcp",
             "description": r.description,
         })),
-        "metrics": stats.as_ref().map(crate::rest_projection::stats_json),
-        "activity": activity.as_ref().map(crate::rest_projection::activity_json),
+        "metrics": stats.as_ref().map(|s| {
+            if stats_live {
+                crate::rest_projection::stats_json(s)
+            } else {
+                crate::rest_projection::stats_json_stale(s)
+            }
+        }),
+        "activity": activity.as_ref().map(|a| {
+            if activity_live {
+                crate::rest_projection::activity_json(a)
+            } else {
+                crate::rest_projection::activity_json_stale(a)
+            }
+        }),
         "chat": ready,
         "activityDefinition": {
             "unit": "authored_commits",
@@ -192,14 +218,29 @@ async fn stats_handler(headers: HeaderMap) -> Response {
 async fn projects_handler(headers: HeaderMap, Query(q): Query<LimitQuery>) -> Response {
     let origin = origin_from_headers(&headers);
     let limit = q.limit.unwrap_or(12) as usize;
-    let (projects, observed_ms) = tools::list_projects_with_observed_at(limit).await;
-    json_value_with_cors(
-        crate::rest_projection::list_projects_json(
-            &projects,
-            &stats::iso_from_millis(observed_ms),
-        ),
-        origin.as_deref(),
+    let measured = within_request_budget(
+        request_deadline(),
+        tools::list_projects_with_observed_at(limit),
     )
+    .await;
+    match measured {
+        Some((projects, observed_ms)) => json_value_with_cors(
+            crate::rest_projection::list_projects_json(
+                &projects,
+                &stats::iso_from_millis(observed_ms),
+            ),
+            origin.as_deref(),
+        ),
+        // The owner walk did not finish in time: an empty list is `absent`, not
+        // a verified-empty portfolio, and the visitor still gets a 200.
+        None => {
+            tracing::warn!("projects request budget elapsed; serving honest absent fallback");
+            json_value_with_cors(
+                crate::rest_projection::list_projects_absent_json(),
+                origin.as_deref(),
+            )
+        }
+    }
 }
 
 async fn repo_handler(headers: HeaderMap, Query(q): Query<RepoQuery>) -> Response {
@@ -226,11 +267,25 @@ async fn repo_handler(headers: HeaderMap, Query(q): Query<RepoQuery>) -> Respons
 async fn recent_handler(headers: HeaderMap, Query(q): Query<LimitQuery>) -> Response {
     let origin = origin_from_headers(&headers);
     let limit = q.limit.unwrap_or(6) as usize;
-    let (recent, observed_ms) = tools::recent_activity_with_observed_at(limit).await;
-    json_value_with_cors(
-        crate::rest_projection::list_recent_json(&recent, &stats::iso_from_millis(observed_ms)),
-        origin.as_deref(),
+    let measured = within_request_budget(
+        request_deadline(),
+        tools::recent_activity_with_observed_at(limit),
     )
+    .await;
+    match measured {
+        Some((recent, observed_ms)) => json_value_with_cors(
+            crate::rest_projection::list_recent_json(&recent, &stats::iso_from_millis(observed_ms)),
+            origin.as_deref(),
+        ),
+        // Same ladder as `/projects`: nothing observed in time is `absent`.
+        None => {
+            tracing::warn!("recent request budget elapsed; serving honest absent fallback");
+            json_value_with_cors(
+                crate::rest_projection::list_recent_absent_json(),
+                origin.as_deref(),
+            )
+        }
+    }
 }
 
 async fn activity_handler(headers: HeaderMap) -> Response {
@@ -271,7 +326,17 @@ async fn downloads_handler(headers: HeaderMap, Query(q): Query<PkgQuery>) -> Res
     let pkg = tools::resolve_npm_pkg(&q.pkg.unwrap_or_default());
     let valid = contract::valid_pkg(&pkg);
     let series = if valid {
-        tools::npm_range(&pkg).await
+        // The npm range fetch is upstream-derived too: a hanging registry must
+        // not hold the visitor past the edge timeout. An empty series inside the
+        // budget is the same honest "nothing verified" answer the fast-fail path
+        // already gives.
+        match within_request_budget(request_deadline(), tools::npm_range(&pkg)).await {
+            Some(days) => days,
+            None => {
+                tracing::warn!("downloads request budget elapsed; serving honest empty series");
+                Vec::new()
+            }
+        }
     } else {
         Vec::new()
     };

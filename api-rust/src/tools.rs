@@ -202,19 +202,27 @@ pub async fn list_all_repos_with_observed_at() -> (Vec<RepoSummary>, u64) {
         }
     }
 
-    let mut out = Vec::new();
-    for owner in GH_OWNERS {
-        if let Ok(res) = gh_get(&owner_repos_path(*owner)).await {
-            if res.status().is_success() {
-                if let Ok(raw) = res.json::<Vec<GhRepo>>().await {
-                    out.extend(
-                        raw.into_iter()
-                            .filter(keep_live_repo)
-                            .filter_map(to_public_summary),
-                    );
-                }
+    // Probe every owner concurrently. The previous sequential walk spent one
+    // 8 s client timeout per owner (5 x 8 s), so a hanging upstream outlived the
+    // edge timeout five times over; the request budget now bounds the whole walk
+    // to one deadline. `join_all` preserves the owner order, so the assembled
+    // payload is identical to the sequential walk — only the wall time changes.
+    let fetches = GH_OWNERS.iter().map(|owner| {
+        let owner = *owner;
+        async move {
+            match gh_get(&owner_repos_path(owner)).await {
+                Ok(res) if res.status().is_success() => res.json::<Vec<GhRepo>>().await.ok(),
+                _ => None,
             }
         }
+    });
+    let mut out = Vec::new();
+    for raw in futures::future::join_all(fetches).await.into_iter().flatten() {
+        out.extend(
+            raw.into_iter()
+                .filter(keep_live_repo)
+                .filter_map(to_public_summary),
+        );
     }
 
     if !out.is_empty() {

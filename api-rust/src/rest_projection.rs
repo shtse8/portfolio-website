@@ -166,6 +166,18 @@ pub fn list_recent_json(recent: &[RepoSummary], observed_at: &str) -> Value {
     })
 }
 
+/// The request budget elapsed before the owner walk produced a verified list.
+/// Same honesty ladder as `stats_json_absent`: an explicit `absent` payload
+/// with a null `verifiedAt` and an empty list — never a fabricated row, and
+/// never a gateway error shown to a visitor.
+pub fn list_projects_absent_json() -> Value {
+    list_projects_json(&[], &crate::stats::iso_now())
+}
+
+pub fn list_recent_absent_json() -> Value {
+    list_recent_json(&[], &crate::stats::iso_now())
+}
+
 pub fn get_repo_json(repo: &RepoSummary, updated_at: &str) -> Value {
     json!({
         "repo": repo_json(repo),
