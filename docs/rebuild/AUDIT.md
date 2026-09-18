@@ -279,15 +279,180 @@ rebuild decides those surfaces should be indexable (D-2).
 
 ## 7. Visual / UX Critique (grounded in markup and CSS)
 
+Three of the four owner complaints (dull visuals, over-systematic/inhuman UX, too little
+information per page) map onto decisions the code states as doctrine. The critique therefore names
+the doctrine first — otherwise a redesign fights the design system.
+
+**7.1 "Dull visuals" is written policy, not an accident.**
+- The design-system header is literal: `SIGNAL & CRAFT — design system · Balanced type · one accent ·
+  quiet depth · no gimmicks` (src/app/globals.css:5-9).
+- The hero says `no generative AI art` and builds its whole atmosphere from a CSS grid plus two
+  blurred accent circles (Hero.tsx:62-67).
+- Imagery is explicitly forbidden in cells: "Ambient art is blended via absolute layers + gradients
+  in components. No framed thumbnail cells — art dissolves into surfaces." (globals.css:177-178).
+- The type scale is capped modestly: `.text-display` is `clamp(2.25rem, 5.2vw, 3.5rem)`
+  (globals.css:168-172); one accent colour, OKLCH `0.52 0.19 268` (globals.css:19); card and button
+  treatments are quiet (globals.css:190-205).
+- Consequence: "make the visuals less dull" is a **doctrine change** (D-4), not a CSS pass. It also
+  explains the "over-systematic" feel: every surface is the same card + chip + mono-eyebrow grammar.
+
+**7.2 The shipped HTML has no chrome.**
+`Header` returns `null` until mounted (Header.tsx:43). Measured on the live document: **zero
+`<header>` elements, no `aria-label="Primary"`, no "Toggle menu"** — the fixed header, nav, GitHub
+link, theme switch and hamburger exist only after hydration. `AppShell` does ship the skip link and
+`<main>` in static HTML (AppShell.tsx:18-27), so a keyboard visitor can skip to content but cannot
+navigate; a no-JS visitor gets a hero and no wayfinding. The 404 shell (17 KB) ships without any of
+the nine sections, so recovery is visually a different site.
+
+**7.3 Copy and affordances that the live layer cannot honour.**
+- **Four hero CTAs of near-equal weight** — "Explore the work" (primary), GitHub (secondary),
+  "Ask my AI" (ghost), "Get in touch" (ghost) (Hero.tsx:121-151). With WEB-CHAT fail-closed,
+  "Ask my AI" is a dead affordance: FloatingAgent renders nothing rather than a false-ready button
+  (FloatingAgent.tsx:265), so the primary Act path silently disappears.
+- **A hover-worded instruction on a touch device:** "Hover a number to see what it's made of."
+  (Hero.tsx:214-216). The cards are real buttons and focus does raise the highlight
+  (HeroProofGrid.tsx:64-72: `onMouseEnter`/`onFocus` → `onHover`, `onBlur` resets), so keyboard
+  parity exists — but on touch, `onClick` jumps to Work (Hero.tsx:186-190) and the explanation is
+  never revealed. The hint describes an interaction the device cannot perform.
+- **A live claim with no live source:** when no recent event exists the board footer reads
+  "actively shipping — live GitHub activity on this board" (Hero.tsx:209) while `/recent` is empty
+  and `/stats` returns 502. The freshness chip itself is honest and cannot claim `live` unless the
+  graph is live *and* the stats may claim live (lib/proof-board.ts:41-71) — the sentence is the
+  dishonest part.
+- **An agent promise the live site cannot keep:** "No forms to fill — just tell my AI what you
+  need. It'll ask the right questions and draft the email for you." (Contact.tsx:59).
+- **The visitor never sees the product's own nouns:** nav labels ship as Home/Story/Work/Contact
+  (sections.ts:20-23) while the destination names the surfaces Promise/Story/Work/Act (vision.md:15-18).
+
+**7.4 "Pages show too little information" is structural.**
+Live document structure is 1 `<h1>`, 4 `<h2>` ("Let's build something.", "Five eras. One builder.",
+"Tools with proof — open a product.", "Let's talk.") and 23 `<h3>` — but depth lives in dialogs
+(WorkGraph.tsx:361-363, StoryArc.tsx:304-306), and there are only three extra URLs, all anchors of
+the same 106 KB document (§2). There is nowhere to put more information that a visitor can link to,
+share, or have indexed. That is the IA gap behind the complaint (M-3, D-2, D-3).
+
+**7.5 One wording tension with the work graph's authority.** The Work section heading is "Tools with
+proof — open a product." (live `<h2>`), while vision.md:17 defines Work as explicit-public GitHub
+facts and forbids a curated overlay. "Open a product" reads as curated-catalog language; it should
+match the graph's actual authority.
+
 ## 8. SEO, Metadata, Structured Data
+
+**Present and correct (source + live).** `<title>`, meta description, keywords, authors, creator,
+`robots: index, follow`, canonical `/`, full OpenGraph block (type/locale/url/title/description/
+siteName + 1200×630 image with alt) and Twitter `summary_large_image` with `creator: @kyletse`
+(layout.tsx:51-99); `lang="en"` (:156); manifest, icons, per-scheme theme-color (:41-49, :161-163);
+Person and WebSite JSON-LD (:101-147).
+
+**Correction to the brief's live facts.** The document contains **2** `<script type="application/ld+json">`
+elements (Person, WebSite), not 4: `grep -o 'application/ld+json' | wc -l` returns 4 because the same
+two scripts also appear escaped inside the RSC flight payload. Verified:
+`grep -o '<script type="application/ld+json"' | wc -l` → 2.
+
+**Findings.**
+- S-1 **One indexable URL, by design.** `/story`, `/work`, `/contact` ship `noindex, follow` with
+  canonical `https://kylet.se/` (source: [...section]/page.tsx:34-42; verified live). `public/sitemap.xml`
+  is a static file listing only `/` (lastmod 2026-08-09); there is no `src/app/sitemap.ts` or
+  `robots.ts` generator. `public/robots.txt` (62 B) allows everything and declares the sitemap. So the
+  single-URL sitemap is **not drift** — it is the current IA decision, and it caps discoverability at
+  one document (D-2).
+- S-2 **404s inherit the site title.** `/resume`, `/blog`, `/act` etc. return
+  `<title>Kyle Tse — AI infrastructure builder</title>`, `noindex`, canonical `/`, and the 404 shell
+  (17,042 B, measured). `not-found.tsx` is a client component with its own copy ("This page drifted
+  off.") but no metadata export, so the title and description a crawler or screen reader reports are
+  the home page's.
+- S-3 **The work graph is invisible to structured data.** Only Person and WebSite ship; there is no
+  `ItemList`/`SoftwareSourceCode`/`CreativeWork` for the repos the site already has art and data for
+  (`public/art/projects/*`, ~48 covers; `src/data/github-portfolio.json`).
+- S-4 **No hreflang** (0 occurrences live) on an English-only site — acceptable today, relevant if D-7
+  adds a Chinese surface (a common cohort for this audience).
+- S-5 **Anomalous edge response:** `GET /does-not-exist` → `403` with a 15-byte body and no HTML,
+  while `/resume` → the styled 404. Two different not-found behaviours on the same host (Cloudflare
+  rule vs nginx `try_files … =404`, nginx.conf:117) — worth confirming during Phase 5.
+- S-6 `og-image.jpeg` is 116,623 B in `public/` (fine for crawlers, irrelevant to page weight).
 
 ## 9. Performance & Core Web Vitals Signals
 
+No field data was available in Phase 0, so real CWV are **Unknown**; these are transfer-shape
+measurements.
+
+| Measurement | Value |
+| --- | --- |
+| `GET /` | 200, 105,892 B HTML uncompressed, br-encoded (`content-encoding: br`, `vary: accept-encoding`), 0.32 s total |
+| `/story` `/work` `/contact` | 200, 105,881 / 105,873 / 105,897 B, 0.18 / 0.19 / 0.09 s |
+| JS chunk requests on `/` | 19, 329,727 B compressed transfer total |
+| CSS | 1 chunk, 11,817 B compressed |
+| Fonts | 3 woff2 preloads, 123,472 B total |
+| Other hints | 5 additional low-priority script preloads; 30 `<script>` tags; immutable 1-year caching for hashed assets (nginx.conf:120-122) |
+
+- Cold load is roughly **0.45 MB of assets + 106 KB HTML** before the app is interactive.
+- Client dependency weight (package.json:26-38): `framer-motion`, `@ai-sdk/react`, `ai`,
+  `react-markdown`, `remark-gfm`, `zustand`, `date-fns`, `react-icons` — all shipped to the browser
+  for a site whose stated shape is "the least system" (vision.md:13). No bundle analysis was run, so
+  per-package attribution is a **hypothesis**, not a measurement.
+- LCP candidate is text: the hero has no image (Hero.tsx:63-67 is CSS gradients plus `bg-grid`), which
+  is favourable. The header mounting after hydration (Header.tsx:43) is a paint/layout event rather
+  than a network cost, but it means first paint has no nav.
+- Unknown: real LCP/CLS/INP, mobile network behaviour, CrUX field data, and whether the four
+  near-identical 106 KB documents are ever re-fetched (client-side DeepLink navigation should prevent
+  it; not verified in a browser).
+
 ## 10. Accessibility (WCAG 2.2 AA basics)
+
+**Source-level positives (evidence).** Skip link + `<main tabIndex={-1}>` (AppShell.tsx:18-27); global
+`:focus-visible` outline (globals.css:133-137); `prefers-reduced-motion` override (globals.css:74-88)
+plus per-component reduce paths (Hero.tsx:20,25-40; hooks/useCountUp.ts:22-24; components/ui/Reveal.tsx:8);
+dialogs with `role="dialog"`, `aria-modal="true"`, `aria-labelledby` (StoryArc.tsx:304-306,
+WorkGraph.tsx:361-363) and Escape-to-close (StoryArc.tsx:48-53, WorkGraph.tsx:94-101); `sr-only` text
+(ThemeSwitch.tsx:121, StoryArc.tsx:274); `aria-label`s on icon-only controls (Header.tsx:103,114,
+ThemeSwitch.tsx:181); pinch-zoom explicitly allowed (layout.tsx:41-44); 28/28 images carry `alt`
+(measured on the live document).
+
+**Gaps.**
+- **A-1 Theme chooser exposes no state.** The three options render selection only through colour
+  classes (ThemeSwitch.tsx:132-169) — no `aria-pressed`/`role="radiogroup"`/`aria-checked`
+  (WCAG 4.1.2, 1.4.1).
+- **A-2 Touch parity on the proof board.** The reveal is mouse/focus only; touch taps navigate away
+  (§7.3). The on-screen hint asks for a hover.
+- **A-3 Inconsistent announcement of instrument updates.** `role="status"` appears on the ticker
+  (LiveTicker.tsx:80) but there is no `aria-live` anywhere in `src/` (grep: 0 hits), and the hero
+  freshness chip is a plain `<span>` (Hero.tsx:162-183).
+- **A-4 404 has the wrong accessible name** (§8, S-2).
+- **A-5 Contrast — estimate, needs measurement.** `--text-tertiary` is OKLCH L 0.58 on L 0.985 (light)
+  and L 0.54 on L 0.14 (dark) (globals.css:20-22, :49-51) and is used at 10.5-11px
+  (globals.css:158; Hero.tsx:159,163,201,214). Treating OKLab L as ≈ cube root of relative luminance,
+  light ≈ 4.1:1 and dark ≈ 3.9:1 — both under AA 4.5:1 for normal text. **This is arithmetic from
+  tokens, not a rendered measurement**; confirm with a contrast tool before treating it as a defect.
+- **Unknown:** no axe/Lighthouse run, no keyboard-only walkthrough, no screen-reader pass was
+  performed in Phase 0, so nothing above is a substitute for an audit run.
 
 ## 11. Analytics, Events, Search, Error Monitoring
 
+- **No analytics of any kind.** `grep -rniE 'gtag|googletagmanager|plausible|umami|posthog|vercel/analytics'`
+  over `src/`, `public/`, `next.config.ts` returns no integration (one incidental word match in
+  `src/data/roles.ts` prose).
+- **No product-oracle instrument.** The destination's oracle is behavioural — state, verify, act in one
+  short session (vision.md:40-48) — yet nothing measures a mailto click, a work-graph open, or a chat
+  turn. There is no way to tell whether the promise lands.
+- **No site search** and **no client error monitoring**: `ErrorBoundary` catches render errors in
+  sections (app/page.tsx:13-17,55) but reports nowhere — it renders a fallback and stops.
+- **CSP constrains any future instrument:** `connect-src 'self'` and `script-src 'self' 'unsafe-inline'`
+  (nginx.conf:15), so a third-party analytics script is blocked by policy today. Any instrument must be
+  same-origin or the CSP must change deliberately.
+- No `/privacy` page exists, which is defensible while nothing is collected — and becomes a
+  compliance task the moment an instrument lands (D-6).
+
 ## 12. Design-System & IA Decisions Required First
+
+| ID | Decision | Evidence / why it blocks |
+| --- | --- | --- |
+| **D-1** | Is the fourth surface named **Act** (vision.md:18) or **Contact** (sections.ts:23)? Rename the route, alias it, or amend the vision. | `https://kylet.se/act` is a 404 today; the visitor-facing nav never says "Act". |
+| **D-2** | Keep a single indexable page, or make Story/Work/Act indexable with their own titles, canonicals and sitemap entries? | Live `noindex, follow` + canonical `/` (§8 S-1); IA is frozen by this choice. |
+| **D-3** | May the Work surface have an on-site per-repo page? vision.md:27 wants an adopter to "deep-link to the real flagged repo"; vision.md:35 forbids "an archive or screenshot catalog as a product path". | Determines whether `public/art/projects/*` (~48 covers) ever has a consumer, and whether the graph is verifiable on-site (M-3). |
+| **D-4** | How far may the rebuild revise the design doctrine ("Balanced type · one accent · quiet depth · no gimmicks", globals.css:5-9; "no generative AI art", Hero.tsx:62)? | The "dull visuals" complaint contradicts written doctrine; without this call, visual work is fought by the system. |
+| **D-5** | Who restores the live data plane (GitHub upstream + gateway credential) and resolves the manifest/live drift? | `src/` cannot fix §5.1/§5.2; `/stats` 502, `/activity` 502, `/repo` 404/504, `/chat/ready` `ready:false` on host `api.sylphx.ai`/model `sylphx/auto` against a manifest that declares `api.models.sylphx.ai`/`deepseek/deepseek-v4.1-flash`. |
+| **D-6** | Adopt a (CSP-compatible, cookieless) instrument and, if so, ship `/privacy`? | §11; otherwise the product oracle stays unmeasurable. |
+| **D-7** | Is a Chinese-language surface in scope? | `lang="en"`, 0 hreflang; audience is HK + London (personal.ts:11; LinkedIn/GitHub). Affects IA before freeze. |
 
 ## 13. Phased Implementation Plan
 
