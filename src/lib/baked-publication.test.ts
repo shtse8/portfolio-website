@@ -45,18 +45,32 @@ describe("baked repository fallback is explicit-public only", () => {
 });
 
 describe("baked stats fallback never fabricates a number", () => {
-  test("an unsynced snapshot is null, and the visibility attestation survives", () => {
+  const NUMERIC_KEYS = [
+    "githubStars",
+    "npmDownloads",
+    "flagshipStars",
+    "flagshipDownloads",
+    "repos",
+  ] as const;
+
+  test("an unsynced snapshot is null, and a synced one only carries real numbers", () => {
     expect(baked.repositoryVisibility).toBe("public-only/v1");
-    if (baked.verifiedAt === null) {
-      for (const key of [
-        "githubStars",
-        "npmDownloads",
-        "flagshipStars",
-        "flagshipDownloads",
-        "repos",
-      ] as const) {
+
+    const verifiedAt: string | null = baked.verifiedAt;
+    if (verifiedAt === null) {
+      for (const key of NUMERIC_KEYS) {
         expect(baked[key]).toBeNull();
       }
+      return;
+    }
+
+    // Synced snapshot: the screening must not go silent. Every published number
+    // is a real finite measurement and verifiedAt is a real observation time.
+    expect(Number.isNaN(Date.parse(verifiedAt))).toBe(false);
+    for (const key of NUMERIC_KEYS) {
+      const value = baked[key] as unknown;
+      expect(typeof value).toBe("number");
+      expect(Number.isFinite(value as number)).toBe(true);
     }
   });
 
