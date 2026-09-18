@@ -15,6 +15,7 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { findMountGate } from "./static-header-patterns.mjs";
 
 const root = join(import.meta.dir, "..");
 let failures = 0;
@@ -40,46 +41,21 @@ function read(rel) {
 console.log(`static-shell check · root=${root}`);
 
 // 1. Source regression guard: the header must not re-acquire a
-//    "render nothing until mounted" gate. Match the intent, not one exact
-//    spelling: an early `return null` behind any negated flag (braced or not,
-//    across a line break, plain or `this.`-qualified), the canonical Next.js
-//    SSR gate `if (typeof window === "undefined") return null;`, markup
-//    short-circuited behind a truthiness gate (`mounted && <header/>`), and a
-//    ternary whose alternate is `null`.
+//    "render nothing until mounted" gate. The patterns live in
+//    `static-header-patterns.mjs` so they can be mutation-tested directly
+//    (`static-header-patterns.test.ts`) — they cover `return null`, an empty
+//    fragment (`return <></>;`) and a bare `return;` behind a negated flag or a
+//    `typeof … === undefined` check, plus truthiness-short-circuited markup and
+//    a `null` ternary alternate.
 //
 //    This source check is *defence in depth*: it names the regression where it
 //    is introduced. The export check below (real `out/*.html`) is the
 //    authoritative, load-bearing guard — it catches every spelling, including
-//    ones this regex does not know about.
+//    ones these patterns do not know about.
 {
   const header = read("src/components/Header.tsx");
   if (header) {
-    const MOUNT_GATE_PATTERNS = [
-      {
-        // `if (!mounted) return null;` · `if (!hydrated) { return null; }`
-        // · `if (!this.mounted) return null;`
-        re: /if\s*\(\s*!\s*[A-Za-z_$][\w$.]*\s*\)\s*\{?\s*return\s+null\b/,
-        label: "an early `return null` behind a negated mount flag",
-      },
-      {
-        // The most idiomatic Next.js SSR gate.
-        re: /if\s*\(\s*typeof\s+[A-Za-z_$][\w$.]*\s*===?\s*["']undefined["']\s*\)\s*\{?\s*return\s+null\b/,
-        label: "an early `return null` behind a `typeof … === undefined` check",
-      },
-      {
-        // `const tree = mounted && <header/>;` · `this.mounted && (<nav/>)`
-        // Same-line only, so ordinary `{menuOpen && (…)}` conditionals (whose
-        // markup starts on the next line) are not mistaken for a mount gate.
-        re: /[A-Za-z_$][\w$.]*\s*&&[ \t]*\(?[ \t]*</,
-        label: "markup short-circuited behind a truthiness gate",
-      },
-      {
-        // `mounted ? <nav>…</nav> : null` · `{ready ? (<header/>) : null}`
-        re: /[A-Za-z_$][\w$.]*\s*\?\s*[^;?]*?\s*:\s*null\b/,
-        label: "a ternary that renders `null` before mount",
-      },
-    ];
-    const gate = MOUNT_GATE_PATTERNS.find((pattern) => pattern.re.test(header));
+    const gate = findMountGate(header);
     if (gate) {
       fail(`Header.tsx gates its markup behind mount again (${gate.label})`);
     } else {
