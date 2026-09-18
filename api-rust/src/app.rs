@@ -160,20 +160,21 @@ async fn claim_pack_handler(headers: HeaderMap) -> Response {
             "npm": "@sylphx/pdf-reader-mcp",
             "description": r.description,
         })),
-        "metrics": stats.as_ref().map(|s| {
-            if stats_live {
-                crate::rest_projection::stats_json(s)
-            } else {
-                crate::rest_projection::stats_json_stale(s)
-            }
-        }),
-        "activity": activity.as_ref().map(|a| {
-            if activity_live {
-                crate::rest_projection::activity_json(a)
-            } else {
-                crate::rest_projection::activity_json_stale(a)
-            }
-        }),
+        // A part with no verified measurement and no last-good snapshot is
+        // projected as the same explicit `absent` object `/stats` and
+        // `/activity` answer with — never a bare `null`, so a machine reader
+        // cannot confuse "nothing measured" with "field not provided". Nothing on
+        // this ladder is ever labelled `live`.
+        "metrics": match stats.as_ref() {
+            Some(s) if stats_live => crate::rest_projection::stats_json(s),
+            Some(s) => crate::rest_projection::stats_json_stale(s),
+            None => crate::rest_projection::stats_json_absent(),
+        },
+        "activity": match activity.as_ref() {
+            Some(a) if activity_live => crate::rest_projection::activity_json(a),
+            Some(a) => crate::rest_projection::activity_json_stale(a),
+            None => crate::rest_projection::activity_json_absent(),
+        },
         "chat": ready,
         "activityDefinition": {
             "unit": "authored_commits",

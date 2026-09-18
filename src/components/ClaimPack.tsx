@@ -59,7 +59,9 @@ export default function ClaimPack() {
     pack.flagship
       ? `Flagship: ${pack.flagship.repo} · ${pack.flagship.stars ?? "—"}★ · npm ${pack.flagship.npm ?? ""}`
       : null,
-    pack.metrics
+    // `absent` means nothing was verifiably measured: claim no snapshot and no
+    // number at all rather than printing "Snapshot (stale)" over em-dashes.
+    pack.metrics && pack.metrics.freshness !== "absent"
       ? `${pack.metrics.stale === true || pack.metrics.freshness === "stale" ? "Snapshot (stale)" : "Live"}: ${pack.metrics.githubStars ?? "—"} GitHub stars · ${pack.metrics.npmDownloads ?? "—"} npm downloads/mo (as of ${pack.metrics.verifiedAt ?? pack.metrics.updatedAt ?? pack.updatedAt ?? "live"})`
       : null,
     pack.activityDefinition?.unit

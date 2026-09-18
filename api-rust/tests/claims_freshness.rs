@@ -153,3 +153,77 @@ async fn claims_labels_a_last_good_snapshot_exactly_as_stats_does() {
 
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// N1: with no snapshot at all, `/claims` must be as explicit as `/stats`.
+///
+/// `/stats` answers the `absent` object (`freshness:"absent"`); the pack used
+/// to answer `metrics:null` / `activity:null`, which a machine reader cannot
+/// distinguish from "field not provided". This test is the mutation check:
+/// reverting the pack to `.map(…)`/`null` makes `metrics` a bare null and
+/// fails the `is_object` assertions below.
+#[tokio::test]
+#[serial]
+async fn claims_no_snapshot_branch_is_explicitly_absent_not_null() {
+    let base = spawn_hanging_upstream();
+    let dir = std::env::temp_dir().join(format!("kylet-claims-absent-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&dir);
+
+    let guard = testing::EnvGuard::acquire(&[
+        "GITHUB_API_BASE",
+        "NPM_API_BASE",
+        "GITHUB_TOKEN",
+        "STATS_LAST_GOOD_PATH",
+        "ACTIVITY_LAST_GOOD_PATH",
+    ]);
+    guard.set("GITHUB_API_BASE", &base);
+    guard.set("NPM_API_BASE", &base);
+    guard.set("GITHUB_TOKEN", "hanging-token");
+    // Deliberately nonexistent: nothing on disk, and EnvGuard cleared memory.
+    guard.set(
+        "STATS_LAST_GOOD_PATH",
+        dir.join("no-stats.json").to_str().unwrap(),
+    );
+    guard.set(
+        "ACTIVITY_LAST_GOOD_PATH",
+        dir.join("no-activity.json").to_str().unwrap(),
+    );
+
+    let (stats_status, stats, _) = timed_get("/stats").await;
+    let (claims_status, claims, claims_elapsed) = timed_get("/claims").await;
+    assert_eq!(stats_status, StatusCode::OK);
+    assert_eq!(claims_status, StatusCode::OK);
+
+    // /stats is the reference answer for "nothing was measured".
+    assert_eq!(stats["freshness"], "absent");
+    assert!(stats["verifiedAt"].is_null());
+
+    // The pack must carry the same explicit object — never a bare null, and
+    // never a live label.
+    assert!(
+        claims["metrics"].is_object(),
+        "metrics must be the explicit absent object, not null"
+    );
+    assert_eq!(claims["metrics"]["freshness"], "absent");
+    assert_eq!(claims["metrics"]["stale"], true);
+    assert_eq!(claims["metrics"]["source"], "github-public-absent");
+    assert!(claims["metrics"]["githubStars"].is_null());
+    assert!(claims["metrics"]["npmDownloads"].is_null());
+    assert!(claims["metrics"]["verifiedAt"].is_null());
+    assert_ne!(claims["metrics"]["freshness"], "live");
+
+    assert!(
+        claims["activity"].is_object(),
+        "activity must be the explicit absent object, not null"
+    );
+    assert_eq!(claims["activity"]["freshness"], "absent");
+    assert_eq!(claims["activity"]["stale"], true);
+    assert!(claims["activity"]["commitsToday"].is_null());
+    assert_ne!(claims["activity"]["freshness"], "live");
+
+    assert!(
+        claims_elapsed < EDGE_BUDGET,
+        "/claims took {claims_elapsed:?}, past the edge budget {EDGE_BUDGET:?}"
+    );
+
+    let _ = std::fs::remove_dir_all(&dir);
+}

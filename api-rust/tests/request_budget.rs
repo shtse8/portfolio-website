@@ -87,8 +87,17 @@ async fn hanging_upstream_still_answers_within_the_edge_budget() {
     // budget, and must not invent a number it could not verify.
     let (status, body, elapsed) = timed_get("/claims").await;
     assert_eq!(status, StatusCode::OK);
-    assert!(body["metrics"].is_null());
-    assert!(body["activity"].is_null());
+    // N1: with no snapshot at all the pack is as explicit as /stats — the same
+    // `absent` object, never a bare `null` a reader could mistake for a missing
+    // field, and never `live`.
+    assert_eq!(body["metrics"]["freshness"], "absent");
+    assert_eq!(body["metrics"]["stale"], true);
+    assert_eq!(body["metrics"]["source"], "github-public-absent");
+    assert!(body["metrics"]["githubStars"].is_null());
+    assert!(body["metrics"]["verifiedAt"].is_null());
+    assert_eq!(body["activity"]["freshness"], "absent");
+    assert_eq!(body["activity"]["stale"], true);
+    assert!(body["activity"]["commitsToday"].is_null());
     assert!(body["flagship"].is_null());
     assert!(
         elapsed < EDGE_BUDGET,

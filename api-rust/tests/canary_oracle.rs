@@ -208,7 +208,12 @@ async fn canary_fact_never_inflates_stats_and_never_500s() {
     let (status, bytes) = body_of("/claims").await;
     assert_eq!(status, StatusCode::OK);
     canary::assert_no_canary(&bytes).unwrap();
-    assert_eq!(json_from(&bytes)["metrics"], serde_json::Value::Null);
+    // N1: the pack now names the absent object explicitly instead of emitting a
+    // bare `null`; no measurement may be claimed for a canary-failed query.
+    let pack = json_from(&bytes);
+    assert_eq!(pack["metrics"]["freshness"], "absent");
+    assert!(pack["metrics"]["githubStars"].is_null());
+    assert!(pack["metrics"]["verifiedAt"].is_null());
 
     let _ = std::fs::remove_dir_all(&dir);
 }
