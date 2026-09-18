@@ -128,3 +128,66 @@ async fn hanging_upstream_still_answers_within_the_edge_budget() {
 
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// F1-b regression: the three routes that were never wrapped in
+/// `within_request_budget` must also answer inside the edge budget when the
+/// upstream hangs. Before the fix the owner walk was sequential (5 x 8 s =
+/// ~40 s for /projects and /recent) and /downloads used one 8 s client timeout.
+#[tokio::test]
+#[serial]
+async fn hanging_upstream_bounds_projects_recent_and_downloads() {
+    let base = spawn_hanging_upstream();
+    let dir = std::env::temp_dir().join(format!("kylet-budget-lists-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&dir);
+    let guard = testing::EnvGuard::acquire(&[
+        "GITHUB_API_BASE",
+        "NPM_API_BASE",
+        "GITHUB_TOKEN",
+        "STATS_LAST_GOOD_PATH",
+        "ACTIVITY_LAST_GOOD_PATH",
+    ]);
+    guard.set("GITHUB_API_BASE", &base);
+    guard.set("NPM_API_BASE", &base);
+    guard.set("GITHUB_TOKEN", "hanging-token");
+    guard.set(
+        "STATS_LAST_GOOD_PATH",
+        dir.join("stats-last-good.json").to_str().unwrap(),
+    );
+    guard.set(
+        "ACTIVITY_LAST_GOOD_PATH",
+        dir.join("activity-last-good.json").to_str().unwrap(),
+    );
+
+    // /projects - the five-owner walk used to cost one 8 s timeout per owner.
+    let (status, body, elapsed) = timed_get("/projects").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["freshness"], "absent");
+    assert!(body["verifiedAt"].is_null());
+    assert!(body["projects"].as_array().is_some_and(|a| a.is_empty()));
+    assert!(
+        elapsed < EDGE_BUDGET,
+        "/projects took {elapsed:?}, past the edge budget {EDGE_BUDGET:?}"
+    );
+
+    // /recent - the same walk, the same ladder.
+    let (status, body, elapsed) = timed_get("/recent").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(body["freshness"], "absent");
+    assert!(body["recent"].as_array().is_some_and(|a| a.is_empty()));
+    assert!(
+        elapsed < EDGE_BUDGET,
+        "/recent took {elapsed:?}, past the edge budget {EDGE_BUDGET:?}"
+    );
+
+    // /downloads - the npm range fetch used one 8 s client timeout.
+    let (status, body, elapsed) = timed_get("/downloads?pkg=pdf-reader-mcp").await;
+    assert_eq!(status, StatusCode::OK);
+    assert!(body["series"].as_array().is_some_and(|a| a.is_empty()));
+    assert_eq!(body["total"], 0);
+    assert!(
+        elapsed < EDGE_BUDGET,
+        "/downloads took {elapsed:?}, past the edge budget {EDGE_BUDGET:?}"
+    );
+
+    let _ = std::fs::remove_dir_all(&dir);
+}
