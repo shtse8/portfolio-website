@@ -39,6 +39,7 @@ import {
   fetchProjects,
   fetchRecent,
   fetchStats,
+  statsAreLive,
   type TermRepo,
   type TermStats,
 } from "@/lib/terminal";
@@ -144,7 +145,9 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
       let any = false;
       if (s.status === "fulfilled") {
         setStats(s.value);
-        any = true;
+        // A fail-soft payload (stale/absent) is still worth rendering, but it
+        // is not evidence that a live observation happened.
+        if (statsAreLive(s.value)) any = true;
       }
       // Replace fallback with live inventory when the call returns repos.
       // An empty payload is treated as fetch failure (keep fallback).
@@ -158,7 +161,8 @@ export function WorkGraphProvider({ children }: { children: React.ReactNode }) {
       }
       if (r.status === "fulfilled") {
         setRecent(r.value.recent);
-        any = true;
+        // An empty list is not evidence of a live fetch either.
+        if (r.value.recent.length > 0) any = true;
       }
       setLive(any);
       setLoading(false);

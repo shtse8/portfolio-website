@@ -27,19 +27,45 @@ export interface TermRepo {
 }
 
 export interface TermStats {
-  githubStars: number;
-  npmDownloads: number;
-  flagshipStars: number;
-  flagshipDownloads: number;
+  /** null when the API reports `absent` — no verified measurement exists. */
+  githubStars: number | null;
+  npmDownloads: number | null;
+  flagshipStars: number | null;
+  flagshipDownloads: number | null;
   byOwner: Record<string, number>;
-  repos: number;
+  repos: number | null;
   updatedAt: string;
-  /** Observation time for the live/stale ladder (same instant as updatedAt on live). */
-  verifiedAt?: string;
+  /**
+   * Observation time for the live/stale ladder (same instant as updatedAt on
+   * live). null once the API admits it never observed a value.
+   */
+  verifiedAt?: string | null;
   /** True when the API served a previously verified snapshot. */
   stale?: boolean;
-  /** `live` | `stale` | `unavailable` | `not_observed` when the API reports it. */
+  /** `live` | `stale` | `absent` | `unavailable` | `not_observed` when the API reports it. */
   freshness?: string;
+  /** `github-public` | `github-public-stale` | `github-public-absent` | … */
+  source?: string;
+}
+
+/** Freshness values that must never be rendered as a live measurement. */
+const NON_LIVE_FRESHNESS = new Set([
+  "stale",
+  "absent",
+  "unavailable",
+  "not_observed",
+]);
+
+/**
+ * True only when a `/stats` payload is a real live measurement. A fail-soft
+ * payload (stale/absent) is still worth rendering as an instrument, but it must
+ * never be counted as a live fetch.
+ */
+export function statsAreLive(stats: TermStats | null): boolean {
+  if (!stats) return false;
+  if (stats.stale === true) return false;
+  if (stats.freshness && NON_LIVE_FRESHNESS.has(stats.freshness)) return false;
+  return typeof stats.githubStars === "number";
 }
 
 async function get<T>(path: string, signal?: AbortSignal): Promise<T> {
@@ -86,6 +112,10 @@ const compactFmt = new Intl.NumberFormat("en-US", {
 });
 /** "27038" → "27K" via the built-in Intl compact notation (no hand-rolled math). */
 export const compact = (n: number): string => compactFmt.format(n);
+
+/** Compact figure, or an em dash when the API never verified a number. */
+export const compactOrDash = (n: number | null | undefined): string =>
+  typeof n === "number" ? compactFmt.format(n) : "—";
 
 const SPARK = "▁▂▃▄▅▆▇█";
 /** Render a daily series as a unicode sparkline string. */

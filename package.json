@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "next build && bun scripts/check-static-header.mjs",
     "check": "biome check . && tsc --noEmit && bun test",
     "dev": "next dev --turbopack -p 4311",
     "format": "biome format --write src package.json biome.json next.config.ts tailwind.config.ts tsconfig.json postcss.config.mjs",
@@ -19,6 +19,7 @@
     "sync:stats": "bun scripts/sync-stats.mjs",
     "test": "bun test",
     "test:api": "cd api-rust && cargo test --locked",
+    "check:static-header": "bun scripts/check-static-header.mjs",
     "test:cinematic": "bun scripts/check-cinematic-markers.mjs",
     "test:cinematic:export": "bun scripts/check-cinematic-markers.mjs --with-export"
   },
