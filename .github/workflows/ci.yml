@@ -19,7 +19,13 @@ concurrency:
 jobs:
   web:
     name: Web (biome, tsc, tests, static export)
-    runs-on: sylphx-linux-standard
+    # GitHub-hosted: this repo lives under a personal (User) GitHub account, and the
+    # platform's JIT runner supply only mints runners into ORGANIZATION runner groups
+    # (portfolio-website has no runner-group row). The `sylphx-linux-standard` label is
+    # therefore unsatisfiable here: 0 of 971 jobs supplied in 7d, every run queued ~24h
+    # and was auto-cancelled. Both jobs install their own toolchains, so a hosted image
+    # is sufficient. Kyle's other personal repos already use `ubuntu-latest`.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
@@ -54,7 +60,8 @@ jobs:
 
   api:
     name: Rust API (clippy, tests)
-    runs-on: sylphx-linux-standard
+    # See the `web` job above: user-account repo, org-scoped runner supply.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
