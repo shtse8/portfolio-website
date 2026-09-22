@@ -13,7 +13,7 @@ export default function NotFound() {
         <div className="absolute left-[20%] top-[10%] h-[50vh] w-[50vh] rounded-full bg-accent/10 blur-[120px]" />
       </div>
       <div className="text-center">
-        <div className="font-mono text-7xl font-bold tracking-tighter text-accent sm:text-8xl">
+        <div className="text-gradient font-mono text-7xl font-bold tracking-tighter sm:text-8xl">
           404
         </div>
         <h1 className="mt-4 text-h2 text-text-primary">

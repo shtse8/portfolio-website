@@ -56,7 +56,7 @@ export default function Header() {
         className={cn(
           "fixed inset-x-0 top-0 z-40 transition-all duration-300",
           isScrolled
-            ? "border-b border-border/70 bg-background/75 backdrop-blur-xl"
+            ? "border-b border-border/70 bg-background/75 backdrop-blur-xl shadow-[0_8px_32px_-16px_oklch(var(--accent)/0.25)]"
             : "border-b border-transparent bg-transparent",
         )}
       >
@@ -67,7 +67,7 @@ export default function Header() {
             className="group flex items-center gap-2.5"
             aria-label="Home"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-display text-sm font-semibold text-accent-contrast">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-display text-sm font-semibold text-accent-contrast shadow-[0_4px_16px_-4px_oklch(var(--accent)/0.55)]">
               KT
             </span>
             <span className="hidden font-display font-medium tracking-tight text-text-primary sm:block">

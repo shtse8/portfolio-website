@@ -27,9 +27,16 @@ export default function Footer() {
       />
       <div className="container-wide py-14 sm:py-16">
         {/* Closing CTA */}
-        <div className="mb-16 text-center">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-64 overflow-hidden opacity-60"
+        >
+          <div className="aurora-blob aurora-blob--accent left-[20%] top-[-14rem] h-96 w-96" />
+          <div className="aurora-blob aurora-blob--warm right-[18%] top-[-12rem] h-80 w-80" />
+        </div>
+        <div className="relative mb-16 text-center">
           <h2 className="text-h2 text-text-primary">
-            Let&apos;s build something.
+            Let&apos;s build <span className="text-gradient">something</span>.
           </h2>
           <p className="mx-auto mt-3 max-w-md text-text-secondary">
             Whether it&apos;s MCP integrations, AI infrastructure, or scaling a
