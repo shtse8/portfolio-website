@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Structural gate for the Signal & Craft portfolio surface.
+ * Structural gate for the Aurora Studio portfolio surface.
  * Checks source (and optional export) for design markers that prove the
  * shipped redesign is present — not cinema gimmicks.
  *
@@ -22,9 +22,9 @@ const SOURCE_CHECKS = [
     patterns: [/from "next\/font\/google"/, /Syne/, /--font-display/],
   },
   {
-    id: "globals-signal-craft",
+    id: "globals-aurora-studio",
     path: "src/app/globals.css",
-    patterns: [/SIGNAL & CRAFT/, /--font-display/, /\.text-display/],
+    patterns: [/AURORA STUDIO/, /--font-display/, /\.text-display/],
   },
   {
     id: "page-no-progress-chrome",
@@ -35,10 +35,10 @@ const SOURCE_CHECKS = [
     ],
   },
   {
-    id: "hero-signal",
+    id: "hero-aurora",
     path: "src/components/Hero.tsx",
     patterns: [
-      /data-design="signal-craft"/,
+      /data-design="aurora-studio"/,
       /text-display/,
       /bg-grid mask-fade-b/,
       /btn-primary btn-lg/,
@@ -162,10 +162,10 @@ if (withExport) {
     fail("out/index.html missing — run bun run build first");
   } else {
     const html = readFileSync(outIndex, "utf8");
-    if (!/signal-craft|hero-infra|syne_/i.test(html)) {
-      fail("export missing signal-craft / hero-infra / syne markers");
-    } else ok("export signal markers");
-    if (!/art\/hero-infra|BrandCover|signal-craft|text-display/.test(html)) {
+    if (!/aurora-studio|hero-infra|syne_/i.test(html)) {
+      fail("export missing aurora-studio / hero-infra / syne markers");
+    } else ok("export design markers");
+    if (!/art\/hero-infra|BrandCover|aurora-studio|text-display/.test(html)) {
       // may be in JS chunk
       const assets = walk(join(root, "out/_next"));
       const blob = assets

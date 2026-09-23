@@ -35,6 +35,10 @@ const config: Config = {
           subtle: "oklch(var(--accent-subtle) / <alpha-value>)",
           contrast: "oklch(var(--accent-contrast) / <alpha-value>)",
         },
+        "accent-2": {
+          DEFAULT: "oklch(var(--accent-2) / <alpha-value>)",
+          subtle: "oklch(var(--accent-2-subtle) / <alpha-value>)",
+        },
         positive: {
           DEFAULT: "oklch(var(--positive) / <alpha-value>)",
           subtle: "oklch(var(--positive-subtle) / <alpha-value>)",

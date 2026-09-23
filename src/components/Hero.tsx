@@ -13,8 +13,8 @@ import { HeroProofGrid } from "./HeroProofGrid";
 import LiveTicker from "./LiveTicker";
 
 /**
- * Hero — content-first with full-bleed ambient art that dissolves into the page.
- * Art is background atmosphere (masked), never a framed thumbnail box.
+ * Hero — the site's weather: drifting twin-accent aurora, fine grid, grain.
+ * Content-first; the proof board floats in the light field as glass.
  */
 export default function Hero() {
   const reduce = useReducedMotion();
@@ -56,14 +56,15 @@ export default function Hero() {
 
   return (
     <section
-      data-design="signal-craft"
+      data-design="aurora-studio"
       className="relative flex min-h-[min(100svh,880px)] items-center overflow-hidden"
     >
-      {/* Design-system atmosphere — no generative AI art */}
+      {/* Atmosphere — drifting light fields + fine grid (grain is global) */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-grid mask-fade-b opacity-[0.28] dark:opacity-30" />
-        <div className="absolute -left-24 top-0 h-[50vh] w-[50vh] rounded-full bg-accent/10 blur-[110px]" />
-        <div className="absolute -right-20 bottom-10 h-[42vh] w-[42vh] rounded-full bg-accent/8 blur-[100px]" />
+        <div className="absolute inset-0 bg-grid mask-fade-b opacity-[0.3] dark:opacity-30" />
+        <div className="aurora-blob aurora-blob--accent -left-[18vw] -top-[12vh] h-[62vh] w-[62vh]" />
+        <div className="aurora-blob aurora-blob--warm -right-[14vw] bottom-[-8vh] h-[52vh] w-[52vh]" />
+        <div className="aurora-blob aurora-blob--accent left-[38%] top-[24%] h-[34vh] w-[34vh] opacity-60" />
       </div>
 
       <div className="container-wide relative z-[1] grid w-full items-center gap-10 px-5 py-24 sm:px-8 sm:py-28 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-12">
@@ -97,7 +98,7 @@ export default function Hero() {
 
           <motion.h1 {...rise(0.08)} className="text-display text-text-primary">
             I build the infrastructure{" "}
-            <span className="text-accent">AI agents</span> run on.
+            <span className="text-gradient">AI agents</span> run on.
           </motion.h1>
 
           <motion.p
@@ -140,7 +141,7 @@ export default function Hero() {
               }
               className="btn-ghost btn-lg"
             >
-              <FaBolt className="h-3.5 w-3.5 text-accent" /> Ask my AI
+              <FaBolt className="h-3.5 w-3.5 text-accent-2" /> Ask my AI
             </button>
             <button
               type="button"
@@ -152,9 +153,9 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Proof board floats in the atmospheric field — no art thumbnail */}
+        {/* Proof board — glass instrument panel floating in the light */}
         <motion.div {...rise(0.14, 18)} className="lg:justify-self-end">
-          <div className="card w-full max-w-md overflow-hidden border-border/80 bg-surface/80 shadow-md backdrop-blur-xl">
+          <div className="glass glow-ring w-full max-w-md overflow-hidden rounded-2xl">
             <div className="flex items-center justify-between border-b border-border-subtle px-4 py-2.5">
               <span className="font-mono text-[11px] text-text-tertiary">
                 from GitHub &amp; npm
