@@ -10,7 +10,7 @@
  */
 
 export const MARK_BANNER_ORIGIN = "https://mark.sylphx.com";
-export const MARK_BANNER_PATH = "/api/v1/banner";
+export const MARK_BANNER_PATH = "/api/v1/mark/hero";
 
 /** Classic / plate-friendly Mark types for README embeds (not showcase carnival). */
 const README_STYLES = [

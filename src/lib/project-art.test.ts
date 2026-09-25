@@ -31,7 +31,7 @@ describe("markBannerUrl — README / embed SSOT", () => {
     const url = markBannerUrl("Google-Photos-Delete-Tool", {
       description: "Fast Chrome extension",
     });
-    expect(url.startsWith(`${MARK_BANNER_ORIGIN}/api/v1/banner?`)).toBe(true);
+    expect(url.startsWith(`${MARK_BANNER_ORIGIN}/api/v1/mark/hero?`)).toBe(true);
     expect(url).toContain("type=");
     expect(url).toContain("theme=tokyonight");
     expect(url).toContain("text=Google+Photos+Delete+Tool");
