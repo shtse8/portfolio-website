@@ -1,10 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  localProjectArtPath,
-  MARK_BANNER_ORIGIN,
-  markBannerUrl,
-  projectArtPath,
-} from "./project-art";
+import { localProjectArtPath, projectArtPath } from "./project-art";
 
 describe("portfolio card SSOT — Product Plate local art", () => {
   test("localProjectArtPath points at designed JPEG plates", () => {
@@ -23,25 +18,5 @@ describe("portfolio card SSOT — Product Plate local art", () => {
 
   test("alias casing for curated local files", () => {
     expect(localProjectArtPath("deepresearch")).toContain("DeepResearch.jpg");
-  });
-});
-
-describe("markBannerUrl — README / embed SSOT", () => {
-  test("returns mark.sylphx.com banner with plate-friendly defaults", () => {
-    const url = markBannerUrl("Google-Photos-Delete-Tool", {
-      description: "Fast Chrome extension",
-    });
-    expect(url.startsWith(`${MARK_BANNER_ORIGIN}/api/v1/mark/hero?`)).toBe(true);
-    expect(url).toContain("type=");
-    expect(url).toContain("theme=tokyonight");
-    expect(url).toContain("text=Google+Photos+Delete+Tool");
-    expect(url).toContain("layout=plate");
-    expect(url).toContain("animation=none");
-    expect(url).not.toContain("animation=rise");
-    expect(url).not.toContain("/art/projects/");
-  });
-
-  test("stable style for same name", () => {
-    expect(markBannerUrl("coderag")).toBe(markBannerUrl("coderag"));
   });
 });

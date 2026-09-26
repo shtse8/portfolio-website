@@ -7,7 +7,6 @@ import { localProjectArtPath } from "@/lib/project-art";
  * OSS product cover for portfolio cards.
  *
  * SSOT: local Product Plate art (public/art/projects/{name}.jpg).
- * Mark live banners remain for README embeds via markBannerUrl — not card tiles.
  * Layout: explicit aspect-ratio + normal <img> (no absolute/fill traps).
  */
 export default function ProjectCover({
