@@ -1,0 +1,76 @@
+name: CI
+
+# Pull-request checks (docs/reference/fast-trunk-ci.md). The deploy gate is the
+# same checks inside the platform image builds.
+# - Merge Queue off by default (no merge_group trigger)
+# - Concurrency cancels superseded PR/branch tip runs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: Web (biome, tsc, tests, static export)
+    # GitHub's standard hosted runner: free for a public repository (owner
+    # standards/dx.md). Never a larger or GPU runner, which is billed. This is
+    # the pull-request check; the same checks also run inside the Sylphx Hosting
+    # image builds (Dockerfile, api-rust/Dockerfile), which gate the deploy.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Install dependencies (frozen)
+        run: bun install --frozen-lockfile
+
+      - name: Biome lint
+        run: bunx biome check .
+
+      - name: Typecheck
+        run: bunx tsc --noEmit
+
+      - name: Frontend tests (bun:test)
+        run: bun test
+
+      - name: Static export build
+        run: bun run build
+
+      - name: No TS backend authority (sole Rust API)
+        run: bash scripts/check-no-ts-backend.sh
+
+      - name: BFF upstream is api ksvc :80 (not Platform :3001)
+        run: bash scripts/check-bff-upstream.sh
+
+      - name: Design markers gate
+        run: bun scripts/check-cinematic-markers.mjs
+
+  api:
+    name: Rust API (clippy, tests)
+    # Standard hosted runner; see the `web` job above.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Clippy (production code)
+        working-directory: api-rust
+        run: cargo clippy --locked --lib --bins -- -D warnings
+
+      - name: Tests (unit, contract, wiremock)
+        working-directory: api-rust
+        run: cargo test --locked -- --test-threads=1

@@ -4,11 +4,9 @@ COPY package.json bun.lock* ./
 RUN bun install --frozen-lockfile
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-# Source checks run inside the platform image build, so a failing check fails
-# the build and blocks the deploy. This repository is on a personal account,
-# which our CI runners cannot serve, and it never uses GitHub-hosted runners
-# (owner standards/dx.md). Runs here until SylphxAI/cloud#9505 ships
-# webhook-driven checks for personal-account repositories.
+# Deploy gate: the source checks run inside the platform image build, so a
+# failing check fails the build and blocks the deploy. Pull requests run the
+# same checks in .github/workflows/ci.yml (docs/reference/fast-trunk-ci.md).
 RUN apk add --no-cache bash python3 \
     && bunx biome check . \
     && bunx tsc --noEmit \

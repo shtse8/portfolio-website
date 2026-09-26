@@ -9,9 +9,8 @@ WORKDIR /workspace
 COPY api-rust /workspace/api-rust
 WORKDIR /workspace/api-rust
 ENV CARGO_BUILD_JOBS=2
-# Source checks run inside the platform image build, so a failing check fails
-# the build and blocks the deploy (see the root Dockerfile; until
-# SylphxAI/cloud#9505 ships webhook-driven checks for personal-account repos).
+# Deploy gate: clippy and tests run inside the platform image build, so a
+# failing check fails the build and blocks the deploy (see the root Dockerfile).
 RUN rustup component add clippy \
     && cargo clippy --locked --lib --bins -- -D warnings \
     && cargo test --locked -- --test-threads=1

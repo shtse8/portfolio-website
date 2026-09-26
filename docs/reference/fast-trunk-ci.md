@@ -6,7 +6,7 @@
 | --- | --- |
 | Work / claim / review | Native agent coordination (Codex); Enact retired |
 | Source history | Git |
-| Source correctness | Checks inside the Sylphx Hosting image build (both Dockerfiles) |
+| Source correctness | GitHub Actions on pull requests; the same checks inside the Sylphx Hosting image build gate the deploy |
 | Production artifact build | Sylphx Platform (once) |
 | Deploy / health / rollback | Sylphx Platform |
 
@@ -18,19 +18,19 @@
 
 ## Where the checks run
 
-This repository is on a personal GitHub account. Our CI runners serve only
-SylphxAI organization repositories, and we never use GitHub-hosted runners
-(owner standards/dx.md), so there is no GitHub Actions workflow. The checks run
-as build steps in the Sylphx Hosting image build instead, the pattern Vercel
-uses for personal repositories: a failing check fails the build, and the deploy
-does not happen. This lasts until SylphxAI/cloud#9505 (webhook-driven checks
-for personal-account repositories) ships.
+The checks run in two places:
 
-- **Web image (`Dockerfile`):** biome, `tsc --noEmit`, `bun test`, the
-  no-TS-backend gate, the BFF upstream gate, the design-marker gate, then the
-  static export build.
-- **API image (`api-rust/Dockerfile`):** `cargo clippy -D warnings` and
-  `cargo test --locked`, then the release build.
+- **Pull requests and pushes to `main`:** `.github/workflows/ci.yml` runs on
+  `ubuntu-latest`. That is GitHub's standard hosted runner, and it is free for a
+  public repository (owner standards/dx.md). Never use a larger or GPU runner;
+  those are billed even for public repositories.
+- **Deploy gate:** the Sylphx Hosting image builds run the same checks as build
+  steps. A failing check fails the build, and the deploy doesn't happen.
+  - Web image (`Dockerfile`): biome, `tsc --noEmit`, `bun test`, the
+    no-TS-backend gate, the BFF upstream gate and the design-marker gate, then
+    the static export build.
+  - API image (`api-rust/Dockerfile`): `cargo clippy -D warnings` and
+    `cargo test --locked`, then the release build.
 
-A pull request gets no check status from these builds. Run `bun run check` and
-`cd api-rust && cargo test --locked` before pushing.
+SylphxAI/cloud#9505 (webhook-driven checks for personal-account repositories)
+is no longer needed for this repository.
