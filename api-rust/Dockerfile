@@ -9,6 +9,12 @@ WORKDIR /workspace
 COPY api-rust /workspace/api-rust
 WORKDIR /workspace/api-rust
 ENV CARGO_BUILD_JOBS=2
+# Source checks run inside the platform image build, so a failing check fails
+# the build and blocks the deploy (see the root Dockerfile; until
+# SylphxAI/cloud#9505 ships webhook-driven checks for personal-account repos).
+RUN rustup component add clippy \
+    && cargo clippy --locked --lib --bins -- -D warnings \
+    && cargo test --locked -- --test-threads=1
 # Stage the binary at /out: #65 compiled kylet-api-rust (~97s) then
 # runtime `COPY --from=builder .../target/release/kylet-api-rust` was
 # CACHED and the pushed digest stayed sha256:1de4ea600a9f… (same as the
