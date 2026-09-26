@@ -43,7 +43,7 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 
 - **Web:** `bun run build` → nginx image.
 - **API:** `api-rust/Dockerfile` release binary; health at `/healthz`.
-- **Source CI (fast trunk):** biome, `tsc`, `bun test`, static export build, `cargo clippy -D warnings`, `cargo test --locked`.
+- **Source checks:** run inside the platform image build until SylphxAI/cloud#9505 ships (no GitHub Actions; see docs/reference/fast-trunk-ci.md): biome, `tsc`, `bun test`, static export build, `cargo clippy -D warnings`, `cargo test --locked`.
 - **Production proof:** `scripts/api-smoke.sh` (default `https://kylet.se`): health, stats,
   projects, activity, chat SSE.
 - **Baked fallbacks:** `bun run sync` refreshes explicit-public repository records

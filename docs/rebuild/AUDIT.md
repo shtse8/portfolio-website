@@ -121,7 +121,7 @@ the only structural disagreement, and it is observable: `https://kylet.se/act` r
 with 11 routes (api-rust/src/app.rs:246-256), reached on the customer path through the nginx BFF
 (nginx.conf:27-106) and the manifest's `path_prefixes` (sylphx.toml). *No form:* the only `<form>` in
 `src/` is the agent's text input (FloatingAgent.tsx:439), which is WEB-CHAT, not a contact form.
-*No second content authority:* enforced by scripts/check-no-ts-backend.sh and CI (.github/workflows/ci.yml:47).
+*No second content authority:* enforced by scripts/check-no-ts-backend.sh and the web image build (Dockerfile).
 
 ## 4. Missing Pages & Features
 
@@ -205,7 +205,7 @@ cause is **Unknown** and the impact is what is recorded.
 ### 5.4 WEB-LEGACY — **True (dead)**
 
 No `api/` authority directory can return without failing the build (scripts/check-no-ts-backend.sh,
-run by CI at .github/workflows/ci.yml:47); `api-rust` is the sole API tree; no residual
+run by the web image build (Dockerfile)); `api-rust` is the sole API tree; no residual
 `projects.ts` or screenshot catalog exists in `src/data/` or `public/`. The nginx BFF proxy blocks
 (nginx.conf:27-106) are declared transitional in sylphx.toml ("become dead and can be removed
 (ADR-169 follow-up)") — a known cleanup, not a live second authority.
