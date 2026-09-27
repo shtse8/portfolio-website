@@ -1,7 +1,6 @@
 use crate::upstream;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use std::env;
 use std::time::Duration;
 
 #[derive(Clone, Copy)]
@@ -134,10 +133,6 @@ fn client() -> Client {
         .clone()
 }
 
-fn gh_token() -> Option<String> {
-    env::var("GITHUB_TOKEN").ok().filter(|t| !t.is_empty())
-}
-
 fn to_public_summary(r: GhRepo) -> Option<RepoSummary> {
     if !is_public_repo(&r) {
         return None;
@@ -181,13 +176,11 @@ fn owner_repos_path(owner: GithubOwnerConfig) -> String {
 }
 
 async fn gh_get(path: &str) -> Result<reqwest::Response, reqwest::Error> {
-    let mut req = client()
+    client()
         .get(upstream::github_rest_url(path))
-        .header("user-agent", "kylet-api-rust");
-    if let Some(token) = gh_token() {
-        req = req.header("authorization", format!("bearer {token}"));
-    }
-    req.send().await
+        .header("user-agent", "kylet-api-rust")
+        .send()
+        .await
 }
 
 fn now_ms() -> u64 {
@@ -319,13 +312,9 @@ async fn probe_repo(owner: &str, repo: &str) -> Result<Option<RepoSummary>, Stri
         .timeout(REPO_PROBE_TIMEOUT)
         .build()
         .unwrap_or_else(|_| Client::new());
-    let mut req = client
+    let res = client
         .get(upstream::github_rest_url(&format!("/repos/{owner}/{repo}")))
-        .header("user-agent", "kylet-api-rust");
-    if let Some(token) = gh_token() {
-        req = req.header("authorization", format!("bearer {token}"));
-    }
-    let res = req
+        .header("user-agent", "kylet-api-rust")
         .send()
         .await
         .map_err(|e| format!("github repo transport: {e}"))?;

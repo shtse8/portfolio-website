@@ -11,7 +11,6 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 fn set_github_env(server: &MockServer) {
     unsafe {
         std::env::set_var("GITHUB_API_BASE", server.uri());
-        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
     }
 }
 

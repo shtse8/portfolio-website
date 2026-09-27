@@ -15,17 +15,12 @@
 //!
 //! `commits_month` is a REAL 30-day series from GitHub — never week×4.
 
-use crate::contract::{
-    aggregate_github_activity, days_ago_iso, github_activity_query, start_of_day_iso,
-    ActivityPayload, PUBLIC_ACTIVITY_PROJECTION_REVISION,
-};
-use reqwest::Client;
-use serde_json::Value;
+use crate::contract::{ActivityPayload, PUBLIC_ACTIVITY_PROJECTION_REVISION};
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 const DEFAULT_ACTIVITY_TTL_MS: u64 = 5 * 60 * 1000;
 const DEFAULT_LAST_GOOD_PATH: &str = "/var/lib/portfolio-api/activity-last-good.json";
@@ -58,13 +53,6 @@ fn now_ms() -> u64 {
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0)
-}
-
-fn client() -> Client {
-    Client::builder()
-        .timeout(Duration::from_secs(8))
-        .build()
-        .unwrap_or_else(|_| Client::new())
 }
 
 /// Durable last-good path (env-overridable for tests).
@@ -151,92 +139,10 @@ pub fn assert_honest_windows(payload: &ActivityPayload) -> Result<(), String> {
     Ok(())
 }
 
-async fn search_count(token: &str, since_iso: &str) -> Result<u64, String> {
-    let url =
-        crate::contract::github_activity_search_url(&crate::upstream::github_api_base(), since_iso);
-    let res = client()
-        .get(&url)
-        .header("authorization", format!("bearer {token}"))
-        .header("accept", "application/vnd.github+json")
-        .header("user-agent", "kylet-api-rust")
-        .send()
-        .await
-        .map_err(|e| format!("github search transport: {e}"))?;
-    if !res.status().is_success() {
-        return Err(format!("github search {}", res.status()));
-    }
-    let body: Value = res
-        .json()
-        .await
-        .map_err(|e| format!("github search decode: {e}"))?;
-    body.get("total_count")
-        .and_then(Value::as_u64)
-        .ok_or_else(|| "github search missing total_count".to_string())
-}
-
-async fn fetch_github_activity() -> Result<ActivityPayload, String> {
-    let token = env::var("GITHUB_TOKEN")
-        .ok()
-        .filter(|t| !t.trim().is_empty())
-        .ok_or_else(|| "GITHUB_TOKEN not set".to_string())?;
-    let now = now_ms();
-    let now_iso = crate::stats::iso_now();
-    let today_start = start_of_day_iso(now);
-    let week_start = days_ago_iso(now, 7);
-    let month_start = days_ago_iso(now, 30);
-
-    let query = github_activity_query(&now_iso, &today_start);
-    if !crate::contract::github_activity_query_balanced(&query) {
-        return Err("github activity query brace imbalance".to_string());
-    }
-    let res = client()
-        .post(crate::upstream::github_graphql_url())
-        .header("authorization", format!("bearer {token}"))
-        .header("content-type", "application/json")
-        .header("user-agent", "kylet-api-rust")
-        .json(&serde_json::json!({ "query": query }))
-        .send()
-        .await
-        .map_err(|e| format!("github graphql transport: {e}"))?;
-    if !res.status().is_success() {
-        return Err(format!("github graphql {}", res.status()));
-    }
-    let body: Value = res
-        .json()
-        .await
-        .map_err(|e| format!("github graphql decode: {e}"))?;
-    if let Some(errors) = body.get("errors") {
-        return Err(format!(
-            "github graphql: {}",
-            errors.to_string().chars().take(200).collect::<String>()
-        ));
-    }
-    let data = body
-        .get("data")
-        .cloned()
-        .ok_or_else(|| "github graphql missing data".to_string())?;
-
-    // Commit counts: public-only commit search covers all public branches (contributionsCollection
-    // only counts default-branch commits and under-reports branch work).
-    let commits_today = search_count(&token, &today_start).await?;
-    let commits_week = search_count(&token, &week_start).await?;
-    let commits_month = search_count(&token, &month_start).await?;
-
-    let payload = aggregate_github_activity(
-        &data,
-        commits_today,
-        commits_week,
-        commits_month,
-        now,
-        &now_iso,
-    );
-    assert_honest_windows(&payload)?;
-    Ok(payload)
-}
-
-/// Single metric authority: GitHub GraphQL only.
+/// Commit activity came from GitHub GraphQL, which needs a credential. The
+/// site holds none, so activity is reported absent, never guessed.
 pub async fn compute_activity() -> Result<ActivityPayload, String> {
-    fetch_github_activity().await
+    Err(crate::stats::NO_GITHUB_CREDENTIAL.to_string())
 }
 
 fn mark_stale(mut data: ActivityPayload) -> ActivityPayload {
@@ -353,6 +259,7 @@ pub fn reset_cache_for_tests() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::contract::{aggregate_github_activity, days_ago_iso, start_of_day_iso};
     use serde_json::json;
     use std::sync::Mutex as StdMutex;
 

@@ -15,6 +15,10 @@ Kyle Tse's personal proof surface: a static portfolio with a small Rust live API
 - **API:** Rust `api-rust` (`sylphx.toml` `api` service, port 3001) — stats,
   activity, projects, downloads, and AI chat via the Sylphx AI Gateway
   Responses wire.
+- **GitHub:** the API holds no GitHub credential. Repository reads use the
+  public REST API anonymously; the aggregate `/stats` and `/activity`
+  (GitHub GraphQL, which needs a credential) report `absent`. The API retires
+  with the Keel rebuild ([docs/design/](https://github.com/shtse8/portfolio-website/pull/86)).
 - **Contract:** single JSON REST contract (`api-rust/src/contract.rs` +
   `tool_schemas.rs`). No proto/Connect surface.
 

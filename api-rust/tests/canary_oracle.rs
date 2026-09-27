@@ -18,7 +18,7 @@ use kylet_api_rust::{activity as api_activity, app, stats as api_stats, testing,
 use serde_json::json;
 use serial_test::serial;
 use tower::ServiceExt;
-use wiremock::matchers::{method, path, path_regex};
+use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 fn temp_dir(tag: &str) -> std::path::PathBuf {
@@ -31,7 +31,6 @@ fn fixture_guard(dir: &std::path::Path) -> testing::EnvGuard {
     let guard = testing::EnvGuard::acquire(&[
         "GITHUB_API_BASE",
         "NPM_API_BASE",
-        "GITHUB_TOKEN",
         "STATS_LAST_GOOD_PATH",
         "ACTIVITY_LAST_GOOD_PATH",
     ]);
@@ -82,7 +81,6 @@ async fn canary_absent_and_control_available_on_repo_surfaces() {
     let guard = fixture_guard(&dir);
     guard.set("GITHUB_API_BASE", &server.uri());
     guard.set("NPM_API_BASE", &server.uri());
-    guard.set("GITHUB_TOKEN", "wiremock-token");
 
     mount_owner_lists(&server).await;
     // The upstream openly returns the canary for a direct lookup, and the
@@ -184,7 +182,6 @@ async fn canary_fact_never_inflates_stats_and_never_500s() {
     let guard = fixture_guard(&dir);
     guard.set("GITHUB_API_BASE", &server.uri());
     guard.set("NPM_API_BASE", &server.uri());
-    guard.set("GITHUB_TOKEN", "wiremock-token");
 
     Mock::given(method("POST"))
         .and(path("/graphql"))
@@ -222,110 +219,12 @@ async fn canary_fact_never_inflates_stats_and_never_500s() {
 /// control half of the oracle.
 #[tokio::test]
 #[serial]
-async fn explicit_public_control_yields_live_stats() {
-    let server = MockServer::start().await;
-    let dir = temp_dir("stats-control");
-    let guard = fixture_guard(&dir);
-    guard.set("GITHUB_API_BASE", &server.uri());
-    guard.set("NPM_API_BASE", &server.uri());
-    guard.set("GITHUB_TOKEN", "wiremock-token");
-
-    Mock::given(method("POST"))
-        .and(path("/graphql"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(stats_graphql(json!([
-            canary::graphql_public_control()
-        ]))))
-        .mount(&server)
-        .await;
-    Mock::given(method("GET"))
-        .and(path(format!(
-            "/repos/{}/{}",
-            canary::PUBLIC_CONTROL_OWNER,
-            canary::PUBLIC_CONTROL_REPO
-        )))
-        .respond_with(ResponseTemplate::new(200).set_body_json(canary::rest_public_control()))
-        .mount(&server)
-        .await;
-    Mock::given(method("GET"))
-        .and(path_regex(r"/downloads/point/last-month/.*"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "downloads": 7 })))
-        .mount(&server)
-        .await;
-
-    let (status, bytes) = body_of("/stats").await;
-    assert_eq!(status, StatusCode::OK);
-    let v = json_from(&bytes);
-    assert_eq!(v["freshness"], "live");
-    assert_eq!(v["githubStars"], json!(canary::PUBLIC_CONTROL_STARS));
-    canary::assert_no_canary(&bytes).unwrap();
-    assert_eq!(v["repositoryVisibility"], "public-only/v1");
-
-    let _ = std::fs::remove_dir_all(&dir);
-}
-
-/// `GET /activity` and `GET /claims` with the canary in the GraphQL activity
-/// feed: the canary repo must not be counted as active and must not become the
-/// `lastPush` deep link.
-#[tokio::test]
-#[serial]
-async fn canary_excluded_from_activity_and_claims() {
-    let server = MockServer::start().await;
-    let dir = temp_dir("activity");
-    let guard = fixture_guard(&dir);
-    guard.set("GITHUB_API_BASE", &server.uri());
-    guard.set("NPM_API_BASE", &server.uri());
-    guard.set("GITHUB_TOKEN", "wiremock-token");
-
-    Mock::given(method("POST"))
-        .and(path("/graphql"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "data": {
-            "today": { "contributionsCollection": { "commitContributionsByRepository": [
-                { "repository": canary::graphql_unverifiable_canary(), "contributions": { "totalCount": 400 } },
-                { "repository": canary::graphql_private_canary(), "contributions": { "totalCount": 200 } },
-                { "repository": canary::graphql_public_control(), "contributions": { "totalCount": 3 } }
-            ] } },
-            "repos": { "repositories": { "nodes": [
-                canary::graphql_private_canary(),
-                canary::graphql_unverifiable_canary(),
-                canary::graphql_public_control()
-            ] } }
-        } })))
-        .mount(&server)
-        .await;
-    for total in [275u64, 12_023, 24_682] {
-        Mock::given(method("GET"))
-            .and(path("/search/commits"))
-            .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "total_count": total })))
-            .up_to_n_times(1)
-            .mount(&server)
-            .await;
-    }
-
-    let (status, bytes) = body_of("/activity").await;
-    assert_eq!(status, StatusCode::OK);
-    canary::assert_no_canary(&bytes).unwrap();
-    let v = json_from(&bytes);
-    assert_eq!(v["reposActiveToday"], json!(1), "only the control counts");
-    assert_eq!(v["lastPush"]["repo"], json!(canary::PUBLIC_CONTROL_REPO));
-    assert_eq!(v["projectionRevision"], "github-public-only/v1");
-
-    let (status, bytes) = body_of("/claims").await;
-    assert_eq!(status, StatusCode::OK);
-    canary::assert_no_canary(&bytes).unwrap();
-
-    let _ = std::fs::remove_dir_all(&dir);
-}
-
-/// Nothing the canary touched may survive in a cache or a durable fallback file.
-#[tokio::test]
-#[serial]
 async fn canary_absent_from_caches_and_durable_fallbacks() {
     let server = MockServer::start().await;
     let dir = temp_dir("caches");
     let guard = fixture_guard(&dir);
     guard.set("GITHUB_API_BASE", &server.uri());
     guard.set("NPM_API_BASE", &server.uri());
-    guard.set("GITHUB_TOKEN", "wiremock-token");
 
     mount_owner_lists(&server).await;
     Mock::given(method("POST"))
