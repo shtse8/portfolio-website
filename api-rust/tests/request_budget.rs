@@ -67,13 +67,11 @@ async fn hanging_upstream_still_answers_within_the_edge_budget() {
     let guard = testing::EnvGuard::acquire(&[
         "GITHUB_API_BASE",
         "NPM_API_BASE",
-        "GITHUB_TOKEN",
         "STATS_LAST_GOOD_PATH",
         "ACTIVITY_LAST_GOOD_PATH",
     ]);
     guard.set("GITHUB_API_BASE", &base);
     guard.set("NPM_API_BASE", &base);
-    guard.set("GITHUB_TOKEN", "hanging-token");
     guard.set(
         "STATS_LAST_GOOD_PATH",
         dir.join("stats-last-good.json").to_str().unwrap(),
@@ -151,13 +149,11 @@ async fn hanging_upstream_bounds_projects_recent_and_downloads() {
     let guard = testing::EnvGuard::acquire(&[
         "GITHUB_API_BASE",
         "NPM_API_BASE",
-        "GITHUB_TOKEN",
         "STATS_LAST_GOOD_PATH",
         "ACTIVITY_LAST_GOOD_PATH",
     ]);
     guard.set("GITHUB_API_BASE", &base);
     guard.set("NPM_API_BASE", &base);
-    guard.set("GITHUB_TOKEN", "hanging-token");
     guard.set(
         "STATS_LAST_GOOD_PATH",
         dir.join("stats-last-good.json").to_str().unwrap(),

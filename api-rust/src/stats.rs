@@ -1,12 +1,10 @@
 use crate::contract::PUBLIC_STATS_REVISION;
-use crate::upstream;
-use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 const STATS_TTL_MS: u64 = 10 * 60 * 1000;
 const DEFAULT_LAST_GOOD_PATH: &str = "/var/lib/portfolio-api/stats-last-good.json";
@@ -31,50 +29,6 @@ pub struct StatsPayload {
     pub repos: u64,
     pub updated_at: String,
 }
-
-struct GithubOwner {
-    login: &'static str,
-    kind: &'static str,
-}
-
-const GITHUB_OWNERS: &[GithubOwner] = &[
-    GithubOwner {
-        login: "shtse8",
-        kind: "user",
-    },
-    GithubOwner {
-        login: "SylphxAI",
-        kind: "organization",
-    },
-    GithubOwner {
-        login: "Cubeage",
-        kind: "organization",
-    },
-    GithubOwner {
-        login: "EpiowAI",
-        kind: "organization",
-    },
-    GithubOwner {
-        login: "OzyrixLtd",
-        kind: "organization",
-    },
-];
-
-const NPM_PACKAGES: &[&str] = &[
-    "@sylphx/pdf-reader-mcp",
-    "@sylphx/coderag",
-    "@sylphx/flow",
-    "@sylphx/silk",
-    "@sylphx/craft",
-    "@sylphx/rapid",
-    "@sylphx/spectra",
-    "@shtse8/filesystem-mcp",
-    "@shtse8/pdf-reader-mcp",
-    "@shtse8/cursor-ai-downloads",
-];
-
-const FLAGSHIP_REPO: &str = "SylphxAI/pdf-reader-mcp";
-const FLAGSHIP_NPM: &str = "@sylphx/pdf-reader-mcp";
 
 static CACHE: std::sync::OnceLock<Mutex<Option<(u64, StatsPayload)>>> = std::sync::OnceLock::new();
 
@@ -200,189 +154,14 @@ fn now_ms() -> u64 {
         .unwrap_or(0)
 }
 
-fn client() -> Client {
-    Client::builder()
-        .timeout(Duration::from_secs(8))
-        .build()
-        .unwrap_or_else(|_| Client::new())
-}
-
-async fn github_graphql(query: &str) -> Result<serde_json::Value, String> {
-    let token = env::var("GITHUB_TOKEN").map_err(|_| "GITHUB_TOKEN not set".to_string())?;
-    let res = client()
-        .post(upstream::github_graphql_url())
-        .header("authorization", format!("bearer {token}"))
-        .header("content-type", "application/json")
-        .header("user-agent", "kylet-api-rust")
-        .json(&serde_json::json!({ "query": query }))
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-    if !res.status().is_success() {
-        return Err(format!("github graphql {}", res.status()));
-    }
-    let body: serde_json::Value = res.json().await.map_err(|e| e.to_string())?;
-    if let Some(errors) = body.get("errors") {
-        return Err(format!(
-            "github graphql: {}",
-            errors.to_string().chars().take(200).collect::<String>()
-        ));
-    }
-    body.get("data")
-        .cloned()
-        .ok_or_else(|| "missing data".to_string())
-}
-
-async fn fetch_github_stars() -> Result<(u64, std::collections::HashMap<String, u64>, u64), String>
-{
-    let blocks: String = GITHUB_OWNERS
-        .iter()
-        .enumerate()
-        .map(|(i, o)| {
-            if o.kind == "user" {
-                format!(
-                    // Include owned forks so notable personal tools (e.g. Google-Photos-Delete-Tool)
-                    // count toward portfolio star totals.
-                    "o{i}: user(login: \"{}\") {{ repositories(ownerAffiliations: OWNER, privacy: PUBLIC, first: 100, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount isFork isPrivate visibility }} }} }}",
-                    o.login
-                )
-            } else {
-                format!(
-                    "o{i}: organization(login: \"{}\") {{ repositories(first: 100, privacy: PUBLIC, isFork: false, orderBy: {{ field: STARGAZERS, direction: DESC }}) {{ totalCount nodes {{ stargazerCount isPrivate visibility }} }} }}",
-                    o.login
-                )
-            }
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-    let data = github_graphql(&format!("{{ {blocks} }}")).await?;
-    let mut by_owner = std::collections::HashMap::new();
-    let mut total = 0u64;
-    let mut repos = 0u64;
-    for (i, o) in GITHUB_OWNERS.iter().enumerate() {
-        let conn = data
-            .get(format!("o{i}"))
-            .and_then(|v| v.get("repositories"));
-        if conn
-            .and_then(|c| c.get("nodes"))
-            .and_then(|n| n.as_array())
-            .is_some_and(|nodes| {
-                nodes
-                    .iter()
-                    .any(|repo| !crate::github_visibility::graphql_repo_is_explicitly_public(repo))
-            })
-        {
-            return Err(format!(
-                "github public-only stats query returned unverifiable repository for {}",
-                o.login
-            ));
-        }
-        let stars: u64 = conn
-            .and_then(|c| c.get("nodes"))
-            .and_then(|n| n.as_array())
-            .map(|nodes| {
-                nodes
-                    .iter()
-                    .filter(|n| crate::github_visibility::graphql_repo_is_explicitly_public(n))
-                    .filter(|n| {
-                        // Orgs: isFork not present → keep. User: keep non-forks + notable forks (≥30★).
-                        let is_fork = n.get("isFork").and_then(|v| v.as_bool()).unwrap_or(false);
-                        if !is_fork {
-                            return true;
-                        }
-                        n.get("stargazerCount")
-                            .and_then(|s| s.as_u64())
-                            .unwrap_or(0)
-                            >= 30
-                    })
-                    .filter_map(|n| n.get("stargazerCount").and_then(|s| s.as_u64()))
-                    .sum()
-            })
-            .unwrap_or(0);
-        by_owner.insert(o.login.to_string(), stars);
-        total += stars;
-        repos += conn
-            .and_then(|c| c.get("totalCount"))
-            .and_then(|t| t.as_u64())
-            .unwrap_or(0);
-    }
-    Ok((total, by_owner, repos))
-}
-
-async fn npm_monthly(pkg: &str) -> u64 {
-    let url = upstream::npm_url(&format!(
-        "/downloads/point/last-month/{}",
-        pkg.replace('@', "%40").replace('/', "%2F")
-    ));
-    match client().get(&url).send().await {
-        Ok(res) if res.status().is_success() => res
-            .json::<serde_json::Value>()
-            .await
-            .ok()
-            .and_then(|v| v.get("downloads").and_then(|d| d.as_u64()))
-            .unwrap_or(0),
-        _ => 0,
-    }
-}
-
-async fn fetch_npm_downloads() -> (u64, u64) {
-    let mut total = 0u64;
-    let mut flagship = 0u64;
-    for (i, pkg) in NPM_PACKAGES.iter().enumerate() {
-        let n = npm_monthly(pkg).await;
-        total += n;
-        if *pkg == FLAGSHIP_NPM {
-            flagship = n;
-        } else if flagship == 0 && i == 0 {
-            // placeholder until flagship found
-        }
-    }
-    (total, flagship)
-}
-
-async fn fetch_flagship_stars() -> Result<u64, String> {
-    let token = env::var("GITHUB_TOKEN").ok();
-    let mut req = client()
-        .get(upstream::github_rest_url(&format!(
-            "/repos/{FLAGSHIP_REPO}"
-        )))
-        .header("user-agent", "kylet-api-rust");
-    if let Some(t) = token {
-        req = req.header("authorization", format!("bearer {t}"));
-    }
-    let res = req
-        .send()
-        .await
-        .map_err(|error| format!("github flagship transport: {error}"))?;
-    if !res.status().is_success() {
-        return Err(format!("github flagship {}", res.status()));
-    }
-    let repo: serde_json::Value = res
-        .json()
-        .await
-        .map_err(|error| format!("github flagship decode: {error}"))?;
-    if !crate::github_visibility::rest_value_is_explicitly_public(&repo) {
-        return Err("github flagship repository is not explicitly public".to_string());
-    }
-    repo.get("stargazers_count")
-        .and_then(|stars| stars.as_u64())
-        .ok_or_else(|| "github flagship missing stargazers_count".to_string())
-}
-
+/// Aggregate star counts came from GitHub GraphQL, which needs a credential.
+/// The site holds no GitHub credential (the api retires with the Keel
+/// rebuild), so the aggregate is reported absent, never guessed.
 async fn compute_stats() -> Result<StatsPayload, String> {
-    let (gh_total, by_owner, repos) = fetch_github_stars().await?;
-    let (npm_total, npm_flagship) = fetch_npm_downloads().await;
-    let flagship_stars = fetch_flagship_stars().await?;
-    Ok(StatsPayload {
-        github_stars: gh_total,
-        npm_downloads: npm_total,
-        flagship_stars,
-        flagship_downloads: npm_flagship,
-        by_owner,
-        repos,
-        updated_at: iso_now(),
-    })
+    Err(NO_GITHUB_CREDENTIAL.to_string())
 }
+
+pub const NO_GITHUB_CREDENTIAL: &str = "github aggregate needs a credential; none is configured";
 
 pub fn iso_now() -> String {
     time::OffsetDateTime::now_utc()

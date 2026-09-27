@@ -95,13 +95,11 @@ async fn claims_labels_a_last_good_snapshot_exactly_as_stats_does() {
     let guard = testing::EnvGuard::acquire(&[
         "GITHUB_API_BASE",
         "NPM_API_BASE",
-        "GITHUB_TOKEN",
         "STATS_LAST_GOOD_PATH",
         "ACTIVITY_LAST_GOOD_PATH",
     ]);
     guard.set("GITHUB_API_BASE", &base);
     guard.set("NPM_API_BASE", &base);
-    guard.set("GITHUB_TOKEN", "hanging-token");
     guard.set(
         "STATS_LAST_GOOD_PATH",
         dir.join("stats-last-good.json").to_str().unwrap(),
@@ -171,13 +169,11 @@ async fn claims_no_snapshot_branch_is_explicitly_absent_not_null() {
     let guard = testing::EnvGuard::acquire(&[
         "GITHUB_API_BASE",
         "NPM_API_BASE",
-        "GITHUB_TOKEN",
         "STATS_LAST_GOOD_PATH",
         "ACTIVITY_LAST_GOOD_PATH",
     ]);
     guard.set("GITHUB_API_BASE", &base);
     guard.set("NPM_API_BASE", &base);
-    guard.set("GITHUB_TOKEN", "hanging-token");
     // Deliberately nonexistent: nothing on disk, and EnvGuard cleared memory.
     guard.set(
         "STATS_LAST_GOOD_PATH",

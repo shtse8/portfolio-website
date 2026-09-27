@@ -10,102 +10,11 @@ use wiremock::{Mock, MockServer, ResponseTemplate};
 
 #[tokio::test]
 #[serial]
-async fn activity_counts_all_branches_via_commit_search() {
-    let server = MockServer::start().await;
-    testing::reset_all();
-    unsafe {
-        std::env::set_var("GITHUB_API_BASE", server.uri());
-        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
-    }
-
-    // GraphQL: today byRepository + repos (lastPush).
-    Mock::given(method("POST"))
-        .and(path("/graphql"))
-        .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "data": {
-            "today": { "contributionsCollection": { "commitContributionsByRepository": [
-                { "repository": { "nameWithOwner": "shtse8/nonpublic-synthetic-a", "pushedAt": "2026-08-09T11:00:00Z", "isPrivate": true, "visibility": "PRIVATE" }, "contributions": { "totalCount": 400 } },
-                { "repository": { "nameWithOwner": "shtse8/tool-repo", "pushedAt": "2026-08-09T10:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }, "contributions": { "totalCount": 3 } },
-                { "repository": { "nameWithOwner": "shtse8/nonpublic-synthetic-b", "pushedAt": "2026-08-09T09:00:00Z", "isPrivate": false }, "contributions": { "totalCount": 200 } }
-            ] } },
-            "repos": { "repositories": { "nodes": [
-                { "nameWithOwner": "shtse8/nonpublic-synthetic-a", "pushedAt": "2026-08-09T11:00:00Z", "isPrivate": true, "visibility": "PRIVATE" },
-                { "nameWithOwner": "shtse8/tool-repo", "pushedAt": "2026-08-09T10:00:00Z", "isPrivate": false, "visibility": "PUBLIC" }
-            ] } }
-        } })))
-        .mount(&server)
-        .await;
-
-    // Commit search: three sequential calls (today → week → month), each with
-    // the REAL (all-branch) count, matched by arrival order.
-    for total in [275u64, 12_023, 24_682] {
-        Mock::given(method("GET"))
-            .and(path("/search/commits"))
-            .respond_with(ResponseTemplate::new(200).set_body_json(json!({ "total_count": total })))
-            .up_to_n_times(1)
-            .mount(&server)
-            .await;
-    }
-
-    let app = router();
-    let res = app
-        .oneshot(
-            Request::builder()
-                .uri("/activity")
-                .body(Body::empty())
-                .unwrap(),
-        )
-        .await
-        .unwrap();
-    assert_eq!(res.status(), StatusCode::OK);
-    let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
-        .await
-        .unwrap();
-    let v: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
-    assert_eq!(v["commitsToday"], json!(275));
-    assert_eq!(v["commitsWeek"], json!(12023));
-    assert_eq!(v["commitsMonth"], json!(24682));
-    assert_eq!(v["reposActiveToday"], json!(1));
-    assert_eq!(v["source"], json!("github-public"));
-    assert_eq!(v["freshness"], json!("live"));
-    assert_ne!(v["commitsMonth"], json!(48092)); // never week×4 (12023×4)
-    assert_eq!(v["lastPush"]["repo"], json!("tool-repo"));
-    assert!(!bytes
-        .windows(b"nonpublic-synthetic".len())
-        .any(|window| window == b"nonpublic-synthetic"));
-
-    let received = server.received_requests().await.expect("received requests");
-    let search_requests: Vec<_> = received
-        .iter()
-        .filter(|request| request.url.path() == "/search/commits")
-        .collect();
-    assert_eq!(search_requests.len(), 3);
-    for request in search_requests {
-        let query = request
-            .url
-            .query_pairs()
-            .find(|(key, _)| key == "q")
-            .map(|(_, value)| value.into_owned())
-            .expect("search q");
-        assert!(query.contains("is:public"), "{query}");
-    }
-    let graphql = received
-        .iter()
-        .find(|request| request.url.path() == "/graphql")
-        .expect("graphql request");
-    let payload: serde_json::Value = serde_json::from_slice(&graphql.body).unwrap();
-    let query = payload["query"].as_str().expect("graphql query");
-    assert!(query.contains("privacy: PUBLIC"));
-    assert!(query.contains("isPrivate visibility"));
-}
-
-#[tokio::test]
-#[serial]
 async fn activity_github_failure_serves_last_good_stale_without_fabrication() {
     let server = MockServer::start().await;
     testing::reset_all();
     unsafe {
         std::env::set_var("GITHUB_API_BASE", server.uri());
-        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
     }
 
     // Seed a last-good snapshot, then make GitHub fail.
@@ -158,7 +67,6 @@ async fn activity_absent_not_502_when_unconfigured_and_no_last_good() {
     unsafe {
         std::env::remove_var("GITHUB_API_BASE");
         std::env::remove_var("GITHUB_GRAPHQL_URL");
-        std::env::remove_var("GITHUB_TOKEN");
     }
     let app = router();
     let res = app
@@ -194,7 +102,6 @@ async fn activity_absent_not_502_when_upstream_fails_and_no_last_good() {
     testing::reset_all();
     unsafe {
         std::env::set_var("GITHUB_API_BASE", server.uri());
-        std::env::set_var("GITHUB_TOKEN", "wiremock-token");
     }
 
     Mock::given(method("POST"))
