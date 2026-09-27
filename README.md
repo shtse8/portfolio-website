@@ -24,6 +24,8 @@ Kyle Tse's personal proof surface: a static portfolio with a small Rust live API
 
 ## Chat env contract (server-side only)
 
+The agent and this contract retire with the Keel rebuild (#86).
+
 | Var | Purpose |
 | --- | --- |
 | `SYLPHX_AI_URL` | Gateway base (default `https://api.models.sylphx.ai`, normalized to `/v1`) |
@@ -56,6 +58,10 @@ bun run build        # static export
 cd api-rust && cargo test --locked
 cd api-rust && cargo clippy --locked --lib --bins -- -D warnings
 ```
+
+Pull requests run these on GitHub's free standard hosted runner; the same
+checks run inside both Sylphx Hosting image builds, so a failing check blocks
+the deploy.
 
 ## Sync baked fallbacks
 

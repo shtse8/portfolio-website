@@ -46,3 +46,21 @@ The destination is true only when a first-time visitor at `https://kylet.se` can
 - **Ask** via a grounded `POST /chat` turn that reaches Sylphx AI Gateway and returns an answer grounded in the 5 tools without gateway `401` (`unsupported_credential`, `invalid_api_key`, or equivalent), at the live layer via the `sylphx.toml` nginx BFF + api deployment.
 
 A static export (`out/`) build, `GET /healthz`, or `GET /chat/ready` reporting `ready=true` is not this oracle. Destination-true still requires the grounded chat turn. Live-attested public-only stats/activity plus labeled career pedigree is the verify half.
+
+## State
+
+2026-09-27:
+
+- Live at `https://kylet.se`: the Next.js static export behind nginx, and
+  `api-rust`. Repository reads work anonymously; `GET /stats` and
+  `GET /activity` report `freshness=absent`, because the API holds no GitHub
+  credential (#89). The verify half of the oracle above is therefore not met.
+- The on-site agent answers `GET /chat/ready` with `ready=true`.
+- Direction (decided 2026-09-26, lands with the rebuild): the site moves to
+  Keel (owner#739, stage 1), and `api-rust` and the on-site agent retire in
+  the same pull request. The design set is in draft #86 (`docs/design/`);
+  the build waits on Keel's web styling API and SylphxAI/cloud#9149. This
+  document is rewritten in that pull request.
+- Checks: GitHub Actions on pull requests (free standard hosted runner), and
+  the same checks inside the Sylphx Hosting image builds gate every deploy.
+
