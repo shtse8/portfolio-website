@@ -1,22 +1,21 @@
 /* kylet.se: what the site's Keel theme (site/src/theme.rs) cannot say yet.
- * The theme owns every token, the page's base text and scrolling, and every
- * surface's paint, type, box and layout; keel-web exports them as custom
- * properties, html/body rules and class rules. Each block here names the Keel
- * issue that replaces it, and goes in the change that adopts it. */
+ * The theme owns every token, the page's base text, canvas, links and focus
+ * ring, and every surface's paint, type, box, layout and hover, focus and
+ * pressed states; keel-web exports them as custom properties, html/body rules
+ * and class rules. Each block here names the Keel issue that replaces it, and
+ * goes in the change that adopts it. */
 
-/* ---------- system fonts: keel#3821 ----------
- * The families the theme's type roles name (`--keel-font-<family>`). */
+/* ---------- display and mono families: keel#3821 ----------
+ * The families the theme's type roles name (`--keel-font-<family>`); the
+ * base text face is the theme's `font_ui`. */
 :root {
-  --keel-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   --keel-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   --keel-font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
 }
-button { font-family: inherit; }
 
 /* ---------- light and dark: keel#4060 ----------
  * The page follows the device; the dark palette is dark.css. */
 :root { color-scheme: light dark; }
-html { -webkit-text-size-adjust: 100%; }
 
 /* ---------- shadows and hairlines: keel#3871 ---------- */
 :root {
@@ -32,7 +31,6 @@ html { -webkit-text-size-adjust: 100%; }
 [data-keel-surface="top"], [data-keel-surface="foot"], [data-keel-surface="band-ruled"] { border-width: 0.5px; }
 [data-keel-surface="stage"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 30px 60px -30px rgba(7, 8, 11, 0.55); }
 [data-keel-surface="stage-bar"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset; }
-[data-keel-surface="stage-dot"] { flex: none; }
 [data-keel-surface="tile-keel"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset; }
 
 /* ---------- stacking: keel#3941 ----------
@@ -42,7 +40,7 @@ html { -webkit-text-size-adjust: 100%; }
 
 /* ---------- positions and lengths the surface model cannot hold: keel#3942, safe-area insets keel#4060 ----------
  * The scene's caption floats over its bottom edge; gutters and the header
- * keep clear of a notch (safe-area insets). */
+ * keep clear of a notch; fixed boxes do not shrink in a row. */
 [data-keel-surface="stage-bar"] { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; }
 [data-keel-surface="top"] { padding-top: env(safe-area-inset-top); }
 [data-keel-surface="wrap"], [data-keel-surface="top-bar"], [data-keel-surface="foot-inner"] {
@@ -51,19 +49,19 @@ html { -webkit-text-size-adjust: 100%; }
 }
 [data-keel-surface="foot"] { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
 [data-keel-surface="tile"], [data-keel-surface="tile-lg"], [data-keel-surface="tile-keel"], [data-keel-surface="chev"],
-[data-keel-surface="built-mark"], [data-keel-surface="eyebrow-dot"] { flex: none; }
+[data-keel-surface="built-mark"], [data-keel-surface="eyebrow-dot"], [data-keel-surface="stage-dot"] { flex: none; }
 [data-keel-surface="row-text"] { flex: 1; }
 
-/* ---------- the scene's state on its caption: keel#3911 ----------
- * The caption's dot turns green once the scene runs. */
+/* ---------- a surface that follows a descendant's state: keel#4060 ----------
+ * The scene caption's dot turns green once the engine view reports live. */
 [data-keel-surface="stage"]:has([data-keel-embed-state="live"]) [data-keel-surface="stage-dot"] {
   background-color: #3ddc84; box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.18);
 }
 
 /* ---------- decoration layers: keel#3817 ----------
- * The mark before the name in the header, hairlines between list rows,
- * arrows after "go" links, and language dots. (An <img alt=""> would carry
- * role="img", keel#4065.) */
+ * The mark before the name in the header (an <img alt=""> would carry
+ * role="img", keel#4065), hairlines between list rows, arrows after "go"
+ * links, and language dots. */
 [data-keel-surface="mark-link"]::before {
   content: ""; width: 28px; height: 28px; flex: none;
   background: url("/assets/mark.svg") center / contain no-repeat;
@@ -72,37 +70,13 @@ html { -webkit-text-size-adjust: 100%; }
   content: ""; position: absolute; top: 0; right: 0; left: 72px; border-top: 0.5px solid var(--keel-token-line-strong);
 }
 [data-keel-surface="go"]::after, [data-keel-surface="go-link"]::after { content: "→"; transition: transform var(--keel-motion-normal) var(--keel-ease-standard); }
+a:hover > [data-keel-surface="go"]::after, [data-keel-surface="go-link"]:hover::after { transform: translateX(3px); }
 [data-keel-surface^="lang-"]::before { content: ""; width: 8px; height: 8px; border-radius: 50%; }
 [data-keel-surface="lang-rust"]::before { background: #dea584; }
 [data-keel-surface="lang-dart"]::before { background: #00b4ab; }
 [data-keel-surface="lang-ts"]::before { background: #3178c6; }
 
-/* ---------- hover, focus and pressed states: keel#3816 ----------
- * Durations and easing are the theme's motion tokens. */
-:focus-visible { outline: 2px solid var(--keel-color-ring); outline-offset: 3px; border-radius: 8px; }
+/* ---------- the skip link shows on focus: keel#3942 ----------
+ * Placement off-screen and back; its focus look is the theme's ring. */
 [data-keel-surface="skip-link"] { position: absolute; left: var(--keel-space-gutter); top: -100px; z-index: 100; }
 [data-keel-surface="skip-link"]:focus { top: 12px; }
-a, button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-[data-keel-surface="menu-link"], [data-keel-surface="foot-link"] { transition: color var(--keel-motion-normal) var(--keel-ease-standard), background-color var(--keel-motion-normal) var(--keel-ease-standard); }
-[data-keel-surface="menu-link"]:hover, [data-keel-surface="foot-link"]:hover { color: var(--keel-color-on-surface); background-color: var(--keel-token-surface-2); }
-[data-keel-surface^="button-"], [data-keel-surface="copy"] {
-  cursor: pointer; user-select: none;
-  transition: transform var(--keel-motion-fast) var(--keel-ease-standard), background-color var(--keel-motion-normal) var(--keel-ease-standard), box-shadow var(--keel-motion-normal) var(--keel-ease-standard);
-}
-[data-keel-surface^="button-"]:active, [data-keel-surface="copy"]:active { transform: scale(0.97); }
-[data-keel-surface="button-primary"]:hover { box-shadow: 0 8px 24px -10px rgba(17, 17, 19, 0.5); }
-[data-keel-surface="button-secondary"]:hover { background-color: var(--keel-token-surface-2); }
-[data-keel-surface="feature"], [data-keel-surface="tool"] { transition: transform var(--keel-motion-normal) var(--keel-ease-standard), box-shadow var(--keel-motion-normal) var(--keel-ease-standard); }
-[data-keel-surface="feature"]:hover, [data-keel-surface="tool"]:hover { box-shadow: var(--keel-elevation-e2); transform: translateY(-2px); }
-[data-keel-surface="feature"]:active { transform: scale(0.99); }
-[data-keel-surface="tool"]:active { transform: scale(0.985); }
-a:hover > [data-keel-surface="go"]::after, [data-keel-surface="go-link"]:hover::after { transform: translateX(3px); }
-[data-keel-surface="row"] { transition: background-color var(--keel-motion-fast) var(--keel-ease-standard); }
-[data-keel-surface="row"]:hover { background-color: var(--keel-token-surface-2); }
-[data-keel-surface="row"]:active { background-color: var(--keel-token-line); }
-[data-keel-surface="stage-link"]:hover { background-color: rgba(255, 255, 255, 0.16); }
-[data-keel-surface="elsewhere-link"]:hover { background-color: color-mix(in srgb, currentColor 10%, transparent); }
-[data-keel-surface="text-link"] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) {
-  [data-keel-surface^="button-"]:active, [data-keel-surface="copy"]:active { opacity: 0.8; }
-}

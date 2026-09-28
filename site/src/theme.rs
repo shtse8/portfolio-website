@@ -14,7 +14,7 @@ use keel_ui::{
     Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel,
     FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length,
     ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SelectionColors, Sides,
-    SurfaceLayout, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme,
+    SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme,
     ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses,
 };
 
@@ -109,6 +109,9 @@ pub fn dark() -> Palette {
         contact_line: line_strong,
     }
 }
+
+/// The system text face on each platform (tokens.json `type.family.text`).
+const FONT_TEXT: &str = "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI Variable Text\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif";
 
 /// 1rem.
 const REM: f32 = 16.0;
@@ -223,6 +226,31 @@ fn square(style: SurfaceStyle, size: f32) -> SurfaceStyle {
     centre(style).with_width(BoxSize::Length(Length::Px(size))).with_min_width(size).with_min_height(size)
 }
 
+/// Hover, keyboard focus and press, on the theme's motion tokens.
+fn states(hover: SurfaceState, active: SurfaceState) -> SurfaceStates {
+    SurfaceStates { hover: Some(hover), active: Some(active), ..SurfaceStates::default() }
+}
+
+/// A chrome link: its text darkens and a tint fills behind it.
+fn tinted(style: SurfaceStyle, p: &Palette) -> SurfaceStyle {
+    let hover = SurfaceState { fg: Some(p.ink), fill: Some(p.surface_2), ..SurfaceState::default() };
+    style.with_states(SurfaceStates { hover: Some(hover), motion: MotionRole::Normal, ..SurfaceStates::default() })
+}
+
+/// A button: it presses in.
+fn pressable(style: SurfaceStyle, hover: SurfaceState) -> SurfaceStyle {
+    style.with_states(states(hover, SurfaceState { scale: Some(0.97), ..SurfaceState::default() }))
+}
+
+/// A card link: it lifts on hover and gives slightly when pressed.
+fn liftable(style: SurfaceStyle, press: f32) -> SurfaceStyle {
+    let hover = SurfaceState { elevation: Some(ElevationLevel::E2), translate: Some([0.0, -2.0]), ..SurfaceState::default() };
+    style.with_states(SurfaceStates {
+        motion: MotionRole::Normal,
+        ..states(hover, SurfaceState { scale: Some(press), ..SurfaceState::default() })
+    })
+}
+
 /// A card: a raised surface on the canvas.
 fn card(p: &Palette, radius: f32) -> SurfaceStyle {
     on(p.surface, column(p.ink, 0.0)).with_radius(radius).with_elevation(ElevationLevel::E1)
@@ -281,7 +309,7 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
         ("mark-link", row(p.ink, 10.0, Center, false).with_min_height(44.0).with_text(text("brand"))),
         ("mark-name", ink(p.ink).with_variant(WidthClass::Compact, |s| s.hidden())),
         ("menu", row(p.ink, 2.0, Center, false).with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto))),
-        ("menu-link", pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 500))),
+        ("menu-link", tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 500)), p)),
         ("menu-link-current", pill(centre(ink(p.ink))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 600))),
         (
             "foot",
@@ -307,7 +335,7 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
                 s.with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto))
             }),
         ),
-        ("foot-link", pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 10.0)).with_text(text("subhead"))),
+        ("foot-link", tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 10.0)).with_text(text("subhead")), p)),
         ("foot-copy", flush(muted("footnote")).with_margin(Sides::new(rem(1.0), 0.0, 0.0, 0.0))),
         // Type.
         ("eyebrow", row(p.ink_3, 8.0, Center, false).with_text(SurfaceText { tracking_em: Some(0.01), ..weighted("footnote", 600) })),
@@ -346,8 +374,11 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
         ("figure-label", ink(p.ink_2).with_text(text("subhead"))),
         // Buttons.
         ("actions", row(p.ink, 12.0, Center, true)),
-        ("button-primary", button(p.ink, p.canvas)),
-        ("button-secondary", button(p.surface, p.ink).with_elevation(ElevationLevel::E1)),
+        ("button-primary", pressable(button(p.ink, p.canvas), SurfaceState { elevation: Some(ElevationLevel::E2), ..SurfaceState::default() })),
+        (
+            "button-secondary",
+            pressable(button(p.surface, p.ink).with_elevation(ElevationLevel::E1), SurfaceState { fill: Some(p.surface_2), ..SurfaceState::default() }),
+        ),
         // Hero.
         ("hero", band(2.5, 5.0, false)),
         (
@@ -382,6 +413,10 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
                 .with_text(SurfaceText {
                     properties: TextProperties { white_space: Some(WhiteSpace::NoWrap), ..TextProperties::default() },
                     ..weighted("footnote", 600)
+                })
+                .with_states(SurfaceStates {
+                    hover: Some(SurfaceState { fill: Some(rgba(255, 255, 255, 0.16)), ..SurfaceState::default() }),
+                    ..SurfaceStates::default()
                 }),
         ),
         // Sections.
@@ -392,7 +427,9 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
         ("features", from_medium(grid(p.ink, &[1.0], rem(1.0), None), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.25)))),
         (
             "feature",
-            from_medium(card(p, 24.0).with_gap(rem(1.0)).with_padding(EdgeInsets::all(rem(1.5))), |s| s.with_padding(EdgeInsets::all(rem(2.0)))),
+            from_medium(liftable(card(p, 24.0).with_gap(rem(1.0)).with_padding(EdgeInsets::all(rem(1.5))), 0.99), |s| {
+                s.with_padding(EdgeInsets::all(rem(2.0)))
+            }),
         ),
         ("feature-top", row(p.ink, 12.0, Center, false)),
         ("feature-id", column(p.ink, 0.0)),
@@ -400,7 +437,7 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
         ("tile-keel", square(on(stage(), ink(hex("#ff8a4c"))), 44.0).with_radius(11.0).with_text(text("tile-lg"))),
         ("feature-name", flush(ink(p.ink)).with_text(text("title-3"))),
         ("domain", muted("footnote")),
-        ("feature-text", flush(ink(p.ink_2))),
+        ("feature-text", flush(ink(p.ink_2)).with_text(text(TypeRole::Body))),
         ("chips", row(p.ink, 6.0, Center, true).with_padding(Sides::new(8.0, 0.0, 0.0, 0.0))),
         ("chip", pill(centre(on(p.surface_2, ink(p.ink_2)))).with_min_height(28.0).with_padding(pad_vh(0.0, 10.0)).with_text(weighted("footnote", 500))),
         ("go", row(p.accent, 6.0, Center, false).with_text(weighted("subhead", 600))),
@@ -411,7 +448,13 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
         ("group-narrow", list(card(p, 16.0).with_overflow(Overflow::Hidden).with_max_width(760.0))),
         ("group-item", ink(p.ink)),
         ("group-narrow-item", ink(p.ink)),
-        ("row", row_link(p)),
+        (
+            "row",
+            row_link(p).with_states(states(
+                SurfaceState { fill: Some(p.surface_2), ..SurfaceState::default() },
+                SurfaceState { fill: Some(p.line), ..SurfaceState::default() },
+            )),
+        ),
         ("tile", square(on(p.ink, ink(p.canvas)), 40.0).with_radius(10.0).with_text(text("tile"))),
         ("row-text", column(p.ink, 2.0).with_min_width(0.0)),
         ("row-title", row(p.ink, 8.0, Baseline, true).with_text(weighted(TypeRole::Body, 600))),
@@ -423,7 +466,7 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
             "tools",
             expanded(from_medium(grid(p.ink, &[1.0], 12.0, None), |s| cols(s, &[1.0, 1.0])), |s| cols(s, &[1.0, 1.0, 1.0]).with_gap(rem(1.0))),
         ),
-        ("tool", card(p, 16.0).with_gap(8.0).with_min_height(148.0).with_padding(EdgeInsets::all(rem(1.25)))),
+        ("tool", liftable(card(p, 16.0).with_gap(8.0).with_min_height(148.0).with_padding(EdgeInsets::all(rem(1.25))), 0.985)),
         ("tool-name", flush(ink(p.ink)).with_text(weighted("headline", 650))),
         ("tool-text", flush(ink(p.ink_2)).with_text(SurfaceText { leading: Some(1.45), ..text("subhead") })),
         ("tool-foot", row(p.ink_3, 8.0, Center, false).with_padding(Sides::new(8.0, 0.0, 0.0, 0.0)).with_text(text("footnote"))),
@@ -455,12 +498,26 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
                 .with_min_height(44.0)
                 .with_text(text("email")),
         ),
-        ("copy", pill(centre(on(p.contact_control, ink(p.on_contact)))).with_min_height(44.0).with_padding(pad_vh(0.0, 16.0)).with_border(0.0, Srgba::TRANSPARENT).with_text(weighted("subhead", 600))),
+        (
+            "copy",
+            pressable(
+                pill(centre(on(p.contact_control, ink(p.on_contact)))).with_min_height(44.0).with_padding(pad_vh(0.0, 16.0)).with_border(0.0, Srgba::TRANSPARENT).with_text(weighted("subhead", 600)),
+                SurfaceState::default(),
+            ),
+        ),
         ("email-status", ink(p.on_contact_2).with_text(text("footnote"))),
         ("elsewhere", row(p.on_contact, 8.0, Center, true)),
         (
             "elsewhere-link",
-            pill(centre(ink(p.on_contact))).with_border(1.0, p.contact_line).with_min_height(44.0).with_padding(pad_vh(0.0, 14.0)).with_text(weighted("subhead", 500)),
+            pill(centre(ink(p.on_contact)))
+                .with_border(1.0, p.contact_line)
+                .with_min_height(44.0)
+                .with_padding(pad_vh(0.0, 14.0))
+                .with_text(weighted("subhead", 500))
+                .with_states(SurfaceStates {
+                    hover: Some(SurfaceState { fill: Some(p.contact_control), ..SurfaceState::default() }),
+                    ..SurfaceStates::default()
+                }),
         ),
         // Inner pages.
         ("page-head", expanded(column(p.ink, rem(1.0)).with_padding(pad(rem(3.5), 0.0, rem(2.0), 0.0)), |s| s.with_padding(pad(rem(5.0), 0.0, rem(2.5), 0.0)))),
@@ -468,8 +525,6 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
         ("prose", column(p.ink_2, rem(1.0)).with_max_width(rem(40.0))),
         ("prose-p", flush(ink(p.ink_2))),
         ("strong", ink(p.ink).with_text(weighted(TypeRole::Body, 600))),
-        // A link that sits in its sentence: no inner spacing of its own.
-        ("text-link", ink(p.accent).with_padding(EdgeInsets::all(0.0))),
         ("timeline", list(column(p.ink, 0.0))),
         (
             "era",
@@ -514,6 +569,10 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
         ("fact", card(p, 16.0).with_gap(6.0).with_padding(EdgeInsets::all(rem(1.25)))),
         ("fact-title", flush(ink(p.ink)).with_text(weighted("headline", 650))),
         ("fact-text", flush(ink(p.ink_2)).with_text(text("subhead"))),
+        // The engine's default link role, which only links inside running text
+        // keep here: the accent colour, the sentence's own type, no box. The
+        // base layer underlines it.
+        ("nav-link", ink(p.accent).with_padding(EdgeInsets::all(0.0))),
         // Not found.
         (
             "nf",
@@ -553,6 +612,12 @@ pub fn themed(p: &Palette, base: Theme) -> Theme {
         on_surface_variant: p.ink_2,
         outline: p.line,
         ring: p.focus,
+        canvas: Some(p.canvas),
+        link: Some(p.accent),
+        link_hover: Some(p.accent_strong),
+        focus_ring_width: 2.0,
+        // System fonts only: nothing downloads, so text never shifts.
+        font_ui: FONT_TEXT.into(),
         radius_sm: 10.0,
         radius_md: 16.0,
         radius_lg: 24.0,
@@ -622,7 +687,8 @@ pub fn theme() -> Theme {
 pub fn dark_stylesheet() -> String {
     format!(
         "/* Generated by `KYLET_WRITE_DARK=1 cargo test -p kylet-site dark_stylesheet`\n * from site/src/theme.rs: the dark palette, through keel_web::theme_stylesheet. Do not edit. */\n@media (prefers-color-scheme: dark){{{}}}\n",
-        keel_web::theme_stylesheet(&themed(&dark(), Theme::dark()))
+        // Only the site's own roles: the engine's built-in roles are not on its pages.
+        keel_web::theme_stylesheet(&themed(&dark(), Theme::dark()), &surfaces(&dark()).into_iter().map(|(role, _)| role.to_string()).collect())
     )
 }
 

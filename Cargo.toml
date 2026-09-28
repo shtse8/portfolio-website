@@ -10,10 +10,10 @@ publish = false
 # The Keel revision the site is built against, in one place. KEEL_PIN carries
 # the same revision for CI and the image build (a check keeps them equal).
 [workspace.dependencies]
-keel-engine = { git = "https://github.com/SylphxAI/keel", rev = "17b1c7a4ce2abe8de42a8cd12dac9a0dbbac7795" }
-keel-math = { git = "https://github.com/SylphxAI/keel", rev = "17b1c7a4ce2abe8de42a8cd12dac9a0dbbac7795" }
-keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "17b1c7a4ce2abe8de42a8cd12dac9a0dbbac7795" }
-keel-web = { git = "https://github.com/SylphxAI/keel", rev = "17b1c7a4ce2abe8de42a8cd12dac9a0dbbac7795" }
+keel-engine = { git = "https://github.com/SylphxAI/keel", rev = "bb6bcfaa046a27e5f8e98ad4f6403f0d6027e8e2" }
+keel-math = { git = "https://github.com/SylphxAI/keel", rev = "bb6bcfaa046a27e5f8e98ad4f6403f0d6027e8e2" }
+keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "bb6bcfaa046a27e5f8e98ad4f6403f0d6027e8e2" }
+keel-web = { git = "https://github.com/SylphxAI/keel", rev = "bb6bcfaa046a27e5f8e98ad4f6403f0d6027e8e2" }
 serde = { version = "1", features = ["derive"] }
 # The same exact version Keel pins; the wasm-bindgen CLI that `keel pack` runs must match.
 wasm-bindgen = "=0.2.126"

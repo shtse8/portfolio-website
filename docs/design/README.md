@@ -64,16 +64,20 @@ Stage 1 pilot of websites on Keel, after keelengine.dev.
   emitted by `keel_web::theme_stylesheet` into `site/assets/dark.css` under
   `prefers-color-scheme: dark`. A test fails when the file is stale. It goes
   when Keel emits a scheme pair (keel#4060).
+- Hover, focus and pressed states (card lift, row tint, button press) are
+  `SurfaceStates` on the theme; the base text face, canvas, link colours and
+  focus ring are theme fields.
 - `site/assets/site.css` holds only what the theme cannot say yet. Each block
-  names the Keel issue that replaces it: system font families (keel#3821),
-  shadows and hairlines (keel#3871), stacking (keel#3941), positions and
-  safe-area insets (keel#3942, keel#4060), the engine view poster (keel#3911),
-  decoration layers (keel#3817) and hover, focus and pressed states
-  (keel#3816).
-- The content security policy is served by nginx (`hosting/headers.conf`)
-  until keel-pack emits one (keel#3808). It allows no inline script; styles
-  need `'unsafe-inline'` until then, because each page's styles are one inline
-  `<style>` element.
+  names the Keel issue that replaces it: display and mono font families
+  (keel#3821), shadows and hairlines (keel#3871), stacking (keel#3941),
+  positions, the skip link and safe-area insets (keel#3942, keel#4060), the
+  scene caption following the engine view's state (keel#4060) and decoration
+  layers (keel#3817).
+- **Content Security Policy:** `keel pack` writes it (keel#4068): each page
+  carries a meta policy with the SHA-256 of its own inline styles, and the
+  pack's `_headers` adds `frame-ancestors` and covers every other file. No
+  `'unsafe-inline'` anywhere. nginx serves the pack's `_headers`
+  (`hosting/pack-rules.sh`) and adds only HSTS and a permissions policy.
 
 ## Pages
 

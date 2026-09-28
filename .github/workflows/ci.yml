@@ -85,13 +85,11 @@ jobs:
       - name: Serve the pack as the image does
         run: |
           set -euo pipefail
-          sh hosting/pack-rules.sh dist/web > "$RUNNER_TEMP/pack-rules.conf"
-          python3 hosting/csp.py dist/web > "$RUNNER_TEMP/csp.conf"
+          mkdir -p "$RUNNER_TEMP/snippets" && cp hosting/headers.conf "$RUNNER_TEMP/snippets/"
+          sh hosting/pack-rules.sh dist/web "$RUNNER_TEMP/snippets"
           docker run -d --name site -p 3000:3000 -e PORT=3000 -e NGINX_ENVSUBST_FILTER=PORT \
             -v "$PWD/dist/web:/usr/share/nginx/html:ro" \
-            -v "$RUNNER_TEMP/pack-rules.conf:/etc/nginx/snippets/pack-rules.conf:ro" \
-            -v "$RUNNER_TEMP/csp.conf:/etc/nginx/snippets/csp.conf:ro" \
-            -v "$PWD/hosting/headers.conf:/etc/nginx/snippets/headers.conf:ro" \
+            -v "$RUNNER_TEMP/snippets:/etc/nginx/snippets:ro" \
             -v "$PWD/nginx.conf:/etc/nginx/templates/default.conf.template:ro" \
             nginxinc/nginx-unprivileged:1.31-alpine
           for i in $(seq 1 40); do curl -sf http://127.0.0.1:3000/ > /dev/null && break; sleep 0.25; done

@@ -62,8 +62,7 @@ fn hero() -> Component {
             priority: true,
         },
     )
-    // The view keeps the surface name the engine's own rules for posters and
-    // canvases select (keel#3903, fix in keel#3911).
+    // The engine view's own role, restyled by the site theme (keel#3911).
     .surface("engine-view");
     let stage = div("stage", "stage").child(view).child(
         div("stage-bar", "stage-bar")
@@ -309,7 +308,8 @@ fn rich(id: &str, surface: &str, parts: &[(&str, Option<&str>)]) -> Component {
         .map(|(i, (text, kind))| match kind {
             None => run(format!("{id}-{i}"), *text),
             Some("strong") => t(format!("{id}-{i}"), *text, "strong"),
-            Some(href) => a(format!("{id}-{i}"), *text, href, "text-link"),
+            // The engine's own link in running text: the theme's link colour, underlined.
+            Some(href) => keel_ui::link(format!("{id}-{i}"), *text, *href),
         })
         .collect();
     paragraph(id.to_string(), children).surface(surface)

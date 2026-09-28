@@ -9,8 +9,7 @@
 FROM rust:1-bookworm AS build
 ARG WASM_BINDGEN=0.2.126
 ARG BINARYEN=version_123
-RUN apt-get update && apt-get install -y --no-install-recommends python3 && rm -rf /var/lib/apt/lists/* \
- && rustup target add wasm32-unknown-unknown \
+RUN rustup target add wasm32-unknown-unknown \
  && curl -sSfL "https://github.com/WebAssembly/binaryen/releases/download/${BINARYEN}/binaryen-${BINARYEN}-x86_64-linux.tar.gz" | tar xz -C /opt \
  && ln -s "/opt/binaryen-${BINARYEN}/bin/wasm-opt" /usr/local/bin/wasm-opt
 WORKDIR /src
@@ -29,14 +28,12 @@ RUN --mount=type=secret,id=keel_git_token,required=true \
  && cargo install --locked --git https://github.com/SylphxAI/keel --rev "$(cat KEEL_PIN)" --target-dir target keel-cli \
  && keel pack --profile web --release --manifest-path site/Cargo.toml \
  && cp -r dist/web /site \
- && sh hosting/pack-rules.sh /site > /pack-rules.conf \
- && python3 hosting/csp.py /site > /csp.conf
+ && mkdir /snippets && sh hosting/pack-rules.sh /site /snippets
 
 # nginxinc unprivileged: uid 101, no chown on start, works with capabilities.drop=ALL.
 FROM nginxinc/nginx-unprivileged:1.31-alpine AS runner
 COPY --from=build /site /usr/share/nginx/html
-COPY --from=build /pack-rules.conf /etc/nginx/snippets/pack-rules.conf
-COPY --from=build /csp.conf /etc/nginx/snippets/csp.conf
+COPY --from=build /snippets/ /etc/nginx/snippets/
 COPY hosting/headers.conf /etc/nginx/snippets/headers.conf
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 ENV PORT=3000
