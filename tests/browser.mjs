@@ -104,24 +104,46 @@ for (const path of ["/", "/about", "/colophon"]) {
   await page.close();
 }
 
-// The contact island hydrates near the viewport and its Copy button answers.
+// The contact island: it loads as it nears the viewport, and the first tap
+// on Copy works even when that tap is what loads the client (no lost tap).
 if (process.env.ISLANDS !== "0") {
+  for (const how of ["scroll", "first-tap"]) {
+    const page = await browser.newPage();
+    const errors = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.setRequestInterception(true);
+    page.on("request", (r) => (r.url().includes("/_keel/scenes-") ? r.abort() : r.continue()));
+    await page.setViewport({ width: 390, height: 844 });
+    await page.goto(base + "/", { waitUntil: "networkidle0" });
+    await page.$eval("#email-copy", (e) => e.scrollIntoView({ block: "center" }));
+    if (how === "scroll") {
+      await page.waitForFunction(() => window.__keel_hydrated === true, { timeout: 20000 })
+        .catch(() => fail("the islands client did not load when the contact came into view"));
+    } else if (await page.evaluate(() => window.__keel_hydrated === true)) {
+      // Scrolling already loaded it; the first-tap case needs a cold island.
+      await page.close();
+      continue;
+    }
+    const href = await page.$eval("#email-address", (e) => e.getAttribute("href"));
+    if (href !== "mailto:hi@kylet.se") fail(`contact links to ${href}`);
+    await page.click("#email-copy");
+    await page.waitForFunction(() => document.querySelector("#email-status")?.textContent === "Copied", { timeout: 20000 })
+      .catch(() => fail(`${how}: the first tap on Copy did not report that it copied`));
+    if (errors.length) fail(`contact island (${how}): script errors: ${errors.join(" | ")}`);
+    await page.close();
+  }
+  // A cold island: tap before the client is near (its request held back until the tap).
   const page = await browser.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.setRequestInterception(true);
-  page.on("request", (r) => (r.url().includes("/_keel/scenes-") ? r.abort() : r.continue()));
   await page.setViewport({ width: 390, height: 844 });
   await page.goto(base + "/", { waitUntil: "networkidle0" });
-  await page.$eval("#keel-island-email", (e) => e.scrollIntoView({ block: "center" }));
-  await page.waitForFunction(() => window.__keel_hydrated === true, { timeout: 20000 })
-    .catch(() => fail("the islands client did not load when the contact came into view"));
-  const href = await page.$eval("#email-address", (e) => e.getAttribute("href"));
-  if (href !== "mailto:hi@kylet.se") fail(`contact links to ${href}`);
+  const cold = await page.evaluate(() => window.__keel_hydrated !== true);
+  await page.$eval("#email-copy", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
   await page.click("#email-copy");
-  await page.waitForFunction(() => document.querySelector("#email-status")?.textContent === "Copied", { timeout: 5000 })
-    .catch(() => fail("Copy did not report that it copied"));
-  if (errors.length) fail(`contact island: script errors: ${errors.join(" | ")}`);
+  await page.waitForFunction(() => document.querySelector("#email-status")?.textContent === "Copied", { timeout: 20000 })
+    .catch(() => fail(`immediate tap (cold=${cold}): the first tap on Copy was lost`));
+  if (errors.length) fail(`contact island (immediate tap): script errors: ${errors.join(" | ")}`);
   await page.close();
 }
 
