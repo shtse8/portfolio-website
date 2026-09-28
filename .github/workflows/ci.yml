@@ -1,76 +1,130 @@
 name: CI
 
-# Pull-request checks (docs/reference/fast-trunk-ci.md). The deploy gate is the
-# same checks inside the platform image builds.
-# - Merge Queue off by default (no merge_group trigger)
-# - Concurrency cancels superseded PR/branch tip runs
-
+# Pull-request checks and the build of the exact site that ships. `ci-ok` is
+# the one check the main-branch ruleset requires.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  web:
-    name: Web (biome, tsc, tests, static export)
+  build:
+    name: Build (clippy, tests, keel pack)
     # GitHub's standard hosted runner: free for a public repository (owner
-    # standards/dx.md). Never a larger or GPU runner, which is billed. This is
-    # the pull-request check; the same checks also run inside the Sylphx Hosting
-    # image builds (Dockerfile, api-rust/Dockerfile), which gate the deploy.
+    # standards/dx.md, owner#750). Never a larger or GPU runner, which is billed.
     runs-on: ubuntu-latest
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
     steps:
-      - uses: actions/checkout@v7
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - uses: actions/checkout@v4
+      # A token for this job only, from a read-only GitHub App (Contents: read
+      # on SylphxAI/keel alone), expiring within the hour.
+      - name: Token to read the private Keel repository
+        id: keel-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
         with:
-          bun-version-file: .bun-version
-
-      - name: Install dependencies (frozen)
-        run: bun install --frozen-lockfile
-
-      - name: Biome lint
-        run: bunx biome check .
-
-      - name: Typecheck
-        run: bunx tsc --noEmit
-
-      - name: Frontend tests (bun:test)
-        run: bun test
-
-      - name: Static export build
-        run: bun run build
-
-      - name: No TS backend authority (sole Rust API)
-        run: bash scripts/check-no-ts-backend.sh
-
-      - name: BFF upstream is api ksvc :80 (not Platform :3001)
-        run: bash scripts/check-bff-upstream.sh
-
-      - name: Design markers gate
-        run: bun scripts/check-cinematic-markers.mjs
-
-  api:
-    name: Rust API (clippy, tests)
-    # Standard hosted runner; see the `web` job above.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+          app-id: ${{ vars.KEEL_READER_APP_ID }}
+          private-key: ${{ secrets.KEEL_READER_APP_PRIVATE_KEY }}
+          owner: SylphxAI
+          repositories: keel
+          permission-contents: read
+      - name: Git access to the private Keel repository
+        env:
+          KEEL_TOKEN: ${{ steps.keel-token.outputs.token }}
+        run: git config --global url."https://x-access-token:${KEEL_TOKEN}@github.com/SylphxAI/keel".insteadOf "https://github.com/SylphxAI/keel"
+      - name: KEEL_PIN matches the rev in Cargo.toml
+        run: grep -q "rev = \"$(cat KEEL_PIN)\"" Cargo.toml
+      - uses: dtolnay/rust-toolchain@stable
         with:
+          targets: wasm32-unknown-unknown
           components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-bindgen@0.2.126
+      - name: Install wasm-opt
+        run: |
+          curl -sSL https://github.com/WebAssembly/binaryen/releases/download/version_123/binaryen-version_123-x86_64-linux.tar.gz | tar xz -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/binaryen-version_123/bin" >> "$GITHUB_PATH"
+      - name: The keel CLI at the pinned revision
+        # `cargo install` skips .cargo/config.toml, which names the registry
+        # Keel's manifests refer to; built in target/ so the rust cache keeps it.
+        env:
+          CARGO_REGISTRIES_SYLPHX_INDEX: sparse+https://cargo.sylphx.com/index/
+        run: cargo install --locked --git https://github.com/SylphxAI/keel --rev "$(cat KEEL_PIN)" --target-dir target keel-cli
+      - name: Lint
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Site checks (the dark theme file is current)
+        run: cargo test -p kylet-site --locked
+      - name: Build the site
+        run: keel pack --profile web --release --manifest-path site/Cargo.toml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-dist
+          path: dist/web
+          include-hidden-files: true
 
-      - name: Clippy (production code)
-        working-directory: api-rust
-        run: cargo clippy --locked --lib --bins -- -D warnings
+  browser:
+    name: Browser (served by the production nginx config)
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: site-dist
+          path: dist/web
+      - name: Serve the pack as the image does
+        run: |
+          set -euo pipefail
+          sh hosting/pack-rules.sh dist/web > "$RUNNER_TEMP/pack-rules.conf"
+          python3 hosting/csp.py dist/web > "$RUNNER_TEMP/csp.conf"
+          docker run -d --name site -p 3000:3000 -e PORT=3000 -e NGINX_ENVSUBST_FILTER=PORT \
+            -v "$PWD/dist/web:/usr/share/nginx/html:ro" \
+            -v "$RUNNER_TEMP/pack-rules.conf:/etc/nginx/snippets/pack-rules.conf:ro" \
+            -v "$RUNNER_TEMP/csp.conf:/etc/nginx/snippets/csp.conf:ro" \
+            -v "$PWD/hosting/headers.conf:/etc/nginx/snippets/headers.conf:ro" \
+            -v "$PWD/nginx.conf:/etc/nginx/templates/default.conf.template:ro" \
+            nginxinc/nginx-unprivileged:1.31-alpine
+          for i in $(seq 1 40); do curl -sf http://127.0.0.1:3000/ > /dev/null && break; sleep 0.25; done
+          curl -sfI http://127.0.0.1:3000/ | grep -qi '^content-security-policy:'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.0"
+      - name: Chrome
+        run: |
+          set -euo pipefail
+          bunx --bun @puppeteer/browsers install chrome@stable --path "$RUNNER_TEMP/chrome" > /dev/null
+          echo "CHROME=$(find "$RUNNER_TEMP/chrome" -type f -name chrome -executable | head -1)" >> "$GITHUB_ENV"
+      - name: Browser checks (every page light and dark at 320, 390 and 1440 px, axe, redirects, 410s, CSP, the island)
+        working-directory: tests
+        run: |
+          bun install --frozen-lockfile
+          BASE=http://127.0.0.1:3000 GONE=1 bun browser.mjs
+      - name: Lighthouse, mobile (median of three runs per page)
+        working-directory: tests
+        env:
+          CHROME_PATH: ${{ env.CHROME }}
+        run: BASE=http://127.0.0.1:3000 bun lighthouse.mjs
 
-      - name: Tests (unit, contract, wiremock)
-        working-directory: api-rust
-        run: cargo test --locked -- --test-threads=1
+  # The one required check.
+  ci-ok:
+    name: ci-ok
+    needs: [build, browser]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          BUILD: ${{ needs.build.result }}
+          BROWSER: ${{ needs.browser.result }}
+        run: |
+          test "$BUILD" = success
+          test "$BROWSER" = success

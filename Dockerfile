@@ -1,27 +1,44 @@
-FROM oven/bun:1.4.2-alpine@sha256:d888c0ae6c86d7866ff10c5aafdd9077b36aee6455b33dd270fb93c0dd5cef6f AS builder
-WORKDIR /app
-COPY package.json bun.lock* ./
-RUN bun install --frozen-lockfile
+# syntax=docker/dockerfile:1.7
+# kylet.se image: `keel pack` builds the site, nginx serves it.
+#
+# Keel is a private repository. The build reads it with the `keel_git_token`
+# build secret (sylphx.toml [build.secrets], SylphxAI/cloud#9149): a one-hour,
+# read-only token for SylphxAI/keel, given to git through GIT_CONFIG_* inside
+# the one step that fetches, so it never reaches a layer, an argument or a log.
+
+FROM rust:1-bookworm AS build
+ARG WASM_BINDGEN=0.2.126
+ARG BINARYEN=version_123
+RUN apt-get update && apt-get install -y --no-install-recommends python3 && rm -rf /var/lib/apt/lists/* \
+ && rustup target add wasm32-unknown-unknown \
+ && curl -sSfL "https://github.com/WebAssembly/binaryen/releases/download/${BINARYEN}/binaryen-${BINARYEN}-x86_64-linux.tar.gz" | tar xz -C /opt \
+ && ln -s "/opt/binaryen-${BINARYEN}/bin/wasm-opt" /usr/local/bin/wasm-opt
+WORKDIR /src
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
-# Deploy gate: the source checks run inside the platform image build, so a
-# failing check fails the build and blocks the deploy. Pull requests run the
-# same checks in .github/workflows/ci.yml (docs/reference/fast-trunk-ci.md).
-RUN apk add --no-cache bash python3 \
-    && bunx biome check . \
-    && bunx tsc --noEmit \
-    && bun test \
-    && bash scripts/check-no-ts-backend.sh \
-    && bash scripts/check-bff-upstream.sh \
-    && bun scripts/check-cinematic-markers.mjs
-RUN bun run build
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true \
+    CARGO_REGISTRIES_SYLPHX_INDEX=sparse+https://cargo.sylphx.com/index/
+RUN --mount=type=secret,id=keel_git_token,required=true \
+    --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
+    --mount=type=cache,target=/src/target \
+    export GIT_CONFIG_COUNT=1 \
+      GIT_CONFIG_KEY_0="url.https://x-access-token:$(cat /run/secrets/keel_git_token)@github.com/SylphxAI/keel.insteadOf" \
+      GIT_CONFIG_VALUE_0="https://github.com/SylphxAI/keel" \
+ && grep -q "rev = \"$(cat KEEL_PIN)\"" Cargo.toml \
+ && cargo install --locked wasm-bindgen-cli --version "${WASM_BINDGEN}" \
+ && cargo install --locked --git https://github.com/SylphxAI/keel --rev "$(cat KEEL_PIN)" --target-dir target keel-cli \
+ && keel pack --profile web --release --manifest-path site/Cargo.toml \
+ && cp -r dist/web /site \
+ && sh hosting/pack-rules.sh /site > /pack-rules.conf \
+ && python3 hosting/csp.py /site > /csp.conf
 
 # nginxinc unprivileged: uid 101, no chown on start, works with capabilities.drop=ALL.
 FROM nginxinc/nginx-unprivileged:1.31-alpine AS runner
-COPY --from=builder /app/out /usr/share/nginx/html
+COPY --from=build /site /usr/share/nginx/html
+COPY --from=build /pack-rules.conf /etc/nginx/snippets/pack-rules.conf
+COPY --from=build /csp.conf /etc/nginx/snippets/csp.conf
+COPY hosting/headers.conf /etc/nginx/snippets/headers.conf
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 ENV PORT=3000
-# BFF upstream is hardcoded to the api ksvc :80 in nginx.conf. Do not
-# envsubst Platform API_INTERNAL_URL (:3001 container port) into proxy_pass.
 ENV NGINX_ENVSUBST_FILTER=PORT
 EXPOSE 3000

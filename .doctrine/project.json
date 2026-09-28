@@ -6,76 +6,65 @@
     "lifecycle": "production",
     "layer": "application",
     "policyPool": "webpool",
-    "summary": "Static TypeScript Next.js portfolio (kylet.se) with a Rust live API (single JSON REST contract, ADR-169) for stats, activity, projects, downloads, and Sylphx AI Gateway chat.",
+    "summary": "kylet.se, Kyle Tse's personal site: four static pages built with Keel Engine (Rust components exported to HTML by keel-web), one island and one live Keel scene, served by nginx on Sylphx Hosting.",
     "goals": [
-      "Ship the public portfolio as a static Next.js export.",
-      "Operate live stats, activity, and agent chat through Rust api-rust per ADR-169."
+      "Ship kylet.se as a static Keel Engine site (keel pack --profile web).",
+      "Show only sourced facts (docs/design/content.md)."
     ],
     "nonGoals": [
-      "Rust SSR for the marketing site (static export stays TypeScript).",
-      "Owning Sylphx Platform cluster internals or model-provider credentials.",
-      "Proto/Connect surfaces with no consumer."
+      "A server-side API or on-site agent (retired 2026-09-28; the API was stateless).",
+      "Owning Keel Engine or Sylphx Platform internals."
     ],
     "links": [
       {
         "url": "https://kylet.se",
         "type": "production",
-        "title": "Portfolio site"
-      },
-      {
-        "url": "https://slim-pal-0k3stq.sylphx.app",
-        "type": "production",
-        "title": "Live API (Sylphx preview)"
+        "title": "kylet.se"
       }
     ]
   },
   "boundaries": {
     "owns": [
       {
-        "name": "static-web",
-        "description": "Next.js static export, content, design system, and client fetch wiring in src/."
+        "name": "site",
+        "description": "Routes, copy, theme and islands in site/; the live scene in scenes/."
       },
       {
-        "name": "live-api",
-        "description": "Rust api-rust service: /stats, /activity, /projects, /recent, /repo, /downloads, /chat; persona/tools, CORS, rate limits."
-      },
-      {
-        "name": "api-contract",
-        "description": "Single JSON REST contract in api-rust/src/contract.rs + tool_schemas.rs (ADR-169)."
+        "name": "hosting",
+        "description": "Dockerfile, nginx.conf and sylphx.toml: the image that serves the pack, its headers, redirects and 410s."
       }
     ],
     "doesNotOwn": [
-      "Sylphx AI Gateway routing and usage accounting (SylphxAI/sylphx-ai).",
-      "Cluster deploy reconciler and ingress policy (SylphxAI/platform)."
+      "Keel Engine (SylphxAI/keel), consumed at the revision in KEEL_PIN.",
+      "Cluster deploy, build secrets and ingress (SylphxAI/cloud)."
     ],
     "publicSurfaces": [
       {
         "type": "http",
-        "name": "Portfolio live API (REST JSON)",
-        "location": "api-rust/src/app.rs"
+        "name": "kylet.se pages",
+        "location": "site/src/lib.rs"
       },
       {
         "type": "docs",
-        "name": "Architecture ADR",
-        "location": "docs/adr/ADR-169-contract-simplification-clean-break.md"
+        "name": "Design",
+        "location": "docs/design/README.md"
       }
     ],
     "allowedDependencies": [
       {
-        "repo": "SylphxAI/sylphx-ai",
-        "surface": "Sylphx AI Gateway Responses API (/v1/responses) with SYLPHX_AI_URL + SYLPHX_AI_API_KEY",
+        "repo": "SylphxAI/keel",
+        "surface": "keel-ui, keel-web, keel-engine crates and the keel CLI at KEEL_PIN",
         "direction": "downward"
       },
       {
-        "repo": "SylphxAI/platform",
+        "repo": "SylphxAI/cloud",
         "surface": "sylphx.toml service manifest and deploy bindings",
         "direction": "downward"
       }
     ],
     "forbiddenCouplings": [
-      "Import platform or gateway repository internals into this repo.",
-      "Add a TypeScript/Bun server runtime as API authority.",
-      "Use SYLPHX_URL (public browser connection URL) as a server credential."
+      "Hand-written HTML, CSS or JS that Keel can express (site CSS only for named Keel gaps).",
+      "A credential in git, a git URL or an image layer."
     ]
   },
   "documentation": {
@@ -84,25 +73,31 @@
       "status": "present"
     },
     "runbooks": {
-      "path": "scripts/",
+      "path": "README.md",
       "status": "present"
     }
   },
   "delivery": {
     "ciModel": "repo-local",
-    "requiredContexts": [],
-    "deployPath": "Sylphx manifest (sylphx.toml): web static image + api-rust Docker service.",
-    "productionProof": "scripts/api-smoke.sh against https://kylet.se; /healthz /stats /projects /activity /chat SSE.",
+    "requiredContexts": [
+      "ci-ok"
+    ],
+    "deployPath": "Sylphx manifest (sylphx.toml): one web service, a Docker image that runs keel pack and serves dist/web with nginx.",
+    "productionProof": "curl -sI https://kylet.se (200), /about, /colophon, /story (301), /stats (410), /no-such-page (404); tests/browser.mjs against the live origin.",
     "recoveryClass": "source-revertable",
     "deployable": true
   },
   "commercial": {
     "status": "not-applicable",
-    "decisionHome": "not-applicable — personal portfolio site",
+    "decisionHome": "not-applicable \u2014 personal portfolio site",
     "pricingSourceOfTruth": "not-applicable",
     "metricsSourceOfTruth": "not-applicable",
-    "requiredRecords": ["none"],
-    "guardrails": ["No paid product surface in this repository."]
+    "requiredRecords": [
+      "none"
+    ],
+    "guardrails": [
+      "No paid product surface in this repository."
+    ]
   },
   "adoption": {
     "status": "adopted",

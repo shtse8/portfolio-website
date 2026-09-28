@@ -1,8 +1,8 @@
 # Agent entry (portfolio-website)
 
-1. Read [`PROJECT.md`](./PROJECT.md) and [`.doctrine/project.json`](./.doctrine/project.json) for goals, boundaries, and delivery proof.
-2. For architecture changes, read [`docs/adr/ADR-169-contract-simplification-clean-break.md`](./docs/adr/ADR-169-contract-simplification-clean-break.md) first. The contract is **single JSON REST** (`api-rust/src/contract.rs` + `tool_schemas.rs`) — no proto/Connect surface exists.
-3. **Rust-first applies to backend only** — do not add TypeScript/Bun API authority; keep `src/` as static Next.js.
-4. Chat env contract: `SYLPHX_AI_URL` + `SYLPHX_AI_API_KEY` (or `AI_GATEWAY_BASE_URL`/`AI_GATEWAY_KEY`). Never use `SYLPHX_URL` as a server credential.
-5. Validate: `cd api-rust && cargo test --locked && cargo clippy --locked --lib --bins -- -D warnings`, `bun run check`, `bun run build`, and `scripts/api-smoke.sh` when touching live API behavior.
-6. Baked fallbacks: regenerate via `bun run sync` after changing stats/project data.
+1. Read [`README.md`](./README.md) and [`docs/design/README.md`](./docs/design/README.md) first.
+2. Every visible fact comes from [`docs/design/content.md`](./docs/design/content.md). Add a fact there, with its source, before the page shows it.
+3. Styling goes on the Keel theme (`site/src/theme.rs`). `site/assets/site.css` holds only what Keel cannot say yet, each block naming its Keel issue; when the issue lands, move the block onto the theme and delete it.
+4. After a theme change, regenerate `site/assets/dark.css` (`KYLET_WRITE_DARK=1 cargo test -p kylet-site dark_stylesheet`).
+5. Keel pin bumps: change `Cargo.toml` and `KEEL_PIN` together, then `keel migrate --check` and `keel migrate`.
+6. Validate: `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test -p kylet-site`, `keel pack`, then `tests/browser.mjs` and screenshots at 390, 820 and 1440 px in light and dark.
