@@ -1,0 +1,21 @@
+{
+  "name": "Kyle Tse",
+  "icon": {
+    "master": "svg/kylet-symbol.svg",
+    "small": "svg/kylet-symbol.svg",
+    "apple_touch": "svg/kylet-app-icon-square.svg",
+    "maskable": "svg/kylet-maskable.svg",
+    "palette": ["#111113", "#FAFAF9", "#FF6B2C"],
+    "snap_threshold": 0.5,
+    "sizes": [180, 192, 512, 1024],
+    "maskable_sizes": [192, 512]
+  },
+  "outputs": {
+    "site/assets/favicon.ico": "favicon/favicon.ico",
+    "site/assets/apple-touch-icon.png": "app-icon/apple-touch-icon-180.png",
+    "site/assets/icon-192.png": "app-icon/icon-192.png",
+    "site/assets/icon-512.png": "app-icon/icon-512.png",
+    "site/assets/icon-maskable-512.png": "app-icon/icon-maskable-512.png",
+    "site/assets/mark.svg": "svg/kylet-symbol.svg"
+  }
+}

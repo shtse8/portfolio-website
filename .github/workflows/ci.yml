@@ -60,6 +60,10 @@ jobs:
         env:
           CARGO_REGISTRIES_SYLPHX_INDEX: sparse+https://cargo.sylphx.com/index/
         run: cargo install --locked --git https://github.com/SylphxAI/keel --rev "$(cat KEEL_PIN)" --target-dir target keel-cli
+      - name: Brand home is current
+        # brand/ is the source of truth for the icon surfaces; this fails when a
+        # master changed without rebuild, or a surface copy drifted (stdlib only).
+        run: python3 brand/build.py --check
       - name: Lint
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Site checks (the dark theme file is current)

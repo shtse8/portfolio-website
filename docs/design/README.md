@@ -7,8 +7,8 @@ Stage 1 pilot of websites on Keel, after keelengine.dev.
 | --- | --- |
 | [content.md](content.md) | Every line of copy, its source, and what is left out on purpose |
 | [tokens.json](tokens.json) | Colour, type, space, radius, elevation and motion tokens (light and dark); `site/src/theme.rs` implements them |
-| [brand/](brand/) | Design sources: wordmark and lockup SVGs (and `wordmark.py`), the square and maskable icon SVGs |
-| `site/assets/` | What ships: `mark.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192/512.png`, `icon-maskable-512.png`, `og.png`, the scene poster |
+| [../../brand/](../../brand/) | The brand home: SVG masters, generated icons, colour and type tokens, and the usage sheet ([brand/README.md](../../brand/README.md)). The wordmark and icon sources that used to sit here now live there |
+| `site/assets/` | What ships: `mark.svg`, `favicon.ico`, `apple-touch-icon.png`, `icon-192/512.png`, `icon-maskable-512.png`, `og.png`, the scene poster. Every icon is a byte copy of a `brand/` file |
 | [screens/](screens/) | Screenshots of the built site: every page at 390, 820 and 1440 px, light and dark (`tests/shots.mjs`) |
 
 ## Brand
@@ -23,11 +23,14 @@ Stage 1 pilot of websites on Keel, after keelengine.dev.
   - iOS Settings: the inset grouped lists.
   - keelengine.dev: this site's sibling. It shares the ember accent and the live Keel scene.
 - **Mark:** a white "K" with an ember dot on an ink rounded square
-  (`site/assets/mark.svg`). The dot is the Keel family accent. The mark reads
-  at 16 px.
+  (`brand/svg/kylet-symbol.svg`; `site/assets/mark.svg` is its copy, and the
+  favicons are drawn from it). The dot is the Keel family accent. The mark
+  reads at 16 px.
 - **Wordmark:** "Kyle Tse." outlined from Geist 620 (SIL OFL 1.1), with the
-  same ember dot (`brand/wordmark-*.svg`, rebuilt by `brand/wordmark.py`). The
-  home page hero sets the name in type with the same dot.
+  same ember dot (`brand/svg/kylet-wordmark*.svg`, rebuilt by
+  `brand/wordmark.py`). The home page hero sets the name in type with the same
+  dot. Where the files are, which variant to use, and where each came from:
+  [brand/README.md](../../brand/README.md).
 - **The domain:** kylet.se reads as "Kyle Tse". The colophon says so once, in
   a quiet note; nowhere else makes a point of it.
 - **Imagery:** no photos of people and no product logos. Products appear as

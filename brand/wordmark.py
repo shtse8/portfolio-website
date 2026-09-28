@@ -5,7 +5,7 @@ from fontTools.varLib.instancer import instantiateVariableFont
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.pens.boundsPen import BoundsPen
-f = TTFont('sys.argv[3] if len(sys.argv) > 3 else 'Geist-Variable.woff2'')
+f = TTFont(sys.argv[3] if len(sys.argv) > 3 else 'Geist-Variable.woff2')
 f = instantiateVariableFont(f, {'wght': float(sys.argv[2]) if len(sys.argv)>2 else 620})
 text = sys.argv[1] if len(sys.argv)>1 else 'Kyle Tse'
 cmap = f.getBestCmap(); gs = f.getGlyphSet(); hmtx = f['hmtx']
