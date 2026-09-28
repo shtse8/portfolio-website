@@ -96,7 +96,7 @@ jobs:
           curl -sfI http://127.0.0.1:3000/ | grep -qi '^content-security-policy:'
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: "1.4.0"
+          bun-version: "1.4.2"
       - name: Chrome
         run: |
           set -euo pipefail
