@@ -1,0 +1,7 @@
+# Keel's private Cargo registry (docs/PUBLISHING.md in the Keel repository).
+# Keel's manifests name it, so cargo needs it configured even for the git
+# dependency; builds from git never contact it. The index URL is configuration,
+# not a secret.
+[registries.sylphx]
+index = "sparse+https://cargo.sylphx.com/index/"
+credential-provider = "cargo:token"

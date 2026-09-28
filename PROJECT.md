@@ -1,8 +1,7 @@
 # Portfolio Website
 
-Public portfolio for Kyle Tse (`kylet.se`): a **TypeScript Next.js static export** for the
-marketing surface, plus a **Rust `api-rust` service** for live GitHub/npm stats, activity,
-terminal data, and the on-site AI agent (Sylphx AI Gateway).
+kylet.se, Kyle Tse's personal site: four static pages built with Keel Engine,
+served by nginx on Sylphx Hosting.
 
 ## Lifecycle
 
@@ -12,51 +11,35 @@ terminal data, and the on-site AI agent (Sylphx AI Gateway).
 
 ## Goals
 
-- Ship fast, static portfolio UX from `src/` → `out/` (no server runtime in the web image).
-- Run all live API authority in Rust with a **single JSON REST contract** (`api-rust/src/contract.rs`).
-- Chat calls the Sylphx AI Gateway Responses wire with server-side credentials only.
+- Show who Kyle is, what he builds and how to reach him, with only sourced
+  facts ([docs/design/content.md](docs/design/content.md)).
+- Be a Keel Engine website in production (owner#739, Stage 1 pilot 2): the
+  pages, the theme and the scene are Keel; the site's own CSS covers only
+  named Keel gaps.
 
-## Non-Goals
+## Non-goals
 
-- Migrating the static site to Rust SSR.
-- Holding model-provider API keys (Gateway only).
-- Owning Sylphx Platform cluster control plane.
-- Maintaining a proto/Connect surface with no consumer.
+- A server API or an on-site agent. Both retired on 2026-09-28
+  ([ADR-170](docs/adr/ADR-170-keel-site-api-retired.md)).
+- Forms, accounts, cookies or analytics.
 
 ## Boundary
 
 | Concern | Owner in this repo |
 | --- | --- |
-| Static pages, components, content | `src/`, `public/`, Next static export |
-| Live API (`/stats`, `/activity`, `/projects`, `/recent`, `/repo`, `/downloads`, `/chat`, `/chat/ready`, `/claims`) | `api-rust/` (single REST JSON contract; evidence graph + claim pack) |
-| Contract SSOT | `api-rust/src/contract.rs` + `api-rust/src/tool_schemas.rs` |
-| Deploy manifest | `sylphx.toml` (web + api services) |
-
-## Public Surfaces
-
-- Browser site: static export served by nginx (`Dockerfile`), nginx is the BFF proxy.
-- Live API: `api-rust` REST JSON routes.
-- Default API base for builds: `NEXT_PUBLIC_API_BASE` (see `src/lib/api.ts`); same-origin
-  by default via the nginx BFF.
+| Pages, copy, theme, island | `site/` |
+| The live scene | `scenes/` |
+| Serving, headers, redirects, CSP | `Dockerfile`, `nginx.conf`, `hosting/` |
+| Deploy manifest | `sylphx.toml` (one `web` service) |
+| The engine | SylphxAI/keel at `KEEL_PIN` (not this repo) |
 
 ## Delivery
 
-- **Web:** `bun run build` → nginx image.
-- **API:** `api-rust/Dockerfile` release binary; health at `/healthz`.
-- **Source checks:** GitHub Actions (`ubuntu-latest`, free for this public repo) on every pull request, and the same checks inside the platform image builds as the deploy gate (docs/reference/fast-trunk-ci.md): biome, `tsc`, `bun test`, static export build, `cargo clippy -D warnings`, `cargo test --locked`.
-- **Production proof:** `scripts/api-smoke.sh` (default `https://kylet.se`): health, stats,
-  projects, activity, chat SSE.
-- **Baked fallbacks:** `bun run sync` refreshes explicit-public repository records
-  and accepts stats only from a `repositoryVisibility=public-only/v1` response.
-  Until then the repository-derived aggregate fallback is unavailable.
+- Checks: GitHub Actions on pull requests and `main` (`ci-ok`), on GitHub's
+  free standard runner (public repository).
+- Deploy: Sylphx Hosting builds the image on every push to `main`.
+- Production check: see [README.md](README.md#checks-and-deploy).
 
-## Commercial Direction
+## Commercial direction
 
-`not-applicable` — personal portfolio; no paid entitlements in this repository.
-
-## Product authority
-
-- [Product vision](./docs/vision.md) — canonical destination and North Star
-  Metric.
-- [Capability DAG](./docs/capabilities.md) — stable `WEB-*` responsibilities,
-  prerequisites, and completion oracles.
+`not-applicable`: a personal site with nothing for sale.

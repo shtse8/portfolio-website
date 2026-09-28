@@ -10,58 +10,26 @@ strategy = "dockerfile"
 dockerfile = "Dockerfile"
 context = "."
 
-# AI gateway base is public product-contract config, not secret material.
-# Declared as a manifest plain value so the product contract is the live writer
-# for this key (the platform materializes manifest plain values over shadowed
-# secret-store duplicates); the value is the Sylphx AI family Models door
-# (api.models.sylphx.ai). The retired predecessor host api.sylphx.ai must not
-# come back through an ad-hoc secret-store row.
-[env.AI_GATEWAY_BASE_URL]
-value = "https://api.models.sylphx.ai/v1"
+# The image build reads the private Keel repository (SylphxAI/keel at
+# KEEL_PIN) with a one-hour, read-only token minted from a GitHub App by the
+# build pod (SylphxAI/cloud#9149). The project's KEEL_APP_ID and KEEL_APP_KEY
+# secrets name that App; the value reaches only the Dockerfile's
+# `--mount=type=secret,id=keel_git_token` step.
+[build.secrets]
+keel_git_token = { github_app = { app_id_secret = "KEEL_APP_ID", private_key_secret = "KEEL_APP_KEY", repositories = ["SylphxAI/keel"] } }
 
-# Concrete catalog SKU (owner-selected): DeepSeek V4.1 Flash. The Models door
-# retired the `sylphx/auto` router (`model_not_available`), so an alias
-# cannot serve.
-[env.AI_MODEL]
-value = "deepseek/deepseek-v4.1-flash"
-
-# Shared-domain edge routing (platform [[domains]] + service path_prefixes,
-# same model as cubeage-platform): the edge (Envoy HTTPRoute) sends the api
-# service's path prefixes straight to api:3001 and everything else to web.
-# Once the push-intake pipeline projects this manifest, the nginx BFF proxy
-# locations in nginx.conf become dead and can be removed (ADR-169 follow-up).
 [[domains]]
 hostname = "kylet.se"
 service = "web"
 
-[[domains]]
-hostname = "kylet.se"
-service = "api"
-
+# The static site: keel pack's output served by nginx. The api service
+# (api-rust and the on-site agent) was retired on 2026-09-28; nginx answers
+# its old paths with 410.
 [[services]]
 name = "web"
 port = 3000
-# Transitional until edge routing is live: nginx proxies the API paths → api:3001.
-# Platform injects API_INTERNAL_URL and opens NetworkPolicy web→api.
-connect = { services = ["api"] }
-watch_paths = ["src/**", "public/**", "package.json", "nginx.conf", "Dockerfile", "sylphx.toml"]
+watch_paths = ["site/**", "scenes/**", "Cargo.toml", "Cargo.lock", "KEEL_PIN", ".cargo/**", "hosting/**", "nginx.conf", "Dockerfile", "sylphx.toml"]
 
-[[services]]
-name = "api"
-port = 3001
-deploy_priority = 100
-# Shared-host path routing: the edge sends these prefixes directly to this
-# service; web keeps catch-all `/` on kylet.se.
-path_prefixes = ["/stats", "/activity", "/projects", "/recent", "/repo", "/downloads", "/claims", "/chat", "/healthz"]
-# Chat requires server-side env (project secrets): SYLPHX_AI_URL + SYLPHX_AI_API_KEY
-# (or AI_GATEWAY_BASE_URL/AI_GATEWAY_KEY). SYLPHX_URL is the public browser URL and
-# must never be used. Without a credential /chat fails closed with 503.
-watch_paths = ["api-rust/**", "sylphx.toml"]
-[services.build]
-strategy = "dockerfile"
-# Context MUST be repo root: api-rust/Dockerfile COPYs api-rust/src.
-dockerfile = "api-rust/Dockerfile"
-context = "."
 [services.health]
 mode = "http"
-path = "/healthz"
+path = "/"

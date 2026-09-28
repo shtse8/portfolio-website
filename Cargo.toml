@@ -1,0 +1,27 @@
+[workspace]
+members = ["site", "scenes"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# The Keel revision the site is built against, in one place. KEEL_PIN carries
+# the same revision for CI and the image build (a check keeps them equal).
+[workspace.dependencies]
+keel-engine = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
+keel-math = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
+keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
+keel-web = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
+serde = { version = "1", features = ["derive"] }
+# The same exact version Keel pins; the wasm-bindgen CLI that `keel pack` runs must match.
+wasm-bindgen = "=0.2.126"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+
+[profile.release.package.kylet-scenes]
+opt-level = 3

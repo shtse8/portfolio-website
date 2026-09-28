@@ -1,0 +1,82 @@
+/* kylet.se: what the site's Keel theme (site/src/theme.rs) cannot say yet.
+ * The theme owns every token, the page's base text, canvas, links and focus
+ * ring, and every surface's paint, type, box, layout and hover, focus and
+ * pressed states; keel-web exports them as custom properties, html/body rules
+ * and class rules. Each block here names the Keel issue that replaces it, and
+ * goes in the change that adopts it. */
+
+/* ---------- display and mono families: keel#3821 ----------
+ * The families the theme's type roles name (`--keel-font-<family>`); the
+ * base text face is the theme's `font_ui`. */
+:root {
+  --keel-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --keel-font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
+}
+
+/* ---------- light and dark: keel#4060 ----------
+ * The page follows the device; the dark palette is dark.css. */
+:root { color-scheme: light dark; }
+
+/* ---------- shadows and hairlines: keel#3871 ---------- */
+:root {
+  --keel-elevation-e1: 0 1px 2px rgba(17, 17, 19, 0.04), 0 0 0 1px var(--keel-token-line);
+  --keel-elevation-e2: 0 1px 2px rgba(17, 17, 19, 0.04), 0 12px 32px -12px rgba(17, 17, 19, 0.18), 0 0 0 1px var(--keel-token-line);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --keel-elevation-e1: 0 0 0 1px var(--keel-token-line);
+    --keel-elevation-e2: 0 0 0 1px var(--keel-token-line), 0 16px 40px -16px rgba(0, 0, 0, 0.8);
+  }
+}
+[data-keel-surface="top"], [data-keel-surface="foot"], [data-keel-surface="band-ruled"] { border-width: 0.5px; }
+[data-keel-surface="stage"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 30px 60px -30px rgba(7, 8, 11, 0.55); }
+[data-keel-surface="stage-bar"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset; }
+[data-keel-surface="tile-keel"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset; }
+
+/* ---------- stacking: keel#3941 ----------
+ * A surface's z-index makes keel-web position its node relative, which
+ * overrides the surface's sticky position. */
+[data-keel-surface="top"] { z-index: 50; }
+
+/* ---------- positions and lengths the surface model cannot hold: keel#3942, safe-area insets keel#4060 ----------
+ * The scene's caption floats over its bottom edge; gutters and the header
+ * keep clear of a notch; fixed boxes do not shrink in a row. */
+[data-keel-surface="stage-bar"] { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; }
+[data-keel-surface="top"] { padding-top: env(safe-area-inset-top); }
+[data-keel-surface="wrap"], [data-keel-surface="top-bar"], [data-keel-surface="foot-inner"] {
+  padding-left: max(var(--keel-space-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--keel-space-gutter), env(safe-area-inset-right));
+}
+[data-keel-surface="foot"] { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
+[data-keel-surface="tile"], [data-keel-surface="tile-lg"], [data-keel-surface="tile-keel"], [data-keel-surface="chev"],
+[data-keel-surface="built-mark"], [data-keel-surface="eyebrow-dot"], [data-keel-surface="stage-dot"] { flex: none; }
+[data-keel-surface="row-text"] { flex: 1; }
+
+/* ---------- a surface that follows a descendant's state: keel#4060 ----------
+ * The scene caption's dot turns green once the engine view reports live. */
+[data-keel-surface="stage"]:has([data-keel-embed-state="live"]) [data-keel-surface="stage-dot"] {
+  background-color: #3ddc84; box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.18);
+}
+
+/* ---------- decoration layers: keel#3817 ----------
+ * The mark before the name in the header (an <img alt=""> would carry
+ * role="img", keel#4065), hairlines between list rows, arrows after "go"
+ * links, and language dots. */
+[data-keel-surface="mark-link"]::before {
+  content: ""; width: 28px; height: 28px; flex: none;
+  background: url("/assets/mark.svg") center / contain no-repeat;
+}
+[data-keel-surface$="-item"] + [data-keel-surface$="-item"] > [data-keel-surface="row"]::before {
+  content: ""; position: absolute; top: 0; right: 0; left: 72px; border-top: 0.5px solid var(--keel-token-line-strong);
+}
+[data-keel-surface="go"]::after, [data-keel-surface="go-link"]::after { content: "→"; transition: transform var(--keel-motion-normal) var(--keel-ease-standard); }
+a:hover > [data-keel-surface="go"]::after, [data-keel-surface="go-link"]:hover::after { transform: translateX(3px); }
+[data-keel-surface^="lang-"]::before { content: ""; width: 8px; height: 8px; border-radius: 50%; }
+[data-keel-surface="lang-rust"]::before { background: #dea584; }
+[data-keel-surface="lang-dart"]::before { background: #00b4ab; }
+[data-keel-surface="lang-ts"]::before { background: #3178c6; }
+
+/* ---------- the skip link shows on focus: keel#3942 ----------
+ * Placement off-screen and back; its focus look is the theme's ring. */
+[data-keel-surface="skip-link"] { position: absolute; left: var(--keel-space-gutter); top: -100px; z-index: 100; }
+[data-keel-surface="skip-link"]:focus { top: 12px; }

@@ -1,76 +1,59 @@
 # kylet.se
 
-Kyle Tse's personal proof surface: a static portfolio with a small Rust live API for evidence and the on-site agent.
+Kyle Tse's personal site, built with [Keel Engine](https://keelengine.dev):
+four static pages that Keel renders from Rust components to plain HTML, one
+live Keel scene, and one small island (the contact address's Copy button).
 
-- Ordinary: https://kylet.se — customer domain for this personal proof surface. HTML reachability is not the product contract.
-- Preview: none — no product-owned current preview URL is declared. `https://portfolio-website-phi-six-53.vercel.app` is a leftover Vercel host, not production.
-- Vision: [docs/vision.md](docs/vision.md)
-- Capabilities: [docs/capabilities.md](docs/capabilities.md)
-- Decisions: [docs/adr/](docs/adr/)
+- Site: https://kylet.se (Sylphx Hosting, org `shtse8`, project `curl-nod-67h1zf`)
+- Vision: [docs/vision.md](docs/vision.md) · Capabilities: [docs/capabilities.md](docs/capabilities.md)
+- Design (brand, tokens, pages, screenshots): [docs/design/](docs/design/)
+- Every fact on the site and its source: [docs/design/content.md](docs/design/content.md)
 
-## Stack
+## Layout
 
-- **Web:** Next.js static export (TypeScript) → nginx (`Dockerfile`, port 3000).
-  No server runtime in the web image; nginx is the BFF proxying API routes.
-- **API:** Rust `api-rust` (`sylphx.toml` `api` service, port 3001) — stats,
-  activity, projects, downloads, and AI chat via the Sylphx AI Gateway
-  Responses wire.
-- **GitHub:** the API holds no GitHub credential. Repository reads use the
-  public REST API anonymously; the aggregate `/stats` and `/activity`
-  (GitHub GraphQL, which needs a credential) report `absent`. The API retires
-  with the Keel rebuild ([docs/design/](https://github.com/shtse8/portfolio-website/pull/86)).
-- **Contract:** single JSON REST contract (`api-rust/src/contract.rs` +
-  `tool_schemas.rs`). No proto/Connect surface.
-
-## Chat env contract (server-side only)
-
-The agent and this contract retire with the Keel rebuild (#86).
-
-| Var | Purpose |
+| Path | Owns |
 | --- | --- |
-| `SYLPHX_AI_URL` | Gateway base (default `https://api.models.sylphx.ai`, normalized to `/v1`) |
-| `SYLPHX_AI_API_KEY` | Gateway bearer credential (`sk-sx-*` only; dest AI peel) |
-| `AI_GATEWAY_BASE_URL` / `AI_GATEWAY_KEY` / `AI_GATEWAY_API_KEY` | Explicit overrides (optional; the manifest declares `AI_GATEWAY_BASE_URL` = Models door as product-contract config) |
-| `AI_MODEL` | Responses model (default `deepseek/deepseek-v4.1-flash`, a concrete Models catalog SKU; the `sylphx/auto` alias is retired) |
+| `site/src/lib.rs` | Routes, redirects, head metadata and the page frame (header, footer) |
+| `site/src/pages.rs` | The four pages: `/`, `/about`, `/colophon`, not found |
+| `site/src/content.rs` | Every fact the pages show (apps, tools, companies, timeline, track record, links) |
+| `site/src/theme.rs` | Tokens and surface styles for the light and dark palettes |
+| `site/src/islands.rs` | The contact island |
+| `site/assets/` | Mark, icons, OG image, the scene poster, `site.css` (only named Keel gaps) and the generated `dark.css` |
+| `scenes/` | The live scene (`keel_mount`) |
+| `hosting/`, `nginx.conf`, `Dockerfile`, `sylphx.toml` | The image: `keel pack`, then nginx serving the pack with its redirects, headers and CSP |
+| `tests/` | Browser checks (axe, 320 px, 44 px targets, redirects, 410s, CSP, the island), Lighthouse and screenshots |
 
-**Must not** set `AI_GATEWAY_BASE_URL` to Platform management (`api.sylphx.com`)
-or `AI_GATEWAY_KEY` to a Platform product secret (`sk_prod_*`), leftover
-internal `ck_*`, or any non-`sk-sx-*` bearer — those are rejected by
-`resolve_ai()` so `GET /chat/ready` stays fail-closed.
+The Keel revision lives in `Cargo.toml` (`[workspace.dependencies]`) and
+`KEEL_PIN`; CI fails when they differ. On a pin bump run `keel migrate --check`
+and then `keel migrate`.
 
-`SYLPHX_URL` is **never** used as a server credential. Without a valid gateway
-credential the API fails closed (`503 chat is warming up`). UI probes
-`GET /chat/ready` and fail-closes the agent launcher when not ready.
+## Commands
 
-## Dev
+| Job | Command |
+| --- | --- |
+| Lint and checks | `cargo clippy --workspace --all-targets -- -D warnings` · `cargo test -p kylet-site` |
+| Regenerate `dark.css` after a theme change | `KYLET_WRITE_DARK=1 cargo test -p kylet-site dark_stylesheet` |
+| Serve with live reload | `keel dev --manifest-path site/Cargo.toml` |
+| Build the site | `keel pack --profile web --release --manifest-path site/Cargo.toml` (writes `dist/web`) |
+| Serve the pack as Pages would | `keel serve dist/web --manifest-path site/Cargo.toml` |
+| Browser checks | `cd tests && bun install && BASE=http://127.0.0.1:4173 CHROME=/usr/bin/chromium bun browser.mjs` |
+| Lighthouse (mobile, median of 3) | `cd tests && BASE=… CHROME_PATH=… bun lighthouse.mjs` |
+| Screenshots | `cd tests && BASE=… OUT=../docs/design/screens bun shots.mjs` |
 
-```bash
-bun install
-bun run dev          # static site dev server :4311
-cd api-rust && cargo run
-```
+Keel is a private repository; `cargo` and `keel` need read access to
+SylphxAI/keel (`gh auth setup-git` locally, a one-hour App token in CI and in
+the image build).
 
-## Verify (source)
+## Checks and deploy
 
-```bash
-bun run check        # biome + tsc + bun test
-bun run build        # static export
-cd api-rust && cargo test --locked
-cd api-rust && cargo clippy --locked --lib --bins -- -D warnings
-```
-
-Pull requests run these on GitHub's free standard hosted runner; the same
-checks run inside both Sylphx Hosting image builds, so a failing check blocks
-the deploy.
-
-## Sync baked fallbacks
-
-```bash
-bun run sync         # github-portfolio.json + stats-baked.json from live
-```
-
-## Production proof
-
-```bash
-scripts/api-smoke.sh # against https://kylet.se (BASE_URL overridable)
-```
+- **Pull requests:** `.github/workflows/ci.yml` on GitHub's free standard
+  runner. `build` runs clippy, the site tests and `keel pack`; `browser`
+  serves the pack with the production nginx config and runs the browser checks
+  and Lighthouse. `ci-ok` is the check the `main` ruleset requires.
+- **Deploy:** Sylphx Hosting builds `Dockerfile` on every push to `main`. The
+  build reads Keel through the `keel_git_token` build secret
+  (SylphxAI/cloud#9149).
+- **After a deploy:** `curl -sI https://kylet.se` (200), `/about` and
+  `/colophon` (200), `/story` (301 to `/about`), `/stats` (410),
+  `/no-such-page` (404); then `BASE=https://kylet.se GONE=1 bun browser.mjs`
+  and `bun shots.mjs` against the live site.

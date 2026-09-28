@@ -1,0 +1,14 @@
+# `keel pack --profile web` builds this site: the pages, the islands client,
+# the scenes module engine views import, and site/assets under /assets/.
+[package]
+name = "kylet.se"
+
+[product]
+canonical_url = "https://kylet.se"
+
+[web]
+site = true
+host = "cloudflare-pages"
+
+[web.scenes]
+package = "kylet-scenes"
