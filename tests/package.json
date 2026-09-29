@@ -5,6 +5,6 @@
   "scripts": { "test": "bun browser.mjs" },
   "devDependencies": {
     "axe-core": "^4.10.3",
-    "puppeteer-core": "^24.10.0"
+    "puppeteer-core": "^25.0.0"
   }
 }
