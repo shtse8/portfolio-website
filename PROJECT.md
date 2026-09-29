@@ -13,7 +13,7 @@ served by nginx on Sylphx Hosting.
 
 - Show who Kyle is, what he builds and how to reach him, with only sourced
   facts ([docs/design/content.md](docs/design/content.md)).
-- Be a Keel Engine website in production (owner#739, Stage 1 pilot 2): the
+- Be a Keel Engine website in production: the
   pages, the theme and the scene are Keel; the site's own CSS covers only
   named Keel gaps.
 

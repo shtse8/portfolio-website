@@ -6,6 +6,7 @@ live Keel scene, and one small island (the contact address's Copy button).
 
 - Site: https://kylet.se (Sylphx Hosting, org `shtse8`, project `curl-nod-67h1zf`)
 - Vision: [docs/vision.md](docs/vision.md) · Capabilities: [docs/capabilities.md](docs/capabilities.md)
+- For: anyone deciding whether to talk to Kyle, hire him or use what he builds.
 - Design (brand, tokens, pages, screenshots): [docs/design/](docs/design/)
 - Every fact on the site and its source: [docs/design/content.md](docs/design/content.md)
 
@@ -51,8 +52,8 @@ the image build).
   serves the pack with the production nginx config and runs the browser checks
   and Lighthouse. `ci-ok` is the check the `main` ruleset requires.
 - **Deploy:** Sylphx Hosting builds `Dockerfile` on every push to `main`. The
-  build reads Keel through the `keel_git_token` build secret
-  (SylphxAI/cloud#9149).
+  build reads the private Keel repository through the `keel_git_token` build
+  secret declared in `sylphx.toml`.
 - **After a deploy:** `curl -sI https://kylet.se` (200), `/about` and
   `/colophon` (200), `/story` (301 to `/about`), `/stats` (410),
   `/no-such-page` (404); then `BASE=https://kylet.se GONE=1 bun browser.mjs`
