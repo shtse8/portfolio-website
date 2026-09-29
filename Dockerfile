@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.27
 # kylet.se image: `keel pack` builds the site, nginx serves it.
 #
 # Keel is a private repository. The build reads it with the `keel_git_token`
