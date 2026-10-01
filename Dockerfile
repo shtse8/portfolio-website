@@ -14,6 +14,9 @@ RUN rustup target add wasm32-unknown-unknown \
  && ln -s "/opt/binaryen-${BINARYEN}/bin/wasm-opt" /usr/local/bin/wasm-opt
 WORKDIR /src
 COPY . .
+# rust-toolchain.toml pins `stable`, which rustup installs afresh under /src without
+# the wasm target added above; add it for the toolchain the build really uses.
+RUN rustup target add wasm32-unknown-unknown
 ENV CARGO_NET_GIT_FETCH_WITH_CLI=true \
     CARGO_REGISTRIES_SYLPHX_INDEX=sparse+https://cargo.sylphx.com/index/
 RUN --mount=type=secret,id=keel_git_token,required=true \
