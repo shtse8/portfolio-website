@@ -16,7 +16,7 @@ keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c
 keel-web = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
 serde = { version = "1", features = ["derive"] }
 # The same exact version Keel pins; the wasm-bindgen CLI that `keel pack` runs must match.
-wasm-bindgen = "=0.2.126"
+wasm-bindgen = "=0.2.129"
 
 [profile.release]
 opt-level = "s"
