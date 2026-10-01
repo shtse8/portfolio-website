@@ -1,7 +1,10 @@
 # kylet.se design
 
-Status (2026-09-28): built with Keel Engine (#86). kylet.se is the second
-Stage 1 pilot of websites on Keel, after keelengine.dev.
+kylet.se is built with Keel Engine and is a sibling of keelengine.dev. This is a
+personal site with nothing for sale, so the company's monetisation menu
+(`standards/mechanics.md`) does not apply. Success is judged by the outcomes in
+[vision.md](../vision.md): Lighthouse mobile 95 or better, WCAG 2.2 AA, no
+sideways scroll at 320 px.
 
 | File | What it holds |
 | --- | --- |
@@ -92,6 +95,9 @@ Scene states: poster, starting, live, paused (reduced motion, with a Play
 button), and failed or no GPU, where the poster stays. The caption's dot turns
 green when the scene is live. The site is static and has no forms, sign-in,
 loading or empty states.
+
+Defaults here are judgement, not law: change one when it serves a visitor
+better, and record why beside it.
 
 **Redirects (301):** `/story` → `/about`, `/work` → `/#work`, `/contact` →
 `/#contact` (`Route::redirect`; nginx serves the pack's `_redirects`).
