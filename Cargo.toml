@@ -10,7 +10,7 @@ publish = false
 # The Keel revision the site is built against, in one place. KEEL_PIN carries
 # the same revision for CI and the image build (a check keeps them equal).
 [workspace.dependencies]
-keel-engine = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
+keel-engine = { git = "https://github.com/SylphxAI/keel", rev = "ceaac37704a81f3070be5d95f4a4892aa2450d17" }
 keel-math = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
 keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
 keel-web = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
