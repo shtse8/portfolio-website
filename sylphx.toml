@@ -27,6 +27,7 @@ service = "web"
 # its old paths with 410.
 [[services]]
 name = "web"
+instance_type = "nano"
 port = 3000
 watch_paths = ["site/**", "scenes/**", "Cargo.toml", "Cargo.lock", "KEEL_PIN", ".cargo/**", "hosting/**", "nginx.conf", "Dockerfile", "sylphx.toml"]
 
