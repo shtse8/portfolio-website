@@ -98,7 +98,7 @@ pub const ERAS: [Era; 5] = [
     Era { years: "2025–", name: "Epiow", role: "Co-founder & CTO", text: "Business software for organisations: one workspace for HR, payroll, leave, projects and records.", site: Some(("epiow.com", "https://epiow.com")), now: true, record: None },
     Era { years: "2014–", name: "Cubeage", role: "Founder & CEO", text: "Mobile board and card games for players in Hong Kong and Taiwan. The games are moving to Keel Engine.", site: Some(("cubeage.com", "https://cubeage.com")), now: true, record: Some("10M+ downloads") },
     Era { years: "2010–2016", name: "MiniMax Game Entertainment", role: "Co-founder & CEO", text: "Social games on Facebook, with teams in Hong Kong, Taiwan and mainland China. Also traded as Funimax.", site: None, now: false, record: Some("10M+ monthly active users · 30+ games") },
-    Era { years: "2006", name: "Nakuz", role: "Co-founder & CTO", text: "A Hong Kong gaming community and news site, where it all started.", site: None, now: false, record: Some("500K+ users · 3K+ online at once · 100+ partners") },
+    Era { years: "2006–", name: "Nakuz", role: "Co-founder & CTO", text: "A Hong Kong gaming community and news site, where it all started.", site: Some(("nakuz.com", "https://nakuz.com")), now: true, record: Some("500K+ users · 3K+ online at once · 100+ partners") },
 ];
 
 /// The track record on the home page: each company's scale beside its name,
@@ -113,7 +113,7 @@ pub struct Record {
 pub const RECORD: [Record; 3] = [
     Record { company: "Cubeage", years: "2014–", what: "Mobile board and card games", figures: &[("10M+", "downloads")] },
     Record { company: "MiniMax", years: "2010–2016", what: "Social games on Facebook", figures: &[("10M+", "monthly active users"), ("30+", "games")] },
-    Record { company: "Nakuz", years: "2006", what: "Gaming community and news site", figures: &[("500K+", "users"), ("3K+", "online at once"), ("100+", "partners")] },
+    Record { company: "Nakuz", years: "2006–", what: "Gaming community and news site", figures: &[("500K+", "users"), ("3K+", "online at once"), ("100+", "partners")] },
 ];
 
 pub const EMAIL: &str = "hi@kylet.se";
