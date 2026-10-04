@@ -28,6 +28,8 @@ service = "web"
 [[services]]
 name = "web"
 port = 3000
+# nano (0.1 CPU, 256 MiB): 7-day p95 0.08 GiB, peak 0.08 GiB, CPU p95 0.001 (read 2026-10-04).
+instance_type = "nano"
 watch_paths = ["site/**", "scenes/**", "Cargo.toml", "Cargo.lock", "KEEL_PIN", ".cargo/**", "hosting/**", "nginx.conf", "Dockerfile", "sylphx.toml"]
 
 [services.health]
