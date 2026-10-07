@@ -66,7 +66,7 @@ jobs:
         run: cargo test -p kylet-site --locked
       - name: Build the site
         run: keel pack --profile web --release --manifest-path site/Cargo.toml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: site-dist
           path: dist/web
