@@ -1,7 +1,8 @@
 name: CI
 
 # Pull-request checks and the build of the exact site that ships. `ci-ok` is
-# the one check the main-branch ruleset requires.
+# the one check the main-branch ruleset requires, and it waits for every job
+# here, so a lane that is not a required check still gates the merge.
 on:
   push:
     branches: [main]
@@ -16,6 +17,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Chat senders: fail a change that adds a direct chat-API host (Telegram,
+  # Slack, Discord) on its own lines instead of sending through the platform's
+  # channel. Pinned to a reviewed action commit and run in fail mode, so a new
+  # direct host is a required-check failure, not an advisory note. fetch-depth
+  # 0: the action diffs from the merge base with the base branch, not just the
+  # last commit.
+  #
+  # GitHub's standard hosted runner, like the jobs below: free on a public
+  # repository (owner standards/dx.md, owner#750). Never a larger or GPU
+  # runner, which is billed.
+  chat-senders:
+    name: Chat senders (no new direct chat-API host)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: SylphxAI/.github/.github/actions/chat-senders@5cfd55a41435cca8e4b7caf6506faf04ca08d200
+        with:
+          mode: fail
+
   build:
     name: Build (clippy, tests, keel pack)
     # GitHub's standard hosted runner: free for a public repository (owner
@@ -116,13 +139,15 @@ jobs:
   # The one required check.
   ci-ok:
     name: ci-ok
-    needs: [build, browser]
+    needs: [chat-senders, build, browser]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - env:
+          CHAT_SENDERS: ${{ needs.chat-senders.result }}
           BUILD: ${{ needs.build.result }}
           BROWSER: ${{ needs.browser.result }}
         run: |
+          test "$CHAT_SENDERS" = success
           test "$BUILD" = success
           test "$BROWSER" = success
