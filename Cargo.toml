@@ -11,7 +11,7 @@ publish = false
 # the same revision for CI and the image build (a check keeps them equal).
 [workspace.dependencies]
 keel-engine = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
-keel-math = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
+keel-math = { git = "https://github.com/SylphxAI/keel", rev = "c430d9cdc7466aea111b983fb48fc70e32a49c88" }
 keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
 keel-web = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
 serde = { version = "1", features = ["derive"] }
