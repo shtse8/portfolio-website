@@ -22,8 +22,8 @@ pub fn email() -> Component {
 }
 
 fn email_view(props: &EmailProps) -> Component {
-    let copied = signal(false);
-    let status = copied.map(|done| if *done { "Copied".to_string() } else { String::new() });
+    let status = signal(String::new());
+    let copying = signal(false);
     let address = props.address.clone();
     div("email-row", "email-row")
         .child(a("email-address", props.address.clone(), &format!("mailto:{}", props.address), "email-address"))
@@ -33,19 +33,40 @@ fn email_view(props: &EmailProps) -> Component {
                 .surface("copy")
                 .aria_label("Copy the email address")
                 .on_press(move |_| {
-                    copy_text(&address);
-                    copied.set(true);
+                    if copying.get() {
+                        return;
+                    }
+                    copying.set(true);
+                    status.set("Copying…".into());
+                    copy_text(&address, move |copied| {
+                        status.set(if copied { "Copied" } else { "Copy failed" }.into());
+                        copying.set(false);
+                    });
                 }),
         )
         .child(text(status).id("email-status").surface("email-status").aria_live("polite"))
 }
 
 #[cfg(target_arch = "wasm32")]
-fn copy_text(text: &str) {
-    if let Some(window) = web_sys::window() {
-        let _ = window.navigator().clipboard().write_text(text);
+fn copy_text(text: &str, done: impl FnOnce(bool) + 'static) {
+    let Some(window) = web_sys::window() else {
+        done(false);
+        return;
+    };
+    // Start the clipboard request during the trusted press, then report its
+    // result. A denied request must not announce a successful copy.
+    let clipboard = window.navigator().clipboard();
+    if clipboard.is_undefined() || clipboard.is_null() {
+        done(false);
+        return;
     }
+    let result = clipboard.write_text(text);
+    wasm_bindgen_futures::spawn_local(async move {
+        done(wasm_bindgen_futures::JsFuture::from(result).await.is_ok());
+    });
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn copy_text(_text: &str) {}
+fn copy_text(_text: &str, done: impl FnOnce(bool) + 'static) {
+    done(false);
+}
