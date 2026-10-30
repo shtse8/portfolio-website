@@ -19,7 +19,7 @@ Sources:
 | "Kyle Tse" (the name as the hero), "Founder of Sylphx" | previous site `roles.ts` (Sylphx, Founder, 2025-05); GitHub profile company `@SylphxAI` |
 | "I've shipped consumer software to millions of people for twenty years. Now I'm building Sylphx, a software company that runs on AI agents." | the track record below (confirmed by Kyle, 2026-09-28); positioning from the coordinator, 2026-09-28 |
 | "Sylphx makes one platform for hosting, data, auth and AI; Keel Engine…; and the apps and open-source tools that run on them." | portfolio.md rows 1 (Sylphx) and 3 (Keel) and the apps |
-| Track record: Cubeage (2014–) 10M+ downloads; MiniMax (2010–2016) 10M+ monthly active users, 30+ games; Nakuz (2006) 500K+ users, 3K+ online at once, 100+ partners | previous site `roles.ts` (marked self-attested there); **confirmed by Kyle, 2026-09-28** |
+| Track record: Cubeage (2014–) 10M+ downloads; MiniMax (2010–2016) 10M+ monthly active users, 30+ games; Nakuz (2006–) 500K+ users, 3K+ online at once, 100+ partners | previous site `roles.ts` (marked self-attested there); **confirmed by Kyle, 2026-09-28** |
 | Sylphx: "One platform for hosting, databases, auth, AI, workflows and sandboxes: one account, one API key, one SDK and one bill." | sylphx.com meta description |
 | Keel Engine: "One Rust engine for games, apps and websites… agents drive it from the command line." | keelengine.dev meta description |
 | "Both are built mostly in Rust." | GitHub languages: SylphxAI/cloud is mainly Rust; Keel is a Rust engine |
@@ -35,7 +35,7 @@ Sources:
 
 | Copy | Source |
 | --- | --- |
-| Timeline: Nakuz 2006 (Co-founder & CTO), MiniMax Game Entertainment 2010–2016 (Co-founder & CEO, also traded as Funimax), Cubeage 2014– (Founder & CEO), Epiow 2025– (Co-founder & CTO), Sylphx 2025– (Founder) | previous site `roles.ts` and `organizations.ts`; confirmed by Kyle, 2026-09-28 |
+| Timeline: Nakuz 2006– (Co-founder & CTO), MiniMax Game Entertainment 2010–2016 (Co-founder & CEO, also traded as Funimax), Cubeage 2014– (Founder & CEO), Epiow 2025– (Co-founder & CTO), Sylphx 2025– (Founder) | previous site `roles.ts` and `organizations.ts`; confirmed by Kyle, 2026-09-28 |
 | The scale line under Nakuz, MiniMax and Cubeage | as the track record above; confirmed by Kyle, 2026-09-28 |
 | "Twenty years of starting things." | 2006 to 2026; confirmed by Kyle, 2026-09-28 |
 | MiniMax "teams in Hong Kong, Taiwan and mainland China" | previous site `roles.ts` ("offices in Hong Kong, Taiwan and China") |
