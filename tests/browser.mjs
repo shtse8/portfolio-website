@@ -11,6 +11,7 @@
 import puppeteer from "puppeteer-core";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { checkContactCopy } from "./contact.mjs";
 
 const base = process.env.BASE ?? "http://127.0.0.1:4173";
 const axe = readFileSync(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
@@ -107,6 +108,7 @@ for (const path of ["/", "/about", "/colophon"]) {
 // The contact island: it loads as it nears the viewport, and the first tap
 // on Copy works even when that tap is what loads the client (no lost tap).
 if (process.env.ISLANDS !== "0") {
+  await checkContactCopy(browser, base);
   for (const how of ["scroll", "first-tap"]) {
     const page = await browser.newPage();
     const errors = [];
