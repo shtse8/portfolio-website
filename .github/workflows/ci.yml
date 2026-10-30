@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build:
     name: Build (clippy, tests, keel pack)
+    permissions:
+      contents: read
+      id-token: write
     # GitHub's standard hosted runner: free for a public repository (owner
     # standards/dx.md, owner#750). Never a larger or GPU runner, which is billed.
     runs-on: ubuntu-latest
@@ -66,22 +69,40 @@ jobs:
         run: cargo test -p kylet-site --locked
       - name: Build the site
         run: keel pack --profile web --release --manifest-path site/Cargo.toml
-      - uses: actions/upload-artifact@v4
+      - name: Pack the site handoff
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/site-dist"
+          tar -C dist/web -cf "$RUNNER_TEMP/site-dist/site-dist.tar" .
+          (cd "$RUNNER_TEMP/site-dist" && sha256sum site-dist.tar > site-dist.tar.sha256)
+      - name: run-store put site-dist
+        uses: SylphxAI/.github/.github/actions/run-store@90d88da2d60dcd6a3884899c273dd3a7f975be17
         with:
+          mode: put
           name: site-dist
-          path: dist/web
-          include-hidden-files: true
+          path: ${{ runner.temp }}/site-dist
 
   browser:
     name: Browser (served by the production nginx config)
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: run-store get site-dist
+        uses: SylphxAI/.github/.github/actions/run-store@90d88da2d60dcd6a3884899c273dd3a7f975be17
         with:
+          mode: get
           name: site-dist
-          path: dist/web
+          path: ${{ runner.temp }}/site-dist
+      - name: Verify and unpack the site handoff
+        run: |
+          set -euo pipefail
+          (cd "$RUNNER_TEMP/site-dist" && sha256sum -c site-dist.tar.sha256)
+          mkdir -p dist/web
+          tar -xf "$RUNNER_TEMP/site-dist/site-dist.tar" -C dist/web
       - name: Serve the pack as the image does
         run: |
           set -euo pipefail
