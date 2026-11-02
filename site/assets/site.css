@@ -24,25 +24,15 @@
     --keel-elevation-e2: 0 0 0 1px var(--keel-token-line), 0 16px 40px -16px rgba(0, 0, 0, 0.8);
   }
 }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Top"], [data-keel-surface="title:kylet_site::roles:SiteSurface:Foot"], [data-keel-surface="title:kylet_site::roles:SiteSurface:BandRuled"] { border-width: 0.5px; }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Stage"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 30px 60px -30px rgba(7, 8, 11, 0.55); }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:StageBar"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset; }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:TileKeel"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset; }
 
-/* ---------- stacking: keel#3941 ----------
- * A surface's z-index makes keel-web position its node relative, which
- * overrides the surface's sticky position. */
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Top"] { z-index: 50; }
-
 /* ---------- positions and lengths the surface model cannot hold: keel#3942, safe-area insets keel#4060 ----------
- * The scene's caption floats over its bottom edge; gutters and the header
- * keep clear of a notch; fixed boxes do not shrink in a row. */
+ * The scene's caption floats over its bottom edge; the footer adds the
+ * bottom inset; fixed boxes do not shrink in a row. Gutters and header
+ * insets are declared on the typed theme. */
 [data-keel-surface="title:kylet_site::roles:SiteSurface:StageBar"] { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Top"] { padding-top: env(safe-area-inset-top); }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Wrap"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TopBar"], [data-keel-surface="title:kylet_site::roles:SiteSurface:FootInner"] {
-  padding-left: max(var(--keel-space-gutter), env(safe-area-inset-left));
-  padding-right: max(var(--keel-space-gutter), env(safe-area-inset-right));
-}
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Foot"] { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Tile"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileLg"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileKeel"], [data-keel-surface="title:kylet_site::roles:SiteSurface:Chev"],
 [data-keel-surface="title:kylet_site::roles:SiteSurface:BuiltMark"], [data-keel-surface="title:kylet_site::roles:SiteSurface:EyebrowDot"], [data-keel-surface="title:kylet_site::roles:SiteSurface:StageDot"] { flex: none; }

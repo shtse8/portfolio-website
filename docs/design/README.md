@@ -65,11 +65,13 @@ Stage 1 pilot of websites on Keel, after keelengine.dev.
 - Hover, focus and pressed states (card lift, row tint, button press) are
   `SurfaceStates` on the theme; the base text face, canvas, link colours and
   focus ring are theme fields.
+- Header stacking, half-pixel section rules, notch-aware gutters and the
+  header's safe-area padding live on the typed theme.
 - `site/assets/site.css` holds only what the theme cannot say yet. Each block
   names the Keel issue that replaces it: display and mono font families
-  (keel#3821), shadows and hairlines (keel#3871), stacking (keel#3941),
-  positions, the skip link and safe-area insets (keel#3942, keel#4060), the
-  scene caption following the engine view's state (keel#4060) and decoration
+  (keel#3821), layered shadows (keel#3871), the caption and skip-link
+  positions and additive footer inset (keel#3942, keel#4060), the scene
+  caption following the engine view's state (keel#4060) and decoration
   layers (keel#3817).
 - **Content Security Policy:** `keel pack` writes it (keel#4068): each page
   carries a meta policy with the SHA-256 of its own inline styles, and the

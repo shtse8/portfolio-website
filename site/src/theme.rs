@@ -7,7 +7,7 @@
 
 use keel::math::Srgba;
 use crate::roles::SiteSurface;
-use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
+use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
 
 fn hex(code: &str) -> Srgba {
     Srgba::from_hex(code).expect("palette colour")
@@ -209,7 +209,7 @@ fn pill(style: SurfaceStyle) -> SurfaceStyle {
 }
 
 fn top_rule(style: SurfaceStyle, color: Srgba) -> SurfaceStyle {
-    style.with_border_sides(1.0, color, Sides { top: true, ..Sides::default() })
+    style.with_border_sides(0.5, color, Sides { top: true, ..Sides::default() })
 }
 
 /// A square of `size` px with its content centred: letter tiles and marks.
@@ -253,7 +253,12 @@ fn wrap(p: &Palette) -> SurfaceStyle {
         .with_width(BoxSize::Percent(100.0))
         .with_max_width(rem(70.0) + 2.0 * rem(3.0))
         .with_margin(Sides::new(0.0, Margin::Auto, 0.0, Margin::Auto))
-        .with_padding(Sides::new(0.0, space("gutter"), 0.0, space("gutter")))
+        .with_padding(Sides::new(
+            0.0,
+            Length::safe_area(SafeEdge::Right, space("gutter")),
+            0.0,
+            Length::safe_area(SafeEdge::Left, space("gutter")),
+        ))
 }
 
 fn button(fill: Srgba, fg: Srgba) -> SurfaceStyle {
@@ -290,7 +295,9 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
         SiteSurface::SkipLink => pill(on(p.ink, ink(p.canvas))).with_padding(pad_vh(10.0, 16.0)).with_text(weighted("callout", 600)),
         SiteSurface::SiteMain => ink(p.ink),
         SiteSurface::Top => on(p.material, ink(p.ink))
-                .with_border_sides(1.0, p.line, Sides { bottom: true, ..Sides::default() })
+                .with_border_sides(0.5, p.line, Sides { bottom: true, ..Sides::default() })
+                .with_padding(Sides::new(Length::safe_area(SafeEdge::Top, 0.0), 0.0, 0.0, 0.0))
+                .with_z_index(50)
                 .with_sticky_top(0.0),
         SiteSurface::TopBar => wrap(p).with_layout(flex(Axis::Horizontal, MainAxisAlignment::Start, Center, false)).with_gap(rem(1.0)).with_min_height(56.0),
         SiteSurface::MarkLink => row(p.ink, 10.0, Center, false).with_min_height(44.0).with_text(text("brand")),
