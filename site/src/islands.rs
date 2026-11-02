@@ -2,8 +2,8 @@
 //! address with a button that copies it. The rest of every page is static
 //! HTML.
 
-use keel_ui::{button, signal, text, Component};
-use keel_web::Island;
+use keel::ui::{button, Component, signal, text};
+use keel::web::Island;
 use serde::{Deserialize, Serialize};
 
 use crate::content;

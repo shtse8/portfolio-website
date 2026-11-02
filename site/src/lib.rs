@@ -10,8 +10,8 @@ pub mod theme;
 mod tests;
 mod ui;
 
-use keel_ui::Component;
-use keel_web::{ClientBundle, Head, Hydration, JsonLd, Route, RouteCx, Site};
+use keel::ui::Component;
+use keel::web::{ClientBundle, Head, Hydration, JsonLd, Route, RouteCx, Site};
 
 use ui::*;
 
@@ -143,7 +143,7 @@ pub fn site() -> Site {
         .origin(ORIGIN)
         .lang("en")
         .theme(theme::theme())
-        .stylesheet("/assets/dark.css")
+        .theme_dark(theme::dark_theme())
         .stylesheet("/assets/site.css")
         .client(ClientBundle { module: "/_keel/client.js".into() })
         .island(islands::EMAIL)
@@ -152,5 +152,5 @@ pub fn site() -> Site {
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen::prelude::wasm_bindgen(start)]
 pub fn start() {
-    keel_web::hydrate(site()).expect("hydrate");
+    keel::web::hydrate(site()).expect("hydrate");
 }

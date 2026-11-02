@@ -1,14 +1,23 @@
-//! Checks on the rendered site and its generated dark theme.
+//! The engine emits both device palettes; the site needs no generated dark file.
 
-use crate::theme;
+use keel::web::{block_on, Request};
 
 #[test]
-fn dark_stylesheet_is_current() {
-    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/dark.css");
-    let generated = theme::dark_stylesheet();
-    if std::env::var_os("KYLET_WRITE_DARK").is_some() {
-        std::fs::write(path, &generated).expect("write dark.css");
+fn every_page_carries_the_device_scheme_pair() {
+    let site = crate::site();
+    for path in ["/", "/about", "/colophon", "/no-such-page"] {
+        let page = block_on(block_on(site.handle(Request::get(path))).into_text());
+        assert!(
+            page.contains("@media (prefers-color-scheme:dark){"),
+            "{path}: no dark rules"
+        );
+        assert!(
+            page.contains(":root{color-scheme:light dark}"),
+            "{path}: no device scheme declaration"
+        );
+        assert!(
+            !page.contains("/assets/dark.css"),
+            "{path}: legacy stylesheet still requested"
+        );
     }
-    let committed = std::fs::read_to_string(path).unwrap_or_default();
-    assert!(committed == generated, "assets/dark.css is stale: run KYLET_WRITE_DARK=1 cargo test -p kylet-site dark_stylesheet");
 }

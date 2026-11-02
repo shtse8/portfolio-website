@@ -1,8 +1,8 @@
 //! The four pages: `/`, `/about`, `/colophon` and the not-found page.
 //! Copy and sources: docs/design/content.md.
 
-use keel_ui::{ordered_list, list_item, paragraph, Component};
-use keel_web::{engine_view, EngineView};
+use keel::ui::{Component, list_item, ordered_list, paragraph};
+use keel::web::{engine_view, EngineView};
 
 use crate::content::{self, APPS, COMPANIES, ERAS, RECORD, TOOLS};
 use crate::islands;
@@ -109,7 +109,7 @@ fn track_record() -> Component {
         let id = format!("record-{i}");
         let figures = r.figures.iter().enumerate().fold(ul(format!("{id}-figures"), "figures", vec![]), |l, (j, (value, label))| {
             l.child(
-                keel_ui::list_item(format!("{id}-fig-{j}"))
+                keel::ui::list_item(format!("{id}-fig-{j}"))
                     .surface("figure")
                     .child(t(format!("{id}-fig-{j}-v"), *value, "figure-value"))
                     .child(t(format!("{id}-fig-{j}-l"), *label, "figure-label")),
@@ -309,7 +309,7 @@ fn rich(id: &str, surface: &str, parts: &[(&str, Option<&str>)]) -> Component {
             None => run(format!("{id}-{i}"), *text),
             Some("strong") => t(format!("{id}-{i}"), *text, "strong"),
             // The engine's own link in running text: the theme's link colour, underlined.
-            Some(href) => keel_ui::link(format!("{id}-{i}"), *text, *href),
+            Some(href) => keel::ui::link(format!("{id}-{i}"), *text, *href),
         })
         .collect();
     paragraph(id.to_string(), children).surface(surface)

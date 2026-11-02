@@ -3,10 +3,7 @@
 //! Each node is styled as a surface role of the site's theme
 //! (`theme.rs`): keel-web draws the role from one class rule.
 
-use keel_ui::{
-    box_node, footer, header, heading, link, list, list_item, main, nav, paragraph, section,
-    text, Component,
-};
+use keel::ui::{box_node, Component, footer, header, heading, link, list, list_item, main, nav, paragraph, section, text};
 
 /// A block (`div`).
 pub fn div(id: impl Into<String>, surface: &str) -> Component {

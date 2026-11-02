@@ -59,11 +59,9 @@ Stage 1 pilot of websites on Keel, after keelengine.dev.
 - `site/src/theme.rs` holds the tokens and one `SurfaceStyle` per surface
   role, built by one function over a palette. The pages are drawn with the
   light theme.
-- **Dark:** a `Site` takes one theme, and surface colours are literal in their
-  class rules, so the dark scheme is the same theme on the dark palette,
-  emitted by `keel_web::theme_stylesheet` into `site/assets/dark.css` under
-  `prefers-color-scheme: dark`. A test fails when the file is stale. It goes
-  when Keel emits a scheme pair (keel#4060).
+- **Dark:** `Site::theme_dark` emits the dark palette beside the light theme,
+  selected by the reader's device preference. Both palettes live in
+  `site/src/theme.rs`; there is no generated dark stylesheet.
 - Hover, focus and pressed states (card lift, row tint, button press) are
   `SurfaceStates` on the theme; the base text face, canvas, link colours and
   focus ring are theme fields.
@@ -108,6 +106,6 @@ stateless, so nothing was lost.
 ## Hosting
 
 kylet.se stays on Sylphx Hosting (org `shtse8`, project `curl-nod-67h1zf`).
-The image build runs `keel pack` and serves the pack with nginx. It reads the
-private Keel repository through the `keel_git_token` build secret declared in
-`sylphx.toml` (SylphxAI/cloud#9149).
+The image build runs the public CLI version in `KEEL_PIN` to `keel pack`
+and serves the pack with nginx. The matching public engine crates need no
+private repository token.

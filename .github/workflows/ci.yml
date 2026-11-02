@@ -24,27 +24,10 @@ jobs:
     # GitHub's standard hosted runner: free for a public repository (owner
     # standards/dx.md, owner#750). Never a larger or GPU runner, which is billed.
     runs-on: ubuntu-latest
-    env:
-      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
     steps:
       - uses: actions/checkout@v4
-      # A token for this job only, from a read-only GitHub App (Contents: read
-      # on SylphxAI/keel alone), expiring within the hour.
-      - name: Token to read the private Keel repository
-        id: keel-token
-        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
-        with:
-          app-id: ${{ vars.KEEL_READER_APP_ID }}
-          private-key: ${{ secrets.KEEL_READER_APP_PRIVATE_KEY }}
-          owner: SylphxAI
-          repositories: keel
-          permission-contents: read
-      - name: Git access to the private Keel repository
-        env:
-          KEEL_TOKEN: ${{ steps.keel-token.outputs.token }}
-        run: git config --global url."https://x-access-token:${KEEL_TOKEN}@github.com/SylphxAI/keel".insteadOf "https://github.com/SylphxAI/keel"
-      - name: KEEL_PIN matches the rev in Cargo.toml
-        run: grep -q "rev = \"$(cat KEEL_PIN)\"" Cargo.toml
+      - name: KEEL_PIN matches the exact public dependency
+        run: sh scripts/check-keel-pin.sh
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
@@ -57,15 +40,11 @@ jobs:
         run: |
           curl -sSL https://github.com/WebAssembly/binaryen/releases/download/version_123/binaryen-version_123-x86_64-linux.tar.gz | tar xz -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/binaryen-version_123/bin" >> "$GITHUB_PATH"
-      - name: The keel CLI at the pinned revision
-        # `cargo install` skips .cargo/config.toml, which names the registry
-        # Keel's manifests refer to; built in target/ so the rust cache keeps it.
-        env:
-          CARGO_REGISTRIES_SYLPHX_INDEX: sparse+https://cargo.sylphx.com/index/
-        run: cargo install --locked --git https://github.com/SylphxAI/keel --rev "$(cat KEEL_PIN)" --target-dir target keel-cli
+      - name: The public keel CLI at the pinned version
+        run: cargo install --locked sylphx-keel-cli --version "$(cat KEEL_PIN)" --target-dir target
       - name: Lint
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
-      - name: Site checks (the dark theme file is current)
+      - name: Site checks (both device palettes)
         run: cargo test -p kylet-site --locked
       - name: Build the site
         run: keel pack --profile web --release --manifest-path site/Cargo.toml
