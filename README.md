@@ -50,7 +50,9 @@ install `pkg-config libasound2-dev libudev-dev` for the native scene tooling.
 - **Pull requests:** `.github/workflows/ci.yml` on GitHub's free standard
   runner. `build` runs clippy, the site tests and `keel pack`; `browser`
   serves the pack with the production nginx config and runs the browser checks
-  and Lighthouse. `ci-ok` is the check the `main` ruleset requires.
+  and Lighthouse. `source` runs the same public CLI’s `keel lint` against the
+  source tree, rejecting site CSS and direct browser APIs. `ci-ok` requires all
+  three jobs and is the check the `main` ruleset requires.
 - **Deploy:** Sylphx Hosting builds `Dockerfile` on every push to `main`, using
   the same exact public engine and CLI version as CI.
 - **After a deploy:** `curl -sI https://kylet.se` (200), `/about` and
