@@ -18,7 +18,7 @@ live Keel scene, and one small island (the contact address's Copy button).
 | `site/src/content.rs` | Every fact the pages show (apps, tools, companies, timeline, track record, links) |
 | `site/src/theme.rs` | Tokens and surface styles for the light and dark palettes |
 | `site/src/islands.rs` | The contact island |
-| `site/assets/` | Mark, icons, OG image, the scene poster, `site.css` (only named Keel gaps) and the generated `dark.css` |
+| `site/assets/` | `llms.txt` (served at `/llms.txt` by nginx), mark, icons, OG image, the scene poster, `site.css` (only named Keel gaps) and the generated `dark.css` |
 | `scenes/` | The live scene (`keel_mount`) |
 | `hosting/`, `nginx.conf`, `Dockerfile`, `sylphx.toml` | The image: `keel pack`, then nginx serving the pack with its redirects, headers and CSP |
 | `tests/` | Browser checks (axe, 320 px, 44 px targets, redirects, 410s, CSP, the island), Lighthouse and screenshots |
@@ -36,6 +36,7 @@ and then `keel migrate`.
 | Serve with live reload | `keel dev --manifest-path site/Cargo.toml` |
 | Build the site | `keel pack --profile web --release --manifest-path site/Cargo.toml` (writes `dist/web`) |
 | Serve the pack as Pages would | `keel serve dist/web --manifest-path site/Cargo.toml` |
+| Overview contract tests | `node --test tests/llms.test.mjs` |
 | Browser checks | `cd tests && bun install && BASE=http://127.0.0.1:4173 CHROME=/usr/bin/chromium bun browser.mjs` |
 | Lighthouse (mobile, median of 3) | `cd tests && BASE=… CHROME_PATH=… bun lighthouse.mjs` |
 | Screenshots | `cd tests && BASE=… OUT=../docs/design/screens bun shots.mjs` |
@@ -53,6 +54,9 @@ the image build).
 - **Deploy:** Sylphx Hosting builds `Dockerfile` on every push to `main`. The
   build reads Keel through the `keel_git_token` build secret
   (SylphxAI/cloud#9149).
+- **Overview:** `/llms.txt` is the static overview in `site/assets/llms.txt`.
+  nginx serves it at the root with `text/plain; charset=utf-8`; browser checks
+  verify GET and HEAD against the production config.
 - **After a deploy:** `curl -sI https://kylet.se` (200), `/about` and
   `/colophon` (200), `/story` (301 to `/about`), `/stats` (410),
   `/no-such-page` (404); then `BASE=https://kylet.se GONE=1 bun browser.mjs`

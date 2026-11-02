@@ -60,6 +60,27 @@ Sources:
 - **Personal details:** "Open to new ventures", "Available for remote work", and a location.
 - **Other products:** Tachyn (tachyn.ai not live) and Number Grove (no store listing yet); Korvana, BGCA and internal tools.
 
+## Machine-readable overview (`/llms.txt`)
+
+The overview identifies Kyle Tse as the founder of Sylphx and links to his
+personal site, Sylphx, Spiron, Keel Engine and his GitHub profile. The founder
+fact is confirmed above (Kyle, 2026-09-28). Product descriptions come from each
+site's live title and meta description, read 2026-11-02 at 22:58 UTC:
+
+| Link | Description source |
+| --- | --- |
+| `https://kylet.se/` | Personal site: work, companies and background; the current home page |
+| `https://sylphx.com` | Hosting, Postgres, Auth, AI and Sandboxes behind one key and one bill; live meta description |
+| `https://spiron.ai` | An AI agent that finishes a job and returns the result with proof; live title and meta description |
+| `https://keelengine.dev` | One Rust engine for games, apps and websites; live title and meta description |
+| `https://github.com/shtse8` | Kyle Tse's public GitHub profile; the live profile and the confirmed link above |
+
+All five URLs returned direct GET 200 at that read. LinkedIn is not included in
+this overview: the confirmed historical URL returned 999 to curl and 404 with a
+browser user agent, and the public browser page could not establish that the
+profile is public (2026-11-02, 22:49 UTC). Existing page copy is unchanged.
+
 ## Facts for Kyle to confirm
 
-None open. Everything above was confirmed on 2026-09-28.
+None open. The historical roles and figures above were confirmed on 2026-09-28;
+the overview links and product descriptions carry their dated public sources.

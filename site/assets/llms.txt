@@ -1,0 +1,17 @@
+# Kyle Tse
+
+> Kyle Tse is the founder of Sylphx, a software company that runs on AI agents.
+
+This is Kyle Tse's personal site, with his work, companies and background.
+The links below lead to his site, products and public GitHub profile.
+
+## Personal site and profile
+
+- [Kyle Tse](https://kylet.se/): Work, companies and background.
+- [GitHub](https://github.com/shtse8): Kyle Tse's public GitHub profile.
+
+## Sylphx and products
+
+- [Sylphx](https://sylphx.com): Hosting, Postgres, Auth, AI and Sandboxes behind one key and one bill.
+- [Spiron](https://spiron.ai): An AI agent that finishes a job and returns the result with proof.
+- [Keel Engine](https://keelengine.dev): One Rust engine for games, apps and websites.
