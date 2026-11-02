@@ -68,6 +68,11 @@ pub fn ul(id: impl Into<String>, surface: GroupSurface, items: Vec<Component>) -
     };
     let mut l = list(id.clone()).typed_surface(container);
     for (i, item) in items.into_iter().enumerate() {
+        let item = if i == 0 {
+            item
+        } else {
+            item.child(deco(format!("{id}-{i}-divider"), "", SiteSurface::RowDivider))
+        };
         l = l.child(list_item(format!("{id}-{i}")).typed_surface(item_surface).child(item));
     }
     l

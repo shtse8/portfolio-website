@@ -76,6 +76,7 @@ pub enum SiteSurface {
     GroupItem,
     GroupNarrowItem,
     Row,
+    RowDivider,
     Tile,
     RowText,
     RowTitle,

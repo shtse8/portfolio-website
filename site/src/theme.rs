@@ -406,6 +406,7 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
                 SurfaceState { fill: Some(p.surface_2), ..SurfaceState::default() },
                 SurfaceState { fill: Some(p.line), ..SurfaceState::default() },
             )),
+        SiteSurface::RowDivider => top_rule(ink(p.ink).with_position(Position::Cover).with_height(0.0).with_margin(Sides::new(0.0, 0.0, 0.0, 72.0)), p.line_strong),
         SiteSurface::Tile => square(on(p.ink, ink(p.canvas)), 40.0).with_radius(10.0).with_text(text("tile")),
         SiteSurface::RowText => column(p.ink, 2.0).with_min_width(0.0),
         SiteSurface::RowTitle => row(p.ink, 8.0, Baseline, true).with_text(weighted(TypeRole::Body, 600)),

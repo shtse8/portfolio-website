@@ -44,9 +44,8 @@
 }
 
 /* ---------- decoration layers: keel#3817 ----------
- * Hairlines between list rows and arrows after "go" links. The brand mark
- * and language dots are decorative children styled by the theme. */
-:is([data-keel-surface="title:kylet_site::roles:SiteSurface:GroupItem"],[data-keel-surface="title:kylet_site::roles:SiteSurface:GroupNarrowItem"]) + :is([data-keel-surface="title:kylet_site::roles:SiteSurface:GroupItem"],[data-keel-surface="title:kylet_site::roles:SiteSurface:GroupNarrowItem"]) > [data-keel-surface="title:kylet_site::roles:SiteSurface:Row"]::before {
+ * Arrows after "go" links. The brand mark, language dots and inset row
+ * hairlines are decorative children styled by the theme. */
   content: ""; position: absolute; top: 0; right: 0; left: 72px; border-top: 0.5px solid var(--keel-token-line-strong);
 }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Go"]::after, [data-keel-surface="title:kylet_site::roles:SiteSurface:GoLink"]::after { content: "→"; transition: transform var(--keel-motion-normal) var(--keel-ease-standard); }
