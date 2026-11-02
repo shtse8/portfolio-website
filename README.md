@@ -42,7 +42,8 @@ bump run `keel migrate --check` and then `keel migrate`.
 | Screenshots | `cd tests && BASE=… OUT=../docs/design/screens bun shots.mjs` |
 
 The engine and CLI use published crates from crates.io. Building the site
-requires no private repository access or GitHub App token.
+requires no private repository access or GitHub App token. On Debian/Ubuntu,
+install `pkg-config libasound2-dev libudev-dev` for the native scene tooling.
 
 ## Checks and deploy
 

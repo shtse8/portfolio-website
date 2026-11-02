@@ -6,6 +6,10 @@
 FROM rust:1-bookworm AS build
 ARG WASM_BINDGEN=0.2.126
 ARG BINARYEN=version_123
+# Native scene tooling and the public CLI link the Linux audio/device hosts.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends pkg-config libasound2-dev libudev-dev \
+ && rm -rf /var/lib/apt/lists/*
 RUN rustup target add wasm32-unknown-unknown \
  && curl -sSfL "https://github.com/WebAssembly/binaryen/releases/download/${BINARYEN}/binaryen-${BINARYEN}-x86_64-linux.tar.gz" | tar xz -C /opt \
  && ln -s "/opt/binaryen-${BINARYEN}/bin/wasm-opt" /usr/local/bin/wasm-opt
