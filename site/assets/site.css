@@ -36,7 +36,6 @@
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Foot"] { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Tile"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileLg"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileKeel"], [data-keel-surface="title:kylet_site::roles:SiteSurface:Chev"],
 [data-keel-surface="title:kylet_site::roles:SiteSurface:BuiltMark"], [data-keel-surface="title:kylet_site::roles:SiteSurface:EyebrowDot"], [data-keel-surface="title:kylet_site::roles:SiteSurface:StageDot"] { flex: none; }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:RowText"] { flex: 1; }
 
 /* ---------- a surface that follows a descendant's state: keel#4060 ----------
  * The scene caption's dot turns green once the engine view reports live. */

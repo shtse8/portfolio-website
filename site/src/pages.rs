@@ -34,6 +34,7 @@ fn row(id: &str, letter: &str, title: &str, meta: &str, text: &str, href: &str) 
         .child(deco(format!("{id}-tile"), letter, SiteSurface::Tile))
         .child(
             div(format!("{id}-text"), SiteSurface::RowText)
+                .flex(1.0)
                 .child(
                     div(format!("{id}-title"), SiteSurface::RowTitle)
                         .child(run(format!("{id}-name"), title))
