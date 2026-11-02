@@ -5,11 +5,11 @@ use keel::ui::SurfaceRoles;
 #[derive(Clone, Copy, SurfaceRoles)]
 pub enum SiteSurface {
     Shell,
-    SkipLink,
     SiteMain,
     Top,
     TopBar,
     MarkLink,
+    MarkIcon,
     MarkName,
     Menu,
     MenuLink,
@@ -90,6 +90,9 @@ pub enum SiteSurface {
     LangRust,
     LangDart,
     LangTs,
+    LangRustDot,
+    LangDartDot,
+    LangTsDot,
     Repo,
     More,
     Contact,

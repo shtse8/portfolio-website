@@ -45,24 +45,10 @@
 }
 
 /* ---------- decoration layers: keel#3817 ----------
- * The mark before the name in the header (an <img alt=""> would carry
- * role="img", keel#4065), hairlines between list rows, arrows after "go"
- * links, and language dots. */
-[data-keel-surface="title:kylet_site::roles:SiteSurface:MarkLink"]::before {
-  content: ""; width: 28px; height: 28px; flex: none;
-  background: url("/assets/mark.svg") center / contain no-repeat;
-}
+ * Hairlines between list rows and arrows after "go" links. The brand mark
+ * and language dots are decorative children styled by the theme. */
 :is([data-keel-surface="title:kylet_site::roles:SiteSurface:GroupItem"],[data-keel-surface="title:kylet_site::roles:SiteSurface:GroupNarrowItem"]) + :is([data-keel-surface="title:kylet_site::roles:SiteSurface:GroupItem"],[data-keel-surface="title:kylet_site::roles:SiteSurface:GroupNarrowItem"]) > [data-keel-surface="title:kylet_site::roles:SiteSurface:Row"]::before {
   content: ""; position: absolute; top: 0; right: 0; left: 72px; border-top: 0.5px solid var(--keel-token-line-strong);
 }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Go"]::after, [data-keel-surface="title:kylet_site::roles:SiteSurface:GoLink"]::after { content: "→"; transition: transform var(--keel-motion-normal) var(--keel-ease-standard); }
 a:hover > [data-keel-surface="title:kylet_site::roles:SiteSurface:Go"]::after, [data-keel-surface="title:kylet_site::roles:SiteSurface:GoLink"]:hover::after { transform: translateX(3px); }
-:is([data-keel-surface="title:kylet_site::roles:SiteSurface:LangRust"],[data-keel-surface="title:kylet_site::roles:SiteSurface:LangDart"],[data-keel-surface="title:kylet_site::roles:SiteSurface:LangTs"])::before { content: ""; width: 8px; height: 8px; border-radius: 50%; }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:LangRust"]::before { background: #dea584; }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:LangDart"]::before { background: #00b4ab; }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:LangTs"]::before { background: #3178c6; }
-
-/* ---------- the skip link shows on focus: keel#3942 ----------
- * Placement off-screen and back; its focus look is the theme's ring. */
-[data-keel-surface="title:kylet_site::roles:SiteSurface:SkipLink"] { position: absolute; left: var(--keel-space-gutter); top: -100px; z-index: 100; }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:SkipLink"]:focus { top: 12px; }

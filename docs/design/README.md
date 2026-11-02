@@ -69,10 +69,12 @@ Stage 1 pilot of websites on Keel, after keelengine.dev.
   header's safe-area padding live on the typed theme.
 - `site/assets/site.css` holds only what the theme cannot say yet. Each block
   names the Keel issue that replaces it: display and mono font families
-  (keel#3821), layered shadows (keel#3871), the caption and skip-link
-  positions and additive footer inset (keel#3942, keel#4060), the scene
+  (keel#3821), layered shadows (keel#3871), the caption position and
+  additive footer inset (keel#3942, keel#4060), the scene
   caption following the engine view's state (keel#4060) and decoration
-  layers (keel#3817).
+  layers (keel#3817). The brand image and language dots are decorative
+  children on typed surface roles. The document host owns the single skip
+  link; the site no longer renders a second one.
 - **Content Security Policy:** `keel pack` writes it (keel#4068): each page
   carries a meta policy with the SHA-256 of its own inline styles, and the
   pack's `_headers` adds `frame-ancestors` and covers every other file. No

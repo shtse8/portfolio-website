@@ -292,7 +292,6 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
     let list = |style: SurfaceStyle| SurfaceStyle { list_marker: Some(ListMarker::None), ..flush(style).with_padding(EdgeInsets::all(0.0)) };
     match role {
         SiteSurface::Shell => on(p.canvas, column(p.ink, 0.0)).with_text(text(TypeRole::Body)).with_min_height(BoxSize::ViewportHeight { percent: 100.0, max: None }),
-        SiteSurface::SkipLink => pill(on(p.ink, ink(p.canvas))).with_padding(pad_vh(10.0, 16.0)).with_text(weighted("callout", 600)),
         SiteSurface::SiteMain => ink(p.ink),
         SiteSurface::Top => on(p.material, ink(p.ink))
                 .with_border_sides(0.5, p.line, Sides { bottom: true, ..Sides::default() })
@@ -301,6 +300,7 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
                 .with_sticky_top(0.0),
         SiteSurface::TopBar => wrap(p).with_layout(flex(Axis::Horizontal, MainAxisAlignment::Start, Center, false)).with_gap(rem(1.0)).with_min_height(56.0),
         SiteSurface::MarkLink => row(p.ink, 10.0, Center, false).with_min_height(44.0).with_text(text("brand")),
+        SiteSurface::MarkIcon => square(ink(p.ink), 28.0).with_height(28.0),
         SiteSurface::MarkName => ink(p.ink).with_variant(WidthClass::Compact, |s| s.hidden()),
         SiteSurface::Menu => row(p.ink, 2.0, Center, false).with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto)),
         SiteSurface::MenuLink => tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 500)), p),
@@ -420,6 +420,9 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
         SiteSurface::LangRust => row(p.ink_3, 6.0, Center, false),
         SiteSurface::LangDart => row(p.ink_3, 6.0, Center, false),
         SiteSurface::LangTs => row(p.ink_3, 6.0, Center, false),
+        SiteSurface::LangRustDot => square(on(hex("#dea584"), ink(p.ink)), 8.0).with_height(8.0).with_radius(4.0),
+        SiteSurface::LangDartDot => square(on(hex("#00b4ab"), ink(p.ink)), 8.0).with_height(8.0).with_radius(4.0),
+        SiteSurface::LangTsDot => square(on(hex("#3178c6"), ink(p.ink)), 8.0).with_height(8.0).with_radius(4.0),
         SiteSurface::Repo => muted("repo").with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto)),
         SiteSurface::More => flush(ink(p.ink)).with_margin(Sides::new(rem(1.0), 0.0, 0.0, 0.0)),
         SiteSurface::Contact => from_medium(

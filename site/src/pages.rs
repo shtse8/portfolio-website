@@ -227,7 +227,11 @@ fn open_source() -> Component {
                             content::Lang::Dart => SiteSurface::LangDart,
                             content::Lang::TypeScript => SiteSurface::LangTs,
                         })
-                            .child(run(format!("{id}-dot"), "").aria_hidden(true))
+                            .child(div(format!("{id}-dot"), match tool.lang {
+                                content::Lang::Rust => SiteSurface::LangRustDot,
+                                content::Lang::Dart => SiteSurface::LangDartDot,
+                                content::Lang::TypeScript => SiteSurface::LangTsDot,
+                            }).aria_hidden(true))
                             .child(run(format!("{id}-lang-t"), tool.lang.name())),
                     )
                     .child(t(format!("{id}-repo"), tool.repo, SiteSurface::Repo)),

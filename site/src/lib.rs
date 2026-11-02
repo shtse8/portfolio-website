@@ -44,6 +44,7 @@ fn header(cx: &RouteCx) -> Component {
             .child(
                 a_block("mark-link", "/", SiteSurface::MarkLink)
                     .aria_label("Kyle Tse, home")
+                    .child(keel::ui::image("mark-icon", "/assets/mark.svg", "").aria_hidden(true).typed_surface(SiteSurface::MarkIcon))
                     .child(t("mark-name", NAME, SiteSurface::MarkName)),
             )
             .child(menu),
@@ -79,7 +80,6 @@ fn footer() -> Component {
 
 fn shell(cx: &RouteCx, outlet: Component) -> Component {
     div("shell", SiteSurface::Shell)
-        .child(a("skip", "Skip to content", "#main", SiteSurface::SkipLink))
         .child(header(cx))
         .child(main_el("main", SiteSurface::SiteMain).child(outlet))
         .child(footer())
