@@ -21,3 +21,29 @@ fn every_page_carries_the_device_scheme_pair() {
         );
     }
 }
+
+#[test]
+fn indexable_pages_advertise_their_own_english_url() {
+    let site = crate::site();
+    for (request, path) in [
+        ("/", "/"),
+        ("/about", "/about"),
+        ("/colophon", "/colophon"),
+        ("/about?from=home", "/about"),
+    ] {
+        let page = block_on(block_on(site.handle(Request::get(request))).into_text());
+        let head = page.split("</head>").next().expect("document head");
+        assert!(
+            head.contains(&format!(
+                "<link rel=\"alternate\" href=\"{}{path}\" hreflang=\"en\">",
+                crate::ORIGIN
+            )),
+            "{request}: no English alternate for this page"
+        );
+        assert_eq!(
+            head.matches("hreflang=\"en\"").count(),
+            1,
+            "{request}: conflicting English alternates"
+        );
+    }
+}

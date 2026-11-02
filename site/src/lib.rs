@@ -109,8 +109,9 @@ fn person() -> serde_json::Value {
 pub fn site() -> Site {
     let root = Route::new("/")
         .hydrate(Hydration::Islands)
-        .head(|_| {
+        .head(|cx| {
             head_for(TITLE, DESCRIPTION)
+                .alternate_language("en", format!("{ORIGIN}{}", cx.path()))
                 .title_template("%s · Kyle Tse")
                 .site_name(NAME)
                 .og_type("website")
