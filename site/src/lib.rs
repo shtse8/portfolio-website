@@ -9,6 +9,7 @@ pub mod theme;
 #[cfg(test)]
 mod tests;
 mod ui;
+mod roles;
 
 use keel::ui::Component;
 use keel::web::{ClientBundle, Head, Hydration, JsonLd, Route, RouteCx, Site};
@@ -33,17 +34,17 @@ const FOOT_LINKS: [(&str, &str); 5] = [
 
 fn header(cx: &RouteCx) -> Component {
     let path = cx.path();
-    let menu = MENU.iter().enumerate().fold(nav_el("menu", "menu").aria_label("Primary"), |nav, (i, (label, href, page))| {
+    let menu = MENU.iter().enumerate().fold(nav_el("menu", SiteSurface::Menu).aria_label("Primary"), |nav, (i, (label, href, page))| {
         let current = page.is_some_and(|page| path.trim_end_matches('/') == page);
-        let link = a(format!("menu-{i}"), *label, href, if current { "menu-link-current" } else { "menu-link" });
+        let link = a(format!("menu-{i}"), *label, href, if current { SiteSurface::MenuLinkCurrent } else { SiteSurface::MenuLink });
         nav.child(if current { link.aria_current(true) } else { link })
     });
-    head_el("top", "top").backdrop_blur(20.0).child(
-        div("top-bar", "top-bar")
+    head_el("top", SiteSurface::Top).backdrop_blur(20.0).child(
+        div("top-bar", SiteSurface::TopBar)
             .child(
-                a_block("mark-link", "/", "mark-link")
+                a_block("mark-link", "/", SiteSurface::MarkLink)
                     .aria_label("Kyle Tse, home")
-                    .child(t("mark-name", NAME, "mark-name")),
+                    .child(t("mark-name", NAME, SiteSurface::MarkName)),
             )
             .child(menu),
     )
@@ -53,17 +54,17 @@ fn footer() -> Component {
     let links = FOOT_LINKS
         .iter()
         .enumerate()
-        .fold(nav_el("foot-links", "foot-links").aria_label("Footer"), |nav, (i, (label, href))| {
-            let link = a(format!("foot-{i}"), *label, href, "foot-link");
+        .fold(nav_el("foot-links", SiteSurface::FootLinks).aria_label("Footer"), |nav, (i, (label, href))| {
+            let link = a(format!("foot-{i}"), *label, href, SiteSurface::FootLink);
             nav.child(if href.starts_with("https://github.com") { link.rel("me") } else { link })
         });
-    foot_el("foot", "foot").child(
-        div("foot-inner", "foot-inner")
+    foot_el("foot", SiteSurface::Foot).child(
+        div("foot-inner", SiteSurface::FootInner)
             .child(
-                div("foot-row", "foot-row")
+                div("foot-row", SiteSurface::FootRow)
                     .child(
-                        a_block("built", "/colophon", "built")
-                            .child(div("built-mark", "built-mark").aria_hidden(true).child(div("built-dot", "built-dot")))
+                        a_block("built", "/colophon", SiteSurface::Built)
+                            .child(div("built-mark", SiteSurface::BuiltMark).aria_hidden(true).child(div("built-dot", SiteSurface::BuiltDot)))
                             .child(run("built-t", "Built with Keel Engine")),
                     )
                     .child(links),
@@ -71,16 +72,16 @@ fn footer() -> Component {
             .child(p(
                 "foot-copy",
                 "© 2026 Kyle Tse. Sylphx, Keel Engine and the apps named here are products of Sylphx Limited.",
-                "foot-copy",
+                SiteSurface::FootCopy,
             )),
     )
 }
 
 fn shell(cx: &RouteCx, outlet: Component) -> Component {
-    div("shell", "shell")
-        .child(a("skip", "Skip to content", "#main", "skip-link"))
+    div("shell", SiteSurface::Shell)
+        .child(a("skip", "Skip to content", "#main", SiteSurface::SkipLink))
         .child(header(cx))
-        .child(main_el("main", "site-main").child(outlet))
+        .child(main_el("main", SiteSurface::SiteMain).child(outlet))
         .child(footer())
 }
 

@@ -6,6 +6,7 @@
 //! emitted dark rules. Remaining site.css blocks each name an engine gap.
 
 use keel::math::Srgba;
+use crate::roles::SiteSurface;
 use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
 
 fn hex(code: &str) -> Srgba {
@@ -273,7 +274,7 @@ fn row_link(p: &Palette) -> SurfaceStyle {
 }
 
 /// Every surface role the site's components use, on palette `p`.
-fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
+fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
     use CrossAxisAlignment::{Baseline, Center, Start};
     // Width variants copy the style they are given, so every change a
     // variant keeps is made before it.
@@ -284,119 +285,81 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
     };
     let muted = |role: &str| ink(p.ink_3).with_text(text(role));
     let list = |style: SurfaceStyle| SurfaceStyle { list_marker: Some(ListMarker::None), ..flush(style).with_padding(EdgeInsets::all(0.0)) };
-    vec![
-        // Page frame.
-        ("shell", on(p.canvas, column(p.ink, 0.0)).with_text(text(TypeRole::Body)).with_min_height(BoxSize::ViewportHeight { percent: 100.0, max: None })),
-        ("skip-link", pill(on(p.ink, ink(p.canvas))).with_padding(pad_vh(10.0, 16.0)).with_text(weighted("callout", 600))),
-        ("site-main", ink(p.ink)),
-        (
-            "top",
-            on(p.material, ink(p.ink))
+    match role {
+        SiteSurface::Shell => on(p.canvas, column(p.ink, 0.0)).with_text(text(TypeRole::Body)).with_min_height(BoxSize::ViewportHeight { percent: 100.0, max: None }),
+        SiteSurface::SkipLink => pill(on(p.ink, ink(p.canvas))).with_padding(pad_vh(10.0, 16.0)).with_text(weighted("callout", 600)),
+        SiteSurface::SiteMain => ink(p.ink),
+        SiteSurface::Top => on(p.material, ink(p.ink))
                 .with_border_sides(1.0, p.line, Sides { bottom: true, ..Sides::default() })
                 .with_sticky_top(0.0),
-        ),
-        ("top-bar", wrap(p).with_layout(flex(Axis::Horizontal, MainAxisAlignment::Start, Center, false)).with_gap(rem(1.0)).with_min_height(56.0)),
-        ("mark-link", row(p.ink, 10.0, Center, false).with_min_height(44.0).with_text(text("brand"))),
-        ("mark-name", ink(p.ink).with_variant(WidthClass::Compact, |s| s.hidden())),
-        ("menu", row(p.ink, 2.0, Center, false).with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto))),
-        ("menu-link", tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 500)), p)),
-        ("menu-link-current", pill(centre(ink(p.ink))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 600))),
-        (
-            "foot",
-            top_rule(ink(p.ink), p.line)
+        SiteSurface::TopBar => wrap(p).with_layout(flex(Axis::Horizontal, MainAxisAlignment::Start, Center, false)).with_gap(rem(1.0)).with_min_height(56.0),
+        SiteSurface::MarkLink => row(p.ink, 10.0, Center, false).with_min_height(44.0).with_text(text("brand")),
+        SiteSurface::MarkName => ink(p.ink).with_variant(WidthClass::Compact, |s| s.hidden()),
+        SiteSurface::Menu => row(p.ink, 2.0, Center, false).with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto)),
+        SiteSurface::MenuLink => tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 500)), p),
+        SiteSurface::MenuLinkCurrent => pill(centre(ink(p.ink))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 600)),
+        SiteSurface::Foot => top_rule(ink(p.ink), p.line)
                 .with_margin(Sides::new(rem(3.5), 0.0, 0.0, 0.0))
                 .with_padding(Sides::new(rem(2.5), 0.0, rem(2.5), 0.0)),
-        ),
-        ("foot-inner", wrap(p)),
-        ("foot-row", row(p.ink, rem(1.0), Center, true)),
-        (
-            "built",
-            pill(on(p.surface, row(p.ink_2, 8.0, Center, false)))
+        SiteSurface::FootInner => wrap(p),
+        SiteSurface::FootRow => row(p.ink, rem(1.0), Center, true),
+        SiteSurface::Built => pill(on(p.surface, row(p.ink_2, 8.0, Center, false)))
                 .with_elevation(ElevationLevel::E1)
                 .with_min_height(44.0)
                 .with_padding(pad(0.0, 12.0, 0.0, 8.0))
                 .with_text(weighted("footnote", 600)),
-        ),
-        ("built-mark", square(on(stage(), ink(p.ink)), 18.0).with_radius(5.0)),
-        ("built-dot", on(ember(), ink(p.ink)).with_width(BoxSize::Length(Length::Px(6.0))).with_min_height(6.0).with_radius(1.5)),
-        (
-            "foot-links",
-            from_medium(row(p.ink, 4.0, Center, true).with_margin(Sides::new(0.0, 0.0, 0.0, -10.0)), |s| {
+        SiteSurface::BuiltMark => square(on(stage(), ink(p.ink)), 18.0).with_radius(5.0),
+        SiteSurface::BuiltDot => on(ember(), ink(p.ink)).with_width(BoxSize::Length(Length::Px(6.0))).with_min_height(6.0).with_radius(1.5),
+        SiteSurface::FootLinks => from_medium(row(p.ink, 4.0, Center, true).with_margin(Sides::new(0.0, 0.0, 0.0, -10.0)), |s| {
                 s.with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto))
             }),
-        ),
-        ("foot-link", tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 10.0)).with_text(text("subhead")), p)),
-        ("foot-copy", flush(muted("footnote")).with_margin(Sides::new(rem(1.0), 0.0, 0.0, 0.0))),
-        // Type.
-        ("eyebrow", row(p.ink_3, 8.0, Center, false).with_text(SurfaceText { tracking_em: Some(0.01), ..weighted("footnote", 600) })),
-        ("eyebrow-dot", on(ember(), ink(p.ink)).with_width(BoxSize::Length(Length::Px(7.0))).with_min_height(7.0).with_radius(2.0)),
-        ("hero-title", flush(ink(p.ink)).with_text(wrapped(text("hero"), TextWrap::Balance))),
-        ("hero-name", row(p.ink, 0.0, Baseline, false)),
-        // The wordmark's ember dot after the name, sized with it.
-        (
-            "name-dot",
-            on(ember(), ink(p.ink))
+        SiteSurface::FootLink => tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 10.0)).with_text(text("subhead")), p),
+        SiteSurface::FootCopy => flush(muted("footnote")).with_margin(Sides::new(rem(1.0), 0.0, 0.0, 0.0)),
+        SiteSurface::Eyebrow => row(p.ink_3, 8.0, Center, false).with_text(SurfaceText { tracking_em: Some(0.01), ..weighted("footnote", 600) }),
+        SiteSurface::EyebrowDot => on(ember(), ink(p.ink)).with_width(BoxSize::Length(Length::Px(7.0))).with_min_height(7.0).with_radius(2.0),
+        SiteSurface::HeroTitle => flush(ink(p.ink)).with_text(wrapped(text("hero"), TextWrap::Balance)),
+        SiteSurface::HeroName => row(p.ink, 0.0, Baseline, false),
+        SiteSurface::NameDot => on(ember(), ink(p.ink))
                 .with_width(BoxSize::Length(Length::Fluid(clamp(0.4, 0.25, 0.55, 0.75))))
                 .with_min_width(Length::Fluid(clamp(0.4, 0.25, 0.55, 0.75)))
                 .with_min_height(BoxSize::Length(Length::Fluid(clamp(0.4, 0.25, 0.55, 0.75))))
                 .with_margin(Sides::new(0.0, 0.0, 0.0, 3.0))
                 .with_radius(3.0),
-        ),
-        ("statement", flush(ink(p.ink)).with_max_width(rem(36.0)).with_text(wrapped(text("statement"), TextWrap::Pretty))),
-        ("lede", flush(ink(p.ink_2)).with_max_width(rem(40.0)).with_text(wrapped(text("lede"), TextWrap::Pretty))),
-        ("section-title", flush(ink(p.ink)).with_text(wrapped(text("title"), TextWrap::Balance))),
-        ("section-lede", flush(ink(p.ink_2)).with_max_width(rem(40.0)).with_text(wrapped(text(TypeRole::Body), TextWrap::Pretty))),
-        // Track record.
-        ("records", from_medium(grid(p.ink, &[1.0], 12.0, None), |s| cols(s, &[1.0, 1.0, 1.0]).with_gap(rem(1.0)))),
-        ("record", card(p, 16.0).with_gap(4.0).with_padding(EdgeInsets::all(rem(1.25)))),
-        ("record-head", ink(p.ink).with_layout(flex(Axis::Horizontal, MainAxisAlignment::SpaceBetween, Baseline, true)).with_gap(8.0)),
-        ("record-name", flush(ink(p.ink)).with_text(weighted("headline", 650))),
-        ("record-what", muted("subhead")),
-        ("figures", list(column(p.ink, 4.0)).with_margin(Sides::new(12.0, 0.0, 0.0, 0.0))),
-        ("figure", row(p.ink_2, 8.0, Baseline, true)),
-        (
-            "figure-value",
-            ink(p.ink).with_text(SurfaceText {
+        SiteSurface::Statement => flush(ink(p.ink)).with_max_width(rem(36.0)).with_text(wrapped(text("statement"), TextWrap::Pretty)),
+        SiteSurface::Lede => flush(ink(p.ink_2)).with_max_width(rem(40.0)).with_text(wrapped(text("lede"), TextWrap::Pretty)),
+        SiteSurface::SectionTitle => flush(ink(p.ink)).with_text(wrapped(text("title"), TextWrap::Balance)),
+        SiteSurface::SectionLede => flush(ink(p.ink_2)).with_max_width(rem(40.0)).with_text(wrapped(text(TypeRole::Body), TextWrap::Pretty)),
+        SiteSurface::Records => from_medium(grid(p.ink, &[1.0], 12.0, None), |s| cols(s, &[1.0, 1.0, 1.0]).with_gap(rem(1.0))),
+        SiteSurface::Record => card(p, 16.0).with_gap(4.0).with_padding(EdgeInsets::all(rem(1.25))),
+        SiteSurface::RecordHead => ink(p.ink).with_layout(flex(Axis::Horizontal, MainAxisAlignment::SpaceBetween, Baseline, true)).with_gap(8.0),
+        SiteSurface::RecordName => flush(ink(p.ink)).with_text(weighted("headline", 650)),
+        SiteSurface::RecordWhat => muted("subhead"),
+        SiteSurface::Figures => list(column(p.ink, 4.0)).with_margin(Sides::new(12.0, 0.0, 0.0, 0.0)),
+        SiteSurface::Figure => row(p.ink_2, 8.0, Baseline, true),
+        SiteSurface::FigureValue => ink(p.ink).with_text(SurfaceText {
                 properties: TextProperties { tabular_figures: true, ..TextProperties::default() },
                 ..text("title-3")
             }),
-        ),
-        ("figure-label", ink(p.ink_2).with_text(text("subhead"))),
-        // Buttons.
-        ("actions", row(p.ink, 12.0, Center, true)),
-        ("button-primary", pressable(button(p.ink, p.canvas), SurfaceState { elevation: Some(ElevationLevel::E2), ..SurfaceState::default() })),
-        (
-            "button-secondary",
-            pressable(button(p.surface, p.ink).with_elevation(ElevationLevel::E1), SurfaceState { fill: Some(p.surface_2), ..SurfaceState::default() }),
-        ),
-        // Hero.
-        ("hero", band(2.5, 5.0, false)),
-        (
-            "hero-grid",
-            expanded(grid(p.ink, &[1.0], rem(2.0), Some(Center)), |s| cols(s, &[1.05, 1.0]).with_gap(rem(3.5))),
-        ),
-        ("hero-copy", column(p.ink, rem(1.25)).with_min_width(0.0)),
-        (
-            "stage",
-            SurfaceStyle { isolate: true, ..on(stage(), ink(hex("#e8e8ec"))) }
+        SiteSurface::FigureLabel => ink(p.ink_2).with_text(text("subhead")),
+        SiteSurface::Actions => row(p.ink, 12.0, Center, true),
+        SiteSurface::ButtonPrimary => pressable(button(p.ink, p.canvas), SurfaceState { elevation: Some(ElevationLevel::E2), ..SurfaceState::default() }),
+        SiteSurface::ButtonSecondary => pressable(button(p.surface, p.ink).with_elevation(ElevationLevel::E1), SurfaceState { fill: Some(p.surface_2), ..SurfaceState::default() }),
+        SiteSurface::Hero => band(2.5, 5.0, false),
+        SiteSurface::HeroGrid => expanded(grid(p.ink, &[1.0], rem(2.0), Some(Center)), |s| cols(s, &[1.05, 1.0]).with_gap(rem(3.5))),
+        SiteSurface::HeroCopy => column(p.ink, rem(1.25)).with_min_width(0.0),
+        SiteSurface::Stage => SurfaceStyle { isolate: true, ..on(stage(), ink(hex("#e8e8ec"))) }
                 .with_radius(24.0)
                 .with_overflow(Overflow::Hidden)
                 .with_position(Position::Relative)
                 .with_min_width(0.0),
-        ),
-        ("engine-view", on(stage(), ink(hex("#e8e8ec"))).with_width(BoxSize::Percent(100.0))),
-        (
-            "stage-bar",
-            on(rgba(12, 13, 17, 0.62), row(hex("#d7d7de"), 10.0, Center, false))
+        SiteSurface::EngineView => on(stage(), ink(hex("#e8e8ec"))).with_width(BoxSize::Percent(100.0)),
+        SiteSurface::StageBar => on(rgba(12, 13, 17, 0.62), row(hex("#d7d7de"), 10.0, Center, false))
                 .with_radius(14.0)
                 .with_padding(pad(8.0, 8.0, 8.0, 14.0))
                 .with_text(text("footnote")),
-        ),
-        ("stage-dot", on(hex("#8d8d96"), ink(p.ink)).with_width(BoxSize::Length(Length::Px(8.0))).with_min_width(8.0).with_min_height(8.0).with_radius(4.0)),
-        ("stage-text", ink(hex("#d7d7de")).with_min_width(0.0)),
-        (
-            "stage-link",
-            centre(on(rgba(255, 255, 255, 0.1), ink(hex("#ffffff"))))
+        SiteSurface::StageDot => on(hex("#8d8d96"), ink(p.ink)).with_width(BoxSize::Length(Length::Px(8.0))).with_min_width(8.0).with_min_height(8.0).with_radius(4.0),
+        SiteSurface::StageText => ink(hex("#d7d7de")).with_min_width(0.0),
+        SiteSurface::StageLink => centre(on(rgba(255, 255, 255, 0.1), ink(hex("#ffffff"))))
                 .with_radius(10.0)
                 .with_min_height(44.0)
                 .with_padding(pad_vh(0.0, 14.0))
@@ -408,98 +371,73 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
                     hover: Some(SurfaceState { fill: Some(rgba(255, 255, 255, 0.16)), ..SurfaceState::default() }),
                     ..SurfaceStates::default()
                 }),
-        ),
-        // Sections.
-        ("band", band(3.5, 5.0, false)),
-        ("band-ruled", band(3.5, 5.0, true)),
-        ("wrap", wrap(p)),
-        ("band-head", column(p.ink, 12.0).with_margin(Sides::new(0.0, 0.0, rem(2.0), 0.0))),
-        ("features", from_medium(grid(p.ink, &[1.0], rem(1.0), None), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.25)))),
-        (
-            "feature",
-            from_medium(liftable(card(p, 24.0).with_gap(rem(1.0)).with_padding(EdgeInsets::all(rem(1.5))), 0.99), |s| {
+        SiteSurface::Band => band(3.5, 5.0, false),
+        SiteSurface::BandRuled => band(3.5, 5.0, true),
+        SiteSurface::Wrap => wrap(p),
+        SiteSurface::BandHead => column(p.ink, 12.0).with_margin(Sides::new(0.0, 0.0, rem(2.0), 0.0)),
+        SiteSurface::Features => from_medium(grid(p.ink, &[1.0], rem(1.0), None), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.25))),
+        SiteSurface::Feature => from_medium(liftable(card(p, 24.0).with_gap(rem(1.0)).with_padding(EdgeInsets::all(rem(1.5))), 0.99), |s| {
                 s.with_padding(EdgeInsets::all(rem(2.0)))
             }),
-        ),
-        ("feature-top", row(p.ink, 12.0, Center, false)),
-        ("feature-id", column(p.ink, 0.0)),
-        ("tile-lg", square(on(p.ink, ink(p.canvas)), 44.0).with_radius(11.0).with_text(text("tile-lg"))),
-        ("tile-keel", square(on(stage(), ink(hex("#ff8a4c"))), 44.0).with_radius(11.0).with_text(text("tile-lg"))),
-        ("feature-name", flush(ink(p.ink)).with_text(text("title-3"))),
-        ("domain", muted("footnote")),
-        ("feature-text", flush(ink(p.ink_2)).with_text(text(TypeRole::Body))),
-        ("chips", row(p.ink, 6.0, Center, true).with_padding(Sides::new(8.0, 0.0, 0.0, 0.0))),
-        ("chip", pill(centre(on(p.surface_2, ink(p.ink_2)))).with_min_height(28.0).with_padding(pad_vh(0.0, 10.0)).with_text(weighted("footnote", 500))),
-        ("go", row(p.accent, 6.0, Center, false).with_text(weighted("subhead", 600))),
-        ("go-link", row(p.accent, 6.0, Center, false).with_min_height(44.0).with_text(weighted("subhead", 600))),
-        // Grouped lists.
-        ("group-cols", expanded(grid(p.ink, &[1.0], rem(1.0), Some(Start)), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.25)))),
-        ("group", list(card(p, 16.0).with_overflow(Overflow::Hidden))),
-        ("group-narrow", list(card(p, 16.0).with_overflow(Overflow::Hidden).with_max_width(760.0))),
-        ("group-item", ink(p.ink)),
-        ("group-narrow-item", ink(p.ink)),
-        (
-            "row",
-            row_link(p).with_states(states(
+        SiteSurface::FeatureTop => row(p.ink, 12.0, Center, false),
+        SiteSurface::FeatureId => column(p.ink, 0.0),
+        SiteSurface::TileLg => square(on(p.ink, ink(p.canvas)), 44.0).with_radius(11.0).with_text(text("tile-lg")),
+        SiteSurface::TileKeel => square(on(stage(), ink(hex("#ff8a4c"))), 44.0).with_radius(11.0).with_text(text("tile-lg")),
+        SiteSurface::FeatureName => flush(ink(p.ink)).with_text(text("title-3")),
+        SiteSurface::Domain => muted("footnote"),
+        SiteSurface::FeatureText => flush(ink(p.ink_2)).with_text(text(TypeRole::Body)),
+        SiteSurface::Chips => row(p.ink, 6.0, Center, true).with_padding(Sides::new(8.0, 0.0, 0.0, 0.0)),
+        SiteSurface::Chip => pill(centre(on(p.surface_2, ink(p.ink_2)))).with_min_height(28.0).with_padding(pad_vh(0.0, 10.0)).with_text(weighted("footnote", 500)),
+        SiteSurface::Go => row(p.accent, 6.0, Center, false).with_text(weighted("subhead", 600)),
+        SiteSurface::GoLink => row(p.accent, 6.0, Center, false).with_min_height(44.0).with_text(weighted("subhead", 600)),
+        SiteSurface::GroupCols => expanded(grid(p.ink, &[1.0], rem(1.0), Some(Start)), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.25))),
+        SiteSurface::Group => list(card(p, 16.0).with_overflow(Overflow::Hidden)),
+        SiteSurface::GroupNarrow => list(card(p, 16.0).with_overflow(Overflow::Hidden).with_max_width(760.0)),
+        SiteSurface::GroupItem => ink(p.ink),
+        SiteSurface::GroupNarrowItem => ink(p.ink),
+        SiteSurface::Row => row_link(p).with_states(states(
                 SurfaceState { fill: Some(p.surface_2), ..SurfaceState::default() },
                 SurfaceState { fill: Some(p.line), ..SurfaceState::default() },
             )),
-        ),
-        ("tile", square(on(p.ink, ink(p.canvas)), 40.0).with_radius(10.0).with_text(text("tile"))),
-        ("row-text", column(p.ink, 2.0).with_min_width(0.0)),
-        ("row-title", row(p.ink, 8.0, Baseline, true).with_text(weighted(TypeRole::Body, 600))),
-        ("row-meta", muted("footnote")),
-        ("row-sub", ink(p.ink_2).with_text(SurfaceText { leading: Some(1.4), ..text("subhead") })),
-        ("chev", ink(p.ink_3).with_text(text("chev"))),
-        // Open source.
-        (
-            "tools",
-            expanded(from_medium(grid(p.ink, &[1.0], 12.0, None), |s| cols(s, &[1.0, 1.0])), |s| cols(s, &[1.0, 1.0, 1.0]).with_gap(rem(1.0))),
-        ),
-        ("tool", liftable(card(p, 16.0).with_gap(8.0).with_min_height(148.0).with_padding(EdgeInsets::all(rem(1.25))), 0.985)),
-        ("tool-name", flush(ink(p.ink)).with_text(weighted("headline", 650))),
-        ("tool-text", flush(ink(p.ink_2)).with_text(SurfaceText { leading: Some(1.45), ..text("subhead") })),
-        ("tool-foot", row(p.ink_3, 8.0, Center, false).with_padding(Sides::new(8.0, 0.0, 0.0, 0.0)).with_text(text("footnote"))),
-        ("lang-rust", row(p.ink_3, 6.0, Center, false)),
-        ("lang-dart", row(p.ink_3, 6.0, Center, false)),
-        ("lang-ts", row(p.ink_3, 6.0, Center, false)),
-        ("repo", muted("repo").with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto))),
-        ("more", flush(ink(p.ink)).with_margin(Sides::new(rem(1.0), 0.0, 0.0, 0.0))),
-        // Contact.
-        (
-            "contact",
-            from_medium(
+        SiteSurface::Tile => square(on(p.ink, ink(p.canvas)), 40.0).with_radius(10.0).with_text(text("tile")),
+        SiteSurface::RowText => column(p.ink, 2.0).with_min_width(0.0),
+        SiteSurface::RowTitle => row(p.ink, 8.0, Baseline, true).with_text(weighted(TypeRole::Body, 600)),
+        SiteSurface::RowMeta => muted("footnote"),
+        SiteSurface::RowSub => ink(p.ink_2).with_text(SurfaceText { leading: Some(1.4), ..text("subhead") }),
+        SiteSurface::Chev => ink(p.ink_3).with_text(text("chev")),
+        SiteSurface::Tools => expanded(from_medium(grid(p.ink, &[1.0], 12.0, None), |s| cols(s, &[1.0, 1.0])), |s| cols(s, &[1.0, 1.0, 1.0]).with_gap(rem(1.0))),
+        SiteSurface::Tool => liftable(card(p, 16.0).with_gap(8.0).with_min_height(148.0).with_padding(EdgeInsets::all(rem(1.25))), 0.985),
+        SiteSurface::ToolName => flush(ink(p.ink)).with_text(weighted("headline", 650)),
+        SiteSurface::ToolText => flush(ink(p.ink_2)).with_text(SurfaceText { leading: Some(1.45), ..text("subhead") }),
+        SiteSurface::ToolFoot => row(p.ink_3, 8.0, Center, false).with_padding(Sides::new(8.0, 0.0, 0.0, 0.0)).with_text(text("footnote")),
+        SiteSurface::LangRust => row(p.ink_3, 6.0, Center, false),
+        SiteSurface::LangDart => row(p.ink_3, 6.0, Center, false),
+        SiteSurface::LangTs => row(p.ink_3, 6.0, Center, false),
+        SiteSurface::Repo => muted("repo").with_margin(Sides::new(0.0, 0.0, 0.0, Margin::Auto)),
+        SiteSurface::More => flush(ink(p.ink)).with_margin(Sides::new(rem(1.0), 0.0, 0.0, 0.0)),
+        SiteSurface::Contact => from_medium(
                 on(p.contact, grid(p.on_contact, &[1.0], rem(1.5), None))
                     .with_radius(24.0)
                     .with_padding(pad_vh(rem(2.0), rem(1.5)))
                     .with_elevation(ElevationLevel::E1),
                 |s| cols(s, &[1.2, 1.0]).with_padding(EdgeInsets::all(rem(3.5))),
             ),
-        ),
-        ("contact-copy", column(p.on_contact, 12.0)),
-        ("contact-title", flush(ink(p.on_contact)).with_text(wrapped(text("title"), TextWrap::Balance))),
-        ("contact-text", flush(ink(p.on_contact_2)).with_max_width(rem(32.0))),
-        ("contact-side", column(p.on_contact, rem(1.0)).with_min_width(0.0)),
-        ("email-row", row(p.on_contact, 12.0, Center, true)),
-        (
-            "email-address",
-            centre(ink(p.on_contact))
+        SiteSurface::ContactCopy => column(p.on_contact, 12.0),
+        SiteSurface::ContactTitle => flush(ink(p.on_contact)).with_text(wrapped(text("title"), TextWrap::Balance)),
+        SiteSurface::ContactText => flush(ink(p.on_contact_2)).with_max_width(rem(32.0)),
+        SiteSurface::ContactSide => column(p.on_contact, rem(1.0)).with_min_width(0.0),
+        SiteSurface::EmailRow => row(p.on_contact, 12.0, Center, true),
+        SiteSurface::EmailAddress => centre(ink(p.on_contact))
                 .with_border_sides(2.0, ember(), Sides { bottom: true, ..Sides::default() })
                 .with_min_height(44.0)
                 .with_text(text("email")),
-        ),
-        (
-            "copy",
-            pressable(
+        SiteSurface::Copy => pressable(
                 pill(centre(on(p.contact_control, ink(p.on_contact)))).with_min_height(44.0).with_padding(pad_vh(0.0, 16.0)).with_border(0.0, Srgba::TRANSPARENT).with_text(weighted("subhead", 600)),
                 SurfaceState::default(),
             ),
-        ),
-        ("email-status", ink(p.on_contact_2).with_text(text("footnote"))),
-        ("elsewhere", row(p.on_contact, 8.0, Center, true)),
-        (
-            "elsewhere-link",
-            pill(centre(ink(p.on_contact)))
+        SiteSurface::EmailStatus => ink(p.on_contact_2).with_text(text("footnote")),
+        SiteSurface::Elsewhere => row(p.on_contact, 8.0, Center, true),
+        SiteSurface::ElsewhereLink => pill(centre(ink(p.on_contact)))
                 .with_border(1.0, p.contact_line)
                 .with_min_height(44.0)
                 .with_padding(pad_vh(0.0, 14.0))
@@ -508,17 +446,13 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
                     hover: Some(SurfaceState { fill: Some(p.contact_control), ..SurfaceState::default() }),
                     ..SurfaceStates::default()
                 }),
-        ),
-        // Inner pages.
-        ("page-head", expanded(column(p.ink, rem(1.0)).with_padding(pad(rem(3.5), 0.0, rem(2.0), 0.0)), |s| s.with_padding(pad(rem(5.0), 0.0, rem(2.5), 0.0)))),
-        ("band-tight", ink(p.ink).with_padding(pad(8.0, 0.0, rem(3.5), 0.0))),
-        ("prose", column(p.ink_2, rem(1.0)).with_max_width(rem(40.0))),
-        ("prose-p", flush(ink(p.ink_2))),
-        ("strong", ink(p.ink).with_text(weighted(TypeRole::Body, 600))),
-        ("timeline", list(column(p.ink, 0.0))),
-        (
-            "era",
-            from_medium(
+        SiteSurface::PageHead => expanded(column(p.ink, rem(1.0)).with_padding(pad(rem(3.5), 0.0, rem(2.0), 0.0)), |s| s.with_padding(pad(rem(5.0), 0.0, rem(2.5), 0.0))),
+        SiteSurface::BandTight => ink(p.ink).with_padding(pad(8.0, 0.0, rem(3.5), 0.0)),
+        SiteSurface::Prose => column(p.ink_2, rem(1.0)).with_max_width(rem(40.0)),
+        SiteSurface::ProseP => flush(ink(p.ink_2)),
+        SiteSurface::Strong => ink(p.ink).with_text(weighted(TypeRole::Body, 600)),
+        SiteSurface::Timeline => list(column(p.ink, 0.0)),
+        SiteSurface::Era => from_medium(
                 top_rule(ink(p.ink), p.line_strong)
                     .with_layout(SurfaceLayout::Grid(GridSpec {
                         columns: keel::ui::GridColumns::Tracks(vec![TrackSize::Px(76.0), TrackSize::Fr(1.0)]),
@@ -535,41 +469,26 @@ fn surfaces(p: &Palette) -> Vec<(&'static str, SurfaceStyle)> {
                     .with_padding(pad_vh(rem(1.5), 0.0))
                 },
             ),
-        ),
-        ("era-year", ink(p.ink_3).with_padding(Sides::new(2.0, 0.0, 0.0, 0.0)).with_text(text("year"))),
-        ("era-head", column(p.ink, 2.0).with_min_width(0.0)),
-        ("era-name-row", row(p.ink, 6.0, Center, true)),
-        ("era-name", flush(ink(p.ink)).with_text(text("title-3"))),
-        ("era-role", muted("subhead")),
-        ("era-record", ink(p.ink_2).with_text(text("footnote")).with_margin(Sides::new(4.0, 0.0, 0.0, 0.0))),
-        (
-            "name-note",
-            on(p.surface_2, ink(p.ink_2)).with_radius(16.0).with_padding(pad_vh(rem(1.0), rem(1.25))).with_max_width(rem(40.0)).with_margin(Sides::new(0.0, 0.0, rem(1.5), 0.0)),
-        ),
-        ("name-note-text", flush(ink(p.ink_2)).with_text(text("subhead"))),
-        ("status", pill(centre(on(rgba(255, 107, 44, 0.14), ink(p.accent_strong)))).with_min_height(22.0).with_padding(pad_vh(0.0, 8.0)).with_text(weighted("caption", 600))),
-        (
-            "era-body",
-            from_medium(
+        SiteSurface::EraYear => ink(p.ink_3).with_padding(Sides::new(2.0, 0.0, 0.0, 0.0)).with_text(text("year")),
+        SiteSurface::EraHead => column(p.ink, 2.0).with_min_width(0.0),
+        SiteSurface::EraNameRow => row(p.ink, 6.0, Center, true),
+        SiteSurface::EraName => flush(ink(p.ink)).with_text(text("title-3")),
+        SiteSurface::EraRole => muted("subhead"),
+        SiteSurface::EraRecord => ink(p.ink_2).with_text(text("footnote")).with_margin(Sides::new(4.0, 0.0, 0.0, 0.0)),
+        SiteSurface::NameNote => on(p.surface_2, ink(p.ink_2)).with_radius(16.0).with_padding(pad_vh(rem(1.0), rem(1.25))).with_max_width(rem(40.0)).with_margin(Sides::new(0.0, 0.0, rem(1.5), 0.0)),
+        SiteSurface::NameNoteText => flush(ink(p.ink_2)).with_text(text("subhead")),
+        SiteSurface::Status => pill(centre(on(rgba(255, 107, 44, 0.14), ink(p.accent_strong)))).with_min_height(22.0).with_padding(pad_vh(0.0, 8.0)).with_text(weighted("caption", 600)),
+        SiteSurface::EraBody => from_medium(
                 flush(ink(p.ink_2)).with_text(text("subhead")).with_grid_item(GridPlacement { column: GridSpan { start: 2, span: 1 }, ..GridPlacement::default() }),
                 |s| s.with_text(text(TypeRole::Body)).with_grid_item(GridPlacement { column: GridSpan { start: 3, span: 1 }, ..GridPlacement::default() }),
             ),
-        ),
-        ("facts", from_medium(grid(p.ink, &[1.0], 12.0, None), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.0)))),
-        ("fact", card(p, 16.0).with_gap(6.0).with_padding(EdgeInsets::all(rem(1.25)))),
-        ("fact-title", flush(ink(p.ink)).with_text(weighted("headline", 650))),
-        ("fact-text", flush(ink(p.ink_2)).with_text(text("subhead"))),
-        // The engine's default link role, which only links inside running text
-        // keep here: the accent colour, the sentence's own type, no box. The
-        // base layer underlines it.
-        ("nav-link", ink(p.accent).with_padding(EdgeInsets::all(0.0))),
-        // Not found.
-        (
-            "nf",
-            flex_column_centred(p).with_min_height(BoxSize::ViewportHeight { percent: 60.0, max: None }).with_padding(pad_vh(rem(3.5), 0.0)),
-        ),
-        ("nf-code", ink(p.accent).with_text(text("year"))),
-    ]
+        SiteSurface::Facts => from_medium(grid(p.ink, &[1.0], 12.0, None), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.0))),
+        SiteSurface::Fact => card(p, 16.0).with_gap(6.0).with_padding(EdgeInsets::all(rem(1.25))),
+        SiteSurface::FactTitle => flush(ink(p.ink)).with_text(weighted("headline", 650)),
+        SiteSurface::FactText => flush(ink(p.ink_2)).with_text(text("subhead")),
+        SiteSurface::Nf => flex_column_centred(p).with_min_height(BoxSize::ViewportHeight { percent: 60.0, max: None }).with_padding(pad_vh(rem(3.5), 0.0)),
+        SiteSurface::NfCode => ink(p.accent).with_text(text("year")),
+    }
 }
 
 fn flex_column_centred(p: &Palette) -> SurfaceStyle {
@@ -591,7 +510,7 @@ fn document(p: &Palette) -> DocumentStyle {
 
 /// The theme on palette `p`, over Keel's light or dark base.
 pub fn themed(p: &Palette, base: Theme) -> Theme {
-    let mut theme = Theme {
+    let theme = Theme {
         name: Some("kylet".into()),
         background: p.canvas,
         surface: p.surface,
@@ -659,10 +578,9 @@ pub fn themed(p: &Palette, base: Theme) -> Theme {
     .with_token("line", ThemeToken::Color(p.line))
     .with_token("line-strong", ThemeToken::Color(p.line_strong))
     .with_token("ember", ThemeToken::Color(ember()));
-    for (role, style) in surfaces(p) {
-        theme = theme.with_surface(role, style);
-    }
     theme
+        .with_surface(keel::ui::SurfaceRole::NavLink, ink(p.accent).with_padding(EdgeInsets::all(0.0)))
+        .with_surface_roles(|role| surface(p, role))
 }
 
 /// The theme the pages are drawn with: the light palette.

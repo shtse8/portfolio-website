@@ -25,12 +25,12 @@ fn email_view(props: &EmailProps) -> Component {
     let status = signal(String::new());
     let copying = signal(false);
     let address = props.address.clone();
-    div("email-row", "email-row")
-        .child(a("email-address", props.address.clone(), &format!("mailto:{}", props.address), "email-address"))
+    div("email-row", SiteSurface::EmailRow)
+        .child(a("email-address", props.address.clone(), &format!("mailto:{}", props.address), SiteSurface::EmailAddress))
         .child(
             button("Copy")
                 .id("email-copy")
-                .surface("copy")
+                .typed_surface(SiteSurface::Copy)
                 .aria_label("Copy the email address")
                 .on_press(move |_| {
                     if copying.get() {
@@ -44,7 +44,7 @@ fn email_view(props: &EmailProps) -> Component {
                     });
                 }),
         )
-        .child(text(status).id("email-status").surface("email-status").aria_live("polite"))
+        .child(text(status).id("email-status").typed_surface(SiteSurface::EmailStatus).aria_live("polite"))
 }
 
 #[cfg(target_arch = "wasm32")]
