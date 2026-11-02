@@ -60,6 +60,7 @@ fn hero() -> Component {
             alt: "Glowing metal shapes orbiting a core, rendered by Keel Engine".into(),
             ratio: 4.0 / 3.0,
             priority: true,
+            ..Default::default()
         },
     )
     // The engine view's own role, restyled by the site theme (keel#3911).
