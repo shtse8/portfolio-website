@@ -5,12 +5,27 @@ import assert from "node:assert/strict";
 export async function checkContactCopy(browser, base) {
   const page = await browser.newPage();
   const errors = [];
+  const transport = [];
+  page.on("requestfailed", (request) => transport.push({ url: request.url(), failure: request.failure() }));
+  page.on("console", (message) => { if (message.type() === "error") transport.push({ console: message.text() }); });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.setViewport({ width: 320, height: 844 });
   await browser.defaultBrowserContext().overridePermissions(new URL(base).origin, ["clipboard-read", "clipboard-sanitized-write"]);
   await page.goto(base + "/", { waitUntil: "networkidle0" });
   await page.$eval("#email-copy", (element) => element.scrollIntoView({ block: "center" }));
-  await page.waitForFunction(() => window.__keel_hydrated === true);
+  try {
+    await page.waitForFunction(() => window.__keel_hydrated === true);
+  } catch (error) {
+    const document = await page.evaluate(() => ({
+      scripts: Array.from(document.scripts, (script) => ({ src: script.src, type: script.type })),
+      hydrated: window.__keel_hydrated ?? null,
+      island: document.querySelector("#email-copy")?.outerHTML,
+    }));
+    console.error("Contact hydration failed", JSON.stringify({ errors, transport, document }));
+    await browser.defaultBrowserContext().clearPermissionOverrides();
+    await page.close();
+    throw error;
+  }
   const status = (value) => page.waitForFunction((value) => document.querySelector("#email-status")?.textContent === value, {}, value);
   const click = () => page.click("#email-copy");
   try {
