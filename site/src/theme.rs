@@ -353,8 +353,11 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
         SiteSurface::MenuLinkCurrent => pill(centre(ink(p.ink))).with_min_height(44.0).with_padding(pad_vh(0.0, 12.0)).with_text(weighted("subhead", 600)),
         SiteSurface::Foot => top_rule(ink(p.ink), p.line)
                 .with_margin(Sides::new(rem(3.5), 0.0, 0.0, 0.0))
-                .with_padding(Sides::new(rem(2.5), 0.0, rem(2.5), 0.0)),
-        SiteSurface::FootInner => wrap(p),
+                .with_padding(Sides::new(Length::Px(rem(2.5)), Length::Px(0.0), Length::safe_area(SafeEdge::Bottom, 0.0), Length::Px(0.0))),
+        SiteSurface::FootInner => wrap(p).with_padding(Sides::new(
+                Length::Px(0.0), Length::safe_area(SafeEdge::Right, space("gutter")),
+                Length::Rem(2.5), Length::safe_area(SafeEdge::Left, space("gutter")),
+            )),
         SiteSurface::FootRow => row(p.ink, rem(1.0), Center, true),
         SiteSurface::Built => pill(on(p.surface, row(p.ink_2, 8.0, Center, false)))
                 .with_elevation(ElevationLevel::E1)
