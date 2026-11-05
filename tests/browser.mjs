@@ -12,8 +12,10 @@ import puppeteer from "puppeteer-core";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { checkContactCopy } from "./contact.mjs";
+import { checkLlms } from "./llms.mjs";
 
 const base = process.env.BASE ?? "http://127.0.0.1:4173";
+await checkLlms(base);
 const axe = readFileSync(createRequire(import.meta.url).resolve("axe-core/axe.min.js"), "utf8");
 const browser = await puppeteer.launch({
   executablePath: process.env.CHROME ?? "/usr/bin/chromium",
