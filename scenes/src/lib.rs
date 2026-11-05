@@ -236,7 +236,8 @@ fn hero(world: &mut WorldConfig) {
         .fixed(lean_camera);
 }
 
-fn animate_orbits(mut orbits: Query<(&mut Transform3d, &Orbit)>, time: Res<Time>) {
+// keel-migrate: the new `Query` is a system parameter: take it as one, keep `for_each`, and `Query::with_world` is gone (docs/MIGRATING.md#one-system-model)
+fn animate_orbits(mut orbits: keel::ecs::Query<(&mut Transform3d, &Orbit)>, time: Res<Time>) {
     let dt = time.delta_f32();
     let t = time.tick() as f32 * dt;
     orbits.for_each(|(mut transform, orbit)| {
@@ -251,7 +252,7 @@ fn animate_orbits(mut orbits: Query<(&mut Transform3d, &Orbit)>, time: Res<Time>
 }
 
 fn lean_camera(
-    mut cameras: Query<(&mut Transform3d, &Camera3d)>,
+    mut cameras: keel::ecs::Query<(&mut Transform3d, &Camera3d)>,
     pointer: Res<Pointer>,
     time: Res<Time>,
 ) {

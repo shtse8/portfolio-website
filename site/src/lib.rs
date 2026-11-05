@@ -32,6 +32,7 @@ const FOOT_LINKS: [(&str, &str); 5] = [
     ("GitHub", content::GITHUB),
 ];
 
+// keel-migrate: URL/form decoding now returns Result; propagate invalid escapes or UTF-8 instead of accepting partial fields (docs/MIGRATING.md#strict-url-and-form-decoding).
 fn header(cx: &RouteCx) -> Component {
     let path = cx.path();
     let menu = MENU.iter().enumerate().fold(nav_el("menu", SiteSurface::Menu).aria_label("Primary"), |nav, (i, (label, href, page))| {
@@ -154,5 +155,6 @@ pub fn site() -> Site {
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen::prelude::wasm_bindgen(start)]
 pub fn start() {
+    // keel-migrate: client navigation (links and forms that render in place, loader data, actions and client-rendered routes) needs keel-web's `navigation` feature (`keel`'s `navigation`); without it links load documents, and a site whose client runs a loader, posts an action or renders a route itself fails its export and its server start, naming it (docs/MIGRATING.md#client-navigation-on-web-sites)
     keel::web::hydrate(site()).expect("hydrate");
 }

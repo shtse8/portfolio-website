@@ -125,10 +125,12 @@ fn fixed(size_rem: f32, weight: u16, leading: f32, tracking_em: f32) -> TypeStyl
     TypeStyle { weight: FontWeight::new(weight), tracking_em, leading, ..TypeStyle::sized(rem(size_rem)) }
 }
 
+// keel-migrate: Length adds Rem(f32): handle it in exhaustive matches using the root font size (16px by default), not a local type role; existing variants retain their meaning. See docs/MIGRATING.md#root-lengths-and-shadow-stacks.
 fn space(name: &str) -> Length {
     Length::Space(name.into())
 }
 
+// keel-migrate: SurfaceStyle has an optional backdrop_blur field: add backdrop_blur: None or ..SurfaceStyle::default() to literals; with_backdrop_blur(radius) declares the role's blur (docs/MIGRATING.md#surface-backdrop-blur); `SurfaceStyle` also adds `pointer_events`: inspect complete literals and add `pointer_events: None` (or `..SurfaceStyle::default()`) to retain inherited targeting (docs/MIGRATING.md#interaction-input-and-pointer-policy). SurfaceStyle literals also add box_shadows: Vec::new(); builders or ..SurfaceStyle::default() preserve an empty explicit stack. See docs/MIGRATING.md#root-lengths-and-shadow-stacks.
 fn ink(fg: Srgba) -> SurfaceStyle {
     SurfaceStyle::new(Srgba::TRANSPARENT, fg)
 }
@@ -218,6 +220,7 @@ fn square(style: SurfaceStyle, size: f32) -> SurfaceStyle {
 }
 
 /// Hover, keyboard focus and press, on the theme's motion tokens.
+// keel-migrate: `SurfaceStates` adds `source`: inspect complete literals and add `source: InteractionSource::SelfNode` (or `..SurfaceStates::default()`) to retain local input; opt into Parent or Ancestor only deliberately (docs/MIGRATING.md#interaction-input-and-pointer-policy). Complete literals also add `selected: None` (or retain intentional defaults) for the optional selected look (docs/MIGRATING.md#selected-surface-states).
 fn states(hover: SurfaceState, active: SurfaceState) -> SurfaceStates {
     SurfaceStates { hover: Some(hover), active: Some(active), ..SurfaceStates::default() }
 }
