@@ -49,4 +49,3 @@ fn email_view(props: &EmailProps) -> Component {
             _ => "Copy failed",
         }.to_string()).id("email-status").typed_surface(SiteSurface::EmailStatus).aria_live("polite"))
 }
-

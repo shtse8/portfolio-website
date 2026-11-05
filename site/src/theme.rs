@@ -6,6 +6,7 @@
 //! emitted dark rules. Remaining site.css blocks each name an engine gap.
 
 use keel::math::Srgba;
+use keel::text::{FontFamilyList, FontSource, GenericFamily};
 use crate::roles::SiteSurface;
 use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
 
@@ -101,8 +102,29 @@ pub fn dark() -> Palette {
     }
 }
 
-/// The system text face on each platform (tokens.json `type.family.text`).
-const FONT_TEXT: &str = "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI Variable Text\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif";
+/// System faces in priority order; no font asset is downloaded.
+fn system_font(display: bool) -> FontFamilyList {
+    use FontSource::{Generic, Installed};
+    use GenericFamily::{AppleSystem, BlinkMacSystemFont, SansSerif};
+    FontFamilyList::new([
+        Generic(AppleSystem), Generic(BlinkMacSystemFont),
+        Installed(if display { "SF Pro Display" } else { "SF Pro Text" }.into()),
+        Installed(if display { "Segoe UI Variable Display" } else { "Segoe UI Variable Text" }.into()),
+        Installed("Segoe UI".into()), Installed("Roboto".into()),
+        Installed("Helvetica Neue".into()), Installed("Arial".into()),
+        Installed("Noto Sans".into()), Generic(SansSerif),
+    ])
+}
+
+fn mono_font() -> FontFamilyList {
+    use FontSource::{Generic, Installed};
+    FontFamilyList::new([
+        Generic(GenericFamily::UiMonospace), Installed("SF Mono".into()),
+        Installed("Cascadia Code".into()), Installed("Roboto Mono".into()),
+        Installed("Menlo".into()), Installed("Consolas".into()),
+        Generic(GenericFamily::Monospace),
+    ])
+}
 
 /// 1rem.
 const REM: f32 = 16.0;
@@ -540,7 +562,7 @@ pub fn themed(p: &Palette, base: Theme) -> Theme {
         link_hover: Some(p.accent_strong),
         focus_ring_width: 2.0,
         // System fonts only: nothing downloads, so text never shifts.
-        font_ui: FONT_TEXT.into(),
+        font_ui: system_font(false),
         radius_sm: 10.0,
         radius_md: 16.0,
         radius_lg: 24.0,
@@ -549,6 +571,8 @@ pub fn themed(p: &Palette, base: Theme) -> Theme {
         width_classes: WidthClasses { medium: 700.0, expanded: 960.0 },
         ..base
     }
+    .with_font_family_stack("display", system_font(true))
+    .with_font_family_stack("mono", mono_font())
     .with_type(TypeRole::Body, fixed(1.0625, 400, 1.5, 0.0))
     .with_type("hero", fluid(clamp(2.375, 1.55, 3.9, 4.5), 700, 1.02, -0.035))
     .with_type("title", fluid(clamp(1.75, 1.35, 1.7, 2.625), 700, 1.08, -0.028))
@@ -569,7 +593,7 @@ pub fn themed(p: &Palette, base: Theme) -> Theme {
     .with_type("year", fixed(0.9375, 400, 1.5, 0.0))
     .with_type("repo", fixed(0.75, 400, 1.4, 0.0))
     // System fonts: the display cut for headings, monospace for years and
-    // repositories (the families are named in assets/site.css, keel#3821).
+    // repositories, bound by the typed family stacks above.
     .with_type_family("hero", "display")
     .with_type_family("title", "display")
     .with_type_family("title-3", "display")

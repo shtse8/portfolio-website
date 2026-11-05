@@ -5,14 +5,6 @@
  * and class rules. Each block here names the Keel issue that replaces it, and
  * goes in the change that adopts it. */
 
-/* ---------- display and mono families: keel#3821 ----------
- * The families the theme's type roles name (`--keel-font-<family>`); the
- * base text face is the theme's `font_ui`. */
-:root {
-  --keel-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-  --keel-font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas, monospace;
-}
-
 /* ---------- shadows and hairlines: keel#3871 ---------- */
 :root {
   --keel-elevation-e1: 0 1px 2px rgba(17, 17, 19, 0.04), 0 0 0 1px var(--keel-token-line);
