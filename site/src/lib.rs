@@ -154,6 +154,8 @@ pub fn site() -> Site {
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen::prelude::wasm_bindgen(start)]
 pub fn start() {
+    // Preserve Rust panic details before the browser reports a generic WASM trap.
+    console_error_panic_hook::set_once();
     // keel-migrate: client navigation (links and forms that render in place, loader data, actions and client-rendered routes) needs keel-web's `navigation` feature (`keel`'s `navigation`); without it links load documents, and a site whose client runs a loader, posts an action or renders a route itself fails its export and its server start, naming it (docs/MIGRATING.md#client-navigation-on-web-sites)
     keel::web::hydrate(site()).expect("hydrate");
 }
