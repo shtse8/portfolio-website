@@ -12,11 +12,3 @@
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Foot"] { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Tile"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileLg"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileKeel"], [data-keel-surface="title:kylet_site::roles:SiteSurface:Chev"],
 [data-keel-surface="title:kylet_site::roles:SiteSurface:BuiltMark"], [data-keel-surface="title:kylet_site::roles:SiteSurface:EyebrowDot"], [data-keel-surface="title:kylet_site::roles:SiteSurface:StageDot"] { flex: none; }
-
-/* ---------- decoration layers: keel#3817 ----------
- * Arrows after "go" links. The brand mark, language dots and inset row
- * hairlines are decorative children styled by the theme. */
-  content: ""; position: absolute; top: 0; right: 0; left: 72px; border-top: 0.5px solid var(--keel-token-line-strong);
-}
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Go"]::after, [data-keel-surface="title:kylet_site::roles:SiteSurface:GoLink"]::after { content: "→"; transition: transform var(--keel-motion-normal) var(--keel-ease-standard); }
-a:hover > [data-keel-surface="title:kylet_site::roles:SiteSurface:Go"]::after, [data-keel-surface="title:kylet_site::roles:SiteSurface:GoLink"]:hover::after { transform: translateX(3px); }

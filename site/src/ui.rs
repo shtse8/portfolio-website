@@ -35,7 +35,13 @@ pub fn main_el(id: impl Into<String>, surface: SiteSurface) -> Component {
 
 /// A run of text (`span`).
 pub fn t(id: impl Into<String>, value: impl Into<String>, surface: SiteSurface) -> Component {
-    text(value.into()).id(id.into()).typed_surface(surface)
+    let id = id.into();
+    let node = text(value.into()).id(id.clone()).typed_surface(surface);
+    if matches!(surface, SiteSurface::Go) {
+        node.child(deco(format!("{id}-arrow"), "→", SiteSurface::GoArrowFromLink))
+    } else {
+        node
+    }
 }
 
 /// A run of text that takes its parent's look.
@@ -56,7 +62,13 @@ pub fn p(id: impl Into<String>, value: impl Into<String>, surface: SiteSurface) 
 
 /// A link.
 pub fn a(id: impl Into<String>, label: impl Into<String>, href: &str, surface: SiteSurface) -> Component {
-    link(id.into(), label, href).typed_surface(surface)
+    let id = id.into();
+    let node = link(id.clone(), label, href).typed_surface(surface);
+    if matches!(surface, SiteSurface::GoLink) {
+        node.child(deco(format!("{id}-arrow"), "→", SiteSurface::GoArrow))
+    } else {
+        node
+    }
 }
 
 /// A grouped list, with a checked style for its container and each row.

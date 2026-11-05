@@ -72,6 +72,8 @@ pub enum SiteSurface {
     Chip,
     Go,
     GoLink,
+    GoArrow,
+    GoArrowFromLink,
     GroupCols,
     Group,
     GroupNarrow,

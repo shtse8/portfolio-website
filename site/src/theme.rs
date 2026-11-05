@@ -9,7 +9,7 @@ use keel::math::Srgba;
 use keel::paint::BoxShadow;
 use keel::text::{FontFamilyList, FontSource, GenericFamily};
 use crate::roles::SiteSurface;
-use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, ElevationShadows, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, PointerEvents, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
+use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, ElevationShadows, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, InteractionSource, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, PointerEvents, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
 
 fn hex(code: &str) -> Srgba {
     Srgba::from_hex(code).expect("palette colour")
@@ -458,6 +458,13 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
         SiteSurface::Chips => row(p.ink, 6.0, Center, true).with_padding(Sides::new(8.0, 0.0, 0.0, 0.0)),
         SiteSurface::Chip => pill(centre(on(p.surface_2, ink(p.ink_2)))).with_min_height(28.0).with_padding(pad_vh(0.0, 10.0)).with_text(weighted("footnote", 500)),
         SiteSurface::Go => row(p.accent, 6.0, Center, false).with_text(weighted("subhead", 600)),
+        SiteSurface::GoArrow | SiteSurface::GoArrowFromLink => ink(p.accent)
+                .with_states(SurfaceStates {
+                    source: if matches!(role, SiteSurface::GoArrow) { InteractionSource::Parent } else { InteractionSource::Ancestor(2) },
+                    hover: Some(SurfaceState { translate: Some([3.0, 0.0]), ..SurfaceState::default() }),
+                    motion: MotionRole::Normal,
+                    ..SurfaceStates::default()
+                }),
         SiteSurface::GoLink => row(p.accent, 6.0, Center, false).with_min_height(44.0).with_text(weighted("subhead", 600)),
         SiteSurface::GroupCols => expanded(grid(p.ink, &[1.0], rem(1.0), Some(Start)), |s| cols(s, &[1.0, 1.0]).with_gap(rem(1.25))),
         SiteSurface::Group => list(card(p, 16.0).with_overflow(Overflow::Hidden)),
