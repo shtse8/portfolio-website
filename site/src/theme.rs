@@ -9,7 +9,7 @@ use keel::math::Srgba;
 use keel::paint::BoxShadow;
 use keel::text::{FontFamilyList, FontSource, GenericFamily};
 use crate::roles::SiteSurface;
-use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, ElevationShadows, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
+use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, ElevationShadows, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, PointerEvents, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
 
 fn hex(code: &str) -> Srgba {
     Srgba::from_hex(code).expect("palette colour")
@@ -410,12 +410,23 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
                 .with_position(Position::Relative)
                 .with_min_width(0.0),
         SiteSurface::EngineView => on(stage(), ink(hex("#e8e8ec"))).with_width(BoxSize::Percent(100.0)),
+        SiteSurface::StageOverlay => column(p.ink, 0.0)
+                .with_position(Position::Cover)
+                .with_layout(flex(Axis::Vertical, MainAxisAlignment::End, CrossAxisAlignment::Stretch, false))
+                .with_padding(EdgeInsets::all(12.0))
+                .with_z_index(2)
+                .with_pointer_events(PointerEvents::None),
         SiteSurface::StageBar => on(rgba(12, 13, 17, 0.62), row(hex("#d7d7de"), 10.0, Center, false))
+                .with_pointer_events(PointerEvents::Auto)
                 .with_box_shadows([shadow(0.0, 0.0, 1.0, rgba(255, 255, 255, 0.08), true)])
                 .with_radius(14.0)
                 .with_padding(pad(8.0, 8.0, 8.0, 14.0))
                 .with_text(text("footnote")),
         SiteSurface::StageDot => on(hex("#8d8d96"), ink(p.ink)).with_width(BoxSize::Length(Length::Px(8.0))).with_min_width(8.0).with_min_height(8.0).with_radius(4.0),
+        SiteSurface::StageDotLive => on(hex("#3ddc84"), ink(p.ink))
+                .with_width(BoxSize::Length(Length::Px(8.0))).with_min_width(8.0)
+                .with_min_height(8.0).with_radius(4.0)
+                .with_box_shadows([shadow(0.0, 0.0, 3.0, rgba(61, 220, 132, 0.18), false)]),
         SiteSurface::StageText => ink(hex("#d7d7de")).with_min_width(0.0),
         SiteSurface::StageLink => centre(on(rgba(255, 255, 255, 0.1), ink(hex("#ffffff"))))
                 .with_radius(10.0)

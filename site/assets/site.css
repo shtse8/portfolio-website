@@ -9,16 +9,9 @@
  * The scene's caption floats over its bottom edge; the footer adds the
  * bottom inset; fixed boxes do not shrink in a row. Gutters and header
  * insets are declared on the typed theme. */
-[data-keel-surface="title:kylet_site::roles:SiteSurface:StageBar"] { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 2; }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Foot"] { padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)); }
 [data-keel-surface="title:kylet_site::roles:SiteSurface:Tile"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileLg"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileKeel"], [data-keel-surface="title:kylet_site::roles:SiteSurface:Chev"],
 [data-keel-surface="title:kylet_site::roles:SiteSurface:BuiltMark"], [data-keel-surface="title:kylet_site::roles:SiteSurface:EyebrowDot"], [data-keel-surface="title:kylet_site::roles:SiteSurface:StageDot"] { flex: none; }
-
-/* ---------- a surface that follows a descendant's state: keel#4060 ----------
- * The scene caption's dot turns green once the engine view reports live. */
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Stage"]:has([data-keel-embed-state="live"]) [data-keel-surface="title:kylet_site::roles:SiteSurface:StageDot"] {
-  background-color: #3ddc84; box-shadow: 0 0 0 3px rgba(61, 220, 132, 0.18);
-}
 
 /* ---------- decoration layers: keel#3817 ----------
  * Arrows after "go" links. The brand mark, language dots and inset row

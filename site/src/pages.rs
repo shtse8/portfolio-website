@@ -2,7 +2,7 @@
 //! Copy and sources: docs/design/content.md.
 
 use keel::ui::{Component, list_item, ordered_list, paragraph};
-use keel::web::{engine_view, EngineView};
+use keel::web::{engine_view, engine_view_live_surface, EngineView};
 
 use crate::content::{self, APPS, COMPANIES, ERAS, RECORD, TOOLS};
 use crate::islands;
@@ -67,11 +67,11 @@ fn hero() -> Component {
     // The engine view's own role, restyled by the site theme (keel#3911).
     .typed_surface(SiteSurface::EngineView);
     let stage = div("stage", SiteSurface::Stage).child(view).child(
-        div("stage-bar", SiteSurface::StageBar)
+        div("stage-overlay", SiteSurface::StageOverlay).child(div("stage-bar", SiteSurface::StageBar)
             .backdrop_blur(14.0)
-            .child(deco("stage-dot", "", SiteSurface::StageDot))
+            .child(engine_view_live_surface("hero-scene", keel::ui::RoleId::from(SiteSurface::StageDotLive).as_str(), deco("stage-dot", "", SiteSurface::StageDot)))
             .child(t("stage-text", "Rendered live in your browser by Keel Engine", SiteSurface::StageText).flex(1.0))
-            .child(a("stage-how", "How it's built", "/colophon", SiteSurface::StageLink)),
+            .child(a("stage-how", "How it's built", "/colophon", SiteSurface::StageLink))),
     );
     sect("hero", SiteSurface::Hero).child(
         div("hero-wrap", SiteSurface::Wrap).child(
