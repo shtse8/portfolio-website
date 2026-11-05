@@ -1,13 +1,2 @@
-/* kylet.se: what the site's Keel theme (site/src/theme.rs) cannot say yet.
- * The theme owns every token, the page's base text, canvas, links and focus
- * ring, and every surface's paint, type, box, layout and hover, focus and
- * pressed states; keel-web exports them as custom properties, html/body rules
- * and class rules. Each block here names the Keel issue that replaces it, and
- * goes in the change that adopts it. */
-
-/* ---------- positions and lengths the surface model cannot hold: keel#3942, safe-area insets keel#4060 ----------
- * The scene's caption floats over its bottom edge; the footer adds the
- * bottom inset; fixed boxes do not shrink in a row. Gutters and header
- * insets are declared on the typed theme. */
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Tile"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileLg"], [data-keel-surface="title:kylet_site::roles:SiteSurface:TileKeel"], [data-keel-surface="title:kylet_site::roles:SiteSurface:Chev"],
-[data-keel-surface="title:kylet_site::roles:SiteSurface:BuiltMark"], [data-keel-surface="title:kylet_site::roles:SiteSurface:EyebrowDot"], [data-keel-surface="title:kylet_site::roles:SiteSurface:StageDot"] { flex: none; }
+/* Intrinsic chevrons keep their authored width in a row. */
+[data-keel-surface="title:kylet_site::roles:SiteSurface:Chev"] { flex: none; }

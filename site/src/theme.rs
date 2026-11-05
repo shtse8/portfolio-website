@@ -239,7 +239,7 @@ fn top_rule(style: SurfaceStyle, color: Srgba) -> SurfaceStyle {
 
 /// A square of `size` px with its content centred: letter tiles and marks.
 fn square(style: SurfaceStyle, size: f32) -> SurfaceStyle {
-    centre(style).with_width(BoxSize::Length(Length::Px(size))).with_min_width(size).with_min_height(size)
+    centre(style).with_width(BoxSize::Length(Length::Px(size))).with_min_width(size).with_max_width(size).with_min_height(size)
 }
 
 /// Hover, keyboard focus and press, on the theme's motion tokens.
@@ -372,7 +372,7 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
         SiteSurface::FootLink => tinted(pill(centre(ink(p.ink_2))).with_min_height(44.0).with_padding(pad_vh(0.0, 10.0)).with_text(text("subhead")), p),
         SiteSurface::FootCopy => flush(muted("footnote")).with_margin(Sides::new(rem(1.0), 0.0, 0.0, 0.0)),
         SiteSurface::Eyebrow => row(p.ink_3, 8.0, Center, false).with_text(SurfaceText { tracking_em: Some(0.01), ..weighted("footnote", 600) }),
-        SiteSurface::EyebrowDot => on(ember(), ink(p.ink)).with_width(BoxSize::Length(Length::Px(7.0))).with_min_height(7.0).with_radius(2.0),
+        SiteSurface::EyebrowDot => on(ember(), ink(p.ink)).with_width(BoxSize::Length(Length::Px(7.0))).with_min_width(7.0).with_max_width(7.0).with_min_height(7.0).with_radius(2.0),
         SiteSurface::HeroTitle => flush(ink(p.ink)).with_text(wrapped(text("hero"), TextWrap::Balance)),
         SiteSurface::HeroName => row(p.ink, 0.0, Baseline, false),
         SiteSurface::NameDot => on(ember(), ink(p.ink))
@@ -425,7 +425,7 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
                 .with_radius(14.0)
                 .with_padding(pad(8.0, 8.0, 8.0, 14.0))
                 .with_text(text("footnote")),
-        SiteSurface::StageDot => on(hex("#8d8d96"), ink(p.ink)).with_width(BoxSize::Length(Length::Px(8.0))).with_min_width(8.0).with_min_height(8.0).with_radius(4.0),
+        SiteSurface::StageDot => on(hex("#8d8d96"), ink(p.ink)).with_width(BoxSize::Length(Length::Px(8.0))).with_min_width(8.0).with_max_width(8.0).with_min_height(8.0).with_radius(4.0),
         SiteSurface::StageDotLive => on(hex("#3ddc84"), ink(p.ink))
                 .with_width(BoxSize::Length(Length::Px(8.0))).with_min_width(8.0)
                 .with_min_height(8.0).with_radius(4.0)
