@@ -63,11 +63,13 @@ pub fn p(id: impl Into<String>, value: impl Into<String>, surface: SiteSurface) 
 /// A link.
 pub fn a(id: impl Into<String>, label: impl Into<String>, href: &str, surface: SiteSurface) -> Component {
     let id = id.into();
-    let node = link(id.clone(), label, href).typed_surface(surface);
+    let label = label.into();
     if matches!(surface, SiteSurface::GoLink) {
-        node.child(deco(format!("{id}-arrow"), "→", SiteSurface::GoArrow))
+        link(id.clone(), "", href).typed_surface(surface)
+            .child(run(format!("{id}-label"), label))
+            .child(deco(format!("{id}-arrow"), "→", SiteSurface::GoArrow))
     } else {
-        node
+        link(id, label, href).typed_surface(surface)
     }
 }
 
