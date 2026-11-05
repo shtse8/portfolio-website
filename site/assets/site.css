@@ -5,21 +5,6 @@
  * and class rules. Each block here names the Keel issue that replaces it, and
  * goes in the change that adopts it. */
 
-/* ---------- shadows and hairlines: keel#3871 ---------- */
-:root {
-  --keel-elevation-e1: 0 1px 2px rgba(17, 17, 19, 0.04), 0 0 0 1px var(--keel-token-line);
-  --keel-elevation-e2: 0 1px 2px rgba(17, 17, 19, 0.04), 0 12px 32px -12px rgba(17, 17, 19, 0.18), 0 0 0 1px var(--keel-token-line);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --keel-elevation-e1: 0 0 0 1px var(--keel-token-line);
-    --keel-elevation-e2: 0 0 0 1px var(--keel-token-line), 0 16px 40px -16px rgba(0, 0, 0, 0.8);
-  }
-}
-[data-keel-surface="title:kylet_site::roles:SiteSurface:Stage"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset, 0 30px 60px -30px rgba(7, 8, 11, 0.55); }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:StageBar"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset; }
-[data-keel-surface="title:kylet_site::roles:SiteSurface:TileKeel"] { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset; }
-
 /* ---------- positions and lengths the surface model cannot hold: keel#3942, safe-area insets keel#4060 ----------
  * The scene's caption floats over its bottom edge; the footer adds the
  * bottom inset; fixed boxes do not shrink in a row. Gutters and header

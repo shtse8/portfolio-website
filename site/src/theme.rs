@@ -6,9 +6,10 @@
 //! emitted dark rules. Remaining site.css blocks each name an engine gap.
 
 use keel::math::Srgba;
+use keel::paint::BoxShadow;
 use keel::text::{FontFamilyList, FontSource, GenericFamily};
 use crate::roles::SiteSurface;
-use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
+use keel::ui::{Axis, BoxSize, CrossAxisAlignment, DocumentStyle, Ease, EaseRole, EdgeInsets, ElevationLevel, ElevationShadows, FluidSize, FontSmoothing, FontWeight, GridPlacement, GridSpan, GridSpec, Length, ListMarker, MainAxisAlignment, Margin, MotionRole, Overflow, Position, SafeEdge, SelectionColors, Sides, SurfaceLayout, SurfaceState, SurfaceStates, SurfaceStyle, SurfaceText, TextProperties, TextRendering, TextWrap, Theme, ThemeToken, TrackSize, TypeRole, TypeStyle, WhiteSpace, WidthClass, WidthClasses};
 
 fn hex(code: &str) -> Srgba {
     Srgba::from_hex(code).expect("palette colour")
@@ -303,6 +304,26 @@ fn row_link(p: &Palette) -> SurfaceStyle {
         .with_position(Position::Relative)
 }
 
+fn shadow(y: f32, blur: f32, spread: f32, color: Srgba, inset: bool) -> BoxShadow {
+    BoxShadow { offset: [0.0, y], blur, spread, color, inset }
+}
+
+fn elevation_shadows(p: &Palette) -> ElevationShadows {
+    let ring = shadow(0.0, 0.0, 1.0, p.line, false);
+    let dark = p.canvas == hex("#0a0a0b");
+    let mut e1 = vec![ring];
+    let mut e2 = vec![ring];
+    if dark {
+        e2.push(shadow(16.0, 40.0, -16.0, rgba(0, 0, 0, 0.8), false));
+    } else {
+        let soft = shadow(1.0, 2.0, 0.0, rgba(17, 17, 19, 0.04), false);
+        e1.insert(0, soft);
+        e2.insert(0, shadow(12.0, 32.0, -12.0, rgba(17, 17, 19, 0.18), false));
+        e2.insert(0, soft);
+    }
+    ElevationShadows { e1: Some(e1), e2: Some(e2), ..ElevationShadows::default() }
+}
+
 /// Every surface role the site's components use, on palette `p`.
 fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
     use CrossAxisAlignment::{Baseline, Center, Start};
@@ -380,12 +401,17 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
         SiteSurface::HeroGrid => expanded(grid(p.ink, &[1.0], rem(2.0), Some(Center)), |s| cols(s, &[1.05, 1.0]).with_gap(rem(3.5))),
         SiteSurface::HeroCopy => column(p.ink, rem(1.25)).with_min_width(0.0),
         SiteSurface::Stage => SurfaceStyle { isolate: true, ..on(stage(), ink(hex("#e8e8ec"))) }
+                .with_box_shadows([
+                    shadow(0.0, 0.0, 1.0, rgba(255, 255, 255, 0.06), true),
+                    shadow(30.0, 60.0, -30.0, rgba(7, 8, 11, 0.55), false),
+                ])
                 .with_radius(24.0)
                 .with_overflow(Overflow::Hidden)
                 .with_position(Position::Relative)
                 .with_min_width(0.0),
         SiteSurface::EngineView => on(stage(), ink(hex("#e8e8ec"))).with_width(BoxSize::Percent(100.0)),
         SiteSurface::StageBar => on(rgba(12, 13, 17, 0.62), row(hex("#d7d7de"), 10.0, Center, false))
+                .with_box_shadows([shadow(0.0, 0.0, 1.0, rgba(255, 255, 255, 0.08), true)])
                 .with_radius(14.0)
                 .with_padding(pad(8.0, 8.0, 8.0, 14.0))
                 .with_text(text("footnote")),
@@ -414,7 +440,7 @@ fn surface(p: &Palette, role: SiteSurface) -> SurfaceStyle {
         SiteSurface::FeatureTop => row(p.ink, 12.0, Center, false),
         SiteSurface::FeatureId => column(p.ink, 0.0),
         SiteSurface::TileLg => square(on(p.ink, ink(p.canvas)), 44.0).with_radius(11.0).with_text(text("tile-lg")),
-        SiteSurface::TileKeel => square(on(stage(), ink(hex("#ff8a4c"))), 44.0).with_radius(11.0).with_text(text("tile-lg")),
+        SiteSurface::TileKeel => square(on(stage(), ink(hex("#ff8a4c"))), 44.0).with_box_shadows([shadow(0.0, 0.0, 1.0, rgba(255, 255, 255, 0.12), true)]).with_radius(11.0).with_text(text("tile-lg")),
         SiteSurface::FeatureName => flush(ink(p.ink)).with_text(text("title-3")),
         SiteSurface::Domain => muted("footnote"),
         SiteSurface::FeatureText => flush(ink(p.ink_2)).with_text(text(TypeRole::Body)),
@@ -571,6 +597,7 @@ pub fn themed(p: &Palette, base: Theme) -> Theme {
         width_classes: WidthClasses { medium: 700.0, expanded: 960.0 },
         ..base
     }
+    .with_elevation_shadows(elevation_shadows(p))
     .with_font_family_stack("display", system_font(true))
     .with_font_family_stack("mono", mono_font())
     .with_type(TypeRole::Body, fixed(1.0625, 400, 1.5, 0.0))

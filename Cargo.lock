@@ -2122,8 +2122,6 @@ dependencies = [
  "serde_json",
  "sylphx-keel-engine",
  "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
 ]
 
 [[package]]
