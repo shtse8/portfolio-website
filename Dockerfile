@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.28
 # kylet.se image: `keel pack` builds the site, nginx serves it.
 #
 # Engine and CLI come from the exact public release in KEEL_PIN.
