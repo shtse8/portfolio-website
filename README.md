@@ -18,7 +18,7 @@ live Keel scene, and one small island (the contact address's Copy button).
 | `site/src/content.rs` | Every fact the pages show (apps, tools, companies, timeline, track record, links) |
 | `site/src/theme.rs` | Tokens and surface styles for the light and dark palettes |
 | `site/src/islands.rs` | The contact island |
-| `site/assets/` | `llms.txt` (served at `/llms.txt` by nginx), mark, icons, OG image, the scene poster, `site.css` (only named Keel gaps) |
+| `site/assets/` | `llms.txt` (served at `/llms.txt` by nginx), mark, icons, OG image, the scene poster |
 | `scenes/` | The live scene (`keel_mount`) |
 | `hosting/`, `nginx.conf`, `Dockerfile`, `sylphx.toml` | The image: `keel pack`, then nginx serving the pack with its redirects, headers and CSP |
 | `tests/` | Browser checks (axe, 320 px, 44 px targets, redirects, 410s, CSP, the island), Lighthouse and screenshots |

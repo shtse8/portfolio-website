@@ -298,7 +298,13 @@ fn button(fill: Srgba, fg: Srgba) -> SurfaceStyle {
 
 /// A list row: letter tile, title with meta, a line of text, a chevron.
 fn row_link(p: &Palette) -> SurfaceStyle {
-    row(p.ink, rem(1.0), CrossAxisAlignment::Center, false)
+    ink(p.ink)
+        .with_layout(SurfaceLayout::Grid(GridSpec {
+            columns: keel::ui::GridColumns::Tracks(vec![TrackSize::Px(40.0), TrackSize::Fr(1.0), TrackSize::Auto]),
+            align_items: Some(CrossAxisAlignment::Center),
+            ..GridSpec::default()
+        }))
+        .with_gap(rem(1.0))
         .with_min_height(72.0)
         .with_padding(pad(14.0, rem(1.0), 14.0, rem(1.0)))
         .with_position(Position::Relative)

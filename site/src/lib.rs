@@ -147,7 +147,6 @@ pub fn site() -> Site {
         .lang("en")
         .theme(theme::theme())
         .theme_dark(theme::dark_theme())
-        .stylesheet("/assets/site.css")
         .client(ClientBundle { module: "/_keel/client.js".into() })
         .island(islands::EMAIL)
 }
