@@ -44,7 +44,7 @@ bump run `keel migrate --check` and then `keel migrate`.
 
 The engine and CLI use published crates from crates.io. Building the site
 requires no private repository access or GitHub App token. On Debian/Ubuntu,
-install `pkg-config libasound2-dev libudev-dev` for the native scene tooling.
+install `pkg-config libasound2-dev libudev-dev libfontconfig1-dev` for the native scene tooling.
 
 ## Checks and deploy
 

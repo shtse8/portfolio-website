@@ -33,7 +33,7 @@ jobs:
           targets: wasm32-unknown-unknown
           components: clippy
       - name: Linux scene build dependencies
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends pkg-config libasound2-dev libudev-dev
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends pkg-config libasound2-dev libudev-dev libfontconfig1-dev
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@v2
         with:
