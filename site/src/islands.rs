@@ -23,6 +23,12 @@ pub fn email() -> Component {
 }
 
 fn email_view(props: &EmailProps) -> Component {
+    EmailCopy(props.clone())
+}
+
+// Loads belong to a mounted Component owner, not the island entry factory.
+#[keel::ui::component]
+fn EmailCopy(props: EmailProps) -> Component {
     let address = props.address.clone();
     let copy = load_on(LoadSpec::local().on_demand(), move |_| {
         // Begin in the trusted press; observe actual host completion.
