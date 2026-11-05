@@ -9,9 +9,10 @@ pub mod theme;
 #[cfg(test)]
 mod tests;
 mod ui;
+mod roles;
 
-use keel_ui::Component;
-use keel_web::{ClientBundle, Head, Hydration, JsonLd, Route, RouteCx, Site};
+use keel::ui::Component;
+use keel::web::{ClientBundle, Head, Hydration, JsonLd, Route, RouteCx, Site};
 
 use ui::*;
 
@@ -31,19 +32,21 @@ const FOOT_LINKS: [(&str, &str); 5] = [
     ("GitHub", content::GITHUB),
 ];
 
+// keel-migrate: URL/form decoding now returns Result; propagate invalid escapes or UTF-8 instead of accepting partial fields (docs/MIGRATING.md#strict-url-and-form-decoding).
 fn header(cx: &RouteCx) -> Component {
     let path = cx.path();
-    let menu = MENU.iter().enumerate().fold(nav_el("menu", "menu").aria_label("Primary"), |nav, (i, (label, href, page))| {
+    let menu = MENU.iter().enumerate().fold(nav_el("menu", SiteSurface::Menu).aria_label("Primary"), |nav, (i, (label, href, page))| {
         let current = page.is_some_and(|page| path.trim_end_matches('/') == page);
-        let link = a(format!("menu-{i}"), *label, href, if current { "menu-link-current" } else { "menu-link" });
+        let link = a(format!("menu-{i}"), *label, href, if current { SiteSurface::MenuLinkCurrent } else { SiteSurface::MenuLink });
         nav.child(if current { link.aria_current(true) } else { link })
     });
-    head_el("top", "top").backdrop_blur(20.0).child(
-        div("top-bar", "top-bar")
+    head_el("top", SiteSurface::Top).backdrop_blur(20.0).child(
+        div("top-bar", SiteSurface::TopBar)
             .child(
-                a_block("mark-link", "/", "mark-link")
+                a_block("mark-link", "/", SiteSurface::MarkLink)
                     .aria_label("Kyle Tse, home")
-                    .child(t("mark-name", NAME, "mark-name")),
+                    .child(keel::ui::image("mark-icon", "/assets/mark.svg", "").aria_hidden(true).typed_surface(SiteSurface::MarkIcon))
+                    .child(t("mark-name", NAME, SiteSurface::MarkName)),
             )
             .child(menu),
     )
@@ -53,17 +56,17 @@ fn footer() -> Component {
     let links = FOOT_LINKS
         .iter()
         .enumerate()
-        .fold(nav_el("foot-links", "foot-links").aria_label("Footer"), |nav, (i, (label, href))| {
-            let link = a(format!("foot-{i}"), *label, href, "foot-link");
+        .fold(nav_el("foot-links", SiteSurface::FootLinks).aria_label("Footer"), |nav, (i, (label, href))| {
+            let link = a(format!("foot-{i}"), *label, href, SiteSurface::FootLink);
             nav.child(if href.starts_with("https://github.com") { link.rel("me") } else { link })
         });
-    foot_el("foot", "foot").child(
-        div("foot-inner", "foot-inner")
+    foot_el("foot", SiteSurface::Foot).child(
+        div("foot-inner", SiteSurface::FootInner)
             .child(
-                div("foot-row", "foot-row")
+                div("foot-row", SiteSurface::FootRow)
                     .child(
-                        a_block("built", "/colophon", "built")
-                            .child(div("built-mark", "built-mark").aria_hidden(true).child(div("built-dot", "built-dot")))
+                        a_block("built", "/colophon", SiteSurface::Built)
+                            .child(div("built-mark", SiteSurface::BuiltMark).aria_hidden(true).child(div("built-dot", SiteSurface::BuiltDot)))
                             .child(run("built-t", "Built with Keel Engine")),
                     )
                     .child(links),
@@ -71,16 +74,15 @@ fn footer() -> Component {
             .child(p(
                 "foot-copy",
                 "© 2026 Kyle Tse. Sylphx, Keel Engine and the apps named here are products of Sylphx Limited.",
-                "foot-copy",
+                SiteSurface::FootCopy,
             )),
     )
 }
 
 fn shell(cx: &RouteCx, outlet: Component) -> Component {
-    div("shell", "shell")
-        .child(a("skip", "Skip to content", "#main", "skip-link"))
+    div("shell", SiteSurface::Shell)
         .child(header(cx))
-        .child(main_el("main", "site-main").child(outlet))
+        .child(main_el("main", SiteSurface::SiteMain).child(outlet))
         .child(footer())
 }
 
@@ -108,8 +110,9 @@ fn person() -> serde_json::Value {
 pub fn site() -> Site {
     let root = Route::new("/")
         .hydrate(Hydration::Islands)
-        .head(|_| {
+        .head(|cx| {
             head_for(TITLE, DESCRIPTION)
+                .alternate_language("en", format!("{ORIGIN}{}", cx.path()))
                 .title_template("%s · Kyle Tse")
                 .site_name(NAME)
                 .og_type("website")
@@ -143,8 +146,7 @@ pub fn site() -> Site {
         .origin(ORIGIN)
         .lang("en")
         .theme(theme::theme())
-        .stylesheet("/assets/dark.css")
-        .stylesheet("/assets/site.css")
+        .theme_dark(theme::dark_theme())
         .client(ClientBundle { module: "/_keel/client.js".into() })
         .island(islands::EMAIL)
 }
@@ -152,5 +154,8 @@ pub fn site() -> Site {
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen::prelude::wasm_bindgen(start)]
 pub fn start() {
-    keel_web::hydrate(site()).expect("hydrate");
+    // Preserve Rust panic details before the browser reports a generic WASM trap.
+    console_error_panic_hook::set_once();
+    // keel-migrate: client navigation (links and forms that render in place, loader data, actions and client-rendered routes) needs keel-web's `navigation` feature (`keel`'s `navigation`); without it links load documents, and a site whose client runs a loader, posts an action or renders a route itself fails its export and its server start, naming it (docs/MIGRATING.md#client-navigation-on-web-sites)
+    keel::web::hydrate(site()).expect("hydrate");
 }

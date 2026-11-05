@@ -2,8 +2,9 @@
 //! address with a button that copies it. The rest of every page is static
 //! HTML.
 
-use keel_ui::{button, signal, text, Component};
-use keel_web::Island;
+use keel::platform::system_clipboard;
+use keel::ui::{button, load_on, Component, LoadSpec, LoadState, text};
+use keel::web::Island;
 use serde::{Deserialize, Serialize};
 
 use crate::content;
@@ -22,51 +23,35 @@ pub fn email() -> Component {
 }
 
 fn email_view(props: &EmailProps) -> Component {
-    let status = signal(String::new());
-    let copying = signal(false);
+    EmailCopy(props.clone())
+}
+
+// Loads belong to a mounted Component owner, not the island entry factory.
+#[keel::ui::component]
+fn EmailCopy(props: EmailProps) -> Component {
     let address = props.address.clone();
-    div("email-row", "email-row")
-        .child(a("email-address", props.address.clone(), &format!("mailto:{}", props.address), "email-address"))
+    let copy = load_on(LoadSpec::local().on_demand(), move |_| {
+        // Begin in the trusted press; observe actual host completion.
+        system_clipboard().begin_write_text(&address)
+    });
+    let state = copy.state();
+    div("email-row", SiteSurface::EmailRow)
+        .child(a("email-address", props.address.clone(), &format!("mailto:{}", props.address), SiteSurface::EmailAddress))
         .child(
             button("Copy")
                 .id("email-copy")
-                .surface("copy")
+                .typed_surface(SiteSurface::Copy)
                 .aria_label("Copy the email address")
                 .on_press(move |_| {
-                    if copying.get() {
-                        return;
+                    if !matches!(copy.state().get(), LoadState::Pending) {
+                        copy.retry();
                     }
-                    copying.set(true);
-                    status.set("Copying…".into());
-                    copy_text(&address, move |copied| {
-                        status.set(if copied { "Copied" } else { "Copy failed" }.into());
-                        copying.set(false);
-                    });
                 }),
         )
-        .child(text(status).id("email-status").surface("email-status").aria_live("polite"))
-}
-
-#[cfg(target_arch = "wasm32")]
-fn copy_text(text: &str, done: impl FnOnce(bool) + 'static) {
-    let Some(window) = web_sys::window() else {
-        done(false);
-        return;
-    };
-    // Start the clipboard request during the trusted press, then report its
-    // result. A denied request must not announce a successful copy.
-    let clipboard = window.navigator().clipboard();
-    if clipboard.is_undefined() || clipboard.is_null() {
-        done(false);
-        return;
-    }
-    let result = clipboard.write_text(text);
-    wasm_bindgen_futures::spawn_local(async move {
-        done(wasm_bindgen_futures::JsFuture::from(result).await.is_ok());
-    });
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-fn copy_text(_text: &str, done: impl FnOnce(bool) + 'static) {
-    done(false);
+        .child(text(move || match state.get() {
+            LoadState::Idle => "",
+            LoadState::Pending => "Copying…",
+            LoadState::Ready(()) => "Copied",
+            _ => "Copy failed",
+        }.to_string()).id("email-status").typed_surface(SiteSurface::EmailStatus).aria_live("polite"))
 }
