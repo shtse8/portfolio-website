@@ -13,7 +13,7 @@ publish = false
 serde = { version = "1", features = ["derive"] }
 # The same exact version Keel pins; the wasm-bindgen CLI that `keel pack` runs must match.
 wasm-bindgen = "=0.2.126"
-keel = { package = "sylphx-keel-engine", version = "=0.1.6097", default-features = false }
+keel = { package = "sylphx-keel-engine", version = "=0.1.6126", default-features = false }
 
 [profile.release]
 opt-level = "s"
