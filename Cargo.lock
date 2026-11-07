@@ -4003,9 +4003,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-ai"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1abcb06613d8d9831d122978cfad57653d7815ca049920045f4260684fec9ce"
+checksum = "e7e4bcc2b1f782d088b602fa820e64a204cce03864160358f52b0ae4d4a5cc15"
 dependencies = [
  "rayon",
  "serde",
@@ -4020,9 +4020,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-anim"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "560c191e328d2db05b259768d54f0b54a703c412a17430d714bee886a2be7459"
+checksum = "842e6269e9772450f455a20035059578b8cf42d24a6cd5211a1621ae44ace1a0"
 dependencies = [
  "rayon",
  "serde",
@@ -4034,9 +4034,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-app"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75c76d42401e1de84f6c83baa5e26876ecfa59f151aefa9b649cc9691399a61a"
+checksum = "8a0f1cd68f7c89f7f178f241292e3b1af5c85f08083ea675c6fc66a5735da2d9"
 dependencies = [
  "accesskit",
  "accesskit_android",
@@ -4091,9 +4091,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-assets"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1f5e1af81b7374fcc3998821737b586d815daaa054c1dadafcdaaa0be3800e3a"
+checksum = "c21a75b0773bde3e9ab39e15f0fd829f7c1ee42e0ed2f3755aacd6e1a2791dc3"
 dependencies = [
  "astc-decode",
  "base64",
@@ -4123,9 +4123,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-audio"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ab1ce7ef1807f60134a87c9bd02de000508a8b75731b475e20adc86cf739fa6"
+checksum = "ef2a5d75af6add95a46396840e3cdca937ef9f35baa46bd37fc37c4a992dfa40"
 dependencies = [
  "atomic-waker",
  "cc",
@@ -4150,9 +4150,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-brush"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bbbffa99a53d70e046d710ecc1a58f653490c8fea0ba4ac58a05550f193a955"
+checksum = "d8400800de31a96f87226db4d35d6e066be4f1a31cf1d12128cdbfd549fcbaef"
 dependencies = [
  "libm",
  "sylphx-keel-contracts",
@@ -4165,9 +4165,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-character"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ca76218b6ab64829b75c4e3f8f0680f86e1f628700631152010595cf18a1f88"
+checksum = "8dadbbbd204d1c7ca9b27b9c5f3e9b50db7f1315744d0b6f165e377d9fe733bf"
 dependencies = [
  "serde",
  "serde_json",
@@ -4183,9 +4183,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-contracts"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b15be523169c57c7950450be71f8c39f576534c2da5ed90bc383a47aba5379b8"
+checksum = "76ae2c4c6a4dbfdedddb97a62db474ff0b6a55980f7e9197f2111c593427ca24"
 dependencies = [
  "blake3",
  "serde",
@@ -4194,18 +4194,18 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-debug"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6bfc981e6e6ba623efc3b7b97e817157fe8ce1d4a291b332318c0c42b2a33e0"
+checksum = "ab60b899782eb7b8da79ee4121346cb417c9dfb020f3d60b5d12d53bb0ea4baf"
 dependencies = [
  "sylphx-keel-math",
 ]
 
 [[package]]
 name = "sylphx-keel-dylib"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93e941f91b570c9441af404254ad7103bdd9432b4c4fefa00a0d4e6e210b5d1c"
+checksum = "ab28301396722297f5f1ff63c0cc40984614583f4f0fbf2e2dff7a065528f7bb"
 dependencies = [
  "sylphx-keel-ai",
  "sylphx-keel-anim",
@@ -4249,9 +4249,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-ecs"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7624c6ad6c43ff7ca02ab562c5c7f3fe4d48fe0464bcec4bf887b01b93ebf3f9"
+checksum = "82fc7fe65c1cc0bffe38ee7d88b40ecac52e26159ace0e5dcee83b0c763938fa"
 dependencies = [
  "blake3",
  "bytemuck",
@@ -4266,9 +4266,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-ecs-macros"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c6df7c9955b56ed17726b0bd4df79eca04ba659e257597bddd5a0087643afc6"
+checksum = "29fde319d1ce9545d18c1f0d7b1280ec67b6ae218132514b3bd69c3b7de94e32"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4278,9 +4278,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-engine"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "960064828af9c913286c109a03bd50e720e8ff99077a33e31db0dfefdcb68d16"
+checksum = "0d6ab8ee64b1ad2fc0f150b93353d839aba9f4569a6226e3a6b272e1185a8876"
 dependencies = [
  "sylphx-keel-ai",
  "sylphx-keel-anim",
@@ -4327,9 +4327,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-fx"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f89bb2ed7728910ed18c27702ab80d8079a18583bb6ae452601f342ce9ebb881"
+checksum = "7f17611eeb18eec277d2b606694a424607817d3df0c9f16f54a5a8026d9d222d"
 dependencies = [
  "serde",
  "serde_json",
@@ -4341,9 +4341,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-geometry"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "444c81514068d086a7948be7594a814f8e556ebd62b54d0197866f9e2dbcf666"
+checksum = "36e136a56e121acf0372d0b2f630ea8309ed2efaa03a01f11b3bd41439750e71"
 dependencies = [
  "earcutr",
  "glam",
@@ -4359,9 +4359,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-icons"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "749f9f15aa32213e3f2f1c31f5d2bf9ac57358f25e12e7b7b1ea43922d17a337"
+checksum = "591a4b1d395e80d5d757354e3366d12ac1e7a4cc54b591e766f9695011418045"
 dependencies = [
  "serde",
  "sylphx-keel-contracts",
@@ -4370,9 +4370,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-identity"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "954a9a295d82d3759d8467533148bbf3d913854f8c89c344190348cb3fe36739"
+checksum = "33729368fc3d851e4472b7dd5229a2a624005d4a4c72d73e1b544fb6286aeb3b"
 dependencies = [
  "blake3",
  "serde",
@@ -4382,9 +4382,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-infer"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "591266f470a5ac6bcef94ad708d8d19b3b17c0e4667acf4d7349dfd5e3e1ba24"
+checksum = "ff3c2191ec769172058ccb7191b8f457f8746680f28e35a2881e097f9d1e5664"
 dependencies = [
  "serde",
  "serde_json",
@@ -4395,9 +4395,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-input"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b27cb34d2adea7258fe50a338429d38a5f0261f468bf5274c56cd8c4977e7f6"
+checksum = "dcfab30958cc4abda8ee5a7b6880ff0e830914757ca61ebc40da1ad148e84d24"
 dependencies = [
  "serde",
  "serde_json",
@@ -4407,9 +4407,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-locale"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "227d04f36803a769f29a807a39a7e00bcd41a8709446111973406fe5b347dbd1"
+checksum = "f5bbfc00ed0b690e1258b004063c93212e98419aafe43375afd0f4b88b59a48d"
 dependencies = [
  "icu_locale",
  "serde",
@@ -4421,9 +4421,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-macro-support"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85fc4b8b683db374f3bf0eddedd2da1f56939e0314fcea942611a39255feb4d5"
+checksum = "9cceafe68603d9ab5ce7ee239f67b49778e54eac4a48658934d33aa2162e1d67"
 dependencies = [
  "proc-macro2",
  "toml",
@@ -4431,9 +4431,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-manifest"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65cf104a517332e6cf5c9edf21046d81c0b25148e0e72c94782093e84aead140"
+checksum = "cf18d45cfb1c2d51f61bb6b77739de5f74a997ec727e2104a7d86eacd2197cc6"
 dependencies = [
  "serde",
  "toml",
@@ -4441,9 +4441,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-math"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9337c32e24576bbcb5c079d86b701f024f48b399293c924585dc6e51e13c7eee"
+checksum = "6dad7d8d117d354abb77030b4e3c0602d2da6669089c5b24d80c0767c88c2a75"
 dependencies = [
  "glam",
  "libm",
@@ -4454,9 +4454,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-nav"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d9debf1e0601b1f05e5cf3e1e5a61faa456416b44b4346b5fd9f6a8d8ad04f2"
+checksum = "5f32202436761139a627b0b3bece8e3dfbfe5ae357f0e0b029a7fcb215564191"
 dependencies = [
  "glam",
  "serde",
@@ -4469,9 +4469,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-net"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5434e44e0f28aae15b2cbee302d0793e0811d5e6e725a205c606c5414d26bc5d"
+checksum = "a78d0c24573518e7a991fec65db172cd081882fdf43165bc2f984bde361fe110"
 dependencies = [
  "base64",
  "hex",
@@ -4486,9 +4486,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-oidc"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "059ac47a9abe1b6f8478fe85e83aa7d086a4319cd706d9d2b3109c71e37d43dc"
+checksum = "d7f2d9280ee0f8c72cfb719543d4e5facf91c1d72ecc80adba3df39245f4f2e9"
 dependencies = [
  "base64",
  "serde",
@@ -4499,9 +4499,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-paint"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "328d318ebc46fbd15f73e92f769112f58053dfdd31db2afceee7cc0e00544d76"
+checksum = "7cf3839ec1bbc9b907752a21a3d924bd0d4857568f665255744af88089152ca5"
 dependencies = [
  "image",
  "serde",
@@ -4520,9 +4520,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-physics"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f9c4d1986db58efed64f61f16fbdb80779df0f6fa22af3c6145cc7ac308f1ec"
+checksum = "fa16d511429d98feb4ec18886070dc094fcddaf345e4785f93b708efb83efe17"
 dependencies = [
  "serde",
  "sylphx-keel-anim",
@@ -4537,9 +4537,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-platform"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e62abbdb373d65062a674ed455686f8e778bbcc49bde1d1176c80a0de9d4895"
+checksum = "c1e5db09c0f3eb603e5e48a5d028c8afb28eeb1ffd901f89bf8945c73677b0d6"
 dependencies = [
  "base64",
  "block2 0.6.2",
@@ -4578,9 +4578,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-procgen"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d6872e8053093112b9f20c68b89b80a194ee56ae1a7d754c7851d53b0e959039"
+checksum = "cb9a4f6cb9dd108920dccb6e6042f524443420f456f6b357194cc4843abfd675"
 dependencies = [
  "glam",
  "serde",
@@ -4596,9 +4596,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-random"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2a76d809ab6dd8dc372a0694160d28e68e4f6f11a90e88f7871e199853bad46"
+checksum = "a56ebf550bce263117f7d57520b9496e3aa2494542b1b303c3b6c4f37f7e6239"
 dependencies = [
  "bytemuck",
  "glam",
@@ -4610,9 +4610,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-render"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64694c68466665eedf7126b38a50abde889904a4165b70c0c8d473f8ad9b7517"
+checksum = "b6692fa44bb533aa9476f93ba0797975463ed02e632bc889a3f57fe796e8dd08"
 dependencies = [
  "naga",
  "serde",
@@ -4633,9 +4633,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-render-wgpu"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52bb7a5222c9f364cf0fffd8d03f140133ae688dceb40b2b2588547babc500a6"
+checksum = "783ec89436c5d946a05eeaf410bd4461386c93688cc5836b5672cf39e017cdf4"
 dependencies = [
  "bytemuck",
  "half",
@@ -4661,9 +4661,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-scene"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2af1cade41e08340bbe74dff42f5fed51ce8751197d6f12a8512077f84576540"
+checksum = "9038b37a61655196219a90e6f679ddc91a05c827ac218ff910ae8ed1d60fd5a4"
 dependencies = [
  "blake3",
  "postcard",
@@ -4683,9 +4683,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-sequence"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e68e005db6f4ccd003ea9ddc2ee6a6a7fa5fb571dc886fa40834200522b47452"
+checksum = "bd7bef122f66fe92cd4a92f244c405d12b426ece06bc7cfe7bc2c95edd700667"
 dependencies = [
  "serde",
  "serde_json",
@@ -4702,9 +4702,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-storage"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fab5b3bdbcc009b11d84e1c973773f503efc53bface84f6b78358b8da5187c20"
+checksum = "6331f66ef3ff7243f6cd2e60d887ce0199dbf0be422a897d3263314e8f0bb5d8"
 dependencies = [
  "base64",
  "blake3",
@@ -4721,15 +4721,15 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-tasks"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df81a9217de76d198c7634c903abe7f86108acffc3f42004ddc97c5676d1ac88"
+checksum = "f351afa26cc9df02e68fde560ba69630b61a24b067d8ccfdf6bbc11d64766022"
 
 [[package]]
 name = "sylphx-keel-term"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd77941961d56698611551e5872499485d7b4cf703abb7d327fab70fe1b7adcf"
+checksum = "25c078a037f45ebde2b18f02221cb127a0e50f41ddfa061d917a2969d98bc171"
 dependencies = [
  "base64",
  "serde",
@@ -4743,9 +4743,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-text"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a64dfcf53f1b2341762d8b5b5e3cd4be86b4916762f0ae2e05c77392f27aaec4"
+checksum = "1c1003d1a27c91da4bb7e14a7bdc6df23d0bfa519193159c8113ad2fdd45d591"
 dependencies = [
  "font-kit",
  "harfrust",
@@ -4764,9 +4764,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-time"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b35eecd66eefe7e29e94b901587d12b34cb0027aef58eecb01fdfbb7b07f177c"
+checksum = "e91bd98ca8e8ade137f32623283ee547a6bf4579c1f4532f61ab88bbc64ae17c"
 dependencies = [
  "serde",
  "sylphx-keel-random",
@@ -4774,9 +4774,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-tween"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "272d3f44ee7459b68fecd345bb67520af11fb615a6f5bc94a9be1670b55e5750"
+checksum = "e63f52884fbbe6294a4129731bb7fc1e1db2abf3a7cfc937eb3c438289242b3a"
 dependencies = [
  "serde",
  "sylphx-keel-math",
@@ -4784,9 +4784,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-ui"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84ee4ff2ead98732e6dcee831f9ea25e36cd3c591284a570a6e7ba33384b003c"
+checksum = "6cac201819450e207bec85f915785b548301e56116c13ea98ffcb38501cf367c"
 dependencies = [
  "base64",
  "foldhash",
@@ -4818,9 +4818,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-ui-macros"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c0fdd590325f25283aece0fd1dd504d69f5b0819bcc967aeb9e82bf154623b9"
+checksum = "0f2f0f48fbf695ad4aa579df66ebbc208cbefc997f4d555d909be661830148c7"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4834,9 +4834,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-vector"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6588ee56deafb53d951d9538e10384dfb8170f6acc430ba39e55c674b44f9517"
+checksum = "8ad24017ccdfa07aa612d56a054829b16c4f1daa813b07f228c8e44332a258e3"
 dependencies = [
  "libm",
  "lyon_tessellation",
@@ -4852,9 +4852,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-view-grammar"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60c80bb742b94adfcfff7a6eb74a2e5cb246ab159713ee52ab9ab863d785e56f"
+checksum = "f29c5e62bff3b1bfdffea1966c202413e0bb7aa788897db22b222a709088b17f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4863,9 +4863,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-voxel"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3458ae911b210abc2a1cd37d8436f7c231c70f9ab23c2153c4548de9cf62fa0c"
+checksum = "8367885cb3da8cad79349d91c9ecbbd383b794c44c028a633a2a8aef4c36b8fd"
 dependencies = [
  "serde",
  "sylphx-keel-contracts",
@@ -4878,9 +4878,9 @@ dependencies = [
 
 [[package]]
 name = "sylphx-keel-web"
-version = "0.1.6097"
+version = "0.1.6126"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04133d3d38f4926b96089bf3c5636ec0a09e1f5405d3dc073eb3c88179605e95"
+checksum = "1a8309da9c1e913500f3a6806c0347106b40bd08a0c4c2ebd90d22f156ef88f3"
 dependencies = [
  "base64",
  "blake3",
