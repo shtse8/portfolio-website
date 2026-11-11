@@ -6,3 +6,4 @@
 4. Keep both palettes in `site/src/theme.rs`; `Site::theme_dark` emits the device dark scheme. After a theme change, run the site tests and check both schemes in the browser.
 5. Keel pin bumps: change `Cargo.toml` and `KEEL_PIN` together, then `keel migrate --check` and `keel migrate`.
 6. Validate: `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test -p kylet-site`, `keel pack`, then `tests/browser.mjs` and screenshots at 390, 820 and 1440 px in light and dark.
+7. Any visual work follows [`DESIGN.md`](./DESIGN.md), the redesign target for how the site, its images and posts look.
