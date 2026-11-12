@@ -13,6 +13,18 @@ const out = process.env.OUT ?? "lighthouse";
 mkdirSync(out, { recursive: true });
 const pages = { home: "/", about: "/about", colophon: "/colophon" };
 let low = false;
+// Which element was the largest paint, and where its time went, so a slow
+// LCP names its cause in the log.
+function lcpDetail(run) {
+  const a = run.audits;
+  const blocks = a["largest-contentful-paint-element"]?.details?.items ?? [];
+  const node = blocks[0]?.items?.[0]?.node;
+  const phases = (blocks[1]?.items ?? []).map((p) => `${p.phase} ${Math.round(p.timing)}ms`).join(", ");
+  const m = a.metrics?.details?.items?.[0] ?? {};
+  const before = (a["network-requests"]?.details?.items ?? []).filter((q) => q.networkRequestTime < m.observedLargestContentfulPaint);
+  const kb = Math.round(before.reduce((n, q) => n + (q.transferSize ?? 0), 0) / 1024);
+  return `observed LCP ${m.observedLargestContentfulPaint}ms load ${m.observedLoad}ms (${before.length} requests, ${kb} KB started before it)  simulated FCP ${a["first-contentful-paint"].displayValue}  LCP ${a["largest-contentful-paint"].displayValue}  element ${node?.selector ?? "?"} ${(node?.snippet ?? "").slice(0, 120)}  phases ${phases}`;
+}
 const rows = [];
 for (const [name, path] of Object.entries(pages)) {
   const runs = [];
@@ -30,6 +42,7 @@ for (const [name, path] of Object.entries(pages)) {
   const s = Object.fromEntries(Object.entries(r.categories).map(([k, v]) => [k, Math.round(v.score * 100)]));
   const a = r.audits;
   rows.push(`${name.padEnd(9)} perf ${s.performance} (${perf.join(", ")})  a11y ${s.accessibility}  bp ${s["best-practices"]}  seo ${s.seo}  LCP ${a["largest-contentful-paint"].displayValue}  CLS ${a["cumulative-layout-shift"].numericValue.toFixed(3)}  TBT ${a["total-blocking-time"].displayValue}`);
+  for (const [i, run] of runs.entries()) console.log(`${name}-${i + 1} ${lcpDetail(run)}`);
   for (const k of Object.keys(s)) if (!(s[k] >= 95)) { console.log(`FAIL ${name} ${k} ${s[k]}`); low = true; }
 }
 console.log(rows.join("\n"));
