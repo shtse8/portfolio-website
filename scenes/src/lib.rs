@@ -4,7 +4,6 @@
 //! that site) shows exactly what starts. The same scene runs in the page
 //! (`keel_mount`, WebGPU or WebGL2) and natively under `keel shot`.
 
-use keel::app::PointerAction;
 use keel::prelude::*;
 use keel::random::Rng;
 use keel::render::{unit_cube, unit_sphere, Bloom, MeshGpuData, PostSettings, Tonemapping};
@@ -42,18 +41,11 @@ fn centered_cube() -> MeshGpuData {
 
 /// A transform at `translation` with `scale` and no rotation.
 fn at(translation: Vec3, scale: Vec3) -> Transform3d {
-    Transform3d {
-        translation,
-        rotation: Quat::IDENTITY,
-        scale,
-    }
+    Transform3d { translation, rotation: Quat::IDENTITY, scale }
 }
 
 fn world(configure: fn(&mut WorldConfig)) -> Component {
-    runtime(
-        move |cx| World::create(cx, configure),
-        |world| world.view(SceneView::new()),
-    )
+    runtime(move |cx| World::create(cx, configure), |world| world.view(SceneView::new()))
 }
 
 /// The page background, so a scene edge meets the page without a seam.
@@ -86,38 +78,26 @@ pub struct Pointer {
 
 impl Default for Pointer {
     fn default() -> Self {
-        Self {
-            u: 0.5,
-            v: 0.5,
-            pressed: false,
-        }
+        Self { u: 0.5, v: 0.5, pressed: false }
     }
 }
 
-/// Fold this step's unconsumed host events into the pointer resource.
-pub fn track_pointer(input: Res<HostInput>, mut pointer: ResMut<Pointer>) {
+/// Fold this frame's pointer intents into the [`Pointer`] resource.
+pub fn track_pointer(world: &mut EcsWorld) {
+    let mut pointer = world.resource::<Pointer>().copied().unwrap_or_default();
     pointer.pressed = false;
-    for event in input.iter() {
-        if let HostEvent::Pointer {
-            action: PointerAction::Move | PointerAction::Down,
-            x,
-            y,
-        } = event
-        {
-            if let Some(at) = input.normalized(*x, *y) {
-                (pointer.u, pointer.v) = (at.x, at.y);
-            }
-            if matches!(
-                event,
-                HostEvent::Pointer {
-                    action: PointerAction::Down,
-                    ..
-                }
-            ) {
+    for intent in world.drain_intents() {
+        let at = |key: &str| intent.payload[key].as_f64().unwrap_or(0.5) as f32;
+        match intent.action.as_str() {
+            "pointer.move" => (pointer.u, pointer.v) = (at("u"), at("v")),
+            "pointer.down" => {
+                (pointer.u, pointer.v) = (at("u"), at("v"));
                 pointer.pressed = true;
             }
+            _ => {}
         }
     }
+    world.insert_resource(pointer);
 }
 
 fn emissive(assets: &AssetServer, color: LinearRgba, strength: f32) -> Handle<Material> {
@@ -159,45 +139,24 @@ fn hero(world: &mut WorldConfig) {
         .profile(GameProfile::Playable3d)
         .insert_resource(AmbientLight { brightness: 0.14 })
         .insert_resource(Pointer::default());
-    let Some(assets) = world.resource::<AssetServer>().cloned() else {
-        return;
-    };
+    let Some(assets) = world.resource::<AssetServer>().cloned() else { return };
+    world.spawn_bundle((camera(), Transform3d::look_at(HERO_EYE, HERO_FOCUS, Vec3::Y)));
     world.spawn_bundle((
-        camera(),
-        Transform3d::look_at(HERO_EYE, HERO_FOCUS, Vec3::Y),
-    ));
-    world.spawn_bundle((
-        DirectionalLight {
-            intensity: 2.2,
-            ..DirectionalLight::default()
-        },
+        DirectionalLight { intensity: 2.2, ..DirectionalLight::default() },
         Transform3d::look_at(Vec3::new(-4.0, 6.0, 5.0), Vec3::ZERO, Vec3::Y),
     ));
     // A cool rim light from behind, so dark metal reads against the black.
     world.spawn_bundle((
-        DirectionalLight {
-            color: LinearRgba::rgb(0.45, 0.75, 1.0),
-            intensity: 1.2,
-            ..DirectionalLight::default()
-        },
+        DirectionalLight { color: LinearRgba::rgb(0.45, 0.75, 1.0), intensity: 1.2, ..DirectionalLight::default() },
         Transform3d::look_at(Vec3::new(3.0, 2.0, -6.0), Vec3::ZERO, Vec3::Y),
     ));
     world.spawn_bundle((
-        PointLight {
-            color: LinearRgba::rgb(1.0, 0.45, 0.18),
-            intensity: 40.0,
-            range: 14.0,
-            shadows: false,
-        },
+        PointLight { color: LinearRgba::rgb(1.0, 0.45, 0.18), intensity: 40.0, range: 14.0, shadows: false },
         Transform3d::from_xyz(0.0, 0.0, 0.0),
     ));
     let core = emissive(&assets, LinearRgba::rgb(1.0, 0.38, 0.12), 3.0);
     let sphere = assets.add(unit_sphere(48, 24));
-    world.spawn_bundle((
-        Mesh3d(sphere.clone()),
-        MeshMaterial3d(core),
-        at(Vec3::ZERO, Vec3::splat(0.8)),
-    ));
+    world.spawn_bundle((Mesh3d(sphere.clone()), MeshMaterial3d(core), at(Vec3::ZERO, Vec3::splat(0.8))));
     let cube = assets.add(centered_cube());
     let dark = metal(&assets, LinearRgba::rgb(0.08, 0.09, 0.11), 0.28);
     let chrome = metal(&assets, LinearRgba::rgb(0.85, 0.86, 0.9), 0.12);
@@ -211,11 +170,7 @@ fn hero(world: &mut WorldConfig) {
             3..=5 => chrome.clone(),
             _ => dark.clone(),
         };
-        let mesh = if i % 3 == 0 {
-            sphere.clone()
-        } else {
-            cube.clone()
-        };
+        let mesh = if i % 3 == 0 { sphere.clone() } else { cube.clone() };
         let scale = 0.08 + rng.next_f32().powi(3) * 0.45;
         world.spawn_bundle((
             Mesh3d(mesh),
@@ -231,36 +186,22 @@ fn hero(world: &mut WorldConfig) {
         ));
     }
     world
-        .input(track_pointer)
-        .fixed(animate_orbits)
-        .fixed(lean_camera);
-}
-
-// keel-migrate: the new `Query` is a system parameter: take it as one, keep `for_each`, and `Query::with_world` is gone (docs/MIGRATING.md#one-system-model)
-fn animate_orbits(mut orbits: keel::ecs::Query<(&mut Transform3d, &Orbit)>, time: Res<Time>) {
-    let dt = time.delta_f32();
-    let t = time.tick() as f32 * dt;
-    orbits.for_each(|(mut transform, orbit)| {
-        let a = orbit.phase + t * orbit.speed;
-        transform.translation = Vec3::new(
-            a.cos() * orbit.radius,
-            orbit.lift + (t * 0.6 + orbit.phase).sin() * 0.25,
-            a.sin() * orbit.radius,
-        );
-        transform.rotation *= Quat::from_scaled_axis(orbit.spin * dt);
-    });
-}
-
-fn lean_camera(
-    mut cameras: keel::ecs::Query<(&mut Transform3d, &Camera3d)>,
-    pointer: Res<Pointer>,
-    time: Res<Time>,
-) {
-    let target = HERO_EYE + Vec3::new((pointer.u - 0.5) * 5.0, -(pointer.v - 0.5) * 3.0, 0.0);
-    cameras.for_each(|(mut transform, _)| {
-        let eased = transform
-            .translation
-            .lerp(target, 1.0 - (-3.0 * time.delta_f32()).exp());
-        *transform = Transform3d::look_at(eased, HERO_FOCUS, Vec3::Y);
-    });
+        .input(|w, _| track_pointer(w))
+        .fixed(|w, dt| {
+            let t = w.tick() as f32 * dt as f32;
+            let pointer = w.resource::<Pointer>().copied().unwrap_or_default();
+            let mut orbits = w.query::<(&mut Transform3d, &Orbit)>();
+            orbits.for_each(w, |(mut transform, orbit)| {
+                let a = orbit.phase + t * orbit.speed;
+                transform.translation = Vec3::new(a.cos() * orbit.radius, orbit.lift + (t * 0.6 + orbit.phase).sin() * 0.25, a.sin() * orbit.radius);
+                transform.rotation *= Quat::from_scaled_axis(orbit.spin * dt as f32);
+            });
+            // The camera leans toward the pointer.
+            let target = HERO_EYE + Vec3::new((pointer.u - 0.5) * 5.0, -(pointer.v - 0.5) * 3.0, 0.0);
+            let mut cameras = w.query::<(&mut Transform3d, &Camera3d)>();
+            cameras.for_each(w, |(mut transform, _)| {
+                let eased = transform.translation.lerp(target, 1.0 - (-3.0 * dt as f32).exp());
+                *transform = Transform3d::look_at(eased, HERO_FOCUS, Vec3::Y);
+            });
+        });
 }

@@ -59,19 +59,20 @@ Stage 1 pilot of websites on Keel, after keelengine.dev.
 - `site/src/theme.rs` holds the tokens and one `SurfaceStyle` per surface
   role, built by one function over a palette. The pages are drawn with the
   light theme.
-- **Dark:** `Site::theme_dark` emits the dark palette beside the light theme,
-  selected by the reader's device preference. Both palettes live in
-  `site/src/theme.rs`; there is no generated dark stylesheet.
+- **Dark:** a `Site` takes one theme, and surface colours are literal in their
+  class rules, so the dark scheme is the same theme on the dark palette,
+  emitted by `keel_web::theme_stylesheet` into `site/assets/dark.css` under
+  `prefers-color-scheme: dark`. A test fails when the file is stale. It goes
+  when Keel emits a scheme pair (keel#4060).
 - Hover, focus and pressed states (card lift, row tint, button press) are
   `SurfaceStates` on the theme; the base text face, canvas, link colours and
   focus ring are theme fields.
-- Header stacking, half-pixel section rules, notch-aware gutters and the
-  header's safe-area padding live on the typed theme.
-- All presentation uses published typed Keel APIs: ordered system-font bindings,
-  layered shadows, first-frame scene status roles, pointer-transparent caption
-  overlays, decorative arrow children and safe-area spacing. Grouped rows use
-  a fixed tile track, flexible content and an intrinsic chevron track. No
-  application stylesheet or browser bridge is shipped.
+- `site/assets/site.css` holds only what the theme cannot say yet. Each block
+  names the Keel issue that replaces it: display and mono font families
+  (keel#3821), shadows and hairlines (keel#3871), stacking (keel#3941),
+  positions, the skip link and safe-area insets (keel#3942, keel#4060), the
+  scene caption following the engine view's state (keel#4060) and decoration
+  layers (keel#3817).
 - **Content Security Policy:** `keel pack` writes it (keel#4068): each page
   carries a meta policy with the SHA-256 of its own inline styles, and the
   pack's `_headers` adds `frame-ancestors` and covers every other file. No
@@ -107,6 +108,6 @@ stateless, so nothing was lost.
 ## Hosting
 
 kylet.se stays on Sylphx Hosting (org `shtse8`, project `curl-nod-67h1zf`).
-The image build runs the public CLI version in `KEEL_PIN` to `keel pack`
-and serves the pack with nginx. The matching public engine crates need no
-private repository token.
+The image build runs `keel pack` and serves the pack with nginx. It reads the
+private Keel repository through the `keel_git_token` build secret declared in
+`sylphx.toml` (SylphxAI/cloud#9149).

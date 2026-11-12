@@ -1,52 +1,51 @@
 //! The four pages: `/`, `/about`, `/colophon` and the not-found page.
 //! Copy and sources: docs/design/content.md.
 
-use keel::ui::{Component, list_item, ordered_list, paragraph};
-use keel::web::{engine_view, engine_view_live_surface, EngineView};
+use keel_ui::{ordered_list, list_item, paragraph, Component};
+use keel_web::{engine_view, EngineView};
 
 use crate::content::{self, APPS, COMPANIES, ERAS, RECORD, TOOLS};
 use crate::islands;
 use crate::ui::*;
 
 fn eyebrow(id: &str, label: &str) -> Component {
-    div(id, SiteSurface::Eyebrow).child(deco(format!("{id}-dot"), "", SiteSurface::EyebrowDot)).child(run(format!("{id}-t"), label))
+    div(id, "eyebrow").child(deco(format!("{id}-dot"), "", "eyebrow-dot")).child(run(format!("{id}-t"), label))
 }
 
 fn band_head(id: &str, kicker: &str, title: &str, lede: Option<&str>) -> Component {
-    let mut head = div(format!("{id}-head"), SiteSurface::BandHead)
+    let mut head = div(format!("{id}-head"), "band-head")
         .child(eyebrow(&format!("{id}-kicker"), kicker))
-        .child(h(format!("{id}-title"), 2, title, SiteSurface::SectionTitle));
+        .child(h(format!("{id}-title"), 2, title, "section-title"));
     if let Some(lede) = lede {
-        head = head.child(p(format!("{id}-lede"), lede, SiteSurface::SectionLede));
+        head = head.child(p(format!("{id}-lede"), lede, "section-lede"));
     }
     head
 }
 
 /// A full-width band of the page with its content column.
-fn band(id: &str, surface: SiteSurface, content: Component) -> Component {
-    sect(id, surface).child(div(format!("{id}-wrap"), SiteSurface::Wrap).child(content))
+fn band(id: &str, surface: &str, content: Component) -> Component {
+    sect(id, surface).child(div(format!("{id}-wrap"), "wrap").child(content))
 }
 
 /// An inset grouped list row: letter tile, title and meta, a line of text,
 /// and a chevron.
 fn row(id: &str, letter: &str, title: &str, meta: &str, text: &str, href: &str) -> Component {
-    a_block(id, href, SiteSurface::Row)
-        .child(deco(format!("{id}-tile"), letter, SiteSurface::Tile))
+    a_block(id, href, "row")
+        .child(deco(format!("{id}-tile"), letter, "tile"))
         .child(
-            div(format!("{id}-text"), SiteSurface::RowText)
-                .flex(1.0)
+            div(format!("{id}-text"), "row-text")
                 .child(
-                    div(format!("{id}-title"), SiteSurface::RowTitle)
+                    div(format!("{id}-title"), "row-title")
                         .child(run(format!("{id}-name"), title))
-                        .child(t(format!("{id}-meta"), meta, SiteSurface::RowMeta)),
+                        .child(t(format!("{id}-meta"), meta, "row-meta")),
                 )
-                .child(t(format!("{id}-sub"), text, SiteSurface::RowSub)),
+                .child(t(format!("{id}-sub"), text, "row-sub")),
         )
-        .child(deco(format!("{id}-chev"), "›", SiteSurface::Chev))
+        .child(deco(format!("{id}-chev"), "›", "chev"))
 }
 
 /// A grouped list of rows.
-fn group(id: &str, surface: GroupSurface, rows: Vec<Component>) -> Component {
+fn group(id: &str, surface: &str, rows: Vec<Component>) -> Component {
     ul(id, surface, rows)
 }
 
@@ -61,43 +60,42 @@ fn hero() -> Component {
             alt: "Glowing metal shapes orbiting a core, rendered by Keel Engine".into(),
             ratio: 4.0 / 3.0,
             priority: true,
-            ..Default::default()
         },
     )
     // The engine view's own role, restyled by the site theme (keel#3911).
-    .typed_surface(SiteSurface::EngineView);
-    let stage = div("stage", SiteSurface::Stage).child(view).child(
-        div("stage-overlay", SiteSurface::StageOverlay).child(div("stage-bar", SiteSurface::StageBar)
+    .surface("engine-view");
+    let stage = div("stage", "stage").child(view).child(
+        div("stage-bar", "stage-bar")
             .backdrop_blur(14.0)
-            .child(engine_view_live_surface("hero-scene", keel::ui::RoleId::from(SiteSurface::StageDotLive).as_str(), deco("stage-dot", "", SiteSurface::StageDot)))
-            .child(t("stage-text", "Rendered live in your browser by Keel Engine", SiteSurface::StageText).flex(1.0))
-            .child(a("stage-how", "How it's built", "/colophon", SiteSurface::StageLink))),
+            .child(deco("stage-dot", "", "stage-dot"))
+            .child(t("stage-text", "Rendered live in your browser by Keel Engine", "stage-text").flex(1.0))
+            .child(a("stage-how", "How it's built", "/colophon", "stage-link")),
     );
-    sect("hero", SiteSurface::Hero).child(
-        div("hero-wrap", SiteSurface::Wrap).child(
-            div("hero-grid", SiteSurface::HeroGrid)
+    sect("hero", "hero").child(
+        div("hero-wrap", "wrap").child(
+            div("hero-grid", "hero-grid")
                 .child(
-                    div("hero-copy", SiteSurface::HeroCopy)
+                    div("hero-copy", "hero-copy")
                         .child(eyebrow("hero-kicker", "Founder of Sylphx"))
                         .child(
-                            div("hero-name", SiteSurface::HeroName)
-                                .child(h("hero-title", 1, "Kyle Tse", SiteSurface::HeroTitle))
-                                .child(deco("hero-dot", "", SiteSurface::NameDot)),
+                            div("hero-name", "hero-name")
+                                .child(h("hero-title", 1, "Kyle Tse", "hero-title"))
+                                .child(deco("hero-dot", "", "name-dot")),
                         )
                         .child(p(
                             "hero-line",
                             "I've shipped consumer software to millions of people for twenty years. Now I'm building Sylphx, a software company that runs on AI agents.",
-                            SiteSurface::Statement,
+                            "statement",
                         ))
                         .child(p(
                             "hero-lede",
                             "Sylphx makes one platform for hosting, data, auth and AI; Keel Engine, a Rust engine for games, apps and websites; and the apps and open-source tools that run on them.",
-                            SiteSurface::Lede,
+                            "lede",
                         ))
                         .child(
-                            div("hero-actions", SiteSurface::Actions)
-                                .child(a("hero-work", "See the work", "#work", SiteSurface::ButtonPrimary))
-                                .child(a("hero-contact", "Get in touch", "#contact", SiteSurface::ButtonSecondary)),
+                            div("hero-actions", "actions")
+                                .child(a("hero-work", "See the work", "#work", "button-primary"))
+                                .child(a("hero-contact", "Get in touch", "#contact", "button-secondary")),
                         ),
                 )
                 .child(stage),
@@ -109,36 +107,36 @@ fn hero() -> Component {
 fn track_record() -> Component {
     let items = RECORD.iter().enumerate().map(|(i, r)| {
         let id = format!("record-{i}");
-        let figures = r.figures.iter().enumerate().fold(keel::ui::list(format!("{id}-figures")).typed_surface(SiteSurface::Figures), |l, (j, (value, label))| {
+        let figures = r.figures.iter().enumerate().fold(ul(format!("{id}-figures"), "figures", vec![]), |l, (j, (value, label))| {
             l.child(
-                keel::ui::list_item(format!("{id}-fig-{j}"))
-                    .typed_surface(SiteSurface::Figure)
-                    .child(t(format!("{id}-fig-{j}-v"), *value, SiteSurface::FigureValue))
-                    .child(t(format!("{id}-fig-{j}-l"), *label, SiteSurface::FigureLabel)),
+                keel_ui::list_item(format!("{id}-fig-{j}"))
+                    .surface("figure")
+                    .child(t(format!("{id}-fig-{j}-v"), *value, "figure-value"))
+                    .child(t(format!("{id}-fig-{j}-l"), *label, "figure-label")),
             )
         });
-        div(id.clone(), SiteSurface::Record)
+        div(id.clone(), "record")
             .child(
-                div(format!("{id}-head"), SiteSurface::RecordHead)
-                    .child(h(format!("{id}-name"), 3, r.company, SiteSurface::RecordName))
-                    .child(t(format!("{id}-years"), r.years, SiteSurface::EraYear)),
+                div(format!("{id}-head"), "record-head")
+                    .child(h(format!("{id}-name"), 3, r.company, "record-name"))
+                    .child(t(format!("{id}-years"), r.years, "era-year")),
             )
-            .child(t(format!("{id}-what"), r.what, SiteSurface::RecordWhat))
+            .child(t(format!("{id}-what"), r.what, "record-what"))
             .child(figures)
     });
     band(
         "record",
-        SiteSurface::Band,
-        div("record-body", SiteSurface::SiteMain)
+        "band",
+        div("record-body", "site-main")
             .child(band_head("record", "Track record", "Twenty years of consumer software.", Some("The scale each company reached.")))
-            .child(items.fold(div("records", SiteSurface::Records), |d, c| d.child(c))),
+            .child(items.fold(div("records", "records"), |d, c| d.child(c))),
     )
 }
 
 struct Feature {
     id: &'static str,
     letter: &'static str,
-    tile: SiteSurface,
+    tile: &'static str,
     name: &'static str,
     domain: &'static str,
     url: &'static str,
@@ -150,7 +148,7 @@ const FEATURES: [Feature; 2] = [
     Feature {
         id: "sylphx",
         letter: "S",
-        tile: SiteSurface::TileLg,
+        tile: "tile-lg",
         name: "Sylphx",
         domain: "sylphx.com",
         url: "https://sylphx.com",
@@ -160,7 +158,7 @@ const FEATURES: [Feature; 2] = [
     Feature {
         id: "keel",
         letter: "K",
-        tile: SiteSurface::TileKeel,
+        tile: "tile-keel",
         name: "Keel Engine",
         domain: "keelengine.dev",
         url: "https://keelengine.dev",
@@ -171,29 +169,29 @@ const FEATURES: [Feature; 2] = [
 
 fn feature(f: &Feature) -> Component {
     let id = f.id;
-    let chips = f.chips.iter().enumerate().map(|(i, c)| t(format!("{id}-chip-{i}"), *c, SiteSurface::Chip));
-    a_block(format!("{id}-card"), f.url, SiteSurface::Feature)
+    let chips = f.chips.iter().enumerate().map(|(i, c)| t(format!("{id}-chip-{i}"), *c, "chip"));
+    a_block(format!("{id}-card"), f.url, "feature")
         .child(
-            div(format!("{id}-top"), SiteSurface::FeatureTop)
+            div(format!("{id}-top"), "feature-top")
                 .child(deco(format!("{id}-tile"), f.letter, f.tile))
                 .child(
-                    div(format!("{id}-id"), SiteSurface::FeatureId)
-                        .child(h(format!("{id}-name"), 3, f.name, SiteSurface::FeatureName))
-                        .child(t(format!("{id}-domain"), f.domain, SiteSurface::Domain)),
+                    div(format!("{id}-id"), "feature-id")
+                        .child(h(format!("{id}-name"), 3, f.name, "feature-name"))
+                        .child(t(format!("{id}-domain"), f.domain, "domain")),
                 ),
         )
-        .child(p(format!("{id}-text"), f.text, SiteSurface::FeatureText))
-        .child(chips.fold(div(format!("{id}-chips"), SiteSurface::Chips), |d, c| d.child(c)).flex(1.0))
-        .child(t(format!("{id}-go"), format!("Visit {}", f.domain), SiteSurface::Go))
+        .child(p(format!("{id}-text"), f.text, "feature-text"))
+        .child(chips.fold(div(format!("{id}-chips"), "chips"), |d, c| d.child(c)).flex(1.0))
+        .child(t(format!("{id}-go"), format!("Visit {}", f.domain), "go"))
 }
 
 fn building() -> Component {
     band(
         "work",
-        SiteSurface::BandRuled,
-        div("work-body", SiteSurface::SiteMain)
+        "band-ruled",
+        div("work-body", "site-main")
             .child(band_head("work", "Building now", "One platform, one engine.", Some("Everything we ship runs on these two. Both are built mostly in Rust.")))
-            .child(FEATURES.iter().fold(div("features", SiteSurface::Features), |d, f| d.child(feature(f)))),
+            .child(FEATURES.iter().fold(div("features", "features"), |d, f| d.child(feature(f)))),
     )
 }
 
@@ -203,13 +201,13 @@ fn apps() -> Component {
     };
     band(
         "apps",
-        SiteSurface::BandRuled,
-        div("apps-body", SiteSurface::SiteMain)
+        "band-ruled",
+        div("apps-body", "site-main")
             .child(band_head("apps", "Apps", "Products on the platform.", Some("Each app has its own name and site. Sylphx builds and publishes them.")))
             .child(
-                div("apps-cols", SiteSurface::GroupCols)
-                    .child(group("apps-a", GroupSurface::Standard, rows(&APPS[..3])))
-                    .child(group("apps-b", GroupSurface::Standard, rows(&APPS[3..]))),
+                div("apps-cols", "group-cols")
+                    .child(group("apps-a", "group", rows(&APPS[..3])))
+                    .child(group("apps-b", "group", rows(&APPS[3..]))),
             ),
     )
 }
@@ -217,33 +215,25 @@ fn apps() -> Component {
 fn open_source() -> Component {
     let cards = TOOLS.iter().enumerate().map(|(i, tool)| {
         let id = format!("tool-{i}");
-        a_block(id.clone(), tool.url, SiteSurface::Tool)
-            .child(h(format!("{id}-name"), 3, tool.name, SiteSurface::ToolName))
-            .child(p(format!("{id}-text"), tool.text, SiteSurface::ToolText).flex(1.0))
+        a_block(id.clone(), tool.url, "tool")
+            .child(h(format!("{id}-name"), 3, tool.name, "tool-name"))
+            .child(p(format!("{id}-text"), tool.text, "tool-text").flex(1.0))
             .child(
-                div(format!("{id}-foot"), SiteSurface::ToolFoot)
+                div(format!("{id}-foot"), "tool-foot")
                     .child(
-                        div(format!("{id}-lang"), match tool.lang {
-                            content::Lang::Rust => SiteSurface::LangRust,
-                            content::Lang::Dart => SiteSurface::LangDart,
-                            content::Lang::TypeScript => SiteSurface::LangTs,
-                        })
-                            .child(div(format!("{id}-dot"), match tool.lang {
-                                content::Lang::Rust => SiteSurface::LangRustDot,
-                                content::Lang::Dart => SiteSurface::LangDartDot,
-                                content::Lang::TypeScript => SiteSurface::LangTsDot,
-                            }).aria_hidden(true))
+                        div(format!("{id}-lang"), tool.lang.surface())
+                            .child(deco(format!("{id}-dot"), "", "lang-dot"))
                             .child(run(format!("{id}-lang-t"), tool.lang.name())),
                     )
-                    .child(t(format!("{id}-repo"), tool.repo, SiteSurface::Repo)),
+                    .child(t(format!("{id}-repo"), tool.repo, "repo")),
             )
     });
     band(
         "open-source",
-        SiteSurface::BandRuled,
-        div("oss-body", SiteSurface::SiteMain)
+        "band-ruled",
+        div("oss-body", "site-main")
             .child(band_head("oss", "Open source", "Tools anyone can use.", Some("MIT-licensed, local-first, and built for people and AI agents alike.")))
-            .child(cards.fold(div("tools", SiteSurface::Tools), |d, c| d.child(c))),
+            .child(cards.fold(div("tools", "tools"), |d, c| d.child(c))),
     )
 }
 
@@ -254,43 +244,43 @@ fn companies() -> Component {
         .collect();
     band(
         "companies",
-        SiteSurface::BandRuled,
-        div("companies-body", SiteSurface::SiteMain)
+        "band-ruled",
+        div("companies-body", "site-main")
             .child(band_head("companies", "Companies", "Where the work happens.", None))
-            .child(group("companies-list", GroupSurface::Narrow, rows))
-            .child(div("companies-more", SiteSurface::More).child(a("companies-story", "The full story since 2006", "/about", SiteSurface::GoLink))),
+            .child(group("companies-list", "group-narrow", rows))
+            .child(div("companies-more", "more").child(a("companies-story", "The full story since 2006", "/about", "go-link"))),
     )
 }
 
 fn contact() -> Component {
     band(
         "contact",
-        SiteSurface::BandRuled,
-        div("contact-card", SiteSurface::Contact)
+        "band-ruled",
+        div("contact-card", "contact")
             .child(
-                div("contact-copy", SiteSurface::ContactCopy)
-                    .child(h("contact-title", 2, "Get in touch.", SiteSurface::ContactTitle))
+                div("contact-copy", "contact-copy")
+                    .child(h("contact-title", 2, "Get in touch.", "contact-title"))
                     .child(p(
                         "contact-text",
                         "Building something on Sylphx or Keel, or want to work together? Email is the fastest way to reach me.",
-                        SiteSurface::ContactText,
+                        "contact-text",
                     )),
             )
             .child(
-                div("contact-side", SiteSurface::ContactSide)
+                div("contact-side", "contact-side")
                     .child(islands::email())
                     .child(
-                        nav_el("elsewhere", SiteSurface::Elsewhere)
+                        nav_el("elsewhere", "elsewhere")
                             .aria_label("Elsewhere")
-                            .child(a("elsewhere-github", "GitHub", content::GITHUB, SiteSurface::ElsewhereLink).rel("me"))
-                            .child(a("elsewhere-linkedin", "LinkedIn", content::LINKEDIN, SiteSurface::ElsewhereLink).rel("me")),
+                            .child(a("elsewhere-github", "GitHub", content::GITHUB, "elsewhere-link").rel("me"))
+                            .child(a("elsewhere-linkedin", "LinkedIn", content::LINKEDIN, "elsewhere-link").rel("me")),
                     ),
             ),
     )
 }
 
 pub fn home() -> Component {
-    div("home", SiteSurface::SiteMain)
+    div("home", "site-main")
         .child(hero())
         .child(track_record())
         .child(building())
@@ -303,33 +293,33 @@ pub fn home() -> Component {
 // ---------------------------------------------------------------- about
 
 fn page_head(id: &str, kicker: &str, title: &str, lede: Component) -> Component {
-    div(format!("{id}-head"), SiteSurface::PageHead)
+    div(format!("{id}-head"), "page-head")
         .child(eyebrow(&format!("{id}-kicker"), kicker))
-        .child(h(format!("{id}-title"), 1, title, SiteSurface::HeroTitle))
-        .child(div(format!("{id}-prose"), SiteSurface::Prose).child(lede))
+        .child(h(format!("{id}-title"), 1, title, "hero-title"))
+        .child(div(format!("{id}-prose"), "prose").child(lede))
 }
 
 /// A paragraph of plain runs, bold runs and links: `("text", None)` is plain,
 /// `("text", Some("strong"))` is bold, `("label", Some(url))` a link.
-fn rich(id: &str, surface: SiteSurface, parts: &[(&str, Option<&str>)]) -> Component {
+fn rich(id: &str, surface: &str, parts: &[(&str, Option<&str>)]) -> Component {
     let children = parts
         .iter()
         .enumerate()
         .map(|(i, (text, kind))| match kind {
             None => run(format!("{id}-{i}"), *text),
-            Some("strong") => t(format!("{id}-{i}"), *text, SiteSurface::Strong),
+            Some("strong") => t(format!("{id}-{i}"), *text, "strong"),
             // The engine's own link in running text: the theme's link colour, underlined.
-            Some(href) => keel::ui::link(format!("{id}-{i}"), *text, *href),
+            Some(href) => keel_ui::link(format!("{id}-{i}"), *text, *href),
         })
         .collect();
-    paragraph(id.to_string(), children).typed_surface(surface)
+    paragraph(id.to_string(), children).surface(surface)
 }
 
 fn era(i: usize, e: &content::Era) -> Component {
     let id = format!("era-{i}");
-    let mut name = div(format!("{id}-name-row"), SiteSurface::EraNameRow).child(h(format!("{id}-name"), 2, e.name, SiteSurface::EraName));
+    let mut name = div(format!("{id}-name-row"), "era-name-row").child(h(format!("{id}-name"), 2, e.name, "era-name"));
     if e.now {
-        name = name.child(t(format!("{id}-now"), "Now", SiteSurface::Status));
+        name = name.child(t(format!("{id}-now"), "Now", "status"));
     }
     // The space goes with the text, so a wrapped link starts its line flush.
     let lead = format!("{} ", e.text);
@@ -337,26 +327,26 @@ fn era(i: usize, e: &content::Era) -> Component {
     if let Some((label, url)) = e.site {
         body.push((label, Some(url)));
     }
-    list_item(id.clone()).typed_surface(SiteSurface::Era)
-        .child(t(format!("{id}-years"), e.years, SiteSurface::EraYear))
+    list_item(id.clone()).surface("era")
+        .child(t(format!("{id}-years"), e.years, "era-year"))
         .child(
             e.record
                 .iter()
-                .fold(div(format!("{id}-head"), SiteSurface::EraHead).child(name).child(t(format!("{id}-role"), e.role, SiteSurface::EraRole)), |d, r| {
-                    d.child(t(format!("{id}-record"), *r, SiteSurface::EraRecord))
+                .fold(div(format!("{id}-head"), "era-head").child(name).child(t(format!("{id}-role"), e.role, "era-role")), |d, r| {
+                    d.child(t(format!("{id}-record"), *r, "era-record"))
                 }),
         )
-        .child(rich(&format!("{id}-body"), SiteSurface::EraBody, &body))
+        .child(rich(&format!("{id}-body"), "era-body", &body))
 }
 
 pub fn about() -> Component {
-    let timeline = ERAS.iter().enumerate().fold(ordered_list("timeline".to_string(), 1).typed_surface(SiteSurface::Timeline), |l, (i, e)| l.child(era(i, e)));
+    let timeline = ERAS.iter().enumerate().fold(ordered_list("timeline".to_string(), 1).surface("timeline"), |l, (i, e)| l.child(era(i, e)));
     let elsewhere = vec![
         row("else-email", "@", "Email", content::EMAIL, "The fastest way to reach me.", &format!("mailto:{}", content::EMAIL)),
         row("else-github", "G", "GitHub", "shtse8", "Personal projects, and the SylphxAI, Cubeage and EpiowAI organisations.", content::GITHUB).rel("me"),
         row("else-linkedin", "in", "LinkedIn", "shtse8", "Career history.", content::LINKEDIN).rel("me"),
     ];
-    div("about", SiteSurface::Wrap)
+    div("about", "wrap")
         .child(page_head(
             "about",
             "About",
@@ -364,30 +354,30 @@ pub fn about() -> Component {
             p(
                 "about-lede",
                 "I'm Kyle Tse. I have been starting and building internet companies since 2006: a gaming community in Hong Kong, then social and mobile games, and now Sylphx.",
-                SiteSurface::Lede,
+                "lede",
             ),
         ))
-        .child(sect("timeline-band", SiteSurface::BandTight).aria_label("Timeline").child(timeline))
+        .child(sect("timeline-band", "band-tight").aria_label("Timeline").child(timeline))
         .child(
-            sect("how", SiteSurface::BandRuled)
+            sect("how", "band-ruled")
                 .aria_label("How we build")
                 .child(band_head("how", "How we build", "Rust, on our own platform.", None))
                 .child(
-                    div("how-prose", SiteSurface::Prose)
-                        .child(rich("how-1", SiteSurface::ProseP, &[("Most of our code is ", None), ("Rust", Some("strong")), (": the Sylphx platform, Keel Engine and the open-source tools.", None)]))
-                        .child(rich("how-2", SiteSurface::ProseP, &[("Every product runs on ", None), ("Sylphx", Some("strong")), (" itself, so the platform gets used every day by the people who build it.", None)]))
+                    div("how-prose", "prose")
+                        .child(rich("how-1", "prose-p", &[("Most of our code is ", None), ("Rust", Some("strong")), (": the Sylphx platform, Keel Engine and the open-source tools.", None)]))
+                        .child(rich("how-2", "prose-p", &[("Every product runs on ", None), ("Sylphx", Some("strong")), (" itself, so the platform gets used every day by the people who build it.", None)]))
                         .child(rich(
                             "how-3",
-                            SiteSurface::ProseP,
+                            "prose-p",
                             &[("Keel Engine is ", None), ("proprietary", Some("strong")), (" and licensed to teams by agreement. The developer tools are ", None), ("open source", Some("strong")), (" under the MIT licence.", None)],
                         )),
                 ),
         )
         .child(
-            sect("elsewhere-band", SiteSurface::BandRuled)
+            sect("elsewhere-band", "band-ruled")
                 .aria_label("Elsewhere")
                 .child(band_head("else", "Elsewhere", "Find me online.", None))
-                .child(group("else-list", GroupSurface::Narrow, elsewhere)),
+                .child(group("else-list", "group-narrow", elsewhere)),
         )
 }
 
@@ -401,21 +391,21 @@ const FACTS: [(&str, &str); 4] = [
 ];
 
 pub fn colophon() -> Component {
-    let facts = FACTS.iter().enumerate().fold(div("facts", SiteSurface::Facts), |d, (i, (title, text))| {
+    let facts = FACTS.iter().enumerate().fold(div("facts", "facts"), |d, (i, (title, text))| {
         d.child(
-            div(format!("fact-{i}"), SiteSurface::Fact)
-                .child(h(format!("fact-{i}-title"), 2, *title, SiteSurface::FactTitle))
-                .child(p(format!("fact-{i}-text"), *text, SiteSurface::FactText)),
+            div(format!("fact-{i}"), "fact")
+                .child(h(format!("fact-{i}-title"), 2, *title, "fact-title"))
+                .child(p(format!("fact-{i}-text"), *text, "fact-text")),
         )
     });
-    div("colophon", SiteSurface::Wrap)
+    div("colophon", "wrap")
         .child(page_head(
             "colophon",
             "Colophon",
             "How this site is built.",
             rich(
                 "colophon-lede",
-                SiteSurface::Lede,
+                "lede",
                 &[
                     ("kylet.se is built with Keel Engine, the Rust engine we make at Sylphx. So is ", None),
                     ("keelengine.dev", Some("https://keelengine.dev")),
@@ -423,30 +413,30 @@ pub fn colophon() -> Component {
                 ],
             ),
         ))
-        .child(div("name-note", SiteSurface::NameNote).child(p(
+        .child(div("name-note", "name-note").child(p(
             "name-note-text",
             "About the name: say kylet.se out loud and you get Kyle Tse. The .se is Sweden's domain, chosen for the way it reads.",
-            SiteSurface::NameNoteText,
+            "name-note-text",
         )))
-        .child(sect("made", SiteSurface::BandTight).aria_label("How it's made").child(facts))
+        .child(sect("made", "band-tight").aria_label("How it's made").child(facts))
         .child(
-            sect("privacy", SiteSurface::BandRuled)
+            sect("privacy", "band-ruled")
                 .child(band_head("privacy", "Privacy", "No cookies, no tracking.", None))
                 .child(
-                    div("privacy-prose", SiteSurface::Prose)
+                    div("privacy-prose", "prose")
                         .child(p(
                             "privacy-1",
                             "This site sets no cookies and runs no analytics, forms or tracking. If you email me, the message goes from your mail app to my inbox and nowhere else.",
-                            SiteSurface::ProseP,
+                            "prose-p",
                         ))
                         .child(p(
                             "privacy-2",
                             "Like any website, the servers that deliver it (Sylphx Hosting, with Cloudflare in front) process technical request data, such as your IP address, browser details and the pages you request, to deliver the site and protect it from abuse.",
-                            SiteSurface::ProseP,
+                            "prose-p",
                         ))
                         .child(rich(
                             "privacy-3",
-                            SiteSurface::ProseP,
+                            "prose-p",
                             &[("The source is public at ", None), ("github.com/shtse8/portfolio-website", Some(content::SOURCE)), (".", None)],
                         )),
                 ),
@@ -456,15 +446,15 @@ pub fn colophon() -> Component {
 // ---------------------------------------------------------------- 404
 
 pub fn not_found() -> Component {
-    div("nf-wrap", SiteSurface::Wrap).child(
-        div("nf", SiteSurface::Nf)
-            .child(t("nf-code", "404", SiteSurface::NfCode))
-            .child(h("nf-title", 1, "This page isn't here.", SiteSurface::HeroTitle))
-            .child(p("nf-lede", "It may have moved when the site was rebuilt. Everything is on the home page or the about page.", SiteSurface::Lede))
+    div("nf-wrap", "wrap").child(
+        div("nf", "nf")
+            .child(t("nf-code", "404", "nf-code"))
+            .child(h("nf-title", 1, "This page isn't here.", "hero-title"))
+            .child(p("nf-lede", "It may have moved when the site was rebuilt. Everything is on the home page or the about page.", "lede"))
             .child(
-                div("nf-actions", SiteSurface::Actions)
-                    .child(a("nf-home", "Go home", "/", SiteSurface::ButtonPrimary))
-                    .child(a("nf-about", "About", "/about", SiteSurface::ButtonSecondary)),
+                div("nf-actions", "actions")
+                    .child(a("nf-home", "Go home", "/", "button-primary"))
+                    .child(a("nf-about", "About", "/about", "button-secondary")),
             ),
     )
 }
