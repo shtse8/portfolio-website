@@ -20,7 +20,10 @@ function lcpDetail(run) {
   const blocks = a["largest-contentful-paint-element"]?.details?.items ?? [];
   const node = blocks[0]?.items?.[0]?.node;
   const phases = (blocks[1]?.items ?? []).map((p) => `${p.phase} ${Math.round(p.timing)}ms`).join(", ");
-  return `FCP ${a["first-contentful-paint"].displayValue}  LCP ${a["largest-contentful-paint"].displayValue}  element ${node?.selector ?? "?"} ${(node?.snippet ?? "").slice(0, 120)}  phases ${phases}`;
+  const m = a.metrics?.details?.items?.[0] ?? {};
+  const before = (a["network-requests"]?.details?.items ?? []).filter((q) => q.networkRequestTime < m.observedLargestContentfulPaint);
+  const kb = Math.round(before.reduce((n, q) => n + (q.transferSize ?? 0), 0) / 1024);
+  return `observed LCP ${m.observedLargestContentfulPaint}ms load ${m.observedLoad}ms (${before.length} requests, ${kb} KB started before it)  simulated FCP ${a["first-contentful-paint"].displayValue}  LCP ${a["largest-contentful-paint"].displayValue}  element ${node?.selector ?? "?"} ${(node?.snippet ?? "").slice(0, 120)}  phases ${phases}`;
 }
 const rows = [];
 for (const [name, path] of Object.entries(pages)) {
@@ -43,14 +46,4 @@ for (const [name, path] of Object.entries(pages)) {
   for (const k of Object.keys(s)) if (!(s[k] >= 95)) { console.log(`FAIL ${name} ${k} ${s[k]}`); low = true; }
 }
 console.log(rows.join("\n"));
-// TEMP diagnostics
-{
-  const html = await (await fetch(base + "/")).text();
-  const i = html.indexOf("hero-scene");
-  console.log("HTML-HEAD", html.slice(0, html.indexOf("<body")).replace(/<style[^>]*>[\s\S]*?<\/style>/g, "<style/>"));
-  console.log("HTML-HERO", html.slice(Math.max(0, i - 600), i + 2500));
-  const r = JSON.parse(readFileSync(`${out}/home-1.json`, "utf8"));
-  for (const q of r.audits["network-requests"].details.items) console.log("REQ", q.url, q.resourceType, q.priority, Math.round(q.networkRequestTime), Math.round(q.networkEndTime), q.transferSize);
-  for (const k of ["render-blocking-resources", "prioritize-lcp-image", "lcp-lazy-loaded", "critical-request-chains"]) console.log("AUDIT", k, JSON.stringify(r.audits[k]?.details ?? r.audits[k]?.displayValue ?? null).slice(0, 1500));
-}
 process.exit(low ? 1 : 0);
