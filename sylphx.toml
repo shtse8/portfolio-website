@@ -10,6 +10,14 @@ strategy = "dockerfile"
 dockerfile = "Dockerfile"
 context = "."
 
+# The image build reads the private Keel repository (SylphxAI/keel at
+# KEEL_PIN) with a one-hour, read-only token minted from a GitHub App by the
+# build pod (SylphxAI/cloud#9149). The project's KEEL_APP_ID and KEEL_APP_KEY
+# secrets name that App; the value reaches only the Dockerfile's
+# `--mount=type=secret,id=keel_git_token` step.
+[build.secrets]
+keel_git_token = { github_app = { app_id_secret = "KEEL_APP_ID", private_key_secret = "KEEL_APP_KEY", repositories = ["SylphxAI/keel"] } }
+
 [[domains]]
 hostname = "kylet.se"
 service = "web"
@@ -20,7 +28,7 @@ service = "web"
 [[services]]
 name = "web"
 port = 3000
-watch_paths = ["site/**", "scenes/**", "Cargo.toml", "Cargo.lock", "KEEL_PIN", "scripts/**", "hosting/**", "nginx.conf", "Dockerfile", "sylphx.toml"]
+watch_paths = ["site/**", "scenes/**", "Cargo.toml", "Cargo.lock", "KEEL_PIN", ".cargo/**", "hosting/**", "nginx.conf", "Dockerfile", "sylphx.toml"]
 
 [services.health]
 mode = "http"

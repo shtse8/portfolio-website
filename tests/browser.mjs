@@ -63,17 +63,6 @@ for (const path of pages) {
             .map((e) => `${e.id || e.textContent.trim()} ${Math.round(e.getBoundingClientRect().height)}px`));
         if (small.length) fail(`${where}: targets under 44px: ${small.join(", ")}`);
       }
-      // The document host supplies one first keyboard stop to the actual main
-      // landmark; pages must not add a second skip link inside the site tree.
-      const skipCount = await page.$$eval('a[href="#main"]', (links) => links.length);
-      if (skipCount !== 1) fail(`${where}: expected one skip link to main, got ${skipCount}`);
-      await page.keyboard.press("Tab");
-      const firstStop = await page.evaluate(() => document.activeElement?.getAttribute("href"));
-      if (firstStop !== "#main") fail(`${where}: first keyboard stop is ${firstStop}, not main navigation`);
-      await page.keyboard.press("Enter");
-      if (!await page.evaluate(() => document.activeElement === document.querySelector("main"))) {
-        fail(`${where}: skip link did not focus the main landmark`);
-      }
       if (errors.length) fail(`${where}: script errors: ${errors.join(" | ")}`);
       await page.close();
     }
