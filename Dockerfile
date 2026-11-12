@@ -1,15 +1,14 @@
 # syntax=docker/dockerfile:1.7
 # kylet.se image: `keel pack` builds the site, nginx serves it.
 #
-# Engine and CLI come from the exact public release in KEEL_PIN.
+# Keel is a private repository. The build reads it with the `keel_git_token`
+# build secret (sylphx.toml [build.secrets], SylphxAI/cloud#9149): a one-hour,
+# read-only token for SylphxAI/keel, given to git through GIT_CONFIG_* inside
+# the one step that fetches, so it never reaches a layer, an argument or a log.
 
 FROM rust:1-bookworm AS build
 ARG WASM_BINDGEN=0.2.126
 ARG BINARYEN=version_123
-# Native scene tooling and the public CLI link the Linux audio/device hosts and system font resolver.
-RUN apt-get update \
- && apt-get install -y --no-install-recommends pkg-config libasound2-dev libudev-dev libfontconfig1-dev \
- && rm -rf /var/lib/apt/lists/*
 RUN rustup target add wasm32-unknown-unknown \
  && curl -sSfL "https://github.com/WebAssembly/binaryen/releases/download/${BINARYEN}/binaryen-${BINARYEN}-x86_64-linux.tar.gz" | tar xz -C /opt \
  && ln -s "/opt/binaryen-${BINARYEN}/bin/wasm-opt" /usr/local/bin/wasm-opt
@@ -18,11 +17,18 @@ COPY . .
 # rust-toolchain.toml pins `stable`, which rustup installs afresh under /src without
 # the wasm target added above; add it for the toolchain the build really uses.
 RUN rustup target add wasm32-unknown-unknown
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
+ENV CARGO_NET_GIT_FETCH_WITH_CLI=true \
+    CARGO_REGISTRIES_SYLPHX_INDEX=sparse+https://cargo.sylphx.com/index/
+RUN --mount=type=secret,id=keel_git_token,required=true \
+    --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=/usr/local/cargo/git \
     --mount=type=cache,target=/src/target \
-    sh scripts/check-keel-pin.sh \
+    export GIT_CONFIG_COUNT=1 \
+      GIT_CONFIG_KEY_0="url.https://x-access-token:$(cat /run/secrets/keel_git_token)@github.com/SylphxAI/keel.insteadOf" \
+      GIT_CONFIG_VALUE_0="https://github.com/SylphxAI/keel" \
+ && grep -q "rev = \"$(cat KEEL_PIN)\"" Cargo.toml \
  && cargo install --locked wasm-bindgen-cli --version "${WASM_BINDGEN}" \
- && cargo install --locked sylphx-keel-cli --version "$(cat KEEL_PIN)" --target-dir target \
+ && cargo install --locked --git https://github.com/SylphxAI/keel --rev "$(cat KEEL_PIN)" --target-dir target keel-cli \
  && keel pack --profile web --release --manifest-path site/Cargo.toml \
  && cp -r dist/web /site \
  && mkdir /snippets && sh hosting/pack-rules.sh /site /snippets

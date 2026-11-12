@@ -3,7 +3,7 @@
 
 #[cfg(not(target_arch = "wasm32"))]
 fn main() -> std::process::ExitCode {
-    keel::web::cli(kylet_site::site())
+    keel_web::cli(kylet_site::site())
 }
 
 #[cfg(target_arch = "wasm32")]
