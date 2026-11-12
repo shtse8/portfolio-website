@@ -43,4 +43,14 @@ for (const [name, path] of Object.entries(pages)) {
   for (const k of Object.keys(s)) if (!(s[k] >= 95)) { console.log(`FAIL ${name} ${k} ${s[k]}`); low = true; }
 }
 console.log(rows.join("\n"));
+// TEMP diagnostics
+{
+  const html = await (await fetch(base + "/")).text();
+  const i = html.indexOf("hero-scene");
+  console.log("HTML-HEAD", html.slice(0, html.indexOf("<body")).replace(/<style[^>]*>[\s\S]*?<\/style>/g, "<style/>"));
+  console.log("HTML-HERO", html.slice(Math.max(0, i - 600), i + 2500));
+  const r = JSON.parse(readFileSync(`${out}/home-1.json`, "utf8"));
+  for (const q of r.audits["network-requests"].details.items) console.log("REQ", q.url, q.resourceType, q.priority, Math.round(q.networkRequestTime), Math.round(q.networkEndTime), q.transferSize);
+  for (const k of ["render-blocking-resources", "prioritize-lcp-image", "lcp-lazy-loaded", "critical-request-chains"]) console.log("AUDIT", k, JSON.stringify(r.audits[k]?.details ?? r.audits[k]?.displayValue ?? null).slice(0, 1500));
+}
 process.exit(low ? 1 : 0);
