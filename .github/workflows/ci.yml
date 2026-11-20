@@ -27,7 +27,7 @@ jobs:
     env:
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # A token for this job only, from a read-only GitHub App (Contents: read
       # on SylphxAI/keel alone), expiring within the hour.
       - name: Token to read the private Keel repository
@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: run-store get site-dist
         uses: SylphxAI/.github/.github/actions/run-store@90d88da2d60dcd6a3884899c273dd3a7f975be17
         with:
