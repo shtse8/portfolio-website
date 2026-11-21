@@ -12,7 +12,7 @@ publish = false
 [workspace.dependencies]
 keel-engine = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
 keel-math = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
-keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
+keel-ui = { git = "https://github.com/SylphxAI/keel", rev = "afb07210eb810a5f1d9324e5fbff468e9870be8f" }
 keel-web = { git = "https://github.com/SylphxAI/keel", rev = "fef71db9f5027d22d3c3d415bc02dfef4edf8d13" }
 serde = { version = "1", features = ["derive"] }
 # The same exact version Keel pins; the wasm-bindgen CLI that `keel pack` runs must match.
